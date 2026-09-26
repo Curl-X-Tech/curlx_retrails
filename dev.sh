@@ -6,13 +6,45 @@ set -e
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
+# Colors for clear terminal output
+BOLD="\033[1m"
+GREEN="\033[32m"
+CYAN="\033[36m"
+YELLOW="\033[33m"
+RED="\033[31m"
+RESET="\033[0m"
+
 # Helper print functions (no emojis)
 log_info() {
-    echo "[INFO] $1"
+    echo -e "${CYAN}[INFO]${RESET} $1"
+}
+
+log_success() {
+    echo -e "${GREEN}[OK]${RESET} $1"
 }
 
 log_error() {
-    echo "[ERROR] $1" >&2
+    echo -e "${RED}[ERROR]${RESET} $1" >&2
+}
+
+# Display full services status banner with ports and clickable URLs
+print_banner() {
+    echo ""
+    echo -e "${BOLD}================================================================${RESET}"
+    echo -e "  ${BOLD}ReTrails Development Environment (Team CurlX)${RESET}"
+    echo -e "${BOLD}================================================================${RESET}"
+    echo -e "  ${GREEN}Frontend (React PWA):${RESET}      ${CYAN}http://localhost:5173${RESET}"
+    echo -e "  ${GREEN}Backend API (FastAPI):${RESET}     ${CYAN}http://localhost:8000${RESET}"
+    echo -e "  ${GREEN}API Swagger Docs:${RESET}          ${CYAN}http://localhost:8000/docs${RESET}"
+    echo -e "  ${GREEN}API ReDoc:${RESET}                 ${CYAN}http://localhost:8000/redoc${RESET}"
+    echo -e "  ${GREEN}PostgreSQL Database:${RESET}       ${CYAN}localhost:5432${RESET}"
+    echo -e "  ${GREEN}Redis Cache / Broker:${RESET}      ${CYAN}localhost:6379${RESET}"
+    echo -e "  ${GREEN}Mailpit Web Inbox:${RESET}         ${CYAN}http://localhost:8025${RESET} (SMTP: 1025)"
+    echo -e "  ${GREEN}React Email Preview:${RESET}       ${CYAN}http://localhost:3001${RESET} (via ./dev.sh emails)"
+    echo -e "${BOLD}================================================================${RESET}"
+    echo -e "  ${YELLOW}Ready for requests. Press Ctrl+C to stop all processes.${RESET}"
+    echo -e "${BOLD}================================================================${RESET}"
+    echo ""
 }
 
 # Check for required tools
@@ -33,7 +65,7 @@ ensure_env() {
     if [ ! -f "$ROOT_DIR/.env" ]; then
         log_info ".env file not found. Copying from .env.example..."
         cp "$ROOT_DIR/.env.example" "$ROOT_DIR/.env"
-        log_info "Created .env"
+        log_success "Created .env"
     fi
 }
 
@@ -51,14 +83,14 @@ install_deps() {
     log_info "Installing email package dependencies (bun)..."
     (cd "$ROOT_DIR/packages/emails" && bun install)
 
-    log_info "All dependencies installed successfully."
+    log_success "All dependencies installed successfully."
 }
 
 # Run backend service
 run_backend() {
     check_prerequisites
     ensure_env
-    log_info "Starting FastAPI backend on http://localhost:8000..."
+    log_info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
     cd "$ROOT_DIR/backend"
     exec uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 }
@@ -85,15 +117,17 @@ run_services_up() {
     ensure_env
     log_info "Starting dev infrastructure (PostgreSQL, Redis, Mailpit)..."
     docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d
-    log_info "Dev services running:"
-    log_info "- PostgreSQL: localhost:5432"
-    log_info "- Redis:      localhost:6379"
-    log_info "- Mailpit UI: http://localhost:8025 (SMTP: localhost:1025)"
+    echo ""
+    log_success "Dev infrastructure running:"
+    echo -e "  - PostgreSQL: ${CYAN}localhost:5432${RESET}"
+    echo -e "  - Redis:      ${CYAN}localhost:6379${RESET}"
+    echo -e "  - Mailpit UI: ${CYAN}http://localhost:8025${RESET} (SMTP: 1025)"
 }
 
 run_services_down() {
     log_info "Stopping dev infrastructure (PostgreSQL, Redis, Mailpit)..."
     docker compose -f "$ROOT_DIR/docker-compose.dev.yml" down
+    log_success "Dev infrastructure stopped."
 }
 
 # Run full development stack (Backend + Frontend + Auto Dev Services)
@@ -106,15 +140,11 @@ run_dev() {
         log_info "Starting dev infrastructure (PostgreSQL, Redis, Mailpit)..."
         docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d
     else
-        log_info "Docker not running or unavailable. Continuing with local runtime."
+        log_info "Docker daemon not detected. Running with local SQLite fallback mode."
     fi
 
-    log_info "Starting ReTrails development environment..."
-    log_info "Backend:  http://localhost:8000 (Docs: http://localhost:8000/docs)"
-    log_info "Frontend: http://localhost:5173"
-
     # Handle graceful exit on SIGINT/SIGTERM
-    trap 'kill $(jobs -p) 2>/dev/null || true; exit 0' SIGINT SIGTERM EXIT
+    trap 'echo ""; log_info "Shutting down all development processes..."; kill $(jobs -p) 2>/dev/null || true; exit 0' SIGINT SIGTERM EXIT
 
     (cd "$ROOT_DIR/backend" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
     BACKEND_PID=$!
@@ -122,7 +152,14 @@ run_dev() {
     (cd "$ROOT_DIR/frontend" && bun run dev) &
     FRONTEND_PID=$!
 
-    wait $BACKEND_PID $FRONTEND_PID
+    (cd "$ROOT_DIR/packages/emails" && bun run dev) &
+    EMAILS_PID=$!
+
+    # Wait briefly for servers to bind sockets then display summary dashboard
+    sleep 1.5
+    print_banner
+
+    wait $BACKEND_PID $FRONTEND_PID $EMAILS_PID
 }
 
 # Run tests
@@ -150,12 +187,12 @@ clean_all() {
     rm -rf "$ROOT_DIR/backend/.venv" "$ROOT_DIR/backend/.pytest_cache" "$ROOT_DIR/backend/__pycache__"
     rm -rf "$ROOT_DIR/frontend/node_modules" "$ROOT_DIR/frontend/dist"
     rm -rf "$ROOT_DIR/packages/emails/node_modules" "$ROOT_DIR/packages/emails/.react-email"
-    log_info "Clean completed."
+    log_success "Clean completed."
 }
 
 # Help menu
 show_help() {
-    echo "ReTrails Development Script (Team CurlX)"
+    echo -e "${BOLD}ReTrails Development Script (Team CurlX)${RESET}"
     echo ""
     echo "Usage: ./dev.sh [command]"
     echo ""
