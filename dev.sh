@@ -162,11 +162,78 @@ run_dev() {
     wait $BACKEND_PID $FRONTEND_PID $EMAILS_PID
 }
 
+# Linting
+run_lint() {
+    check_prerequisites
+    log_info "Running backend linting (Ruff)..."
+    (cd "$ROOT_DIR/backend" && uv run ruff check .)
+
+    log_info "Running frontend linting (TypeScript)..."
+    (cd "$ROOT_DIR/frontend" && bun run lint)
+
+    log_success "Lint checks passed."
+}
+
+# Formatting
+run_format() {
+    check_prerequisites
+    log_info "Formatting backend Python code (Ruff)..."
+    (cd "$ROOT_DIR/backend" && uv run ruff format .)
+
+    log_info "Formatting frontend code (Prettier)..."
+    (cd "$ROOT_DIR/frontend" && bun run format)
+
+    log_info "Formatting email templates (Prettier)..."
+    (cd "$ROOT_DIR/packages/emails" && bun run format)
+
+    log_success "Code formatted successfully."
+}
+
+run_format_check() {
+    check_prerequisites
+    log_info "Checking backend Python formatting..."
+    (cd "$ROOT_DIR/backend" && uv run ruff format --check .)
+
+    log_info "Checking frontend formatting..."
+    (cd "$ROOT_DIR/frontend" && bun run format:check)
+
+    log_info "Checking email templates formatting..."
+    (cd "$ROOT_DIR/packages/emails" && bun run format:check)
+
+    log_success "Format checks passed."
+}
+
+# Type checking
+run_typecheck() {
+    check_prerequisites
+    log_info "Type checking frontend (TypeScript)..."
+    (cd "$ROOT_DIR/frontend" && bun run typecheck)
+
+    log_info "Type checking email templates (TypeScript)..."
+    (cd "$ROOT_DIR/packages/emails" && bun run typecheck)
+
+    log_success "Type checks passed."
+}
+
 # Run tests
 run_tests() {
     check_prerequisites
-    log_info "Running backend test suite..."
+    log_info "Running backend test suite (pytest)..."
     (cd "$ROOT_DIR/backend" && uv run pytest)
+}
+
+# Comprehensive pre-commit / validation check
+run_check() {
+    check_prerequisites
+    log_info "Running full quality check (lint, format:check, typecheck, tests)..."
+
+    run_format_check
+    run_lint
+    run_typecheck
+    run_tests
+
+    echo ""
+    log_success "All pre-commit checks passed successfully."
 }
 
 # Full Docker Compose commands
@@ -197,18 +264,23 @@ show_help() {
     echo "Usage: ./dev.sh [command]"
     echo ""
     echo "Commands:"
-    echo "  dev           Start both backend and frontend concurrently (default)"
-    echo "  services      Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
-    echo "  services:down Stop dev infrastructure"
-    echo "  install       Install all dependencies for backend, frontend, and emails"
-    echo "  backend       Start backend server only (FastAPI on port 8000)"
-    echo "  frontend      Start frontend server only (Vite on port 5173)"
-    echo "  emails        Start React Email preview server on port 3001"
-    echo "  test          Run tests"
-    echo "  docker        Start full Docker Compose environment in background"
-    echo "  docker:down   Stop full Docker Compose services"
-    echo "  clean         Remove virtual environments and node_modules"
-    echo "  help          Show this help message"
+    echo "  dev            Start backend, frontend, and emails concurrently (default)"
+    echo "  services       Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
+    echo "  services:down  Stop dev infrastructure"
+    echo "  install        Install all dependencies for backend, frontend, and emails"
+    echo "  backend        Start backend server only (FastAPI on port 8000)"
+    echo "  frontend       Start frontend server only (Vite on port 5173)"
+    echo "  emails         Start React Email preview server on port 3001"
+    echo "  lint           Run linter on backend and frontend"
+    echo "  format         Auto-format code across backend, frontend, and emails"
+    echo "  format:check   Verify code formatting"
+    echo "  typecheck      Run TypeScript compiler type checks"
+    echo "  test           Run backend test suite"
+    echo "  check          Run all quality checks (lint + format + typecheck + test)"
+    echo "  docker         Start full Docker Compose environment in background"
+    echo "  docker:down    Stop full Docker Compose services"
+    echo "  clean          Remove virtual environments and node_modules"
+    echo "  help           Show this help message"
     echo ""
 }
 
@@ -237,8 +309,23 @@ case "$COMMAND" in
     emails)
         run_emails
         ;;
+    lint)
+        run_lint
+        ;;
+    format)
+        run_format
+        ;;
+    format:check)
+        run_format_check
+        ;;
+    typecheck)
+        run_typecheck
+        ;;
     test)
         run_tests
+        ;;
+    check|validate)
+        run_check
         ;;
     docker)
         run_docker_up

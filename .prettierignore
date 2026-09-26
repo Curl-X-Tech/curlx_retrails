@@ -1,0 +1,14 @@
+node_modules
+.venv
+dist
+build
+.react-email
+*.sqlite
+*.sqlite3
+*.db
+*.lockb
+*.lock
+uv.lock
+.coverage
+.pytest_cache
+*.tsbuildinfo
