@@ -15,10 +15,14 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
    - `packages/emails/`: React Email transactional templates
 4. **Workflow Skills & Quality Rules**:
    - Inspect `.agents/skills/curlx-stack-guide/SKILL.md`
-   - Inspect `.agents/skills/fastapi-sqlmodel-workflow/SKILL.md`
+   - Inspect `.agents/skills/fastapi/SKILL.md`
+   - Inspect `.agents/skills/sqlmodel/SKILL.md`
+   - Inspect `.agents/skills/library-skills/SKILL.md`
    - Inspect `.agents/skills/react-tailwind-workflow/SKILL.md`
    - Inspect `.agents/rules/code_quality.md`
 5. **Offline Sync**:
    - Adhere to local-first Dexie mutations with background sync queue draining to FastAPI backend.
 6. **Pre-Commit Verification**:
    - Every commit must pass `./dev.sh check` (linting, formatting, type checking, and tests).
+7. **Commit Messages**:
+   - Keep messages short, exact, and concise (under 72 chars, conventional commits prefix).

@@ -1,7 +1,13 @@
 # Code Quality and Commit Guidelines for ReTrails
 
-## Mandatory Pre-Commit Validation
-Before committing any changes to the repository, the agent or developer MUST ensure that all quality checks pass cleanly:
+## 1. Commit Message Standards
+- **Concise & Direct**: Keep the subject line short (under 72 characters), exact, and descriptive.
+- **Conventional Commits**: Use conventional prefixes: `feat:`, `fix:`, `chore:`, `docs:`, `style:`, `refactor:`, `test:`, `ci:`.
+- **No Emojis**: Do not use emojis in commit messages.
+- **No Jargon**: Avoid fluff or marketing phrases; describe the exact technical change.
+
+## 2. Mandatory Pre-Commit Validation
+Before committing any changes to the repository, all quality checks MUST pass cleanly:
 
 1. **Linting**:
    - Backend: `cd backend && uv run ruff check .`
