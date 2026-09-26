@@ -93,29 +93,32 @@ graph TD
 - `bun`
 - (Optional) Docker and Docker Compose
 
-### 1. Backend Setup (uv)
+### Fast One-Command Setup & Run
 
 ```bash
-cd backend
-uv sync
-cp ../.env.example .env
-uv run uvicorn app.main:app --reload --port 8000
+# 1. Install all dependencies across backend, frontend, and emails:
+./dev.sh install
+
+# 2. Start the development environment (Backend + Frontend concurrently):
+./dev.sh
 ```
 
-### 2. Frontend Setup (bun)
+---
+
+### Individual Service Commands
 
 ```bash
-cd frontend
-bun install
-bun run dev
-```
+# Backend only (FastAPI on port 8000, docs at /docs)
+./dev.sh backend
 
-### 3. Email Preview (bun)
+# Frontend only (React on port 5173)
+./dev.sh frontend
 
-```bash
-cd packages/emails
-bun install
-bun run dev
+# Email preview server (React Email on port 3001)
+./dev.sh emails
+
+# Run tests
+./dev.sh test
 ```
 
 ---
