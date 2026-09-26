@@ -1,0 +1,76 @@
+# Python & uv
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+.venv/
+env/
+venv/
+ENV/
+.env
+.env.local
+.env.*.local
+
+# Node & Bun
+node_modules/
+bun.lockb
+bun.lock
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+.pnpm-debug.log*
+
+# Testing & Coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+
+# Vite / Frontend Build
+frontend/dist/
+frontend/dist-ssr/
+*.local
+
+# React Email
+.react-email/
+packages/emails/dist/
+
+# IDE & OS
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Database & Docker volumes
+*.sqlite
+*.sqlite3
+*.db
+pgdata/
