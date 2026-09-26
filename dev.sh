@@ -96,10 +96,18 @@ run_services_down() {
     docker compose -f "$ROOT_DIR/docker-compose.dev.yml" down
 }
 
-# Run full development stack (Backend + Frontend)
+# Run full development stack (Backend + Frontend + Auto Dev Services)
 run_dev() {
     check_prerequisites
     ensure_env
+
+    # Automatically start dev infrastructure if Docker daemon is running
+    if command -v docker &> /dev/null && docker info &> /dev/null; then
+        log_info "Starting dev infrastructure (PostgreSQL, Redis, Mailpit)..."
+        docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d
+    else
+        log_info "Docker not running or unavailable. Continuing with local runtime."
+    fi
 
     log_info "Starting ReTrails development environment..."
     log_info "Backend:  http://localhost:8000 (Docs: http://localhost:8000/docs)"
