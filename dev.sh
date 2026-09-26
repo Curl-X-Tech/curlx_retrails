@@ -80,6 +80,22 @@ run_emails() {
     exec bun run dev
 }
 
+# Run dev infrastructure services (PostgreSQL, Redis, Mailpit)
+run_services_up() {
+    ensure_env
+    log_info "Starting dev infrastructure (PostgreSQL, Redis, Mailpit)..."
+    docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d
+    log_info "Dev services running:"
+    log_info "- PostgreSQL: localhost:5432"
+    log_info "- Redis:      localhost:6379"
+    log_info "- Mailpit UI: http://localhost:8025 (SMTP: localhost:1025)"
+}
+
+run_services_down() {
+    log_info "Stopping dev infrastructure (PostgreSQL, Redis, Mailpit)..."
+    docker compose -f "$ROOT_DIR/docker-compose.dev.yml" down
+}
+
 # Run full development stack (Backend + Frontend)
 run_dev() {
     check_prerequisites
@@ -108,14 +124,15 @@ run_tests() {
     (cd "$ROOT_DIR/backend" && uv run pytest)
 }
 
-# Docker commands
+# Full Docker Compose commands
 run_docker_up() {
-    log_info "Starting Docker Compose services..."
+    ensure_env
+    log_info "Starting full Docker Compose services (App + DB + Redis + Mailpit)..."
     docker compose up -d
 }
 
 run_docker_down() {
-    log_info "Stopping Docker Compose services..."
+    log_info "Stopping full Docker Compose services..."
     docker compose down
 }
 
@@ -136,13 +153,15 @@ show_help() {
     echo ""
     echo "Commands:"
     echo "  dev           Start both backend and frontend concurrently (default)"
+    echo "  services      Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
+    echo "  services:down Stop dev infrastructure"
     echo "  install       Install all dependencies for backend, frontend, and emails"
     echo "  backend       Start backend server only (FastAPI on port 8000)"
     echo "  frontend      Start frontend server only (Vite on port 5173)"
     echo "  emails        Start React Email preview server on port 3001"
     echo "  test          Run tests"
     echo "  docker        Start full Docker Compose environment in background"
-    echo "  docker:down   Stop Docker Compose services"
+    echo "  docker:down   Stop full Docker Compose services"
     echo "  clean         Remove virtual environments and node_modules"
     echo "  help          Show this help message"
     echo ""
@@ -154,6 +173,12 @@ COMMAND="${1:-dev}"
 case "$COMMAND" in
     dev)
         run_dev
+        ;;
+    services|infra)
+        run_services_up
+        ;;
+    services:down|infra:down)
+        run_services_down
         ;;
     install)
         install_deps

@@ -10,6 +10,24 @@ services:
       - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-app}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   mailpit:
     image: axllent/mailpit:latest
@@ -31,12 +49,18 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changethis_postgres_pass}
       POSTGRES_DB: ${POSTGRES_DB:-app}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
       SECRET_KEY: ${SECRET_KEY:-changethis-secret-key-32-chars-long-security-token-fullstack-fastapi}
       SMTP_HOST: mailpit
       SMTP_PORT: 1025
     depends_on:
-      - db
-      - mailpit
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
 
   frontend:
     build:
@@ -50,3 +74,4 @@ services:
 
 volumes:
   pgdata:
+  redisdata:
