@@ -11,4 +11,6 @@ build
 uv.lock
 .coverage
 .pytest_cache
+.ruff_cache
+.mypy_cache
 *.tsbuildinfo

@@ -251,7 +251,7 @@ run_docker_down() {
 # Clean build artifacts and virtualenvs
 clean_all() {
     log_info "Cleaning caches, virtualenvs, and node_modules..."
-    rm -rf "$ROOT_DIR/backend/.venv" "$ROOT_DIR/backend/.pytest_cache" "$ROOT_DIR/backend/__pycache__"
+    rm -rf "$ROOT_DIR/backend/.venv" "$ROOT_DIR/backend/.pytest_cache" "$ROOT_DIR/backend/.ruff_cache" "$ROOT_DIR/backend/.mypy_cache" "$ROOT_DIR/backend/__pycache__"
     rm -rf "$ROOT_DIR/frontend/node_modules" "$ROOT_DIR/frontend/dist"
     rm -rf "$ROOT_DIR/packages/emails/node_modules" "$ROOT_DIR/packages/emails/.react-email"
     log_success "Clean completed."

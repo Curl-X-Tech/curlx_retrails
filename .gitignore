@@ -45,6 +45,8 @@ lerna-debug.log*
 .coverage.*
 htmlcov/
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 .tox/
 .nox/
 coverage.xml
