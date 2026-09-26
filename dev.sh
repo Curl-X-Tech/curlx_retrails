@@ -126,7 +126,8 @@ run_services_up() {
 
 run_services_down() {
     log_info "Stopping dev infrastructure (PostgreSQL, Redis, Mailpit)..."
-    docker compose -f "$ROOT_DIR/docker-compose.dev.yml" down
+    docker compose -f "$ROOT_DIR/docker-compose.dev.yml" down 2>/dev/null || true
+    docker compose -f "$ROOT_DIR/docker-compose.yml" down 2>/dev/null || true
     log_success "Dev infrastructure stopped."
 }
 
@@ -144,7 +145,7 @@ run_dev() {
     fi
 
     # Handle graceful exit on SIGINT/SIGTERM
-    trap 'echo ""; log_info "Shutting down all development processes..."; kill $(jobs -p) 2>/dev/null || true; exit 0' SIGINT SIGTERM EXIT
+    trap 'echo ""; log_info "Shutting down development processes..."; kill $(jobs -p) 2>/dev/null || true; exit 0' SIGINT SIGTERM EXIT
 
     (cd "$ROOT_DIR/backend" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
     BACKEND_PID=$!
@@ -244,8 +245,10 @@ run_docker_up() {
 }
 
 run_docker_down() {
-    log_info "Stopping full Docker Compose services..."
-    docker compose down
+    log_info "Stopping all Docker Compose services..."
+    docker compose -f "$ROOT_DIR/docker-compose.dev.yml" down 2>/dev/null || true
+    docker compose -f "$ROOT_DIR/docker-compose.yml" down 2>/dev/null || true
+    log_success "All Docker containers stopped."
 }
 
 # Clean build artifacts and virtualenvs
@@ -266,7 +269,8 @@ show_help() {
     echo "Commands:"
     echo "  dev            Start backend, frontend, and emails concurrently (default)"
     echo "  services       Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
-    echo "  services:down  Stop dev infrastructure"
+    echo "  down           Stop all running Docker containers (dev & prod)"
+    echo "  stop           Alias for down"
     echo "  install        Install all dependencies for backend, frontend, and emails"
     echo "  backend        Start backend server only (FastAPI on port 8000)"
     echo "  frontend       Start frontend server only (Vite on port 5173)"
@@ -278,7 +282,7 @@ show_help() {
     echo "  test           Run backend test suite"
     echo "  check          Run all quality checks (lint + format + typecheck + test)"
     echo "  docker         Start full Docker Compose environment in background"
-    echo "  docker:down    Stop full Docker Compose services"
+    echo "  docker:down    Stop all Docker Compose services"
     echo "  clean          Remove virtual environments and node_modules"
     echo "  help           Show this help message"
     echo ""
@@ -294,7 +298,7 @@ case "$COMMAND" in
     services|infra)
         run_services_up
         ;;
-    services:down|infra:down)
+    services:down|infra:down|down|stop)
         run_services_down
         ;;
     install)
