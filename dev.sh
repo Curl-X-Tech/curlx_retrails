@@ -179,7 +179,7 @@ run_lint() {
 run_format() {
     check_prerequisites
     log_info "Formatting backend Python code (Ruff)..."
-    (cd "$ROOT_DIR/backend" && uv run ruff format .)
+    (cd "$ROOT_DIR/backend" && uv run ruff check --fix . && uv run ruff format .)
 
     log_info "Formatting frontend code (Prettier)..."
     (cd "$ROOT_DIR/frontend" && bun run format)

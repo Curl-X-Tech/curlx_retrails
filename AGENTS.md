@@ -10,19 +10,22 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
    - Backend: `uv` (`uv sync`, `uv run ...`)
    - Frontend & Emails: `bun` (`bun install`, `bun run ...`)
 3. **Project Architecture**:
-   - `backend/`: FastAPI + SQLModel + PostgreSQL (with SQLite fallback) + Alembic
+   - `backend/`: FastAPI + SQLAlchemy 2.0 + PostgreSQL (with SQLite fallback) + Alembic
    - `frontend/`: React + TypeScript + Tailwind CSS + Dexie.js (Offline-first IndexedDB) + PWA
    - `packages/emails/`: React Email transactional templates
 4. **Workflow Skills & Quality Rules**:
    - Inspect `.agents/skills/curlx-stack-guide/SKILL.md`
    - Inspect `.agents/skills/fastapi/SKILL.md`
-   - Inspect `.agents/skills/sqlmodel/SKILL.md`
+   - Inspect `.agents/skills/sqlalchemy/SKILL.md`
+   - Inspect `.agents/skills/fastapi-sqlalchemy-workflow/SKILL.md`
    - Inspect `.agents/skills/library-skills/SKILL.md`
    - Inspect `.agents/skills/react-tailwind-workflow/SKILL.md`
    - Inspect `.agents/rules/code_quality.md`
 5. **Offline Sync**:
    - Adhere to local-first Dexie mutations with background sync queue draining to FastAPI backend.
-6. **Pre-Commit Verification**:
+6. **Dev Automation Script**:
+   - Always use `./dev.sh` commands (`./dev.sh check`, `./dev.sh test`, `./dev.sh lint`, `./dev.sh format`, `./dev.sh typecheck`, `./dev.sh dev`, `./dev.sh backend`, `./dev.sh frontend`, `./dev.sh emails`) for running and validating tasks.
+7. **Pre-Commit Verification**:
    - Every commit must pass `./dev.sh check` (linting, formatting, type checking, and tests).
-7. **Commit Messages**:
+8. **Commit Messages**:
    - Keep messages short, exact, and concise (under 72 chars, conventional commits prefix).

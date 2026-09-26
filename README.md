@@ -1,6 +1,6 @@
 # ReTrails
 
-Full-stack web application developed by Team **CurlX** for the hackathon. Built with FastAPI, SQLModel, React PWA, Dexie, React Email, uv, and bun.
+Full-stack web application developed by Team **CurlX** for the hackathon. Built with FastAPI, SQLAlchemy 2.0, React PWA, Dexie, React Email, uv, and bun.
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18+-61DAFB.svg?logo=react&logoColor=black)](https://reactjs.org/)
@@ -28,7 +28,7 @@ ReTrails is an offline-first, cross-platform application designed to provide rel
   - Python backend dependencies managed with `uv`.
   - Frontend and email packages managed with `bun`.
 - **Backend (FastAPI)**:
-  - SQLModel ORM with PostgreSQL and SQLite fallback.
+  - SQLAlchemy 2.0 ORM with PostgreSQL and SQLite fallback.
   - Alembic database migrations.
   - JWT authentication and secure password hashing.
   - OpenAPI documentation available at `/docs`.
@@ -52,7 +52,7 @@ graph TD
     Client[Web Browser / Mobile] -->|HTTP / HTTPS| Frontend[React PWA + Tailwind CSS]
     Frontend -->|IndexedDB| Dexie[Dexie Local Storage]
     Frontend -->|REST API / JWT| Backend[FastAPI Backend]
-    Backend -->|SQLModel / Alembic| DB[(PostgreSQL Database)]
+    Backend -->|SQLAlchemy 2.0 / Alembic| DB[(PostgreSQL Database)]
     Backend -->|SMTP| Mailer[Mailpit / SMTP Gateway]
     Emails[React Email Templates] -->|Compiled HTML| Backend
 ```

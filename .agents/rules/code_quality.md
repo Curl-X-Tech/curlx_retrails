@@ -6,29 +6,16 @@
 - **No Emojis**: Do not use emojis in commit messages.
 - **No Jargon**: Avoid fluff or marketing phrases; describe the exact technical change.
 
-## 2. Mandatory Pre-Commit Validation
+## 2. Dev Automation & Task Execution
+Always use `./dev.sh` to run, test, lint, format, and check tasks across the repository:
+- `./dev.sh check`: Runs full linting, formatting validation, type checking, and tests.
+- `./dev.sh test`: Runs test suite across services.
+- `./dev.sh lint`: Runs linter across backend, frontend, and packages.
+- `./dev.sh format`: Formats code across all workspaces.
+- `./dev.sh typecheck`: Typechecks TypeScript and Python codebases.
+- `./dev.sh dev`: Runs local dev servers concurrently.
+
+## 3. Mandatory Pre-Commit Validation
 Before committing any changes to the repository, all quality checks MUST pass cleanly:
-
-1. **Linting**:
-   - Backend: `cd backend && uv run ruff check .`
-   - Frontend: `cd frontend && bun run lint`
-   - Command: `./dev.sh lint`
-
-2. **Formatting**:
-   - Backend: `cd backend && uv run ruff format .`
-   - Frontend: `cd frontend && bun run format`
-   - Emails: `cd packages/emails && bun run format`
-   - Command: `./dev.sh format`
-
-3. **Type Checking**:
-   - Frontend: `cd frontend && bun run typecheck`
-   - Emails: `cd packages/emails && bun run typecheck`
-   - Command: `./dev.sh typecheck`
-
-4. **Testing**:
-   - Backend: `cd backend && uv run pytest`
-   - Command: `./dev.sh test`
-
-5. **All-in-One Check**:
-   - Run `./dev.sh check` to execute lint, format checks, type checking, and tests in sequence.
-   - Any failure blocks the commit.
+- Run `./dev.sh check` to execute lint, format checks, type checking, and tests in sequence.
+- Any failure blocks the commit.

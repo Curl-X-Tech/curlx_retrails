@@ -6,7 +6,7 @@ description: Architecture guide and workflow standards for ReTrails by Team Curl
 # ReTrails Architecture Guide (Team CurlX)
 
 ReTrails is an offline-first Progressive Web Application (PWA) built for the hackathon by Team CurlX:
-- **Backend**: FastAPI, SQLModel, PostgreSQL (with SQLite fallback), Alembic, Pydantic v2, managed by uv.
+- **Backend**: FastAPI, SQLAlchemy 2.0, PostgreSQL (with SQLite fallback), Alembic, Pydantic v2, managed by uv.
 - **Frontend**: React, TypeScript, Vite, Tailwind CSS, TanStack Query, React Router, managed by bun.
 - **Offline Storage**: Dexie.js (IndexedDB) with synchronization queue and local mutations.
 - **PWA Support**: vite-plugin-pwa with service workers and web app manifest.
