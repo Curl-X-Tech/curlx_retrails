@@ -38,6 +38,7 @@ import {
   createTopViewVehicleIcon,
   createStoreIcon,
 } from "@/lib/map-icons";
+import { LiveVehicleCard } from "@/components/dispatcher/live-vehicle-card";
 
 export function LiveMapPage() {
   const mapContainerRef = React.useRef<HTMLDivElement>(null);
@@ -48,6 +49,9 @@ export function LiveMapPage() {
 
   const [vehicles] = React.useState<VehicleTrackingData[]>(MOCK_VEHICLES);
   const [stores] = React.useState<StoreLocation[]>(MOCK_STORES);
+  const [selectedVehicle, setSelectedVehicle] =
+    React.useState<VehicleTrackingData | null>(MOCK_VEHICLES[0]);
+  const [showVehicleCard, setShowVehicleCard] = React.useState<boolean>(true);
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [selectedThemeId, setSelectedThemeId] = React.useState<string>("carto-positron");
 
@@ -58,18 +62,14 @@ export function LiveMapPage() {
     "delayed",
   ]);
   const [showStores, setShowStores] = React.useState<boolean>(true);
-  const [selectedStoreCategories, setSelectedStoreCategories] = React.useState<StoreCategory[]>([
-    "fresh",
-    "supermarket",
-    "pharmacy",
-    "chilled",
-  ]);
+  const [selectedStoreCategories, setSelectedStoreCategories] = React.useState<
+    StoreCategory[]
+  >(["fresh", "supermarket", "pharmacy", "chilled"]);
 
-  const selectedTheme =
-    MAP_THEMES.find((t) => t.id === selectedThemeId) || MAP_THEMES[0];
+  const selectedTheme = MAP_THEMES.find((t) => t.id === selectedThemeId) || MAP_THEMES[0];
   const apiKey =
-    (import.meta as unknown as { env: Record<string, string> }).env
-      ?.VITE_MAP_API_KEY || "";
+    (import.meta as unknown as { env: Record<string, string> }).env?.VITE_MAP_API_KEY ||
+    "";
 
   const resolvedTileUrl = buildTileUrl(selectedTheme.url, apiKey);
 
@@ -129,9 +129,7 @@ export function LiveMapPage() {
   React.useEffect(() => {
     if (!mapInstance) return;
 
-    const filtered = vehicles.filter((v) =>
-      selectedVehicleStatuses.includes(v.status)
-    );
+    const filtered = vehicles.filter((v) => selectedVehicleStatuses.includes(v.status));
 
     // Remove obsolete markers
     Object.keys(vehicleMarkersRef.current).forEach((id) => {
@@ -157,12 +155,16 @@ export function LiveMapPage() {
               <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">${vehicle.vehicleType}</p>
               <div style="margin-top: 6px; padding-top: 4px; border-top: 1px solid #e2e8f0; font-size: 11px; line-height: 1.4;">
                 <p style="margin: 0; color: #334155;"><strong>Driver:</strong> ${vehicle.driverName}</p>
-                <p style="margin: 0; color: #334155;"><strong>Speed:</strong> ${vehicle.speedKmH} km/h</p>
-                <p style="margin: 0; color: #334155;"><strong>Fuel:</strong> ${vehicle.fuelPercentage}%</p>
-                <p style="margin: 0; color: #334155;"><strong>Load:</strong> ${vehicle.loadKg} / ${vehicle.totalCapacityKg} kg (${vehicle.loadPercentage}%)</p>
+                <p style="margin: 0; color: #334155;"><strong>Weight:</strong> W ${vehicle.weightPercentage}% (${vehicle.weightKg} kg)</p>
+                <p style="margin: 0; color: #334155;"><strong>Volume:</strong> V ${vehicle.volumePercentage}% (${vehicle.volumeCbm} m³)</p>
+                <p style="margin: 0; color: #334155;"><strong>Next Stop:</strong> ${vehicle.nextStop}</p>
               </div>
             </div>`
           )
+          .on("click", () => {
+            setSelectedVehicle(vehicle);
+            setShowVehicleCard(true);
+          })
           .addTo(mapInstance);
 
         vehicleMarkersRef.current[vehicle.id] = marker;
@@ -205,9 +207,7 @@ export function LiveMapPage() {
               : "Supermarket";
 
       if (storeMarkersRef.current[store.id]) {
-        storeMarkersRef.current[store.id]
-          .setLatLng([store.lat, store.lng])
-          .setIcon(icon);
+        storeMarkersRef.current[store.id].setLatLng([store.lat, store.lng]).setIcon(icon);
       } else {
         const marker = L.marker([store.lat, store.lng], { icon })
           .bindPopup(
@@ -239,11 +239,12 @@ export function LiveMapPage() {
     const query = searchQuery.toLowerCase();
     const matchedVehicle = vehicles.find(
       (v) =>
-        v.code.toLowerCase().includes(query) ||
-        v.driverName.toLowerCase().includes(query)
+        v.code.toLowerCase().includes(query) || v.driverName.toLowerCase().includes(query)
     );
 
     if (matchedVehicle) {
+      setSelectedVehicle(matchedVehicle);
+      setShowVehicleCard(true);
       mapInstance.flyTo(matchedVehicle.currentLocation, 15, { duration: 1.0 });
       vehicleMarkersRef.current[matchedVehicle.id]?.openPopup();
       return;
@@ -325,7 +326,10 @@ export function LiveMapPage() {
             >
               <TruckIcon weight="bold" className="size-3.5 text-primary" />
               <span>Fleet</span>
-              <Badge variant="secondary" className="px-1.5 py-0 h-4 text-[10px] font-bold">
+              <Badge
+                variant="secondary"
+                className="px-1.5 py-0 h-4 text-[10px] font-bold"
+              >
                 {selectedVehicleStatuses.length}
               </Badge>
             </DropdownMenuTrigger>
@@ -339,21 +343,27 @@ export function LiveMapPage() {
                 onCheckedChange={() => toggleVehicleStatus("en_route")}
               >
                 <span className="size-2 rounded-full bg-primary" />
-                <span>En Route ({vehicles.filter((v) => v.status === "en_route").length})</span>
+                <span>
+                  En Route ({vehicles.filter((v) => v.status === "en_route").length})
+                </span>
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={selectedVehicleStatuses.includes("at_stop")}
                 onCheckedChange={() => toggleVehicleStatus("at_stop")}
               >
                 <span className="size-2 rounded-full bg-emerald-500" />
-                <span>At Stop ({vehicles.filter((v) => v.status === "at_stop").length})</span>
+                <span>
+                  At Stop ({vehicles.filter((v) => v.status === "at_stop").length})
+                </span>
               </DropdownMenuCheckboxItem>
               <DropdownMenuCheckboxItem
                 checked={selectedVehicleStatuses.includes("delayed")}
                 onCheckedChange={() => toggleVehicleStatus("delayed")}
               >
                 <span className="size-2 rounded-full bg-amber-500" />
-                <span>Delayed ({vehicles.filter((v) => v.status === "delayed").length})</span>
+                <span>
+                  Delayed ({vehicles.filter((v) => v.status === "delayed").length})
+                </span>
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -403,28 +413,40 @@ export function LiveMapPage() {
                     onCheckedChange={() => toggleStoreCategory("fresh")}
                   >
                     <PlantIcon className="size-3.5 text-emerald-600" />
-                    <span>Fresh Produce ({stores.filter((s) => s.category === "fresh").length})</span>
+                    <span>
+                      Fresh Produce ({stores.filter((s) => s.category === "fresh").length}
+                      )
+                    </span>
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
                     checked={selectedStoreCategories.includes("supermarket")}
                     onCheckedChange={() => toggleStoreCategory("supermarket")}
                   >
                     <StorefrontIcon className="size-3.5 text-sky-600" />
-                    <span>Supermarkets ({stores.filter((s) => s.category === "supermarket").length})</span>
+                    <span>
+                      Supermarkets (
+                      {stores.filter((s) => s.category === "supermarket").length})
+                    </span>
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
                     checked={selectedStoreCategories.includes("pharmacy")}
                     onCheckedChange={() => toggleStoreCategory("pharmacy")}
                   >
                     <span className="size-2 rounded-full bg-purple-500 inline-block" />
-                    <span>Pharmacies ({stores.filter((s) => s.category === "pharmacy").length})</span>
+                    <span>
+                      Pharmacies ({stores.filter((s) => s.category === "pharmacy").length}
+                      )
+                    </span>
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
                     checked={selectedStoreCategories.includes("chilled")}
                     onCheckedChange={() => toggleStoreCategory("chilled")}
                   >
                     <span className="size-2 rounded-full bg-cyan-500 inline-block" />
-                    <span>Chilled Dairy ({stores.filter((s) => s.category === "chilled").length})</span>
+                    <span>
+                      Chilled Dairy (
+                      {stores.filter((s) => s.category === "chilled").length})
+                    </span>
                   </DropdownMenuCheckboxItem>
                 </>
               )}
@@ -474,6 +496,30 @@ export function LiveMapPage() {
           </IconButton>
         </div>
       </div>
+
+      {/* Floating Bottom-Left Vehicle Card */}
+      {showVehicleCard && selectedVehicle && (
+        <div className="absolute bottom-4 left-4 z-400">
+          <LiveVehicleCard
+            vehicle={selectedVehicle}
+            allVehicles={vehicles}
+            onSelectVehicle={(v) => {
+              setSelectedVehicle(v);
+              if (mapInstance) {
+                mapInstance.flyTo(v.currentLocation, 14, { duration: 0.8 });
+                vehicleMarkersRef.current[v.id]?.openPopup();
+              }
+            }}
+            onFocusVehicle={(v) => {
+              if (mapInstance) {
+                mapInstance.flyTo(v.currentLocation, 15, { duration: 0.8 });
+                vehicleMarkersRef.current[v.id]?.openPopup();
+              }
+            }}
+            onClose={() => setShowVehicleCard(false)}
+          />
+        </div>
+      )}
     </div>
   );
 }

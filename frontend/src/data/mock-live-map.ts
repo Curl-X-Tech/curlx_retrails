@@ -21,24 +21,24 @@ export interface VehicleTrackingData {
   id: string;
   code: string;
   vehicleType: string;
+  vehicleCategory: "truck" | "van";
   imageUrl: string;
   driverName: string;
   driverPhone: string;
   status: "en_route" | "at_stop" | "delayed";
   currentLocation: [number, number];
   heading: number; // 0 to 360 degrees (0 = North / Upward)
-  speedKmH: number;
-  fuelPercentage: number;
-  loadPercentage: number;
-  loadKg: number;
-  totalCapacityKg: number;
-  temperature?: string;
-  temperatureStatus?: "optimal" | "warning" | "ambient";
+  weightPercentage: number;
+  weightKg: number;
+  maxWeightKg: number;
+  volumePercentage: number;
+  volumeCbm: number;
+  maxVolumeCbm: number;
+  cratesCount: number;
   nextStop: string;
   nextStopEta: string;
   stopsTotal: number;
   stopsCompleted: number;
-  cratesCount: number;
 }
 
 export interface MapThemePreset {
@@ -222,77 +222,117 @@ export const MOCK_VEHICLES: VehicleTrackingData[] = [
   {
     id: "v1",
     code: "TRK-0841",
-    vehicleType: "14ft Reefer",
+    vehicleType: "14ft Cold Reefer",
+    vehicleCategory: "truck",
+    imageUrl: "/vehicle-images/freeze.png",
     driverName: "S. Perera",
     driverPhone: "+94 77 123 4567",
     status: "en_route",
     currentLocation: [6.9271, 79.8612],
     heading: 185,
-    speedKmH: 42,
-    fuelPercentage: 78,
-    loadPercentage: 65,
-    loadKg: 2275,
-    totalCapacityKg: 3500,
+    weightPercentage: 80,
+    weightKg: 2800,
+    maxWeightKg: 3500,
+    volumePercentage: 74,
+    volumeCbm: 13.3,
+    maxVolumeCbm: 18.0,
+    cratesCount: 84,
+    nextStop: "Keells Super - Fort",
+    nextStopEta: "08:45 AM",
+    stopsTotal: 6,
+    stopsCompleted: 2,
   },
   {
     id: "v2",
     code: "TRK-1092",
-    vehicleType: "20ft Box Truck",
+    vehicleType: "20ft Heavy Box Truck",
+    vehicleCategory: "truck",
+    imageUrl: "/vehicle-images/dry.png",
     driverName: "M. Fernando",
     driverPhone: "+94 71 987 6543",
     status: "delayed",
     currentLocation: [6.9147, 79.8732],
     heading: 95,
-    speedKmH: 12,
-    fuelPercentage: 62,
-    loadPercentage: 88,
-    loadKg: 4400,
-    totalCapacityKg: 5000,
+    weightPercentage: 88,
+    weightKg: 4400,
+    maxWeightKg: 5000,
+    volumePercentage: 92,
+    volumeCbm: 23.0,
+    maxVolumeCbm: 25.0,
+    cratesCount: 120,
+    nextStop: "Cargills Express - Borella",
+    nextStopEta: "09:30 AM",
+    stopsTotal: 8,
+    stopsCompleted: 3,
   },
   {
     id: "v3",
     code: "VAN-0433",
     vehicleType: "Express Delivery Van",
+    vehicleCategory: "van",
+    imageUrl: "/vehicle-images/van.png",
     driverName: "K. Rathnayake",
     driverPhone: "+94 76 555 1234",
     status: "en_route",
     currentLocation: [6.8654, 79.8682],
     heading: 210,
-    speedKmH: 38,
-    fuelPercentage: 84,
-    loadPercentage: 52,
-    loadKg: 780,
-    totalCapacityKg: 1500,
+    weightPercentage: 52,
+    weightKg: 780,
+    maxWeightKg: 1500,
+    volumePercentage: 60,
+    volumeCbm: 4.8,
+    maxVolumeCbm: 8.0,
+    cratesCount: 38,
+    nextStop: "Lanka Fresh Organics",
+    nextStopEta: "10:05 AM",
+    stopsTotal: 4,
+    stopsCompleted: 1,
   },
   {
     id: "v4",
     code: "TRK-0512",
-    vehicleType: "16ft Reefer",
+    vehicleType: "16ft Cold Reefer",
+    vehicleCategory: "truck",
+    imageUrl: "/vehicle-images/freeze.png",
     driverName: "A. Jayasinghe",
     driverPhone: "+94 70 333 4455",
     status: "at_stop",
     currentLocation: [6.9366, 79.8454],
     heading: 0,
-    speedKmH: 0,
-    fuelPercentage: 91,
-    loadPercentage: 35,
-    loadKg: 1400,
-    totalCapacityKg: 4000,
+    weightPercentage: 35,
+    weightKg: 1400,
+    maxWeightKg: 4000,
+    volumePercentage: 42,
+    volumeCbm: 8.4,
+    maxVolumeCbm: 20.0,
+    cratesCount: 72,
+    nextStop: "Spar Supermarket",
+    nextStopEta: "11:15 AM",
+    stopsTotal: 5,
+    stopsCompleted: 4,
   },
   {
     id: "v5",
     code: "VAN-0988",
     vehicleType: "Transit Van",
+    vehicleCategory: "van",
+    imageUrl: "/vehicle-images/van.png",
     driverName: "D. Wickrama",
     driverPhone: "+94 72 444 8899",
     status: "en_route",
     currentLocation: [6.9512, 79.8781],
     heading: 320,
-    speedKmH: 48,
-    fuelPercentage: 70,
-    loadPercentage: 74,
-    loadKg: 1110,
-    totalCapacityKg: 1500,
+    weightPercentage: 74,
+    weightKg: 1110,
+    maxWeightKg: 1500,
+    volumePercentage: 80,
+    volumeCbm: 6.4,
+    maxVolumeCbm: 8.0,
+    cratesCount: 45,
+    nextStop: "Dehiwala Greens",
+    nextStopEta: "10:30 AM",
+    stopsTotal: 7,
+    stopsCompleted: 3,
   },
 ];
 
