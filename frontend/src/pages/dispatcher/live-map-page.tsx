@@ -1,20 +1,5 @@
 import * as React from "react";
 import L from "leaflet";
-import {
-  PhoneIcon,
-  MagnifyingGlassIcon,
-  GasPumpIcon,
-  PackageIcon,
-  StorefrontIcon,
-  TruckIcon,
-  XIcon,
-  CrosshairIcon,
-} from "@phosphor-icons/react";
-import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
 
 export interface StoreLocation {
   id: string;
@@ -46,8 +31,6 @@ export interface VehicleTrackingData {
   loadPercentage: number;
   loadKg: number;
   totalCapacityKg: number;
-  slaStatus: "on_time" | "warning" | "delayed";
-  delayMinutes?: number;
 }
 
 const CENTRAL_HUB = {
@@ -224,7 +207,6 @@ const MOCK_VEHICLES: VehicleTrackingData[] = [
     loadPercentage: 65,
     loadKg: 2275,
     totalCapacityKg: 3500,
-    slaStatus: "on_time",
   },
   {
     id: "v2",
@@ -240,8 +222,6 @@ const MOCK_VEHICLES: VehicleTrackingData[] = [
     loadPercentage: 88,
     loadKg: 4400,
     totalCapacityKg: 5000,
-    slaStatus: "delayed",
-    delayMinutes: 24,
   },
   {
     id: "v3",
@@ -257,12 +237,11 @@ const MOCK_VEHICLES: VehicleTrackingData[] = [
     loadPercentage: 52,
     loadKg: 780,
     totalCapacityKg: 1500,
-    slaStatus: "on_time",
   },
   {
     id: "v4",
     code: "TRK-0512",
-    vehicleType: "16ft Chilled Reefer",
+    vehicleType: "16ft Reefer",
     driverName: "A. Jayasinghe",
     driverPhone: "+94 70 333 4455",
     status: "at_stop",
@@ -273,7 +252,6 @@ const MOCK_VEHICLES: VehicleTrackingData[] = [
     loadPercentage: 35,
     loadKg: 1400,
     totalCapacityKg: 4000,
-    slaStatus: "on_time",
   },
   {
     id: "v5",
@@ -289,17 +267,8 @@ const MOCK_VEHICLES: VehicleTrackingData[] = [
     loadPercentage: 74,
     loadKg: 1110,
     totalCapacityKg: 1500,
-    slaStatus: "on_time",
   },
 ];
-
-export interface MapThemePreset {
-  id: string;
-  name: string;
-  url: string;
-  attribution: string;
-  maxZoom: number;
-}
 
 export function buildTileUrl(rawUrl: string, apiKey?: string): string {
   let url = rawUrl.trim();
@@ -327,44 +296,6 @@ export function buildTileUrl(rawUrl: string, apiKey?: string): string {
   return url;
 }
 
-export const MAP_THEMES: MapThemePreset[] = [
-  {
-    id: "carto-positron",
-    name: "Carto Positron (Light)",
-    url: "https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png",
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    maxZoom: 20,
-  },
-  {
-    id: "carto-voyager",
-    name: "Carto Voyager",
-    url: "https://basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png",
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    maxZoom: 20,
-  },
-  {
-    id: "osm-standard",
-    name: "OpenStreetMap Standard",
-    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
-    attribution:
-      '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
-    maxZoom: 19,
-  },
-  {
-    id: "custom-api",
-    name: "Custom / MapTiler API",
-    url:
-      (import.meta as unknown as { env: Record<string, string> }).env
-        ?.VITE_MAP_TILE_URL ||
-      "https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key={apiKey}",
-    attribution:
-      '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
-    maxZoom: 20,
-  },
-];
-
 function getVehicleIconUrl(vehicleType: string): string {
   const type = vehicleType.toLowerCase();
   if (
@@ -385,7 +316,7 @@ function createHubIcon() {
   return L.divIcon({
     className: "custom-hub-icon",
     html: `
-      <div class="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-md ring-2 ring-white">
+      <div style="width: 36px; height: 36px; border-radius: 10px; background: #0069A8; color: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.25); border: 2px solid #ffffff;">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 256 256">
           <path d="M240,184h-8V57.9l9.67-2.08a8,8,0,1,0-3.35-15.64l-224,48A8,8,0,0,0,16,104a8.16,8.16,0,0,0,1.69-.18L24,102.47V184H16a8,8,0,0,0,0,16H240a8,8,0,0,0,0-16ZM40,99,216,61.33V184H192V128a8,8,0,0,0-8-8H72a8,8,0,0,0-8,8v56H40Z"/>
         </svg>
@@ -396,7 +327,7 @@ function createHubIcon() {
   });
 }
 
-function createTopViewVehicleIcon(vehicle: VehicleTrackingData, isSelected: boolean) {
+function createTopViewVehicleIcon(vehicle: VehicleTrackingData) {
   const iconUrl = getVehicleIconUrl(vehicle.vehicleType);
   const heading = vehicle.heading || 0;
   const isDelayed = vehicle.status === "delayed";
@@ -404,39 +335,30 @@ function createTopViewVehicleIcon(vehicle: VehicleTrackingData, isSelected: bool
   const ringColor = isDelayed ? "#D97706" : isAtStop ? "#059669" : "#0069A8";
 
   return L.divIcon({
-    className: "custom-vehicle-topview-marker",
+    className: "custom-topview-vehicle-icon",
     html: `
-      <div class="relative flex flex-col items-center cursor-pointer select-none group">
-        <!-- Floating Vehicle Badge Label -->
-        <div class="mb-1 px-1.5 py-0.5 rounded-md bg-white text-slate-900 border border-slate-200/90 text-[10px] font-bold shadow-xs whitespace-nowrap transition-transform duration-200 ${isSelected ? "scale-110 ring-2 ring-primary text-primary" : "group-hover:scale-105"}">
-          <span>${vehicle.code}</span>
-          ${vehicle.speedKmH > 0 ? `<span class="ml-1 text-[9px] font-semibold text-slate-500 font-mono">${vehicle.speedKmH}km/h</span>` : ""}
+      <div style="position: relative; width: 64px; display: flex; flex-direction: column; align-items: center; cursor: pointer; user-select: none;">
+        <!-- Vehicle Code Tag -->
+        <div style="background: #ffffff; color: #0f172a; border: 1px solid #cbd5e1; border-radius: 6px; padding: 1px 6px; font-size: 10px; font-weight: 700; font-family: sans-serif; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.15); margin-bottom: 2px;">
+          ${vehicle.code}
         </div>
-
-        <!-- Top-View Vehicle PNG with Heading Rotation -->
-        <div class="relative flex items-center justify-center transition-all duration-300 ${isSelected ? "scale-125 z-50" : "hover:scale-115 z-30"}">
-          ${
-            vehicle.status === "en_route"
-              ? `<span class="absolute -inset-2 rounded-full bg-primary/20 animate-ping pointer-events-none"></span>`
-              : ""
-          }
-          <div class="relative flex items-center justify-center p-1 rounded-full bg-white/70 backdrop-blur-2xs shadow-md border-2" style="border-color: ${ringColor}">
-            <img 
-              src="${iconUrl}" 
-              alt="${vehicle.code}" 
-              class="w-7 h-10 object-contain drop-shadow-sm transition-transform duration-300 ease-out"
-              style="transform: rotate(${heading}deg); transform-origin: center center;"
-            />
-          </div>
+        
+        <!-- Top-view vehicle image container with heading rotation -->
+        <div style="position: relative; display: flex; align-items: center; justify-content: center; width: 44px; height: 44px; border-radius: 50%; background: rgba(255, 255, 255, 0.9); border: 2px solid ${ringColor}; box-shadow: 0 2px 6px rgba(0,0,0,0.2);">
+          <img 
+            src="${iconUrl}" 
+            alt="${vehicle.code}" 
+            style="width: 28px; height: 38px; object-fit: contain; transform: rotate(${heading}deg); transform-origin: center center; display: block;" 
+          />
         </div>
       </div>
     `,
-    iconSize: [64, 76],
+    iconSize: [64, 68],
     iconAnchor: [32, 48],
   });
 }
 
-function createStoreIcon(store: StoreLocation, isSelected: boolean) {
+function createStoreIcon(store: StoreLocation) {
   const isDelivered = store.todayStatus === "delivered";
   const isInTransit = store.todayStatus === "in_transit";
   const bg = isDelivered ? "#059669" : isInTransit ? "#0069A8" : "#64748B";
@@ -444,13 +366,12 @@ function createStoreIcon(store: StoreLocation, isSelected: boolean) {
   return L.divIcon({
     className: "custom-store-marker",
     html: `
-      <div class="relative flex items-center justify-center cursor-pointer transition-transform ${isSelected ? "scale-125 z-40" : "hover:scale-110 z-20"}">
-        <div class="size-7 rounded-lg flex items-center justify-center text-white shadow-sm ring-2 ring-white" style="background-color: ${bg}">
+      <div style="position: relative; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+        <div style="width: 28px; height: 28px; border-radius: 8px; background: ${bg}; color: #ffffff; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); border: 2px solid #ffffff;">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" viewBox="0 0 256 256">
             <path d="M239.71,81.14l-16-48A8,8,0,0,0,216.12,28H39.88a8,8,0,0,0-7.59,5.14l-16,48A8,8,0,0,0,24,96v16a8,8,0,0,0,8,8v96a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V120a8,8,0,0,0,8-8V96A8,8,0,0,0,239.71,81.14ZM45.72,44H210.28l10.67,32H35.05ZM208,216H48V120H208Zm16-112H32V92H224Z"/>
           </svg>
         </div>
-        ${store.cratesScheduled ? `<span class="absolute -top-1 -right-1 bg-slate-900 text-white text-[9px] font-bold px-1 rounded-full border border-white leading-none py-0.5">${store.cratesScheduled}</span>` : ""}
       </div>
     `,
     iconSize: [28, 28],
@@ -458,73 +379,79 @@ function createStoreIcon(store: StoreLocation, isSelected: boolean) {
   });
 }
 
-interface LeafletMapCanvasProps {
-  vehicles: VehicleTrackingData[];
-  stores: StoreLocation[];
-  selectedVehicle?: VehicleTrackingData;
-  selectedStore?: StoreLocation;
-  focusedTarget: "vehicle" | "store" | null;
-  onSelectVehicle: (id: string) => void;
-  onSelectStore: (id: string) => void;
-  showStores: boolean;
-  themeId: string;
-}
-
-function LeafletMapCanvas({
-  vehicles,
-  stores,
-  selectedVehicle,
-  selectedStore,
-  focusedTarget,
-  onSelectVehicle,
-  onSelectStore,
-  showStores,
-  themeId,
-}: LeafletMapCanvasProps) {
+export function LiveMapPage() {
   const mapContainerRef = React.useRef<HTMLDivElement>(null);
   const mapRef = React.useRef<L.Map | null>(null);
-  const tileLayerRef = React.useRef<L.TileLayer | null>(null);
-  const vehicleMarkersRef = React.useRef<{ [key: string]: L.Marker }>({});
-  const storeMarkersRef = React.useRef<{ [key: string]: L.Marker }>({});
 
-  const selectedTheme = MAP_THEMES.find((t) => t.id === themeId) || MAP_THEMES[0];
+  const tileUrl =
+    (import.meta as unknown as { env: Record<string, string> }).env?.VITE_MAP_TILE_URL ||
+    "https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png";
+
   const apiKey =
     (import.meta as unknown as { env: Record<string, string> }).env?.VITE_MAP_API_KEY ||
     "";
 
-  const resolvedTileUrl = buildTileUrl(selectedTheme.url, apiKey);
+  const resolvedTileUrl = buildTileUrl(tileUrl, apiKey);
 
-  // Initialize Map
   React.useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    const initialCenter = selectedVehicle
-      ? selectedVehicle.currentLocation
-      : CENTRAL_HUB.location;
-
     const map = L.map(mapContainerRef.current, {
-      center: initialCenter,
+      center: [6.9271, 79.8612],
       zoom: 13,
-      zoomControl: false,
+      zoomControl: true,
     });
 
-    // Add zoom control at bottom right to keep top clear
-    L.control.zoom({ position: "bottomright" }).addTo(map);
-
-    const tileLayer = L.tileLayer(resolvedTileUrl, {
-      attribution: selectedTheme.attribution,
-      maxZoom: selectedTheme.maxZoom,
+    L.tileLayer(resolvedTileUrl, {
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+      maxZoom: 20,
       subdomains: "abcd",
     }).addTo(map);
-
-    tileLayerRef.current = tileLayer;
 
     // Add Central Hub Marker
     L.marker(CENTRAL_HUB.location, { icon: createHubIcon() })
       .bindPopup(
-        `<div class="p-1 font-sans"><p class="font-bold text-xs text-slate-900">${CENTRAL_HUB.name}</p><p class="text-[11px] text-slate-500">${CENTRAL_HUB.code}</p></div>`
+        `<div style="font-family: sans-serif; padding: 4px;"><p style="font-weight: bold; margin: 0; font-size: 13px; color: #0f172a;">${CENTRAL_HUB.name}</p><p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">${CENTRAL_HUB.code}</p></div>`
       )
       .addTo(map);
+
+    // Add Store Markers
+    MOCK_STORES.forEach((store) => {
+      const icon = createStoreIcon(store);
+      L.marker([store.lat, store.lng], { icon })
+        .bindPopup(
+          `<div style="font-family: sans-serif; padding: 4px; min-width: 170px;">
+            <p style="font-weight: bold; margin: 0; font-size: 13px; color: #0f172a;">${store.name}</p>
+            <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">${store.address}</p>
+            <div style="margin-top: 6px; padding-top: 4px; border-top: 1px solid #e2e8f0; font-size: 11px; line-height: 1.4;">
+              <p style="margin: 0; color: #334155;"><strong>Status:</strong> ${store.todayStatus.toUpperCase()}</p>
+              <p style="margin: 0; color: #334155;"><strong>Crates:</strong> ${store.cratesScheduled}</p>
+              <p style="margin: 0; color: #334155;"><strong>Vehicle:</strong> ${store.assignedVehicle || "Unassigned"}</p>
+            </div>
+          </div>`
+        )
+        .addTo(map);
+    });
+
+    // Add Vehicle Markers (Top-View PNGs)
+    MOCK_VEHICLES.forEach((vehicle) => {
+      const icon = createTopViewVehicleIcon(vehicle);
+      L.marker(vehicle.currentLocation, { icon })
+        .bindPopup(
+          `<div style="font-family: sans-serif; padding: 4px; min-width: 160px;">
+            <p style="font-weight: bold; margin: 0; font-size: 13px; color: #0f172a;">${vehicle.code}</p>
+            <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">${vehicle.vehicleType}</p>
+            <div style="margin-top: 6px; padding-top: 4px; border-top: 1px solid #e2e8f0; font-size: 11px; line-height: 1.4;">
+              <p style="margin: 0; color: #334155;"><strong>Driver:</strong> ${vehicle.driverName}</p>
+              <p style="margin: 0; color: #334155;"><strong>Speed:</strong> ${vehicle.speedKmH} km/h</p>
+              <p style="margin: 0; color: #334155;"><strong>Fuel:</strong> ${vehicle.fuelPercentage}%</p>
+              <p style="margin: 0; color: #334155;"><strong>Load:</strong> ${vehicle.loadKg} / ${vehicle.totalCapacityKg} kg (${vehicle.loadPercentage}%)</p>
+            </div>
+          </div>`
+        )
+        .addTo(map);
+    });
 
     mapRef.current = map;
 
@@ -532,464 +459,11 @@ function LeafletMapCanvas({
       map.remove();
       mapRef.current = null;
     };
-  }, []);
-
-  // Update Tile Layer on theme/key changes
-  React.useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    if (tileLayerRef.current) {
-      tileLayerRef.current.remove();
-    }
-
-    const tileLayer = L.tileLayer(resolvedTileUrl, {
-      attribution: selectedTheme.attribution,
-      maxZoom: selectedTheme.maxZoom,
-      subdomains: "abcd",
-    }).addTo(map);
-
-    tileLayerRef.current = tileLayer;
-  }, [resolvedTileUrl, selectedTheme.attribution, selectedTheme.maxZoom]);
-
-  // Update vehicle markers
-  React.useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    vehicles.forEach((vehicle) => {
-      const isSelected = vehicle.id === selectedVehicle?.id;
-      const icon = createTopViewVehicleIcon(vehicle, isSelected);
-
-      if (vehicleMarkersRef.current[vehicle.id]) {
-        vehicleMarkersRef.current[vehicle.id]
-          .setLatLng(vehicle.currentLocation)
-          .setIcon(icon);
-      } else {
-        const marker = L.marker(vehicle.currentLocation, { icon }).addTo(map);
-
-        marker.on("click", () => {
-          onSelectVehicle(vehicle.id);
-        });
-
-        vehicleMarkersRef.current[vehicle.id] = marker;
-      }
-    });
-  }, [vehicles, selectedVehicle?.id, onSelectVehicle]);
-
-  // Update store location markers
-  React.useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    if (!showStores) {
-      Object.values(storeMarkersRef.current).forEach((m) => m.remove());
-      storeMarkersRef.current = {};
-      return;
-    }
-
-    stores.forEach((store) => {
-      const isSelected = store.id === selectedStore?.id;
-      const icon = createStoreIcon(store, isSelected);
-
-      if (storeMarkersRef.current[store.id]) {
-        storeMarkersRef.current[store.id].setLatLng([store.lat, store.lng]).setIcon(icon);
-      } else {
-        const marker = L.marker([store.lat, store.lng], { icon }).addTo(map);
-
-        marker.on("click", () => {
-          onSelectStore(store.id);
-        });
-
-        storeMarkersRef.current[store.id] = marker;
-      }
-    });
-  }, [stores, selectedStore?.id, showStores, onSelectStore]);
-
-  // Smooth pan on target change
-  React.useEffect(() => {
-    const map = mapRef.current;
-    if (!map) return;
-
-    if (focusedTarget === "vehicle" && selectedVehicle) {
-      map.flyTo(selectedVehicle.currentLocation, 15, { duration: 1.0 });
-    } else if (focusedTarget === "store" && selectedStore) {
-      map.flyTo([selectedStore.lat, selectedStore.lng], 15, { duration: 1.0 });
-    }
-  }, [focusedTarget, selectedVehicle, selectedStore]);
-
-  return <div ref={mapContainerRef} className="w-full h-full" />;
-}
-
-export function LiveMapPage() {
-  const [vehicles] = React.useState<VehicleTrackingData[]>(MOCK_VEHICLES);
-  const [stores] = React.useState<StoreLocation[]>(MOCK_STORES);
-  const [selectedVehicleId, setSelectedVehicleId] = React.useState<string>("v1");
-  const [selectedStoreId, setSelectedStoreId] = React.useState<string | null>(null);
-  const [focusedTarget, setFocusedTarget] = React.useState<"vehicle" | "store" | null>(
-    "vehicle"
-  );
-  const [selectedThemeId, setSelectedThemeId] = React.useState<string>("carto-positron");
-  const [searchQuery, setSearchQuery] = React.useState<string>("");
-  const [showStores, setShowStores] = React.useState<boolean>(true);
-  const [isDetailsOpen, setIsDetailsOpen] = React.useState<boolean>(true);
-
-  const selectedVehicle = vehicles.find((v) => v.id === selectedVehicleId) || vehicles[0];
-  const selectedStore = selectedStoreId
-    ? stores.find((s) => s.id === selectedStoreId)
-    : undefined;
-
-  const handleSelectVehicle = (id: string) => {
-    setSelectedVehicleId(id);
-    setSelectedStoreId(null);
-    setFocusedTarget("vehicle");
-    setIsDetailsOpen(true);
-  };
-
-  const handleSelectStore = (id: string) => {
-    setSelectedStoreId(id);
-    setFocusedTarget("store");
-    setIsDetailsOpen(true);
-    const st = stores.find((s) => s.id === id);
-    if (st?.assignedVehicle) {
-      const v = vehicles.find((veh) => veh.code === st.assignedVehicle);
-      if (v) setSelectedVehicleId(v.id);
-    }
-  };
-
-  const activeEnRouteCount = vehicles.filter((v) => v.status === "en_route").length;
-  const atStopCount = vehicles.filter((v) => v.status === "at_stop").length;
-  const delayedCount = vehicles.filter((v) => v.status === "delayed").length;
+  }, [resolvedTileUrl]);
 
   return (
     <div className="relative w-full h-[calc(100vh-4rem)] overflow-hidden bg-background">
-      {/* 100% Full-Bleed Map Canvas */}
-      <div className="absolute inset-0 z-0">
-        <LeafletMapCanvas
-          vehicles={vehicles}
-          stores={stores}
-          selectedVehicle={selectedVehicle}
-          selectedStore={selectedStore}
-          focusedTarget={focusedTarget}
-          onSelectVehicle={handleSelectVehicle}
-          onSelectStore={handleSelectStore}
-          showStores={showStores}
-          themeId={selectedThemeId}
-        />
-      </div>
-
-      {/* Floating Top Control Bar (Map-First) */}
-      <div className="absolute top-3 inset-x-4 z-400 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 pointer-events-none">
-        {/* Left: Hub Title & Quick Vehicle Switcher Pills */}
-        <div className="flex flex-wrap items-center gap-2 pointer-events-auto bg-card/95 backdrop-blur-md px-3 py-2 rounded-2xl border border-border shadow-md">
-          <div className="flex items-center gap-2 pr-2 border-r border-border">
-            <div className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="font-heading font-bold text-xs text-foreground">
-              Live Fleet Tracking
-            </span>
-            <Badge variant="outline" className="text-[10px] font-semibold">
-              {activeEnRouteCount} Moving • {atStopCount} At Stop
-              {delayedCount > 0 && ` • ${delayedCount} Delayed`}
-            </Badge>
-          </div>
-
-          {/* Quick Vehicle Pills */}
-          <div className="flex items-center gap-1.5">
-            {vehicles.map((v) => {
-              const isSelected =
-                selectedVehicleId === v.id && focusedTarget === "vehicle";
-              const isDelayed = v.status === "delayed";
-              const isAtStop = v.status === "at_stop";
-
-              return (
-                <button
-                  key={v.id}
-                  onClick={() => handleSelectVehicle(v.id)}
-                  className={cn(
-                    "px-2.5 py-1 rounded-xl text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 border",
-                    isSelected
-                      ? "bg-primary text-primary-foreground font-bold border-primary shadow-xs scale-105"
-                      : "bg-background text-muted-foreground border-border hover:text-foreground hover:bg-muted"
-                  )}
-                >
-                  <TruckIcon className="size-3.5" />
-                  <span>{v.code}</span>
-                  {v.speedKmH > 0 && (
-                    <span className="text-[10px] opacity-75 font-mono">
-                      {v.speedKmH}km/h
-                    </span>
-                  )}
-                  <span
-                    className={cn(
-                      "size-1.5 rounded-full",
-                      isDelayed
-                        ? "bg-amber-500"
-                        : isAtStop
-                          ? "bg-emerald-500"
-                          : "bg-primary"
-                    )}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Right: Quick Map Controls */}
-        <div className="flex items-center gap-2 pointer-events-auto bg-card/95 backdrop-blur-md p-1.5 rounded-2xl border border-border shadow-md">
-          {/* Search bar */}
-          <div className="relative w-44">
-            <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-            <Input
-              placeholder="Locate vehicle / store..."
-              value={searchQuery}
-              onChange={(e) => {
-                const query = e.target.value.toLowerCase();
-                setSearchQuery(e.target.value);
-                if (query) {
-                  const matchedVeh = vehicles.find(
-                    (v) =>
-                      v.code.toLowerCase().includes(query) ||
-                      v.driverName.toLowerCase().includes(query)
-                  );
-                  if (matchedVeh) {
-                    handleSelectVehicle(matchedVeh.id);
-                    return;
-                  }
-                  const matchedStore = stores.find(
-                    (s) =>
-                      s.name.toLowerCase().includes(query) ||
-                      s.code.toLowerCase().includes(query)
-                  );
-                  if (matchedStore) {
-                    handleSelectStore(matchedStore.id);
-                  }
-                }
-              }}
-              className="pl-7.5 h-8 text-xs rounded-xl"
-            />
-          </div>
-
-          {/* Toggle Store Markers */}
-          <Button
-            variant={showStores ? "default" : "outline"}
-            size="sm"
-            onClick={() => setShowStores(!showStores)}
-            className="h-8 text-xs gap-1.5 cursor-pointer rounded-xl"
-          >
-            <StorefrontIcon weight="bold" className="size-3.5" />
-            Stores ({stores.length})
-          </Button>
-
-          {/* Map Theme Dropdown */}
-          <select
-            value={selectedThemeId}
-            onChange={(e) => setSelectedThemeId(e.target.value)}
-            className="h-8 px-2 text-xs font-medium bg-background text-foreground border border-input rounded-xl cursor-pointer focus:outline-hidden"
-          >
-            {MAP_THEMES.map((theme) => (
-              <option key={theme.id} value={theme.id}>
-                {theme.name}
-              </option>
-            ))}
-          </select>
-
-          {/* Recenter Hub */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setFocusedTarget("vehicle");
-              setSelectedVehicleId(vehicles[0].id);
-            }}
-            className="h-8 px-2 text-xs cursor-pointer rounded-xl"
-            title="Recenter Map"
-          >
-            <CrosshairIcon className="size-3.5" />
-          </Button>
-        </div>
-      </div>
-
-      {/* Floating Telemetry Card (Bottom-Right / Side) */}
-      {isDetailsOpen && (
-        <div className="absolute bottom-6 left-4 z-400 w-80 max-w-[calc(100vw-2rem)]">
-          {focusedTarget === "vehicle" && selectedVehicle ? (
-            <Card className="p-3.5 bg-card/95 backdrop-blur-md rounded-2xl border border-border shadow-xl space-y-3">
-              <div className="flex items-start justify-between gap-2 border-b border-border/70 pb-2.5">
-                <div className="flex items-center gap-2.5">
-                  <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                    <TruckIcon weight="bold" className="size-5" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="font-heading font-bold text-sm text-foreground">
-                        {selectedVehicle.code}
-                      </span>
-                      <Badge
-                        variant={
-                          selectedVehicle.status === "delayed"
-                            ? "destructive"
-                            : selectedVehicle.status === "at_stop"
-                              ? "secondary"
-                              : "outline"
-                        }
-                        className="text-[10px] font-semibold"
-                      >
-                        {selectedVehicle.status === "delayed"
-                          ? `+${selectedVehicle.delayMinutes}m Delayed`
-                          : selectedVehicle.status === "at_stop"
-                            ? "At Stop"
-                            : "En Route"}
-                      </Badge>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      {selectedVehicle.vehicleType}
-                    </p>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setIsDetailsOpen(false)}
-                  className="p-1 text-muted-foreground hover:text-foreground rounded-lg cursor-pointer"
-                >
-                  <XIcon className="size-4" />
-                </button>
-              </div>
-
-              {/* Live Telemetry Grid */}
-              <div className="grid grid-cols-3 gap-2 text-center p-2 rounded-xl bg-muted/40 border border-border/50">
-                <div>
-                  <span className="text-[10px] text-muted-foreground block">Speed</span>
-                  <span className="font-bold text-xs text-foreground font-mono">
-                    {selectedVehicle.speedKmH} km/h
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground block">Fuel</span>
-                  <span className="font-bold text-xs text-foreground flex items-center justify-center gap-0.5">
-                    <GasPumpIcon className="size-3 text-muted-foreground" />
-                    {selectedVehicle.fuelPercentage}%
-                  </span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground block">Load</span>
-                  <span className="font-bold text-xs text-foreground flex items-center justify-center gap-0.5">
-                    <PackageIcon className="size-3 text-muted-foreground" />
-                    {selectedVehicle.loadPercentage}%
-                  </span>
-                </div>
-              </div>
-
-              {/* Driver & Contact */}
-              <div className="flex items-center justify-between text-xs pt-1">
-                <div>
-                  <span className="text-[10px] text-muted-foreground block">
-                    Assigned Driver
-                  </span>
-                  <p className="font-semibold text-foreground">
-                    {selectedVehicle.driverName}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-7 text-xs gap-1.5 cursor-pointer rounded-lg"
-                >
-                  <PhoneIcon className="size-3" />
-                  Call Driver
-                </Button>
-              </div>
-            </Card>
-          ) : (
-            selectedStore && (
-              <Card className="p-3.5 bg-card/95 backdrop-blur-md rounded-2xl border border-border shadow-xl space-y-3">
-                <div className="flex items-start justify-between gap-2 border-b border-border/70 pb-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <div className="p-2 rounded-xl bg-primary/10 text-primary">
-                      <StorefrontIcon weight="bold" className="size-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-heading font-bold text-sm text-foreground">
-                          {selectedStore.name}
-                        </span>
-                        <Badge variant="outline" className="text-[10px]">
-                          {selectedStore.code}
-                        </Badge>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {selectedStore.address}
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    onClick={() => setIsDetailsOpen(false)}
-                    className="p-1 text-muted-foreground hover:text-foreground rounded-lg cursor-pointer"
-                  >
-                    <XIcon className="size-4" />
-                  </button>
-                </div>
-
-                {/* Store Status Details */}
-                <div className="grid grid-cols-2 gap-2 p-2.5 rounded-xl bg-muted/40 border border-border/50 text-xs">
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block">
-                      Status
-                    </span>
-                    <span className="font-bold text-foreground capitalize">
-                      {selectedStore.todayStatus.replace("_", " ")}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block">
-                      Scheduled Crates
-                    </span>
-                    <span className="font-bold text-foreground">
-                      {selectedStore.cratesScheduled} Crates
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block">
-                      Assigned Vehicle
-                    </span>
-                    <span className="font-semibold text-primary">
-                      {selectedStore.assignedVehicle || "Pending"}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block">
-                      Window
-                    </span>
-                    <span className="font-medium text-foreground">
-                      {selectedStore.deliveryWindow}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex items-center justify-between text-xs pt-1">
-                  <div>
-                    <span className="text-[10px] text-muted-foreground block">
-                      Store Manager
-                    </span>
-                    <p className="font-medium text-foreground">
-                      {selectedStore.contactPerson}
-                    </p>
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 text-xs gap-1.5 cursor-pointer rounded-lg"
-                  >
-                    <PhoneIcon className="size-3" />
-                    Call Store
-                  </Button>
-                </div>
-              </Card>
-            )
-          )}
-        </div>
-      )}
+      <div ref={mapContainerRef} className="w-full h-full" />
     </div>
   );
 }
