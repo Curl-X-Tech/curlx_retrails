@@ -8,6 +8,7 @@ description: Standards and guidelines for React + TypeScript + Tailwind CSS + De
 ## 1. Directory Structure (`frontend/src/`)
 - `components/`: Clean, reusable UI components (Button, Input, Card, Modal, Table, Toast, Badge, Layout).
 - `contexts/`: React context providers (AuthContext, ThemeContext, SyncContext, NetworkContext).
+- `data/`: Mock datasets, seed arrays, sample geo-coordinates, and static lookup tables.
 - `db/`: Dexie.js database definition, tables, schemas, and live hooks.
 - `hooks/`: Custom hooks for network status, offline queries, syncing, and theme.
 - `pages/`: Page-level components (Dashboard, Items, Admin, Settings, Auth).

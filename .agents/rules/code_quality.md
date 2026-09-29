@@ -23,3 +23,9 @@ Before committing any changes to the repository, all quality checks MUST pass cl
 ## 4. UI Components Protection
 - Never overwrite or clobber existing custom UI components in `frontend/src/components/ui/` with stock CLI presets or templates. Preserve bespoke refinements and design tokens.
 
+## 5. Data & Mock Separation
+- Do not bloat React component files or page layouts with large inline mock datasets, seed lists, or static coordinate arrays (>50 lines).
+- Store all mock data, seed arrays, and static records in dedicated files under `frontend/src/data/` (e.g., `frontend/src/data/mock-live-map.ts`, `frontend/src/data/mock-orders.ts`).
+- Export explicit TypeScript types alongside mock records to ensure strong typing across hooks, stores, and components.
+
+

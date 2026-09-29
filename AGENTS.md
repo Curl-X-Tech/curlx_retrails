@@ -31,4 +31,8 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
    - Keep messages short, exact, and concise (under 72 chars, conventional commits prefix).
 9. **UI Components Protection**:
    - Never overwrite or clobber custom UI components in `frontend/src/components/ui/` with stock CLI presets or templates. Keep existing refinements intact.
+10. **Data & Mock Separation**:
+   - Never inline large mock datasets, seed lists, or static coordinate tables directly inside UI component/page files.
+   - Always store mock data, seed arrays, and static datasets in dedicated files under `frontend/src/data/` (e.g. `mock-live-map.ts`, `mock-orders.ts`) to keep page and component files lean and focused on presentation and interaction logic.
+
 
