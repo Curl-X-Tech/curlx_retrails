@@ -1,77 +1,205 @@
+name: retrails
+
+# Waypoint Group -- Full Platform Stack
+# Run: docker compose up --build
+#
+# Port Registry:
+#   8001  -- Order Service
+#   8002  -- Outlet Manager Service
+#   8003  -- Route Management Service
+#   8004  -- Vehicle Manager Service
+#   8005  -- Planning Engine Service
+#   8006  -- Dispatcher Service
+#   5672  -- RabbitMQ (AMQP)
+#   15672 -- RabbitMQ Management UI (waypoint/waypoint)
+#   5432  -- PostgreSQL
+#   5050  -- pgAdmin 4 Web UI
+#   6379  -- Redis
+
 services:
-  db:
-    image: postgres:16-alpine
-    restart: always
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changethis_postgres_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-app}
+
+  # -- Infrastructure -------------------------------------------------------- #
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: waypoint-rabbitmq
+    restart: unless-stopped
     ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: waypoint
+      RABBITMQ_DEFAULT_PASS: waypoint
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-app}"]
-      interval: 5s
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
       timeout: 5s
       retries: 5
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: waypoint-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: waypoint
+      POSTGRES_PASSWORD: waypoint
+      POSTGRES_DB: waypoint
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/helpers/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U waypoint"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: waypoint-pgadmin
+    restart: unless-stopped
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: 2001rvh1@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin1234
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   redis:
     image: redis:7-alpine
-    restart: always
+    container_name: waypoint-redis
+    restart: unless-stopped
     ports:
-      - "${REDIS_PORT:-6379}:6379"
-    volumes:
-      - redisdata:/data
+      - "6379:6379"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
 
-  mailpit:
-    image: axllent/mailpit:latest
+  # -- Microservices --------------------------------------------------------- #
+
+  order-service:
+    build:
+      context: ./backend/order_service
+    container_name: waypoint-orders
     restart: unless-stopped
     ports:
-      - "1025:1025" # SMTP port
-      - "8025:8025" # Web UI
-
-  backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "8000:8000"
+      - "8001:8001"
     environment:
-      POSTGRES_SERVER: db
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-changethis_postgres_pass}
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      SECRET_KEY: ${SECRET_KEY:-changethis-secret-key-32-chars-long-security-token-fullstack-fastapi}
-      SMTP_HOST: mailpit
-      SMTP_PORT: 1025
+      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/orders_db
+      RABBITMQ_URL: amqp://waypoint:waypoint@rabbitmq:5672/
     depends_on:
-      db:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  outlet-service:
+    build:
+      context: ./backend/outlet_service
+    container_name: waypoint-outlets
+    restart: unless-stopped
+    ports:
+      - "8002:8002"
+    environment:
+      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/outlets_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  route-service:
+    build:
+      context: ./backend/route_service
+    container_name: waypoint-routes
+    restart: unless-stopped
+    ports:
+      - "8003:8003"
+    environment:
+      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/routes_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  vehicle-service:
+    build:
+      context: ./backend/vehicle_service
+    container_name: waypoint-vehicles
+    restart: unless-stopped
+    ports:
+      - "8004:8004"
+    environment:
+      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/vehicles_db
+      RABBITMQ_URL: amqp://waypoint:waypoint@rabbitmq:5672/
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  planning-service:
+    build:
+      context: ./backend/planning_service
+    container_name: waypoint-planning
+    restart: unless-stopped
+    ports:
+      - "8005:8005"
+    environment:
+      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/planning_db
+      REDIS_URL: redis://redis:6379/0
+      RABBITMQ_URL: amqp://waypoint:waypoint@rabbitmq:5672/
+      ORDER_SERVICE_URL: http://order-service:8001
+      OUTLET_SERVICE_URL: http://outlet-service:8002
+      ROUTE_SERVICE_URL: http://route-service:8003
+      VEHICLE_SERVICE_URL: http://vehicle-service:8004
+    depends_on:
+      postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-      mailpit:
-        condition: service_started
+      rabbitmq:
+        condition: service_healthy
 
-  frontend:
+  planning-celery-worker:
     build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    restart: always
-    ports:
-      - "5173:80"
+      context: ./backend/planning_service
+    container_name: waypoint-planning-worker
+    restart: unless-stopped
+    command: celery -A app.core.job_worker worker --loglevel=info --concurrency=4
+    environment:
+      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/planning_db
+      REDIS_URL: redis://redis:6379/0
+      RABBITMQ_URL: amqp://waypoint:waypoint@rabbitmq:5672/
+      ORDER_SERVICE_URL: http://order-service:8001
+      OUTLET_SERVICE_URL: http://outlet-service:8002
+      ROUTE_SERVICE_URL: http://route-service:8003
+      VEHICLE_SERVICE_URL: http://vehicle-service:8004
     depends_on:
-      - backend
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  dispatch-service:
+    build:
+      context: ./backend/dispatch_service
+    container_name: waypoint-dispatch
+    restart: unless-stopped
+    ports:
+      - "8006:8006"
+    environment:
+      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/dispatch_db
+      RABBITMQ_URL: amqp://waypoint:waypoint@rabbitmq:5672/
+      ORDER_SERVICE_URL: http://order-service:8001
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
-  pgdata:
-  redisdata:
+  postgres_data:
