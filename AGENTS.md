@@ -29,3 +29,6 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
    - Every commit must pass `./dev.sh check` (linting, formatting, type checking, and tests).
 8. **Commit Messages**:
    - Keep messages short, exact, and concise (under 72 chars, conventional commits prefix).
+9. **UI Components Protection**:
+   - Never overwrite or clobber custom UI components in `frontend/src/components/ui/` with stock CLI presets or templates. Keep existing refinements intact.
+

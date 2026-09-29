@@ -19,3 +19,7 @@ Always use `./dev.sh` to run, test, lint, format, and check tasks across the rep
 Before committing any changes to the repository, all quality checks MUST pass cleanly:
 - Run `./dev.sh check` to execute lint, format checks, type checking, and tests in sequence.
 - Any failure blocks the commit.
+
+## 4. UI Components Protection
+- Never overwrite or clobber existing custom UI components in `frontend/src/components/ui/` with stock CLI presets or templates. Preserve bespoke refinements and design tokens.
+
