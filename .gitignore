@@ -78,3 +78,5 @@ Thumbs.db
 *.sqlite3
 *.db
 pgdata/
+
+*/figma-variables.json
