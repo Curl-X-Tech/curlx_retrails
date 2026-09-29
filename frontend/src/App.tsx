@@ -10,6 +10,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { LiveMapPage } from "@/pages/dispatcher/live-map-page";
 
 function getBreadcrumbs(id: string) {
   for (const group of navGroups) {
@@ -38,13 +39,13 @@ function getBreadcrumbs(id: string) {
 }
 
 export function App() {
-  const [activeNavId, setActiveNavId] = React.useState("dashboard");
+  const [activeNavId, setActiveNavId] = React.useState("live-tracking");
   const crumbs = getBreadcrumbs(activeNavId);
 
   return (
     <SidebarProvider defaultOpen={true}>
       <AppSidebar activeId={activeNavId} onSelect={setActiveNavId} />
-      <SidebarInset className="bg-muted/20">
+      <SidebarInset className="bg-muted/20 flex flex-col h-screen overflow-hidden">
         {/* Top bar header strictly matching sidebar h-16 height */}
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4">
           <div className="flex items-center gap-2.5">
@@ -76,20 +77,24 @@ export function App() {
           </div>
         </header>
 
-        <main className="flex-1 p-6 overflow-y-auto">
-          <div className="max-w-5xl space-y-4">
-            <div className="flex items-center justify-between pb-4 border-b border-border">
-              <div>
-                <h1 className="text-xl font-heading font-bold text-foreground">
-                  {crumbs[crumbs.length - 1]?.label || "Dispatcher Workspace"}
-                </h1>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Workspace scope: Western Province Hub (Peliyagoda)
-                </p>
+        {activeNavId === "live-tracking" ? (
+          <LiveMapPage />
+        ) : (
+          <main className="flex-1 p-6 overflow-y-auto">
+            <div className="max-w-5xl space-y-4">
+              <div className="flex items-center justify-between pb-4 border-b border-border">
+                <div>
+                  <h1 className="text-xl font-heading font-bold text-foreground">
+                    {crumbs[crumbs.length - 1]?.label || "Dispatcher Workspace"}
+                  </h1>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Workspace scope: Western Province Hub (Peliyagoda)
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
-        </main>
+          </main>
+        )}
       </SidebarInset>
     </SidebarProvider>
   );
