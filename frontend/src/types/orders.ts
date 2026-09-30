@@ -63,6 +63,7 @@ export interface StoreOrderGroup {
   contactPhone: string;
   orders: QueuedOrder[];
   totalOrders: number;
+  totalPackages: number;
   totalWeightKg: number;
   totalVolumeM3: number;
   totalValueLkr: number;

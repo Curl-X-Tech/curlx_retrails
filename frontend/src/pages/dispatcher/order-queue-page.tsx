@@ -670,16 +670,18 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                 {groupByStore
                   ? storeGroups.map((group) => (
                       <React.Fragment key={group.outletId}>
-                        <TableRow className="bg-muted/70 hover:bg-muted/70 border-t-2 border-b border-border/70">
+                        <TableRow className="bg-muted/50 hover:bg-muted/50 border-t-2 border-b border-border/70">
                           <TableCell
                             colSpan={9}
-                            className="py-2.5 px-4 text-xs font-heading font-bold text-foreground"
+                            className="py-2 px-4 text-xs font-heading font-bold text-foreground"
                           >
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
-                                <span className="size-5 rounded-md bg-primary/20 text-primary font-mono text-[10px] font-bold flex items-center justify-center">
+                                <StorefrontIcon className="size-4 text-primary shrink-0" />
+                                <span className="font-mono text-xs font-bold text-foreground">
                                   {group.outletId}
                                 </span>
+                                <span className="text-muted-foreground">•</span>
                                 <span className="font-heading font-black text-sm text-foreground">
                                   {group.outletName}
                                 </span>
@@ -711,19 +713,11 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                                 )}
                               </div>
 
-                              <div className="flex items-center gap-3 text-[11px] font-normal text-muted-foreground">
+                              <div className="flex items-center gap-3 text-xs text-muted-foreground font-normal">
+                                <span>{group.outletAddress}</span>
+                                <span>•</span>
                                 <span className="capitalize">
                                   {group.dockType.replace("_", " ")}
-                                </span>
-                                <span>•</span>
-                                <span>{group.deliveryWindow}</span>
-                                <span>•</span>
-                                <span className="font-semibold text-foreground">
-                                  {group.orders.length}{" "}
-                                  {group.orders.length === 1 ? "order" : "orders"} •{" "}
-                                  {group.totalWeightKg.toLocaleString()} kg •{" "}
-                                  {group.totalVolumeM3.toFixed(2)} m³ • LKR{" "}
-                                  {group.totalValueLkr.toLocaleString()}
                                 </span>
                               </div>
                             </div>
@@ -736,22 +730,24 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                             <TableRow
                               key={ord.id}
                               onClick={() => handleOpenDetail(ord)}
-                              className="border-border/40 hover:bg-muted/30 cursor-pointer text-xs"
+                              className="border-border/30 hover:bg-muted/30 cursor-pointer text-xs"
                             >
-                              <TableCell className="font-mono font-bold text-foreground py-2.5 px-4 whitespace-nowrap">
+                              <TableCell className="font-mono font-bold text-foreground py-2 px-4 whitespace-nowrap">
                                 <div className="flex items-center gap-2 pl-2">
-                                  <span className="size-1.5 rounded-full bg-[#0070BA] shrink-0" />
+                                  <span className="size-1.5 rounded-full bg-primary shrink-0" />
                                   <span>#{ord.orderRef}</span>
                                 </div>
                               </TableCell>
 
-                              <TableCell className="py-2.5 px-4">
-                                <span className="text-muted-foreground text-xs">
-                                  {ord.outletAddress}
+                              <TableCell className="py-2 px-4 text-xs text-muted-foreground">
+                                <span className="truncate block max-w-[220px]">
+                                  {ord.items
+                                    .map((i) => i.itemName.split(" (")[0])
+                                    .join(", ")}
                                 </span>
                               </TableCell>
 
-                              <TableCell className="py-2.5 px-4 whitespace-nowrap">
+                              <TableCell className="py-2 px-4 whitespace-nowrap">
                                 <Badge
                                   variant={isChilled ? "default" : "secondary"}
                                   className={`text-[10px] font-bold px-1.5 py-0 gap-1 ${
@@ -771,27 +767,27 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                                 </Badge>
                               </TableCell>
 
-                              <TableCell className="text-center font-bold text-foreground py-2.5 px-3 whitespace-nowrap">
+                              <TableCell className="text-center font-bold text-foreground py-2 px-3 whitespace-nowrap">
                                 {ord.items.length} pkgs
                               </TableCell>
 
-                              <TableCell className="text-right font-medium text-foreground py-2.5 px-4 whitespace-nowrap">
+                              <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap">
                                 {ord.totalWeightKg.toLocaleString()} kg
                               </TableCell>
 
-                              <TableCell className="text-right font-medium text-foreground py-2.5 px-4 whitespace-nowrap">
+                              <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap">
                                 {ord.totalVolumeM3.toFixed(2)} m³
                               </TableCell>
 
-                              <TableCell className="text-right font-mono font-bold text-foreground py-2.5 px-4 whitespace-nowrap">
-                                {ord.totalOrderValueLkr.toLocaleString()}
+                              <TableCell className="text-right font-mono font-bold text-foreground py-2 px-4 whitespace-nowrap">
+                                LKR {ord.totalOrderValueLkr.toLocaleString()}
                               </TableCell>
 
-                              <TableCell className="text-xs font-medium text-foreground py-2.5 px-4 whitespace-nowrap">
+                              <TableCell className="text-xs font-medium text-foreground py-2 px-4 whitespace-nowrap">
                                 {ord.deliveryWindow}
                               </TableCell>
 
-                              <TableCell className="text-right py-2.5 px-4 whitespace-nowrap">
+                              <TableCell className="text-right py-2 px-4 whitespace-nowrap">
                                 <IconButton
                                   variant="ghost"
                                   size="xs"
@@ -808,6 +804,41 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                             </TableRow>
                           );
                         })}
+
+                        <TableRow className="bg-muted/20 border-b-2 border-border/80 text-xs font-semibold">
+                          <TableCell className="py-2 px-4 font-mono font-bold text-[11px] text-muted-foreground whitespace-nowrap">
+                            <span className="pl-2">TOTAL ({group.outletId})</span>
+                          </TableCell>
+
+                          <TableCell className="py-2 px-4 text-xs font-semibold text-foreground">
+                            {group.totalOrders}{" "}
+                            {group.totalOrders === 1 ? "order" : "orders"}
+                          </TableCell>
+
+                          <TableCell className="py-2 px-4" />
+
+                          <TableCell className="text-center font-black text-foreground py-2 px-3 whitespace-nowrap">
+                            {group.totalPackages} pkgs
+                          </TableCell>
+
+                          <TableCell className="text-right font-black text-foreground py-2 px-4 whitespace-nowrap">
+                            {group.totalWeightKg.toLocaleString()} kg
+                          </TableCell>
+
+                          <TableCell className="text-right font-black text-foreground py-2 px-4 whitespace-nowrap">
+                            {group.totalVolumeM3.toFixed(2)} m³
+                          </TableCell>
+
+                          <TableCell className="text-right font-mono font-black text-primary py-2 px-4 whitespace-nowrap">
+                            LKR {group.totalValueLkr.toLocaleString()}
+                          </TableCell>
+
+                          <TableCell className="text-xs font-medium text-muted-foreground py-2 px-4 whitespace-nowrap">
+                            {group.deliveryWindow}
+                          </TableCell>
+
+                          <TableCell className="py-2 px-4" />
+                        </TableRow>
                       </React.Fragment>
                     ))
                   : paginatedOrders.map((ord) => {

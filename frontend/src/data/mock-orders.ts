@@ -766,6 +766,7 @@ export function getStoreGroupedOrders(orders: QueuedOrder[]): StoreOrderGroup[] 
         contactPhone: "+94 11 234 5678",
         orders: [],
         totalOrders: 0,
+        totalPackages: 0,
         totalWeightKg: 0,
         totalVolumeM3: 0,
         totalValueLkr: 0,
@@ -778,6 +779,7 @@ export function getStoreGroupedOrders(orders: QueuedOrder[]): StoreOrderGroup[] 
     const group = map.get(ord.outletId)!;
     group.orders.push(ord);
     group.totalOrders += 1;
+    group.totalPackages += ord.items.length;
     group.totalWeightKg += ord.totalWeightKg;
     group.totalVolumeM3 += ord.totalVolumeM3;
     group.totalValueLkr += ord.totalOrderValueLkr;
