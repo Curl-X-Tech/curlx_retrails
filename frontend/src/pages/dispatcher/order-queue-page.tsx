@@ -21,7 +21,6 @@ import {
   MapPinIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
@@ -100,7 +99,6 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
   const [isDetailOpen, setIsDetailOpen] = React.useState(false);
 
   const [currentPage, setCurrentPage] = React.useState(1);
-  const pageSize = 8;
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
@@ -182,9 +180,40 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
     return computeOrderQueueKPIs(filteredOrders);
   }, [filteredOrders]);
 
+  const gridPageSize = 8;
+  const groupPageSize = 4;
+  const flatPageSize = 10;
+
+  const totalPages = React.useMemo(() => {
+    if (viewMode === "grid") {
+      return Math.max(1, Math.ceil(sortedOrders.length / gridPageSize));
+    }
+    if (groupByStore) {
+      return Math.max(1, Math.ceil(storeGroups.length / groupPageSize));
+    }
+    return Math.max(1, Math.ceil(sortedOrders.length / flatPageSize));
+  }, [viewMode, groupByStore, sortedOrders.length, storeGroups.length]);
+
+  const paginatedGridOrders = React.useMemo(() => {
+    const start = (currentPage - 1) * gridPageSize;
+    return sortedOrders.slice(start, start + gridPageSize);
+  }, [sortedOrders, currentPage]);
+
+  const paginatedStoreGroups = React.useMemo(() => {
+    const start = (currentPage - 1) * groupPageSize;
+    return storeGroups.slice(start, start + groupPageSize);
+  }, [storeGroups, currentPage]);
+
+  const paginatedOrders = React.useMemo(() => {
+    const start = (currentPage - 1) * flatPageSize;
+    return sortedOrders.slice(start, start + flatPageSize);
+  }, [sortedOrders, currentPage]);
+
   React.useEffect(() => {
     setCurrentPage(1);
   }, [
+    viewMode,
+    groupByStore,
     searchQuery,
     brandFilter,
     tempFilter,
@@ -193,12 +222,6 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
     sortKey,
     sortDirection,
   ]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedOrders.length / pageSize));
-  const paginatedOrders = React.useMemo(() => {
-    const start = (currentPage - 1) * pageSize;
-    return sortedOrders.slice(start, start + pageSize);
-  }, [sortedOrders, currentPage, pageSize]);
 
   const handleOpenDetail = (order: QueuedOrder) => {
     setSelectedOrder(order);
@@ -510,32 +533,80 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
             </Button>
           </div>
         ) : viewMode === "grid" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {sortedOrders.map((order) => (
-              <OrderCard key={order.id} order={order} onSelect={handleOpenDetail} />
-            ))}
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+              {paginatedGridOrders.map((order) => (
+                <OrderCard key={order.id} order={order} onSelect={handleOpenDetail} />
+              ))}
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-border/60 text-xs">
+              <span className="text-muted-foreground text-xs">
+                Showing {(currentPage - 1) * gridPageSize + 1} to{" "}
+                {Math.min(currentPage * gridPageSize, sortedOrders.length)} of{" "}
+                {sortedOrders.length} orders
+              </span>
+
+              {totalPages > 1 && (
+                <Pagination className="mx-0 w-auto justify-end">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                        disabled={currentPage <= 1}
+                      />
+                    </PaginationItem>
+
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                      <PaginationItem key={page}>
+                        <PaginationLink
+                          isActive={currentPage === page}
+                          onClick={() => setCurrentPage(page)}
+                        >
+                          {page}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                        disabled={currentPage >= totalPages}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
+            </div>
           </div>
         ) : (
           <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex flex-col">
             <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-              <div className="text-muted-foreground text-[11px]">
+              <div className="text-muted-foreground text-xs">
                 {groupByStore ? (
                   <span>
-                    Grouped by{" "}
-                    <strong className="text-foreground">{storeGroups.length}</strong>{" "}
-                    retail outlets (
-                    <strong className="text-foreground">{filteredOrders.length}</strong>{" "}
-                    total orders)
+                    Showing{" "}
+                    <strong className="text-foreground">
+                      {(currentPage - 1) * groupPageSize + 1}
+                    </strong>{" "}
+                    to{" "}
+                    <strong className="text-foreground">
+                      {Math.min(currentPage * groupPageSize, storeGroups.length)}
+                    </strong>{" "}
+                    of <strong className="text-foreground">{storeGroups.length}</strong>{" "}
+                    retail destinations ({filteredOrders.length} total orders)
                   </span>
                 ) : (
                   <span>
                     Showing{" "}
                     <span className="font-bold text-foreground">
-                      {sortedOrders.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+                      {sortedOrders.length === 0
+                        ? 0
+                        : (currentPage - 1) * flatPageSize + 1}
                     </span>{" "}
                     to{" "}
                     <span className="font-bold text-foreground">
-                      {Math.min(currentPage * pageSize, sortedOrders.length)}
+                      {Math.min(currentPage * flatPageSize, sortedOrders.length)}
                     </span>{" "}
                     of{" "}
                     <span className="font-bold text-foreground">
@@ -546,7 +617,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                 )}
               </div>
 
-              {!groupByStore && (
+              {totalPages > 1 && (
                 <Pagination className="mx-0 w-auto justify-end">
                   <PaginationContent>
                     <PaginationItem>
@@ -595,11 +666,11 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                   </TableHead>
 
                   <TableHead
-                    className="w-[200px] cursor-pointer hover:text-foreground select-none transition-colors"
+                    className="w-[220px] cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("outlet")}
                   >
                     <div className="flex items-center gap-1">
-                      <span>Outlet & Brand</span>
+                      <span>Destination / Items</span>
                       <SortHeaderIcon
                         active={sortKey === "outlet"}
                         direction={sortDirection}
@@ -608,10 +679,10 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                   </TableHead>
 
                   <TableHead className="w-[110px]">Temp Zone</TableHead>
-                  <TableHead className="w-[90px] text-center">Packages</TableHead>
+                  <TableHead className="w-[85px] text-center">Packages</TableHead>
 
                   <TableHead
-                    className="w-[130px] text-right cursor-pointer hover:text-foreground select-none transition-colors"
+                    className="w-[120px] text-right cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("weight")}
                   >
                     <div className="flex items-center justify-end gap-1">
@@ -624,7 +695,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                   </TableHead>
 
                   <TableHead
-                    className="w-[120px] text-right cursor-pointer hover:text-foreground select-none transition-colors"
+                    className="w-[110px] text-right cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("volume")}
                   >
                     <div className="flex items-center justify-end gap-1">
@@ -637,7 +708,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                   </TableHead>
 
                   <TableHead
-                    className="w-[140px] text-right cursor-pointer hover:text-foreground select-none transition-colors"
+                    className="w-[130px] text-right cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("value")}
                   >
                     <div className="flex items-center justify-end gap-1">
@@ -650,7 +721,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                   </TableHead>
 
                   <TableHead
-                    className="w-[140px] cursor-pointer hover:text-foreground select-none transition-colors"
+                    className="w-[130px] cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("window")}
                   >
                     <div className="flex items-center gap-1">
@@ -662,54 +733,52 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                     </div>
                   </TableHead>
 
-                  <TableHead className="w-[60px] text-right">Action</TableHead>
+                  <TableHead className="w-[50px] text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
 
               <TableBody>
                 {groupByStore
-                  ? storeGroups.map((group) => (
+                  ? paginatedStoreGroups.map((group) => (
                       <React.Fragment key={group.outletId}>
-                        <TableRow className="bg-muted/50 hover:bg-muted/50 border-t-2 border-b border-border/70">
+                        <TableRow
+                          className={`hover:bg-muted/50 border-t-2 border-b border-border/70 ${
+                            group.hasDeferred
+                              ? "border-l-4 border-l-[var(--status-skip)] bg-[var(--status-skip-bg)]/40"
+                              : group.hasUrgent
+                                ? "border-l-4 border-l-[var(--status-urgent)] bg-muted/40"
+                                : "bg-muted/40"
+                          }`}
+                        >
                           <TableCell
                             colSpan={9}
-                            className="py-2 px-4 text-xs font-heading font-bold text-foreground"
+                            className="py-2.5 px-4 text-xs font-heading font-bold text-foreground"
                           >
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
                                 <StorefrontIcon className="size-4 text-primary shrink-0" />
-                                <span className="text-xs font-bold text-foreground">
+                                <span className="text-xs font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
                                   {group.outletId}
                                 </span>
-                                <span className="text-muted-foreground">•</span>
                                 <span className="font-heading font-black text-sm text-foreground">
                                   {group.outletName}
                                 </span>
-                                <Badge
-                                  variant="outline"
-                                  className="text-[10px] font-bold px-1.5 py-0 border-primary/40 text-primary"
-                                >
+                                <span className="text-xs font-semibold text-primary">
                                   Waypoint {group.brand}
-                                </Badge>
+                                </span>
                                 {group.hasDeferred && (
-                                  <Badge
-                                    variant="destructive"
-                                    className="text-[9px] font-bold px-1.5 py-0 gap-1"
-                                  >
+                                  <span className="text-[var(--status-skip)] font-bold text-xs flex items-center gap-1">
                                     <WarningOctagonIcon
-                                      className="size-2.5"
+                                      className="size-3"
                                       weight="bold"
                                     />
-                                    <span>Yesterday Skip</span>
-                                  </Badge>
+                                    Yesterday Skip
+                                  </span>
                                 )}
                                 {group.hasUrgent && (
-                                  <Badge
-                                    variant="default"
-                                    className="bg-amber-600 hover:bg-amber-600 text-white text-[9px] font-bold px-1.5 py-0"
-                                  >
-                                    Urgent
-                                  </Badge>
+                                  <span className="text-[var(--status-urgent)] font-bold text-xs">
+                                    [URGENT]
+                                  </span>
                                 )}
                               </div>
 
@@ -734,7 +803,15 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                             >
                               <TableCell className="font-bold text-foreground py-2 px-4 whitespace-nowrap">
                                 <div className="flex items-center gap-2 pl-2">
-                                  <span className="size-1.5 rounded-full bg-primary shrink-0" />
+                                  <span
+                                    className={`size-1.5 rounded-full shrink-0 ${
+                                      ord.deferredYesterday === 1
+                                        ? "bg-[var(--status-skip)]"
+                                        : ord.isUrgent
+                                          ? "bg-[var(--status-urgent)]"
+                                          : "bg-primary"
+                                    }`}
+                                  />
                                   <span>#{ord.orderRef}</span>
                                 </div>
                               </TableCell>
@@ -748,23 +825,29 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                               </TableCell>
 
                               <TableCell className="py-2 px-4 whitespace-nowrap">
-                                <Badge
-                                  variant={isChilled ? "default" : "secondary"}
-                                  className={`text-[10px] font-bold px-1.5 py-0 gap-1 ${
-                                    isChilled
-                                      ? "bg-sky-600 hover:bg-sky-600 text-white"
-                                      : ""
-                                  }`}
-                                >
+                                <div className="flex items-center gap-1 text-xs font-semibold">
                                   {isChilled ? (
-                                    <SnowflakeIcon className="size-2.5" weight="bold" />
+                                    <>
+                                      <SnowflakeIcon
+                                        className="size-3 text-[var(--status-chilled)] shrink-0"
+                                        weight="bold"
+                                      />
+                                      <span className="text-[var(--status-chilled)] text-[11px]">
+                                        Chilled
+                                      </span>
+                                    </>
                                   ) : (
-                                    <SunIcon className="size-2.5" weight="bold" />
+                                    <>
+                                      <SunIcon
+                                        className="size-3 text-[var(--status-ambient)] shrink-0"
+                                        weight="bold"
+                                      />
+                                      <span className="text-[var(--status-ambient)] text-[11px]">
+                                        Ambient
+                                      </span>
+                                    </>
                                   )}
-                                  <span className="capitalize">
-                                    {ord.tempRequirement}
-                                  </span>
-                                </Badge>
+                                </div>
                               </TableCell>
 
                               <TableCell className="text-center font-bold text-foreground py-2 px-3 whitespace-nowrap">
@@ -847,7 +930,13 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                         <TableRow
                           key={ord.id}
                           onClick={() => handleOpenDetail(ord)}
-                          className="hover:bg-muted/30 cursor-pointer"
+                          className={`hover:bg-muted/30 cursor-pointer ${
+                            ord.deferredYesterday === 1
+                              ? "border-l-4 border-l-[var(--status-skip)] bg-[var(--status-skip-bg)]/20"
+                              : ord.isUrgent
+                                ? "border-l-4 border-l-[var(--status-urgent)]"
+                                : ""
+                          }`}
                         >
                           <TableCell className="font-bold text-foreground">
                             #{ord.orderRef}
@@ -859,12 +948,9 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                                 <span className="font-bold text-xs text-foreground truncate max-w-[150px]">
                                   {ord.outletName}
                                 </span>
-                                <Badge
-                                  variant="outline"
-                                  className="text-[9px] font-bold px-1.5 py-0 border-primary/40 text-primary shrink-0"
-                                >
+                                <span className="text-[10px] font-bold text-primary">
                                   {ord.brand}
-                                </Badge>
+                                </span>
                               </div>
                               <span className="text-[10px] text-muted-foreground truncate block">
                                 {ord.outletAddress}
@@ -873,19 +959,29 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                           </TableCell>
 
                           <TableCell>
-                            <Badge
-                              variant={isChilled ? "default" : "secondary"}
-                              className={`text-[10px] font-bold px-1.5 py-0 gap-1 ${
-                                isChilled ? "bg-sky-600 hover:bg-sky-600 text-white" : ""
-                              }`}
-                            >
+                            <div className="flex items-center gap-1 text-xs font-semibold">
                               {isChilled ? (
-                                <SnowflakeIcon className="size-2.5" weight="bold" />
+                                <>
+                                  <SnowflakeIcon
+                                    className="size-3 text-[var(--status-chilled)] shrink-0"
+                                    weight="bold"
+                                  />
+                                  <span className="text-[var(--status-chilled)] text-[11px]">
+                                    Chilled
+                                  </span>
+                                </>
                               ) : (
-                                <SunIcon className="size-2.5" weight="bold" />
+                                <>
+                                  <SunIcon
+                                    className="size-3 text-[var(--status-ambient)] shrink-0"
+                                    weight="bold"
+                                  />
+                                  <span className="text-[var(--status-ambient)] text-[11px]">
+                                    Ambient
+                                  </span>
+                                </>
                               )}
-                              <span className="capitalize">{ord.tempRequirement}</span>
-                            </Badge>
+                            </div>
                           </TableCell>
 
                           <TableCell className="text-center font-bold text-foreground">

@@ -9,7 +9,6 @@ import {
   CubeIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { IconButton } from "@/components/ui/icon-button";
 import type { QueuedOrder } from "@/types";
 
@@ -26,32 +25,30 @@ export function OrderCard({ order, onSelect, className }: OrderCardProps) {
     <Card
       onClick={() => onSelect?.(order)}
       className={`bg-card border border-border/80 shadow-xs rounded-2xl p-4 flex flex-col justify-between select-none hover:border-border hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden min-w-0 group ${
-        order.deferredYesterday === 1 ? "border-l-4 border-l-red-500" : ""
+        order.deferredYesterday === 1
+          ? "border-l-4 border-l-[var(--status-skip)] bg-[var(--status-skip-bg)]/20"
+          : order.isUrgent
+            ? "border-l-4 border-l-[var(--status-urgent)]"
+            : ""
       } ${className || ""}`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-heading font-black text-base text-foreground tracking-tight group-hover:text-primary transition-colors">
               #{order.orderRef}
             </span>
 
-            <Badge
-              variant="outline"
-              className="text-[9px] font-semibold px-1.5 py-0 border-border/80"
-            >
+            <span className="text-[11px] font-bold text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded-md">
               {order.outletId}
-            </Badge>
+            </span>
 
-            <Badge
-              variant="outline"
-              className="text-[9px] font-bold px-1.5 py-0 border-primary/40 text-primary"
-            >
-              {order.brand}
-            </Badge>
+            <span className="text-[11px] font-bold text-primary">
+              Waypoint {order.brand}
+            </span>
           </div>
 
-          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mt-1 truncate">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mt-1.5 truncate">
             <StorefrontIcon className="size-3.5 text-primary shrink-0" />
             <span className="truncate">{order.outletName}</span>
           </div>
@@ -106,37 +103,34 @@ export function OrderCard({ order, onSelect, className }: OrderCardProps) {
           <span className="truncate">{order.deliveryWindow}</span>
         </div>
 
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1 text-xs font-semibold">
+            {isChilled ? (
+              <>
+                <SnowflakeIcon
+                  className="size-3 text-[var(--status-chilled)]"
+                  weight="bold"
+                />
+                <span className="text-[var(--status-chilled)] text-[11px]">Chilled</span>
+              </>
+            ) : (
+              <>
+                <SunIcon className="size-3 text-[var(--status-ambient)]" weight="bold" />
+                <span className="text-[var(--status-ambient)] text-[11px]">Ambient</span>
+              </>
+            )}
+          </div>
+
           {order.deferredYesterday === 1 ? (
-            <Badge
-              variant="destructive"
-              className="text-[9px] font-bold px-1.5 py-0 gap-0.5"
-            >
-              <WarningOctagonIcon className="size-2.5" weight="bold" />
+            <div className="flex items-center gap-0.5 text-[var(--status-skip)] font-bold text-[11px]">
+              <WarningOctagonIcon className="size-3" weight="bold" />
               <span>Skip</span>
-            </Badge>
+            </div>
           ) : order.isUrgent ? (
-            <Badge
-              variant="default"
-              className="bg-amber-600 hover:bg-amber-600 text-white text-[9px] font-bold px-1.5 py-0"
-            >
+            <span className="text-[var(--status-urgent)] font-bold text-[11px]">
               Urgent
-            </Badge>
-          ) : (
-            <Badge
-              variant={isChilled ? "default" : "secondary"}
-              className={`text-[9px] font-bold px-1.5 py-0 gap-0.5 ${
-                isChilled ? "bg-sky-600 hover:bg-sky-600 text-white" : ""
-              }`}
-            >
-              {isChilled ? (
-                <SnowflakeIcon className="size-2.5" weight="bold" />
-              ) : (
-                <SunIcon className="size-2.5" weight="bold" />
-              )}
-              <span className="capitalize">{order.tempRequirement}</span>
-            </Badge>
-          )}
+            </span>
+          ) : null}
         </div>
       </div>
     </Card>

@@ -11,7 +11,6 @@ import {
   ShieldCheckIcon,
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
@@ -59,54 +58,48 @@ export function OrderDetailSheet({
               <SheetTitle className="font-heading font-black text-xl text-foreground tracking-tight">
                 Order #{order.orderRef}
               </SheetTitle>
-              <Badge
-                variant="outline"
-                className="text-xs font-semibold px-2 py-0.5 border-border/80"
-              >
+              <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded">
                 {order.outletId}
-              </Badge>
+              </span>
             </div>
 
-            <div className="flex items-center gap-1.5 flex-wrap">
+            <div className="flex items-center gap-3 flex-wrap">
               {order.deferredYesterday === 1 && (
-                <Badge
-                  variant="destructive"
-                  className="text-[10px] font-bold px-2 py-0.5 gap-1"
-                >
-                  <WarningOctagonIcon className="size-3" weight="bold" />
-                  <span>Deferred Yesterday</span>
-                </Badge>
+                <span className="text-[var(--status-skip)] text-xs font-bold flex items-center gap-1">
+                  <WarningOctagonIcon className="size-3.5" weight="bold" />
+                  Deferred Yesterday
+                </span>
               )}
 
               {order.isUrgent && (
-                <Badge
-                  variant="default"
-                  className="bg-amber-600 hover:bg-amber-600 text-white text-[10px] font-bold px-2 py-0.5"
-                >
-                  Urgent
-                </Badge>
+                <span className="text-[var(--status-urgent)] text-xs font-bold">
+                  [URGENT]
+                </span>
               )}
 
-              <Badge
-                variant={isChilled ? "default" : "secondary"}
-                className={`text-[10px] font-bold px-2 py-0.5 gap-1 ${
-                  isChilled ? "bg-sky-600 hover:bg-sky-600 text-white" : ""
-                }`}
-              >
+              <div className="flex items-center gap-1 text-xs font-semibold">
                 {isChilled ? (
-                  <SnowflakeIcon className="size-3" weight="bold" />
+                  <>
+                    <SnowflakeIcon
+                      className="size-3.5 text-[var(--status-chilled)]"
+                      weight="bold"
+                    />
+                    <span className="text-[var(--status-chilled)]">Chilled</span>
+                  </>
                 ) : (
-                  <SunIcon className="size-3" weight="bold" />
+                  <>
+                    <SunIcon
+                      className="size-3.5 text-[var(--status-ambient)]"
+                      weight="bold"
+                    />
+                    <span className="text-[var(--status-ambient)]">Ambient</span>
+                  </>
                 )}
-                <span className="capitalize">{order.tempRequirement}</span>
-              </Badge>
+              </div>
 
-              <Badge
-                variant="outline"
-                className="text-[10px] font-bold px-2 py-0.5 border-primary/40 text-primary"
-              >
+              <span className="text-xs font-bold text-primary">
                 Waypoint {order.brand}
-              </Badge>
+              </span>
             </div>
           </div>
 
@@ -250,12 +243,9 @@ export function OrderDetailSheet({
                       {item.totalPriceLkr.toLocaleString()}
                     </TableCell>
                     <TableCell className="text-center py-2.5 px-3 whitespace-nowrap">
-                      <Badge
-                        variant="outline"
-                        className="text-[10px] font-bold px-1.5 py-0 border-border/80"
-                      >
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 bg-muted rounded border border-border/80 text-foreground">
                         {item.specialHandlingCode}
-                      </Badge>
+                      </span>
                     </TableCell>
                   </TableRow>
                 ))}
