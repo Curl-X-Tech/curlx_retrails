@@ -41,7 +41,9 @@ export interface AllocationDriverDetails {
   rating?: number;
   deliveriesCompleted?: number;
   shiftStatus?: string;
-  hoursOnDuty?: string;
+  dutyStartTime?: string;
+  shiftHoursWorked?: number;
+  maxShiftHours?: number;
 }
 
 export interface AllocationVehicleSpec {

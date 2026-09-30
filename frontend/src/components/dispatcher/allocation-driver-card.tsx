@@ -21,32 +21,22 @@ interface AllocationDriverCardProps {
   className?: string;
 }
 
-function parseShiftProgress(hoursOnDuty?: string): {
+function calculateShiftProgress(
+  workedHoursVal?: number,
+  maxHoursVal: number = 8.0
+): {
   workedHours: string;
   totalHours: string;
   percentage: number;
 } {
-  if (!hoursOnDuty) {
-    return { workedHours: "3.8h", totalHours: "8h", percentage: 48 };
-  }
-  const parts = hoursOnDuty.split("/");
-  if (parts.length === 2) {
-    const workedStr = parts[0].trim();
-    const totalStr = parts[1].trim();
-    const matchWorked = workedStr.match(/(\d+)(?:h)?\s*(\d+)?/);
-    const matchTotal = totalStr.match(/(\d+)/);
-    const h = matchWorked ? parseInt(matchWorked[1], 10) : 3;
-    const m = matchWorked && matchWorked[2] ? parseInt(matchWorked[2], 10) : 45;
-    const total = matchTotal ? parseInt(matchTotal[1], 10) : 8;
-    const workedDec = h + m / 60;
-    const pct = Math.min(Math.round((workedDec / total) * 100), 100);
-    return {
-      workedHours: `${workedDec.toFixed(1)}h`,
-      totalHours: `${total}h`,
-      percentage: pct,
-    };
-  }
-  return { workedHours: hoursOnDuty, totalHours: "8h", percentage: 48 };
+  const worked = workedHoursVal ?? 3.8;
+  const total = maxHoursVal || 8.0;
+  const percentage = Math.min(Math.max(Math.round((worked / total) * 100), 0), 100);
+  return {
+    workedHours: `${worked.toFixed(1)}h`,
+    totalHours: `${total}h`,
+    percentage,
+  };
 }
 
 export function AllocationDriverCard({ driver, className }: AllocationDriverCardProps) {
@@ -58,7 +48,7 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
 
   const rating = driver.rating || 4.9;
   const deliveries = driver.deliveriesCompleted || 1420;
-  const shift = parseShiftProgress(driver.hoursOnDuty);
+  const shift = calculateShiftProgress(driver.shiftHoursWorked, driver.maxShiftHours);
   const bloodGroup = driver.bloodGroup || "O+";
   const licenseExpiry = driver.licenseExpiryDate || "2028-11-15";
 

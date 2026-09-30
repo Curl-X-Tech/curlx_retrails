@@ -45,7 +45,8 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
       rating: 4.9,
       deliveriesCompleted: 1420,
       shiftStatus: "Active On Duty",
-      hoursOnDuty: "3h 45m / 8h",
+      shiftHoursWorked: 3.75,
+      maxShiftHours: 8.0,
     },
 
     specs: {
@@ -731,7 +732,8 @@ export function getManifestForAllocation(
       rating: 4.9,
       deliveriesCompleted: 1240,
       shiftStatus: "Active On Duty",
-      hoursOnDuty: "3h 30m / 8h",
+      shiftHoursWorked: 3.5,
+      maxShiftHours: 8.0,
     },
     specs: {
       unitId: allocation.code,
