@@ -6,13 +6,17 @@ export interface CargoItem {
   stopSeq: number;
   stopName: string;
   destination: string;
-  shc: "AVI" | "ELI" | "PER" | "GEN";
+  shc: "COL" | "FRG" | "MAL" | "HAZ" | "GEN";
 }
 
 export interface AllocationDriverDetails {
+  employeeCode?: string;
   name: string;
-  role: string;
+  email?: string;
+  role: "driver" | "dispatcher" | "loader" | "store_manager" | "system_admin" | string;
+  designation?: string;
   licenseId: string;
+  licenseClass?: string;
   licenseExpiryDate?: string;
   phone: string;
   avatarText: string;
@@ -26,15 +30,21 @@ export interface AllocationDriverDetails {
 
 export interface AllocationVehicleSpec {
   unitId: string;
+  vehicleId?: string;
   model: string;
   regNumber: string;
   sealNumber: string;
+  type?: "truck" | "van";
+  temp?: "reefer" | "ambient";
   maxPayloadKg: number;
   boxVolumeCbm: number;
+  weeklyFuelQuotaL?: number;
+  consumedFuelL?: number;
 }
 
 export interface AllocationWaypoint {
   seq: number;
+  outletId?: string;
   name: string;
   lat: number;
   lng: number;
@@ -48,6 +58,8 @@ export interface AllocationVehiclePosition {
   lng: number;
   heading?: number;
   speedKmH?: number;
+  reeferTempCelsius?: number;
+  ambientTempCelsius?: number;
   lastUpdated?: string;
 }
 
@@ -55,6 +67,11 @@ export interface AllocationManifestDetail {
   id: string;
   manifestCode: string;
   allocationId: string;
+  tripCode?: string;
+  tripSequence?: 1 | 2;
+  brand?: "Fresh" | "Style" | "Tech";
+  district?: string;
+  depot?: string;
   driver: AllocationDriverDetails;
   specs: AllocationVehicleSpec;
   payloadKg: number;
@@ -73,10 +90,18 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
     id: "mnf-01",
     manifestCode: "MNF-4811-01",
     allocationId: "alloc-01",
+    tripCode: "RT-14",
+    tripSequence: 1,
+    brand: "Fresh",
+    district: "Colombo",
+    depot: "Peliyagoda",
     driver: {
+      employeeCode: "DRV-301",
       name: "Saman Perera",
-      role: "Heavy Vehicle Pilot",
+      email: "driver@curlx.tech",
+      role: "driver",
       licenseId: "DL-90821-WP-89",
+      licenseClass: "Heavy Commercial (Class A)",
       licenseExpiryDate: "2028-11-15",
       phone: "+94 77 123 4567",
       avatarText: "SP",
@@ -90,11 +115,16 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
 
     specs: {
       unitId: "RT-14",
+      vehicleId: "VEH001",
       model: "Isuzu ELF NPR",
       regNumber: "NP-4811",
       sealNumber: "SL-90821-B",
+      type: "truck",
+      temp: "reefer",
       maxPayloadKg: 4200,
       boxVolumeCbm: 28.0,
+      weeklyFuelQuotaL: 340,
+      consumedFuelL: 112,
     },
     payloadKg: 3360,
     maxPayloadKg: 4200,
@@ -165,7 +195,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 1,
         stopName: "Waypoint Fresh Wattala",
         destination: "Wattala Hub Store",
-        shc: "AVI",
+        shc: "FRG",
       },
       {
         id: "cg-102",
@@ -175,7 +205,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 1,
         stopName: "Waypoint Fresh Wattala",
         destination: "Wattala Cold Section",
-        shc: "ELI",
+        shc: "MAL",
       },
       {
         id: "cg-103",
@@ -185,7 +215,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 2,
         stopName: "Keells Super - Kollupitiya",
         destination: "Kollupitiya Meat Depot",
-        shc: "PER",
+        shc: "COL",
       },
       {
         id: "cg-104",
@@ -205,7 +235,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 3,
         stopName: "Arpico Supercentre - Hyde Park",
         destination: "Hyde Park Dairy Section",
-        shc: "PER",
+        shc: "COL",
       },
       {
         id: "cg-106",
@@ -319,7 +349,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 3,
         stopName: "Laugfs Super - Ja-Ela",
         destination: "Ja-Ela Hub Refrigerated",
-        shc: "PER",
+        shc: "COL",
       },
       {
         id: "cg-204",
@@ -329,7 +359,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 1,
         stopName: "Keells Super - Wattala",
         destination: "Wattala Express Depot",
-        shc: "AVI",
+        shc: "FRG",
       },
     ],
   },
@@ -412,7 +442,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 1,
         stopName: "Healthguard - Crescat",
         destination: "Crescat Boulevard Health",
-        shc: "PER",
+        shc: "COL",
       },
       {
         id: "cg-302",
@@ -422,7 +452,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 2,
         stopName: "Union Chemists - Town Hall",
         destination: "Town Hall Pharmacy Dispensary",
-        shc: "ELI",
+        shc: "MAL",
       },
       {
         id: "cg-303",
@@ -535,7 +565,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 3,
         stopName: "Arpico Daily - Thalawathugoda",
         destination: "Thalawathugoda Center Cold Store",
-        shc: "PER",
+        shc: "COL",
       },
     ],
   },
@@ -609,7 +639,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 1,
         stopName: "Keells Super - Dehiwala",
         destination: "Dehiwala Coast Pantry",
-        shc: "PER",
+        shc: "COL",
       },
       {
         id: "cg-502",
@@ -702,7 +732,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 1,
         stopName: "Keells Super - Negombo Town",
         destination: "Negombo Main Perishables",
-        shc: "PER",
+        shc: "COL",
       },
       {
         id: "cg-602",
@@ -712,7 +742,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         stopSeq: 2,
         stopName: "Cargills Food City - Kochchikade",
         destination: "Kochchikade Harbor Storage",
-        shc: "AVI",
+        shc: "FRG",
       },
       {
         id: "cg-603",

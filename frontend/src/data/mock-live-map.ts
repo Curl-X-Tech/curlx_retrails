@@ -3,8 +3,12 @@ export type StoreCategory = "fresh" | "supermarket" | "pharmacy" | "chilled";
 export interface StoreLocation {
   id: string;
   code: string;
+  outletId?: string;
   name: string;
   chain: string;
+  brand?: "Fresh" | "Style" | "Tech";
+  dockType?: "rear_dock" | "street" | "mall_bay";
+  parkingConstraint?: "normal" | "van_only" | "mall_dock";
   category: StoreCategory;
   address: string;
   lat: number;
@@ -20,8 +24,13 @@ export interface StoreLocation {
 export interface VehicleTrackingData {
   id: string;
   code: string;
+  vehicleId?: string;
   vehicleType: string;
   vehicleCategory: "truck" | "van";
+  temp?: "reefer" | "ambient";
+  reeferTempCelsius?: number;
+  brand?: "Fresh" | "Style" | "Tech";
+  depot?: "Peliyagoda" | "Kandy";
   imageUrl: string;
   driverName: string;
   driverPhone: string;

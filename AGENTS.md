@@ -38,6 +38,14 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
    - Do not scatter translucent, noisy, or pastel badges across tables, cards, and headers.
    - If a status or tag is necessary, use solid, high-contrast colors or clean monospace text labels rather than washed-out pills.
    - Avoid filler tags and keep layouts lean, minimal, and focused on essential data.
+12. **Strict Schema & Domain Fidelity**:
+   - All new and existing UI components, data hooks, Zustand stores, and mock datasets must strictly align with the PostgreSQL master schema in `docs/schema/schema.sql`.
+   - Always use canonical entity fields, relations, data types, and status enums:
+     - 5 Enterprise Roles: `system_admin`, `dispatcher`, `loader`, `driver`, `store_manager`.
+     - Special Handling Codes: `COL` (Cold Chain), `FRG` (Fragile), `MAL` (Mall Bay), `HAZ` (Hazardous).
+     - Fleet & Units: `weight_cap_kg`, `volume_cap_m3`, `fuel_type`, `km_per_l`, `weekly_fuel_quota_l`, `type` (`truck` | `van`), `temp` (`reefer` | `ambient`).
+     - Pricing & Valuation: Currency `LKR` and unit prices adhering to `price_list` / `order_item.unit_price`.
+
 
 
 

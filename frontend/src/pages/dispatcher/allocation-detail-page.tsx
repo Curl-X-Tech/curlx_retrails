@@ -61,12 +61,16 @@ export function AllocationDetailPage({
       manifestCode: `MNF-${selectedAllocation.plateNumber.replace(/[^a-zA-Z0-9]/g, "")}`,
       allocationId: selectedAllocation.id,
       driver: {
+        employeeCode: "DRV-301",
         name: selectedAllocation.driverName,
-        role:
+        email: "driver@curlx.tech",
+        role: "driver",
+        designation:
           selectedAllocation.vehicleCategory === "van"
             ? "Express Delivery Specialist"
-            : "Heavy Vehicle Pilot",
+            : "Heavy Commercial Pilot",
         licenseId: "DL-88291-WP-90",
+        licenseClass: "Heavy Commercial (Class A)",
         licenseExpiryDate: "2028-11-15",
         bloodGroup: "O+",
         phone: selectedAllocation.driverPhone,
@@ -126,7 +130,7 @@ export function AllocationDetailPage({
           stopSeq: 1,
           stopName: selectedAllocation.assignedStops[0]?.name || "Stop 1",
           destination: selectedAllocation.assignedStops[0]?.name || "Central Store",
-          shc: selectedAllocation.temperatureZone === "frozen" ? "PER" : "GEN",
+          shc: selectedAllocation.temperatureZone === "frozen" ? "COL" : "GEN",
         },
         {
           id: `cg-${selectedAllocation.id}-2`,
