@@ -14,6 +14,7 @@ import { LiveMapPage } from "@/pages/dispatcher/live-map-page";
 import { AllocationSummaryPage } from "@/pages/dispatcher/allocation-summary-page";
 import { AllocationDetailPage } from "@/pages/dispatcher/allocation-detail-page";
 import { OrderQueuePage } from "@/pages/dispatcher/order-queue-page";
+import { DeferralsPage } from "@/pages/dispatcher/deferrals-page";
 
 import { mockVehicleAllocations } from "@/data/mock-allocations";
 import { getManifestForAllocation } from "@/data/mock-allocation-details";
@@ -143,6 +144,12 @@ export function App() {
           <AllocationDetailPage
             initialAllocationId={selectedAllocationId}
             onSelectAllocation={(alloc) => setSelectedAllocationId(alloc.id)}
+          />
+        ) : activeNavId === "deferrals" ||
+          activeNavId === "carryover" ||
+          activeNavId === "deferral-log" ? (
+          <DeferralsPage
+            viewMode={activeNavId === "deferral-log" ? "deferral-log" : "carryover"}
           />
         ) : (
           <main className="flex-1 p-6 overflow-y-auto">
