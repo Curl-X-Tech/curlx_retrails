@@ -272,3 +272,26 @@
   border: 1px solid var(--border) !important;
   box-shadow: none !important;
 }
+
+@keyframes lock-shake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  20% {
+    transform: translateX(-5px) rotate(-8deg);
+  }
+  40% {
+    transform: translateX(5px) rotate(8deg);
+  }
+  60% {
+    transform: translateX(-4px) rotate(-4deg);
+  }
+  80% {
+    transform: translateX(4px) rotate(4deg);
+  }
+}
+
+.animate-lock-shake {
+  animation: lock-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}

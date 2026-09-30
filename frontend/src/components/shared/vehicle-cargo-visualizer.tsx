@@ -20,12 +20,14 @@ interface VehicleCargoVisualizerProps {
   vehicle: VehicleVisualizerData;
   mode: "weight" | "volume";
   onToggleMode?: (mode: "weight" | "volume") => void;
+  size?: "compact" | "sm" | "md" | "lg";
 }
 
 export function VehicleCargoVisualizer({
   vehicle,
   mode,
   onToggleMode,
+  size = "md",
 }: VehicleCargoVisualizerProps) {
   const [touchStartX, setTouchStartX] = React.useState<number | null>(null);
   const [dragOffset, setDragOffset] = React.useState(0);
@@ -34,7 +36,7 @@ export function VehicleCargoVisualizer({
   const activeIndex = mode === "weight" ? 0 : 1;
   const isVan = vehicle.vehicleCategory === "van";
 
-  // Exact Photoshop Coordinates based on 2048x2048 image canvas:
+  // Exact Coordinates based on 2048x2048 image canvas:
   // Lorries: x: 740px (36.13%), y: 575px (28.08%), w: 1150px (56.15%), h: 677px (33.06%)
   // Van:     x: 1083px (52.88%), y: 646px (31.54%), w: 711px (34.72%), h: 501px (24.46%)
   const containerStyle: React.CSSProperties = isVan
@@ -97,14 +99,38 @@ export function VehicleCargoVisualizer({
     setDragOffset(0);
   };
 
+  // Size configurations
+  const sizeClasses = {
+    compact: {
+      container: "h-32 sm:h-36 my-0.5",
+      wrapper: "h-44 sm:h-48 scale-[1.05] sm:scale-[1.1]",
+    },
+    sm: {
+      container: "h-34 sm:h-38 my-0.5",
+      wrapper: "h-48 sm:h-52 scale-[1.12] sm:scale-[1.16]",
+    },
+    md: {
+      container: "h-36 sm:h-44 my-1",
+      wrapper: "h-52 sm:h-58 scale-[1.18] sm:scale-[1.24]",
+    },
+    lg: {
+      container: "h-40 sm:h-48 my-1",
+      wrapper: "h-56 sm:h-64 scale-[1.24] sm:scale-[1.3]",
+    },
+  }[size];
+
   const renderVehicleSlide = (slideType: "weight" | "volume") => {
     const pct =
       slideType === "weight" ? vehicle.weightPercentage : vehicle.volumePercentage;
     const color = getFillColor(pct);
 
     return (
-      <div className="w-1/2 min-w-[50%] max-w-[50%] shrink-0 flex items-center justify-center overflow-hidden h-40 sm:h-48 my-1 select-none pointer-events-none">
-        <div className="relative inline-block aspect-square h-56 sm:h-64 scale-[1.24] sm:scale-[1.3] transform-gpu pointer-events-none">
+      <div
+        className={`w-1/2 min-w-[50%] max-w-[50%] shrink-0 flex items-center justify-center overflow-hidden select-none pointer-events-none ${sizeClasses.container}`}
+      >
+        <div
+          className={`relative inline-block aspect-square transform-gpu pointer-events-none ${sizeClasses.wrapper}`}
+        >
           <img
             src={vehicle.imageUrl}
             alt={vehicle.code}
@@ -156,7 +182,7 @@ export function VehicleCargoVisualizer({
                 </span>
                 <span
                   className={`font-heading font-black tracking-tight leading-none ${
-                    isVan ? "text-lg sm:text-2xl" : "text-3xl sm:text-4xl"
+                    isVan ? "text-lg sm:text-2xl" : "text-2xl sm:text-3xl"
                   }`}
                 >
                   {pct}%

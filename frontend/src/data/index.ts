@@ -4,3 +4,4 @@ export * from "./mock-live-map";
 export * from "./mock-hubs";
 export * from "./mock-orders";
 export * from "./mock-deferrals";
+export * from "./mock-loader-bays";

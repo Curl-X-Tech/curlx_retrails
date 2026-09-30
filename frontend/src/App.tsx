@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/app-layout";
+import { LoaderLayout } from "@/components/layout/loader-layout";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import {
   DeferralsPageSkeleton,
@@ -8,9 +9,11 @@ import {
   AllocationSummaryPageSkeleton,
   AllocationDetailPageSkeleton,
   LiveMapPageSkeleton,
+  LoaderPageSkeleton,
 } from "@/components/skeletons";
 
 import { lazyWithDelay } from "@/lib/simulated-delay";
+import { getActiveDomainRole } from "@/lib/domain-routing";
 
 const LiveMapPage = lazyWithDelay(() =>
   import("@/pages/dispatcher/live-map-page").then((m) => ({
@@ -38,17 +41,29 @@ const DeferralsPage = lazyWithDelay(() =>
   }))
 );
 
+const LoaderBaysPage = lazyWithDelay(() =>
+  import("@/pages/loader/loader-bays-page").then((m) => ({
+    default: m.LoaderBaysPage,
+  }))
+);
+
 export function App() {
+  const activeDomainRole = getActiveDomainRole();
+  const rootDefaultPath =
+    activeDomainRole === "loader" ? "/loader/bays" : "/dispatcher/allocations";
+
   return (
     <Routes>
-      {/* Root redirect */}
-      <Route path="/" element={<Navigate to="/dispatcher/allocations" replace />} />
+      {/* Root redirect depending on active subdomain / app */}
+      <Route path="/" element={<Navigate to={rootDefaultPath} replace />} />
+
+      {/* ----------------------------------------------------------- */}
+      {/* 1. Protected Dispatcher & Admin Route Tree (Desktop UI)      */}
+      {/* ----------------------------------------------------------- */}
       <Route
         path="/dispatcher"
         element={<Navigate to="/dispatcher/allocations" replace />}
       />
-
-      {/* Protected Dispatcher & Admin Route Tree */}
       <Route
         element={
           <ProtectedRoute allowedRoles={["dispatcher", "system_admin"]}>
@@ -132,8 +147,30 @@ export function App() {
         />
       </Route>
 
+      {/* ----------------------------------------------------------- */}
+      {/* 2. Protected Loader Route Tree (Glove-friendly Tablet UI)   */}
+      {/* ----------------------------------------------------------- */}
+      <Route path="/loader" element={<Navigate to="/loader/bays" replace />} />
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["loader", "system_admin", "dispatcher"]}>
+            <LoaderLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route
+          path="/loader/bays"
+          element={
+            <React.Suspense fallback={<LoaderPageSkeleton />}>
+              <LoaderBaysPage />
+            </React.Suspense>
+          }
+        />
+        <Route path="/loader/*" element={<Navigate to="/loader/bays" replace />} />
+      </Route>
+
       {/* Catch-all global fallback */}
-      <Route path="*" element={<Navigate to="/dispatcher/allocations" replace />} />
+      <Route path="*" element={<Navigate to={rootDefaultPath} replace />} />
     </Routes>
   );
 }

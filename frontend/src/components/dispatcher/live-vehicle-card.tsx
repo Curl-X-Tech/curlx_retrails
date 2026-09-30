@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
 import type { VehicleTrackingData } from "@/data/mock-live-map";
-import { VehicleCargoVisualizer } from "./vehicle-cargo-visualizer";
+import { VehicleCargoVisualizer } from "@/components/shared";
 
 interface LiveVehicleCardProps {
   vehicle: VehicleTrackingData;
