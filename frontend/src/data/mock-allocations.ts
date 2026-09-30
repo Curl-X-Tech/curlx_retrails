@@ -1,51 +1,10 @@
-export interface AllocatedStoreStop {
-  id: string;
-  name: string;
-  chain: string;
-  address: string;
-  crates: number;
-  deliveryWindow: string;
-  sequence: number;
-}
+import type {
+  AllocatedStoreStop,
+  AllocationSummaryKPIs,
+  VehicleAllocation,
+} from "@/types";
 
-export interface VehicleAllocation {
-  id: string;
-  code: string;
-  plateNumber: string;
-  vehicleModel: string;
-  vehicleCategory: "van" | "dry_lorry" | "freeze_lorry";
-  vehicleType: string;
-  imageUrl: string;
-  driverName: string;
-  driverPhone: string;
-  status: "allocated" | "loading" | "dispatched" | "completed" | "delayed";
-  temperatureZone: "ambient" | "chilled" | "frozen" | "multi_temp";
-  routeCode: string;
-  routeName: string;
-  hubName: string;
-  departureTime: string;
-  estimatedReturnTime: string;
-  allocatedWeightKg: number;
-  maxWeightKg: number;
-  weightPercentage: number;
-  allocatedVolumeCbm: number;
-  maxVolumeCbm: number;
-  volumePercentage: number;
-  cratesAllocated: number;
-  maxCratesCapacity: number;
-  palletsCount: number;
-  assignedStops: AllocatedStoreStop[];
-}
-
-export interface AllocationSummaryKPIs {
-  totalVehicles: number;
-  activeAllocations: number;
-  totalCratesAllocated: number;
-  totalWeightKg: number;
-  totalVolumeCbm: number;
-  averageCapacityPercentage: number;
-  fullyLoadedVehicles: number;
-}
+export type { AllocatedStoreStop, AllocationSummaryKPIs, VehicleAllocation };
 
 export const mockVehicleAllocations: VehicleAllocation[] = [
   {

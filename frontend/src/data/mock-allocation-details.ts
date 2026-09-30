@@ -1,89 +1,20 @@
-export interface CargoItem {
-  id: string;
-  code: string;
-  weightKg: number;
-  store: string;
-  stopSeq: number;
-  stopName: string;
-  destination: string;
-  shc: "COL" | "FRG" | "MAL" | "HAZ" | "GEN";
-}
+import type {
+  AllocationDriverDetails,
+  AllocationManifestDetail,
+  AllocationVehiclePosition,
+  AllocationVehicleSpec,
+  AllocationWaypoint,
+  CargoItem,
+} from "@/types";
 
-export interface AllocationDriverDetails {
-  employeeCode?: string;
-  name: string;
-  email?: string;
-  role: "driver" | "dispatcher" | "loader" | "store_manager" | "system_admin" | string;
-  designation?: string;
-  licenseId: string;
-  licenseClass?: string;
-  licenseExpiryDate?: string;
-  phone: string;
-  avatarText: string;
-  bloodGroup?: string;
-  experienceYears?: number;
-  rating?: number;
-  deliveriesCompleted?: number;
-  shiftStatus?: string;
-  hoursOnDuty?: string;
-}
-
-export interface AllocationVehicleSpec {
-  unitId: string;
-  vehicleId?: string;
-  model: string;
-  regNumber: string;
-  sealNumber: string;
-  type?: "truck" | "van";
-  temp?: "reefer" | "ambient";
-  maxPayloadKg: number;
-  boxVolumeCbm: number;
-  weeklyFuelQuotaL?: number;
-  consumedFuelL?: number;
-}
-
-export interface AllocationWaypoint {
-  seq: number;
-  outletId?: string;
-  name: string;
-  lat: number;
-  lng: number;
-  crates: number;
-  eta: string;
-  status: "completed" | "upcoming" | "newly_added" | "current" | "pending";
-}
-
-export interface AllocationVehiclePosition {
-  lat: number;
-  lng: number;
-  heading?: number;
-  speedKmH?: number;
-  reeferTempCelsius?: number;
-  ambientTempCelsius?: number;
-  lastUpdated?: string;
-}
-
-export interface AllocationManifestDetail {
-  id: string;
-  manifestCode: string;
-  allocationId: string;
-  tripCode?: string;
-  tripSequence?: 1 | 2;
-  brand?: "Fresh" | "Style" | "Tech";
-  district?: string;
-  depot?: string;
-  driver: AllocationDriverDetails;
-  specs: AllocationVehicleSpec;
-  payloadKg: number;
-  maxPayloadKg: number;
-  payloadPercentage: number;
-  volumeCbm: number;
-  maxVolumeCbm: number;
-  volumePercentage: number;
-  vehiclePosition?: AllocationVehiclePosition;
-  waypoints: AllocationWaypoint[];
-  cargoList: CargoItem[];
-}
+export type {
+  AllocationDriverDetails,
+  AllocationManifestDetail,
+  AllocationVehiclePosition,
+  AllocationVehicleSpec,
+  AllocationWaypoint,
+  CargoItem,
+};
 
 export const mockAllocationManifests: Record<string, AllocationManifestDetail> = {
   "alloc-01": {

@@ -1,62 +1,11 @@
-export type StoreCategory = "fresh" | "supermarket" | "pharmacy" | "chilled";
+import type {
+  MapThemePreset,
+  StoreCategory,
+  StoreLocation,
+  VehicleTrackingData,
+} from "@/types";
 
-export interface StoreLocation {
-  id: string;
-  code: string;
-  outletId?: string;
-  name: string;
-  chain: string;
-  brand?: "Fresh" | "Style" | "Tech";
-  dockType?: "rear_dock" | "street" | "mall_bay";
-  parkingConstraint?: "normal" | "van_only" | "mall_dock";
-  category: StoreCategory;
-  address: string;
-  lat: number;
-  lng: number;
-  contactPerson: string;
-  contactPhone: string;
-  todayStatus: "delivered" | "in_transit" | "scheduled";
-  cratesScheduled: number;
-  assignedVehicle?: string;
-  deliveryWindow: string;
-}
-
-export interface VehicleTrackingData {
-  id: string;
-  code: string;
-  vehicleId?: string;
-  vehicleType: string;
-  vehicleCategory: "truck" | "van";
-  temp?: "reefer" | "ambient";
-  reeferTempCelsius?: number;
-  brand?: "Fresh" | "Style" | "Tech";
-  depot?: "Peliyagoda" | "Kandy";
-  imageUrl: string;
-  driverName: string;
-  driverPhone: string;
-  status: "en_route" | "at_stop" | "delayed";
-  currentLocation: [number, number];
-  heading: number; // 0 to 360 degrees (0 = North / Upward)
-  weightPercentage: number;
-  weightKg: number;
-  maxWeightKg: number;
-  volumePercentage: number;
-  volumeCbm: number;
-  maxVolumeCbm: number;
-  cratesCount: number;
-  nextStop: string;
-  nextStopEta: string;
-  stopsTotal: number;
-  stopsCompleted: number;
-}
-
-export interface MapThemePreset {
-  id: string;
-  name: string;
-  url: string;
-  attribution: string;
-  maxZoom: number;
-}
+export type { MapThemePreset, StoreCategory, StoreLocation, VehicleTrackingData };
 
 export const CENTRAL_HUB = {
   name: "Peliyagoda Central Distribution Hub",
