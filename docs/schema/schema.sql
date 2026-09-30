@@ -471,3 +471,141 @@ CREATE INDEX IF NOT EXISTS idx_checklist_trip ON loading_checklist_item(trip_id,
 CREATE INDEX IF NOT EXISTS idx_telemetry_veh_ts ON vehicle_telemetry(vehicle_id, timestamp DESC);
 CREATE INDEX IF NOT EXISTS idx_sync_idempotency ON sync_mutation_audit_log(idempotency_key);
 CREATE INDEX IF NOT EXISTS idx_sync_batch ON sync_mutation_audit_log(batch_id);
+
+-- ============================================================
+-- 8. Automated Database Triggers & Business Logic Functions
+-- ============================================================
+
+-- Function: Automatically update updated_at timestamp on row modification
+CREATE OR REPLACE FUNCTION fn_update_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Apply timestamp triggers to mutable tables
+CREATE OR REPLACE TRIGGER trg_depot_updated_at BEFORE UPDATE ON depot FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+CREATE OR REPLACE TRIGGER trg_brand_updated_at BEFORE UPDATE ON brand FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+CREATE OR REPLACE TRIGGER trg_outlet_updated_at BEFORE UPDATE ON outlet FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+CREATE OR REPLACE TRIGGER trg_item_updated_at BEFORE UPDATE ON item FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+CREATE OR REPLACE TRIGGER trg_price_list_updated_at BEFORE UPDATE ON price_list FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+CREATE OR REPLACE TRIGGER trg_staff_profile_updated_at BEFORE UPDATE ON staff_profile FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+CREATE OR REPLACE TRIGGER trg_vehicle_updated_at BEFORE UPDATE ON vehicle FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+CREATE OR REPLACE TRIGGER trg_customer_order_updated_at BEFORE UPDATE ON customer_order FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+CREATE OR REPLACE TRIGGER trg_trip_updated_at BEFORE UPDATE ON trip FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+CREATE OR REPLACE TRIGGER trg_loading_checklist_updated_at BEFORE UPDATE ON loading_checklist_item FOR EACH ROW EXECUTE FUNCTION fn_update_timestamp();
+
+-- Function: Auto-lock item price from active price_list upon order placement
+CREATE OR REPLACE FUNCTION fn_auto_lock_order_item_price()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_active_price NUMERIC(10,2);
+BEGIN
+    IF NEW.unit_price IS NULL OR NEW.unit_price <= 0.00 THEN
+        SELECT unit_price INTO v_active_price
+        FROM v_active_price_list
+        WHERE item_id = NEW.item_id;
+
+        IF v_active_price IS NOT NULL THEN
+            NEW.unit_price := v_active_price;
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_order_item_auto_price
+BEFORE INSERT ON order_item
+FOR EACH ROW EXECUTE FUNCTION fn_auto_lock_order_item_price();
+
+-- Function: Recompute Trip Distance and Duration when route legs change
+CREATE OR REPLACE FUNCTION fn_sync_trip_metrics()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_trip_id UUID;
+    v_total_dist NUMERIC(8,2);
+    v_total_dur NUMERIC(6,2);
+BEGIN
+    v_trip_id := COALESCE(NEW.trip_id, OLD.trip_id);
+    
+    SELECT 
+        COALESCE(SUM(distance_km), 0.0),
+        COALESCE(SUM(planned_travel_duration_min), 0.0)
+    INTO v_total_dist, v_total_dur
+    FROM route_leg
+    WHERE trip_id = v_trip_id;
+
+    UPDATE trip
+    SET total_distance_km = v_total_dist,
+        total_trip_duration_min = v_total_dur + outbound_travel_min + total_handling_min
+    WHERE id = v_trip_id;
+
+    RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_route_leg_sync_trip
+AFTER INSERT OR UPDATE OR DELETE ON route_leg
+FOR EACH ROW EXECUTE FUNCTION fn_sync_trip_metrics();
+
+-- Function: Automatically flag cold-chain breach (> 4.0°C) from live telematics
+CREATE OR REPLACE FUNCTION fn_telemetry_cold_chain_guard()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.reefer_temp_celsius IS NOT NULL AND NEW.reefer_temp_celsius > 4.00 AND NEW.trip_id IS NOT NULL THEN
+        -- Insert automated temperature breach discrepancy if not already flagged in last 30 minutes
+        IF NOT EXISTS (
+            SELECT 1 FROM discrepancy_report 
+            WHERE trip_id = NEW.trip_id 
+              AND discrepancy_type = 'temp_breach' 
+              AND reported_at >= NOW() - INTERVAL '30 minutes'
+        ) THEN
+            INSERT INTO discrepancy_report (
+                trip_id,
+                order_id,
+                discrepancy_type,
+                reported_by_staff_id,
+                reported_at,
+                description,
+                resolution_status
+            )
+            SELECT 
+                NEW.trip_id,
+                rl.order_id,
+                'temp_breach',
+                t.driver_id,
+                NOW(),
+                'AUTOMATED TELEMETRY ALERT: Reefer cargo temperature breached threshold at ' || NEW.reefer_temp_celsius || '°C (Limit: 4.0°C)',
+                'open'
+            FROM trip t
+            LEFT JOIN route_leg rl ON rl.trip_id = t.id
+            WHERE t.id = NEW.trip_id
+            LIMIT 1;
+        END IF;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_telemetry_cold_chain_alert
+AFTER INSERT ON vehicle_telemetry
+FOR EACH ROW EXECUTE FUNCTION fn_telemetry_cold_chain_guard();
+
+-- Function: Increment Driver completed trips counter upon Trip completion
+CREATE OR REPLACE FUNCTION fn_driver_trip_completed_counter()
+RETURNS TRIGGER AS $$
+BEGIN
+    IF NEW.status = 'completed' AND OLD.status != 'completed' THEN
+        UPDATE staff_profile
+        SET total_completed_trips = total_completed_trips + 1
+        WHERE id = NEW.driver_id;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE TRIGGER trg_trip_driver_stats
+AFTER UPDATE ON trip
+FOR EACH ROW EXECUTE FUNCTION fn_driver_trip_completed_counter();

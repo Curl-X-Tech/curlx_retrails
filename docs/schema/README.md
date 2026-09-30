@@ -43,6 +43,21 @@ This document outlines the PostgreSQL 15+ database schema powering **ReTrails (T
 
 ## 2. Dynamic Database Views
 
-- **`v_active_price_list`**: Resolves the current active selling and cost price per item based on today's date.
+- **`v_active_price_list`**: Resolves current active selling and cost price per item based on today's date.
 - **`v_customer_order_summary`**: Computes total order weight, volume, and monetary value dynamically from `order_item` without redundant header storage.
 - **`v_trip_payload_summary`**: Calculates live trip payload weight, cubic volume, total cargo valuation, and percentage utilization against vehicle capacity caps.
+
+---
+
+## 3. Automated Database Trigger Functions
+
+1. **`fn_update_timestamp()` (`trg_*_updated_at`)**:
+   Automatically sets `updated_at = NOW()` across all mutable master and transactional tables upon row modification.
+2. **`fn_auto_lock_order_item_price()` (`trg_order_item_auto_price`)**:
+   Automatically resolves and locks the active selling price from `v_active_price_list` when an order item is inserted without a specified price.
+3. **`fn_sync_trip_metrics()` (`trg_route_leg_sync_trip`)**:
+   Recomputes `trip.total_distance_km` and `trip.total_trip_duration_min` dynamically whenever route legs or waypoints are inserted, updated, or removed.
+4. **`fn_telemetry_cold_chain_guard()` (`trg_telemetry_cold_chain_alert`)**:
+   Monitors live GPS telematics for active reefer vehicles and automatically generates an urgent `discrepancy_report` (`temp_breach`) if cargo temperature exceeds 4.0°C.
+5. **`fn_driver_trip_completed_counter()` (`trg_trip_driver_stats`)**:
+   Automatically increments `staff_profile.total_completed_trips` for the assigned driver as soon as a trip transitions to `'completed'`.
