@@ -11,6 +11,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { LiveMapPage } from "@/pages/dispatcher/live-map-page";
+import { AllocationSummaryPage } from "@/pages/dispatcher/allocation-summary-page";
 
 function getBreadcrumbs(id: string) {
   for (const group of navGroups) {
@@ -39,7 +40,7 @@ function getBreadcrumbs(id: string) {
 }
 
 export function App() {
-  const [activeNavId, setActiveNavId] = React.useState("live-tracking");
+  const [activeNavId, setActiveNavId] = React.useState("allocation-summary");
   const crumbs = getBreadcrumbs(activeNavId);
 
   return (
@@ -79,6 +80,8 @@ export function App() {
 
         {activeNavId === "live-tracking" ? (
           <LiveMapPage />
+        ) : activeNavId === "allocation-summary" ? (
+          <AllocationSummaryPage />
         ) : (
           <main className="flex-1 p-6 overflow-y-auto">
             <div className="max-w-5xl space-y-4">
