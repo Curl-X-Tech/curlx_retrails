@@ -1,0 +1,144 @@
+import {
+  StorefrontIcon,
+  ClockIcon,
+  SnowflakeIcon,
+  SunIcon,
+  WarningOctagonIcon,
+  ArrowSquareOutIcon,
+  ScalesIcon,
+  CubeIcon,
+} from "@phosphor-icons/react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { IconButton } from "@/components/ui/icon-button";
+import type { QueuedOrder } from "@/types";
+
+interface OrderCardProps {
+  order: QueuedOrder;
+  onSelect?: (order: QueuedOrder) => void;
+  className?: string;
+}
+
+export function OrderCard({ order, onSelect, className }: OrderCardProps) {
+  const isChilled = order.tempRequirement === "chilled";
+
+  return (
+    <Card
+      onClick={() => onSelect?.(order)}
+      className={`bg-card border border-border/80 shadow-xs rounded-2xl p-4 flex flex-col justify-between select-none hover:border-border hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden min-w-0 group ${
+        order.deferredYesterday === 1 ? "border-l-4 border-l-red-500" : ""
+      } ${className || ""}`}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-heading font-black text-base text-foreground tracking-tight group-hover:text-primary transition-colors">
+              #{order.orderRef}
+            </span>
+
+            <Badge
+              variant="outline"
+              className="text-[9px] font-mono px-1.5 py-0 border-border/80"
+            >
+              {order.outletId}
+            </Badge>
+
+            <Badge
+              variant="outline"
+              className="text-[9px] font-bold px-1.5 py-0 border-primary/40 text-primary"
+            >
+              {order.brand}
+            </Badge>
+          </div>
+
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium mt-1 truncate">
+            <StorefrontIcon className="size-3.5 text-primary shrink-0" />
+            <span className="truncate">{order.outletName}</span>
+          </div>
+        </div>
+
+        <IconButton
+          variant="ghost"
+          size="xs"
+          onClick={(e) => {
+            e.stopPropagation();
+            onSelect?.(order);
+          }}
+          className="size-7 rounded-lg text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer shrink-0"
+          title="Inspect order details"
+        >
+          <ArrowSquareOutIcon className="size-4" />
+        </IconButton>
+      </div>
+
+      <div className="my-3 py-2.5 px-3 bg-muted/30 border border-border/50 rounded-xl space-y-2">
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
+            <ScalesIcon className="size-3.5 text-emerald-600 shrink-0" />
+            <span>Weight</span>
+          </div>
+          <span className="font-bold text-foreground">
+            {order.totalWeightKg.toLocaleString()} kg
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
+            <CubeIcon className="size-3.5 text-violet-600 shrink-0" />
+            <span>Volume</span>
+          </div>
+          <span className="font-bold text-foreground">
+            {order.totalVolumeM3.toFixed(2)} m³
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between text-xs pt-1.5 border-t border-border/40">
+          <span className="text-[11px] text-muted-foreground">Order Valuation</span>
+          <span className="font-mono font-bold text-foreground">
+            LKR {order.totalOrderValueLkr.toLocaleString()}
+          </span>
+        </div>
+      </div>
+
+      <div className="pt-2 border-t border-border/50 flex items-center justify-between gap-2 text-xs">
+        <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-medium truncate">
+          <ClockIcon className="size-3.5 text-primary shrink-0" />
+          <span className="truncate">{order.deliveryWindow}</span>
+        </div>
+
+        <div className="flex items-center gap-1 shrink-0">
+          {order.deferredYesterday === 1 ? (
+            <Badge
+              variant="destructive"
+              className="text-[9px] font-bold px-1.5 py-0 gap-0.5"
+            >
+              <WarningOctagonIcon className="size-2.5" weight="bold" />
+              <span>Skip</span>
+            </Badge>
+          ) : order.isUrgent ? (
+            <Badge
+              variant="default"
+              className="bg-amber-600 hover:bg-amber-600 text-white text-[9px] font-bold px-1.5 py-0"
+            >
+              Urgent
+            </Badge>
+          ) : (
+            <Badge
+              variant={isChilled ? "default" : "secondary"}
+              className={`text-[9px] font-bold px-1.5 py-0 gap-0.5 ${
+                isChilled ? "bg-sky-600 hover:bg-sky-600 text-white" : ""
+              }`}
+            >
+              {isChilled ? (
+                <SnowflakeIcon className="size-2.5" weight="bold" />
+              ) : (
+                <SunIcon className="size-2.5" weight="bold" />
+              )}
+              <span className="capitalize">{order.tempRequirement}</span>
+            </Badge>
+          )}
+        </div>
+      </div>
+    </Card>
+  );
+}

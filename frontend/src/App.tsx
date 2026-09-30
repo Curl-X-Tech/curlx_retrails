@@ -13,6 +13,7 @@ import {
 import { LiveMapPage } from "@/pages/dispatcher/live-map-page";
 import { AllocationSummaryPage } from "@/pages/dispatcher/allocation-summary-page";
 import { AllocationDetailPage } from "@/pages/dispatcher/allocation-detail-page";
+import { OrderQueuePage } from "@/pages/dispatcher/order-queue-page";
 
 import { mockVehicleAllocations } from "@/data/mock-allocations";
 import { getManifestForAllocation } from "@/data/mock-allocation-details";
@@ -125,7 +126,11 @@ export function App() {
           </div>
         </header>
 
-        {activeNavId === "live-tracking" ? (
+        {activeNavId === "order-queue" ? (
+          <OrderQueuePage
+            onNavigateToAllocation={() => setActiveNavId("allocation-summary")}
+          />
+        ) : activeNavId === "live-tracking" ? (
           <LiveMapPage />
         ) : activeNavId === "allocation-summary" ? (
           <AllocationSummaryPage
