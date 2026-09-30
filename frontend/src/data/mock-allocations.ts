@@ -31,8 +31,6 @@ export const mockVehicleAllocations: VehicleAllocation[] = [
     maxVolumeCbm: 18.0,
     volumePercentage: 50,
     cratesAllocated: 80,
-    maxCratesCapacity: 160,
-    palletsCount: 4,
     assignedStops: [
       {
         id: "stop-1",
@@ -87,8 +85,6 @@ export const mockVehicleAllocations: VehicleAllocation[] = [
     maxVolumeCbm: 22.0,
     volumePercentage: 81,
     cratesAllocated: 168,
-    maxCratesCapacity: 200,
-    palletsCount: 8,
     assignedStops: [
       {
         id: "stop-4",
@@ -143,8 +139,6 @@ export const mockVehicleAllocations: VehicleAllocation[] = [
     maxVolumeCbm: 7.2,
     volumePercentage: 78,
     cratesAllocated: 52,
-    maxCratesCapacity: 65,
-    palletsCount: 2,
     assignedStops: [
       {
         id: "stop-7",
@@ -199,8 +193,6 @@ export const mockVehicleAllocations: VehicleAllocation[] = [
     maxVolumeCbm: 18.0,
     volumePercentage: 87,
     cratesAllocated: 138,
-    maxCratesCapacity: 160,
-    palletsCount: 6,
     assignedStops: [
       {
         id: "stop-10",
@@ -255,8 +247,6 @@ export const mockVehicleAllocations: VehicleAllocation[] = [
     maxVolumeCbm: 7.2,
     volumePercentage: 67,
     cratesAllocated: 44,
-    maxCratesCapacity: 65,
-    palletsCount: 2,
     assignedStops: [
       {
         id: "stop-13",
@@ -302,8 +292,6 @@ export const mockVehicleAllocations: VehicleAllocation[] = [
     maxVolumeCbm: 22.0,
     volumePercentage: 92,
     cratesAllocated: 184,
-    maxCratesCapacity: 200,
-    palletsCount: 8,
     assignedStops: [
       {
         id: "stop-15",

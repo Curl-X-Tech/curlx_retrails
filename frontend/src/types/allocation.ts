@@ -37,7 +37,6 @@ export interface AllocationDriverDetails {
   phone: string;
   avatarText: string;
   bloodGroup?: string;
-  experienceYears?: number;
   rating?: number;
   deliveriesCompleted?: number;
   shiftStatus?: string;
@@ -148,8 +147,6 @@ export interface VehicleAllocation {
   maxVolumeCbm: number;
   volumePercentage: number;
   cratesAllocated: number;
-  maxCratesCapacity: number;
-  palletsCount: number;
   assignedStops: AllocatedStoreStop[];
 }
 
@@ -163,22 +160,18 @@ export interface AllocationSummaryKPIs {
   fullyLoadedVehicles: number;
 }
 
-export type StoreCategory = "fresh" | "supermarket" | "pharmacy" | "chilled";
-
 export interface StoreLocation {
   id: string;
   code: string;
   outletId?: string;
   name: string;
-  chain: string;
-  brand?: BrandName;
-  dockType?: DockType;
-  parkingConstraint?: ParkingConstraint;
-  category: StoreCategory;
+  brand: BrandName;
+  district?: string;
+  dockType: DockType;
+  parkingConstraint: ParkingConstraint;
   address: string;
   lat: number;
   lng: number;
-  contactPerson: string;
   contactPhone: string;
   todayStatus: "delivered" | "in_transit" | "scheduled";
   cratesScheduled: number;

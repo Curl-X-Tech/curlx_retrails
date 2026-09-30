@@ -41,7 +41,6 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
       phone: "+94 77 123 4567",
       avatarText: "SP",
       bloodGroup: "O+",
-      experienceYears: 6,
       rating: 4.9,
       deliveriesCompleted: 1420,
       shiftStatus: "Active On Duty",
@@ -728,7 +727,6 @@ export function getManifestForAllocation(
         .split(" ")
         .map((n: string) => n[0])
         .join(""),
-      experienceYears: 5,
       rating: 4.9,
       deliveriesCompleted: 1240,
       shiftStatus: "Active On Duty",

@@ -24,7 +24,6 @@ import {
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
 import {
-  type StoreCategory,
   type StoreLocation,
   type VehicleTrackingData,
   CENTRAL_HUB,
@@ -61,9 +60,9 @@ export function LiveMapPage() {
     "delayed",
   ]);
   const [showStores, setShowStores] = React.useState<boolean>(true);
-  const [selectedStoreCategories, setSelectedStoreCategories] = React.useState<
-    StoreCategory[]
-  >(["fresh", "supermarket", "pharmacy", "chilled"]);
+  const [selectedBrands, setSelectedBrands] = React.useState<
+    ("Fresh" | "Style" | "Tech")[]
+  >(["Fresh", "Style", "Tech"]);
 
   const selectedTheme = MAP_THEMES.find((t) => t.id === selectedThemeId) || MAP_THEMES[0];
   const apiKey =
@@ -93,7 +92,7 @@ export function LiveMapPage() {
 
     L.marker(CENTRAL_HUB.location, { icon: createHubIcon() })
       .bindPopup(
-        `<div style="font-family: sans-serif; padding: 4px;"><p style="font-weight: bold; margin: 0; font-size: 13px; color: #0f172a;">${CENTRAL_HUB.name}</p><p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">${CENTRAL_HUB.code}</p></div>`
+        `<div style="font-family: sans-serif; padding: 4px;"><p style="font-weight: bold; margin: 0; font-size: 13px; color: #0f172a;">${CENTRAL_HUB.name}</p><p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">Code: ${CENTRAL_HUB.code}</p></div>`
       )
       .addTo(map);
 
@@ -144,7 +143,7 @@ export function LiveMapPage() {
         const marker = L.marker(vehicle.currentLocation, { icon })
           .bindPopup(
             `<div style="font-family: sans-serif; padding: 4px; min-width: 160px;">
-              <p style="font-weight: bold; margin: 0; font-size: 13px; color: #0f172a;">${vehicle.code}</p>
+              <p style="font-weight: bold; margin: 0; font-size: 13px; color: #0f172a;"># ${vehicle.code}</p>
               <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">${vehicle.vehicleType}</p>
               <div style="margin-top: 6px; padding-top: 4px; border-top: 1px solid #e2e8f0; font-size: 11px; line-height: 1.4;">
                 <p style="margin: 0; color: #334155;"><strong>Driver:</strong> ${vehicle.driverName}</p>
@@ -174,9 +173,7 @@ export function LiveMapPage() {
       return;
     }
 
-    const filteredStores = stores.filter((s) =>
-      selectedStoreCategories.includes(s.category)
-    );
+    const filteredStores = stores.filter((s) => selectedBrands.includes(s.brand));
 
     Object.keys(storeMarkersRef.current).forEach((id) => {
       if (!filteredStores.some((s) => s.id === id)) {
@@ -188,15 +185,6 @@ export function LiveMapPage() {
     filteredStores.forEach((store) => {
       const icon = createStoreIcon(store);
 
-      const categoryName =
-        store.category === "fresh"
-          ? "Fresh Produce"
-          : store.category === "pharmacy"
-            ? "Pharmacy"
-            : store.category === "chilled"
-              ? "Chilled Dairy"
-              : "Supermarket";
-
       if (storeMarkersRef.current[store.id]) {
         storeMarkersRef.current[store.id].setLatLng([store.lat, store.lng]).setIcon(icon);
       } else {
@@ -206,11 +194,12 @@ export function LiveMapPage() {
               <div style="display: flex; align-items: center; justify-content: space-between; gap: 4px;">
                 <span style="font-weight: bold; font-size: 13px; color: #0f172a;">${store.name}</span>
               </div>
-              <p style="margin: 1px 0 0 0; font-size: 11px; color: #0284c7; font-weight: 600;">${categoryName} (${store.chain})</p>
+              <p style="margin: 1px 0 0 0; font-size: 11px; color: #0284c7; font-weight: 600;">Waypoint ${store.brand} (${store.code})</p>
               <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">${store.address}</p>
               <div style="margin-top: 6px; padding-top: 4px; border-top: 1px solid #e2e8f0; font-size: 11px; line-height: 1.4;">
-                <p style="margin: 0; color: #334155;"><strong>Contact:</strong> ${store.contactPerson} (${store.contactPhone})</p>
-                <p style="margin: 0; color: #334155;"><strong>Scheduled:</strong> ${store.cratesScheduled} Crates</p>
+                <p style="margin: 0; color: #334155;"><strong>Dock:</strong> ${store.dockType.replace("_", " ")} (${store.parkingConstraint.replace("_", " ")})</p>
+                <p style="margin: 0; color: #334155;"><strong>Phone:</strong> ${store.contactPhone}</p>
+                <p style="margin: 0; color: #334155;"><strong>Scheduled:</strong> ${store.cratesScheduled} Packages</p>
                 <p style="margin: 0; color: #334155;"><strong>Window:</strong> ${store.deliveryWindow}</p>
                 <p style="margin: 0; color: #334155;"><strong>Status:</strong> <span style="text-transform: capitalize;">${store.todayStatus.replace("_", " ")}</span></p>
               </div>
@@ -221,7 +210,7 @@ export function LiveMapPage() {
         storeMarkersRef.current[store.id] = marker;
       }
     });
-  }, [mapInstance, stores, showStores, selectedStoreCategories]);
+  }, [mapInstance, stores, showStores, selectedBrands]);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -272,13 +261,13 @@ export function LiveMapPage() {
     }
   };
 
-  const toggleStoreCategory = (category: StoreCategory) => {
-    if (selectedStoreCategories.includes(category)) {
-      if (selectedStoreCategories.length > 1) {
-        setSelectedStoreCategories(selectedStoreCategories.filter((c) => c !== category));
+  const toggleBrand = (brand: "Fresh" | "Style" | "Tech") => {
+    if (selectedBrands.includes(brand)) {
+      if (selectedBrands.length > 1) {
+        setSelectedBrands(selectedBrands.filter((b) => b !== brand));
       }
     } else {
-      setSelectedStoreCategories([...selectedStoreCategories, category]);
+      setSelectedBrands([...selectedBrands, brand]);
     }
   };
 
@@ -371,72 +360,59 @@ export function LiveMapPage() {
               }
             >
               <StorefrontIcon weight="bold" className="size-3.5 text-emerald-600" />
-              <span>Stores</span>
+              <span>Brands</span>
               <Badge
                 variant={showStores ? "secondary" : "outline"}
                 className="px-1.5 py-0 h-4 text-[10px] font-bold"
               >
-                {showStores ? selectedStoreCategories.length : "Off"}
+                {showStores ? selectedBrands.length : "Off"}
               </Badge>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent align="start" className="w-60 p-2">
               <DropdownMenuLabel className="flex items-center justify-between text-xs">
                 <span className="flex items-center gap-1.5">
-                  <StorefrontIcon className="size-3.5" /> Store Outlets
+                  <StorefrontIcon className="size-3.5" /> Retail Outlets
                 </span>
               </DropdownMenuLabel>
               <DropdownMenuCheckboxItem
                 checked={showStores}
                 onCheckedChange={() => setShowStores(!showStores)}
               >
-                <span className="font-semibold">Display Stores on Map</span>
+                <span className="font-semibold">Display Outlets on Map</span>
               </DropdownMenuCheckboxItem>
 
               {showStores && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuLabel className="text-[11px] text-muted-foreground py-1">
-                    Filter by Category
+                    Filter by Brand (Rule 1)
                   </DropdownMenuLabel>
                   <DropdownMenuCheckboxItem
-                    checked={selectedStoreCategories.includes("fresh")}
-                    onCheckedChange={() => toggleStoreCategory("fresh")}
+                    checked={selectedBrands.includes("Fresh")}
+                    onCheckedChange={() => toggleBrand("Fresh")}
                   >
                     <PlantIcon className="size-3.5 text-emerald-600" />
                     <span>
-                      Fresh Produce ({stores.filter((s) => s.category === "fresh").length}
-                      )
+                      Waypoint Fresh ({stores.filter((s) => s.brand === "Fresh").length})
                     </span>
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
-                    checked={selectedStoreCategories.includes("supermarket")}
-                    onCheckedChange={() => toggleStoreCategory("supermarket")}
-                  >
-                    <StorefrontIcon className="size-3.5 text-sky-600" />
-                    <span>
-                      Supermarkets (
-                      {stores.filter((s) => s.category === "supermarket").length})
-                    </span>
-                  </DropdownMenuCheckboxItem>
-                  <DropdownMenuCheckboxItem
-                    checked={selectedStoreCategories.includes("pharmacy")}
-                    onCheckedChange={() => toggleStoreCategory("pharmacy")}
+                    checked={selectedBrands.includes("Style")}
+                    onCheckedChange={() => toggleBrand("Style")}
                   >
                     <span className="size-2 rounded-full bg-purple-500 inline-block" />
                     <span>
-                      Pharmacies ({stores.filter((s) => s.category === "pharmacy").length}
-                      )
+                      Waypoint Style ({stores.filter((s) => s.brand === "Style").length})
                     </span>
                   </DropdownMenuCheckboxItem>
                   <DropdownMenuCheckboxItem
-                    checked={selectedStoreCategories.includes("chilled")}
-                    onCheckedChange={() => toggleStoreCategory("chilled")}
+                    checked={selectedBrands.includes("Tech")}
+                    onCheckedChange={() => toggleBrand("Tech")}
                   >
-                    <span className="size-2 rounded-full bg-cyan-500 inline-block" />
+                    <StorefrontIcon className="size-3.5 text-sky-600" />
                     <span>
-                      Chilled Dairy (
-                      {stores.filter((s) => s.category === "chilled").length})
+                      Waypoint Tech ({stores.filter((s) => s.brand === "Tech").length})
                     </span>
                   </DropdownMenuCheckboxItem>
                 </>
