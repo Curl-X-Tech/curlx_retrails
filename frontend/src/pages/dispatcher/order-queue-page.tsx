@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import {
-  Table,
   TableHeader,
   TableBody,
   TableRow,
@@ -49,6 +48,12 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import {
   mockQueuedOrders,
   getStoreGroupedOrders,
@@ -507,7 +512,11 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+      <div
+        className={`flex-1 min-h-0 p-4 sm:p-6 ${
+          viewMode === "grid" ? "overflow-y-auto" : "overflow-hidden flex flex-col"
+        }`}
+      >
         {filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <PackageIcon className="size-10 text-muted-foreground/40 mb-3" />
@@ -580,8 +589,8 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
             </div>
           </div>
         ) : (
-          <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex flex-col">
-            <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+          <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
+            <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
               <div className="text-muted-foreground text-xs">
                 {groupByStore ? (
                   <span>
@@ -649,228 +658,442 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
               )}
             </div>
 
-            <Table>
-              <TableHeader className="bg-muted/40">
-                <TableRow>
-                  <TableHead
-                    className="w-[120px] cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("orderRef")}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Order Ref</span>
-                      <SortHeaderIcon
-                        active={sortKey === "orderRef"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
+            <TooltipProvider delay={100}>
+              <div className="flex-1 min-h-0 overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <TableHeader className="sticky top-0 z-20 bg-card shadow-2xs border-b border-border/80">
+                    <TableRow className="border-b border-border/80 hover:bg-transparent">
+                      <TableHead
+                        className="w-[150px] cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("orderRef")}
+                      >
+                        <div className="flex items-center gap-1">
+                          <span>Order</span>
+                          <SortHeaderIcon
+                            active={sortKey === "orderRef"}
+                            direction={sortDirection}
+                          />
+                        </div>
+                      </TableHead>
 
-                  <TableHead
-                    className="w-[220px] cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("outlet")}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Destination / Items</span>
-                      <SortHeaderIcon
-                        active={sortKey === "outlet"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead className="w-[110px]">Temp Zone</TableHead>
-                  <TableHead className="w-[85px] text-center">Packages</TableHead>
-
-                  <TableHead
-                    className="w-[120px] text-right cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("weight")}
-                  >
-                    <div className="flex items-center justify-end gap-1">
-                      <span>Total Weight</span>
-                      <SortHeaderIcon
-                        active={sortKey === "weight"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead
-                    className="w-[110px] text-right cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("volume")}
-                  >
-                    <div className="flex items-center justify-end gap-1">
-                      <span>Volume</span>
-                      <SortHeaderIcon
-                        active={sortKey === "volume"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead
-                    className="w-[130px] text-right cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("value")}
-                  >
-                    <div className="flex items-center justify-end gap-1">
-                      <span>Order Value</span>
-                      <SortHeaderIcon
-                        active={sortKey === "value"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead
-                    className="w-[130px] cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("window")}
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Delivery Window</span>
-                      <SortHeaderIcon
-                        active={sortKey === "window"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead className="w-[50px] text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {groupByStore
-                  ? paginatedStoreGroups.map((group) => (
-                      <React.Fragment key={group.outletId}>
-                        <TableRow
-                          className={`hover:bg-muted/50 border-t-2 border-b border-border/70 ${
-                            group.hasDeferred
-                              ? "border-l-4 border-l-[var(--status-skip)] bg-[var(--status-skip-bg)]/40"
-                              : group.hasUrgent
-                                ? "border-l-4 border-l-[var(--status-urgent)] bg-muted/40"
-                                : "bg-muted/40"
-                          }`}
+                      {!groupByStore && (
+                        <TableHead
+                          className="w-[200px] cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                          onClick={() => handleSort("outlet")}
                         >
-                          <TableCell
-                            colSpan={9}
-                            className="py-2.5 px-4 text-xs font-heading font-bold text-foreground"
-                          >
-                            <div className="flex flex-wrap items-center justify-between gap-2">
-                              <div className="flex items-center gap-2">
-                                <StorefrontIcon className="size-4 text-primary shrink-0" />
-                                <span className="text-xs font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-                                  {group.outletId}
-                                </span>
-                                <span className="font-heading font-black text-sm text-foreground">
-                                  {group.outletName}
-                                </span>
-                                <span className="text-xs font-semibold text-primary">
-                                  Waypoint {group.brand}
-                                </span>
-                                {group.hasDeferred && (
-                                  <span className="text-[var(--status-skip)] font-bold text-xs flex items-center gap-1">
-                                    <WarningOctagonIcon
-                                      className="size-3"
-                                      weight="bold"
-                                    />
-                                    Yesterday Skip
-                                  </span>
-                                )}
-                                {group.hasUrgent && (
-                                  <span className="text-[var(--status-urgent)] font-bold text-xs">
-                                    [URGENT]
-                                  </span>
-                                )}
-                              </div>
+                          <div className="flex items-center gap-1">
+                            <span>Destination</span>
+                            <SortHeaderIcon
+                              active={sortKey === "outlet"}
+                              direction={sortDirection}
+                            />
+                          </div>
+                        </TableHead>
+                      )}
 
-                              <div className="flex items-center gap-3 text-xs text-muted-foreground font-normal">
-                                <span>{group.outletAddress}</span>
-                                <span>•</span>
-                                <span className="capitalize">
-                                  {group.dockType.replace("_", " ")}
-                                </span>
-                              </div>
-                            </div>
-                          </TableCell>
-                        </TableRow>
+                      <TableHead className="w-[100px] font-bold text-foreground text-xs">
+                        Temp Zone
+                      </TableHead>
+                      <TableHead className="w-[85px] text-center font-bold text-foreground text-xs">
+                        Packages
+                      </TableHead>
 
-                        {group.orders.map((ord) => {
+                      <TableHead
+                        className="w-[120px] text-right cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("weight")}
+                      >
+                        <div className="flex items-center justify-end gap-1">
+                          <span>Total Weight</span>
+                          <SortHeaderIcon
+                            active={sortKey === "weight"}
+                            direction={sortDirection}
+                          />
+                        </div>
+                      </TableHead>
+
+                      <TableHead
+                        className="w-[110px] text-right cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("volume")}
+                      >
+                        <div className="flex items-center justify-end gap-1">
+                          <span>Volume</span>
+                          <SortHeaderIcon
+                            active={sortKey === "volume"}
+                            direction={sortDirection}
+                          />
+                        </div>
+                      </TableHead>
+
+                      <TableHead
+                        className="w-[130px] text-right cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("value")}
+                      >
+                        <div className="flex items-center justify-end gap-1">
+                          <span>Order Value</span>
+                          <SortHeaderIcon
+                            active={sortKey === "value"}
+                            direction={sortDirection}
+                          />
+                        </div>
+                      </TableHead>
+
+                      <TableHead
+                        className="w-[130px] cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("window")}
+                      >
+                        <div className="flex items-center gap-1">
+                          <span>Delivery Window</span>
+                          <SortHeaderIcon
+                            active={sortKey === "window"}
+                            direction={sortDirection}
+                          />
+                        </div>
+                      </TableHead>
+
+                      <TableHead className="w-[50px] text-right font-bold text-foreground text-xs">
+                        Action
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
+
+                  <TableBody>
+                    {groupByStore
+                      ? paginatedStoreGroups.map((group) => (
+                          <React.Fragment key={group.outletId}>
+                            <TableRow className="bg-muted/40 hover:bg-muted/40 border-t-2 border-b border-border/70">
+                              <TableCell
+                                colSpan={8}
+                                className="py-2.5 px-4 text-xs font-heading font-bold text-foreground"
+                              >
+                                <div className="flex flex-wrap items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2">
+                                    <StorefrontIcon className="size-4 text-primary shrink-0" />
+                                    <span className="text-xs font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
+                                      {group.outletId}
+                                    </span>
+                                    <span className="font-heading font-black text-sm text-foreground">
+                                      {group.outletName}
+                                    </span>
+                                    <span className="text-xs font-semibold text-primary">
+                                      Waypoint {group.brand}
+                                    </span>
+                                    <span className="text-muted-foreground text-xs font-normal">
+                                      ({group.orders.length}{" "}
+                                      {group.orders.length === 1 ? "order" : "orders"})
+                                    </span>
+                                  </div>
+
+                                  <div className="flex items-center gap-3 text-xs text-muted-foreground font-normal">
+                                    <span>{group.outletAddress}</span>
+                                    <span>•</span>
+                                    <span className="capitalize">
+                                      {group.dockType.replace("_", " ")}
+                                    </span>
+                                  </div>
+                                </div>
+                              </TableCell>
+                            </TableRow>
+
+                            {group.orders.map((ord) => {
+                              const isChilled = ord.tempRequirement === "chilled";
+                              return (
+                                <TableRow
+                                  key={ord.id}
+                                  onClick={() => handleOpenDetail(ord)}
+                                  className={`border-border/30 hover:bg-muted/30 cursor-pointer text-xs ${
+                                    ord.deferredYesterday === 1
+                                      ? "bg-[var(--status-skip-bg)]/20"
+                                      : ""
+                                  }`}
+                                >
+                                  <TableCell className="font-bold text-foreground py-2 px-4 whitespace-nowrap relative">
+                                    {ord.deferredYesterday === 1 ? (
+                                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[var(--status-skip)] rounded-r" />
+                                    ) : ord.isUrgent ? (
+                                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[var(--status-urgent)] rounded-r" />
+                                    ) : null}
+                                    <Tooltip>
+                                      <TooltipTrigger
+                                        render={
+                                          <div className="flex items-center gap-2 pl-1 cursor-help group/ref">
+                                            <span
+                                              className={`size-1.5 rounded-full shrink-0 ${
+                                                ord.deferredYesterday === 1
+                                                  ? "bg-[var(--status-skip)]"
+                                                  : ord.isUrgent
+                                                    ? "bg-[var(--status-urgent)]"
+                                                    : "bg-primary"
+                                              }`}
+                                            />
+                                            <span className="group-hover/ref:text-primary transition-colors">
+                                              #{ord.orderRef}
+                                            </span>
+                                          </div>
+                                        }
+                                      />
+                                      <TooltipContent className="flex items-center gap-1.5 p-1.5">
+                                        <span className="text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                                          Waypoint {ord.brand}
+                                        </span>
+                                        {ord.deferredYesterday === 1 && (
+                                          <span className="text-[var(--status-skip)] bg-[var(--status-skip-bg)] text-[11px] font-bold px-1.5 py-0.5 rounded border border-[var(--status-skip-border)] flex items-center gap-0.5">
+                                            <WarningOctagonIcon
+                                              className="size-2.5"
+                                              weight="bold"
+                                            />
+                                            Yesterday Skip
+                                          </span>
+                                        )}
+                                        {ord.isUrgent && (
+                                          <span className="text-[var(--status-urgent)] bg-[var(--status-urgent-bg)] text-[11px] font-bold px-1.5 py-0.5 rounded border border-[var(--status-urgent-border)]">
+                                            Urgent
+                                          </span>
+                                        )}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TableCell>
+
+                                  <TableCell className="py-2 px-4 whitespace-nowrap">
+                                    <Tooltip>
+                                      <TooltipTrigger
+                                        render={
+                                          <div className="flex items-center gap-1 text-xs font-semibold cursor-help">
+                                            {isChilled ? (
+                                              <>
+                                                <SnowflakeIcon
+                                                  className="size-3 text-[var(--status-chilled)] shrink-0"
+                                                  weight="bold"
+                                                />
+                                                <span className="text-[var(--status-chilled)] text-[11px]">
+                                                  Chilled
+                                                </span>
+                                              </>
+                                            ) : (
+                                              <>
+                                                <SunIcon
+                                                  className="size-3 text-[var(--status-ambient)] shrink-0"
+                                                  weight="bold"
+                                                />
+                                                <span className="text-[var(--status-ambient)] text-[11px]">
+                                                  Ambient
+                                                </span>
+                                              </>
+                                            )}
+                                          </div>
+                                        }
+                                      />
+                                      <TooltipContent>
+                                        <span>
+                                          {isChilled
+                                            ? "Reefer vehicle required (0°C to 4°C cold chain)"
+                                            : "Ambient dry freight compartment"}
+                                        </span>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TableCell>
+
+                                  <TableCell className="text-center font-bold text-foreground py-2 px-3 whitespace-nowrap">
+                                    {ord.items.length} pkgs
+                                  </TableCell>
+
+                                  <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap">
+                                    {ord.totalWeightKg.toLocaleString()} kg
+                                  </TableCell>
+
+                                  <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap">
+                                    {ord.totalVolumeM3.toFixed(2)} m³
+                                  </TableCell>
+
+                                  <TableCell className="text-right font-bold text-foreground py-2 px-4 whitespace-nowrap">
+                                    LKR {ord.totalOrderValueLkr.toLocaleString()}
+                                  </TableCell>
+
+                                  <TableCell className="text-xs font-medium text-foreground py-2 px-4 whitespace-nowrap">
+                                    {ord.deliveryWindow}
+                                  </TableCell>
+
+                                  <TableCell className="text-right py-2 px-4 whitespace-nowrap">
+                                    <IconButton
+                                      variant="ghost"
+                                      size="xs"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenDetail(ord);
+                                      }}
+                                      className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
+                                      title="Inspect Order Details"
+                                    >
+                                      <ArrowSquareOutIcon className="size-3.5" />
+                                    </IconButton>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+
+                            <TableRow className="bg-muted/20 border-b-2 border-border/80 text-xs font-semibold">
+                              <TableCell className="py-2 px-4 font-bold text-[11px] text-muted-foreground whitespace-nowrap">
+                                <span className="pl-2">
+                                  TOTAL ({group.totalOrders}{" "}
+                                  {group.totalOrders === 1 ? "order" : "orders"})
+                                </span>
+                              </TableCell>
+
+                              <TableCell className="py-2 px-4" />
+
+                              <TableCell className="text-center font-black text-foreground py-2 px-3 whitespace-nowrap">
+                                {group.totalPackages} pkgs
+                              </TableCell>
+
+                              <TableCell className="text-right font-black text-foreground py-2 px-4 whitespace-nowrap">
+                                {group.totalWeightKg.toLocaleString()} kg
+                              </TableCell>
+
+                              <TableCell className="text-right font-black text-foreground py-2 px-4 whitespace-nowrap">
+                                {group.totalVolumeM3.toFixed(2)} m³
+                              </TableCell>
+
+                              <TableCell className="text-right font-black text-primary py-2 px-4 whitespace-nowrap">
+                                LKR {group.totalValueLkr.toLocaleString()}
+                              </TableCell>
+
+                              <TableCell className="text-xs font-medium text-muted-foreground py-2 px-4 whitespace-nowrap">
+                                {group.deliveryWindow}
+                              </TableCell>
+
+                              <TableCell className="py-2 px-4" />
+                            </TableRow>
+                          </React.Fragment>
+                        ))
+                      : paginatedOrders.map((ord) => {
                           const isChilled = ord.tempRequirement === "chilled";
                           return (
                             <TableRow
                               key={ord.id}
                               onClick={() => handleOpenDetail(ord)}
-                              className="border-border/30 hover:bg-muted/30 cursor-pointer text-xs"
+                              className={`hover:bg-muted/30 cursor-pointer ${
+                                ord.deferredYesterday === 1
+                                  ? "bg-[var(--status-skip-bg)]/20"
+                                  : ""
+                              }`}
                             >
-                              <TableCell className="font-bold text-foreground py-2 px-4 whitespace-nowrap">
-                                <div className="flex items-center gap-2 pl-2">
-                                  <span
-                                    className={`size-1.5 rounded-full shrink-0 ${
-                                      ord.deferredYesterday === 1
-                                        ? "bg-[var(--status-skip)]"
-                                        : ord.isUrgent
-                                          ? "bg-[var(--status-urgent)]"
-                                          : "bg-primary"
-                                    }`}
+                              <TableCell className="font-bold text-foreground py-2 px-4 whitespace-nowrap relative">
+                                {ord.deferredYesterday === 1 ? (
+                                  <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[var(--status-skip)] rounded-r" />
+                                ) : ord.isUrgent ? (
+                                  <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-[var(--status-urgent)] rounded-r" />
+                                ) : null}
+                                <Tooltip>
+                                  <TooltipTrigger
+                                    render={
+                                      <div className="flex items-center gap-2 pl-1 cursor-help group/ref">
+                                        <span
+                                          className={`size-1.5 rounded-full shrink-0 ${
+                                            ord.deferredYesterday === 1
+                                              ? "bg-[var(--status-skip)]"
+                                              : ord.isUrgent
+                                                ? "bg-[var(--status-urgent)]"
+                                                : "bg-primary"
+                                          }`}
+                                        />
+                                        <span className="group-hover/ref:text-primary transition-colors">
+                                          #{ord.orderRef}
+                                        </span>
+                                      </div>
+                                    }
                                   />
-                                  <span>#{ord.orderRef}</span>
+                                  <TooltipContent className="flex items-center gap-1.5 p-1.5">
+                                    <span className="text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                                      Waypoint {ord.brand}
+                                    </span>
+                                    {ord.deferredYesterday === 1 && (
+                                      <span className="text-[var(--status-skip)] bg-[var(--status-skip-bg)] text-[11px] font-bold px-1.5 py-0.5 rounded border border-[var(--status-skip-border)] flex items-center gap-0.5">
+                                        <WarningOctagonIcon
+                                          className="size-2.5"
+                                          weight="bold"
+                                        />
+                                        Yesterday Skip
+                                      </span>
+                                    )}
+                                    {ord.isUrgent && (
+                                      <span className="text-[var(--status-urgent)] bg-[var(--status-urgent-bg)] text-[11px] font-bold px-1.5 py-0.5 rounded border border-[var(--status-urgent-border)]">
+                                        Urgent
+                                      </span>
+                                    )}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TableCell>
+
+                              <TableCell>
+                                <div>
+                                  <span className="font-bold text-xs text-foreground truncate max-w-[150px] block">
+                                    {ord.outletName}
+                                  </span>
+                                  <span className="text-[10px] text-muted-foreground truncate block">
+                                    {ord.outletAddress}
+                                  </span>
                                 </div>
                               </TableCell>
 
-                              <TableCell className="py-2 px-4 text-xs text-muted-foreground">
-                                <span className="truncate block max-w-[220px]">
-                                  {ord.items
-                                    .map((i) => i.itemName.split(" (")[0])
-                                    .join(", ")}
-                                </span>
+                              <TableCell>
+                                <Tooltip>
+                                  <TooltipTrigger
+                                    render={
+                                      <div className="flex items-center gap-1 text-xs font-semibold cursor-help">
+                                        {isChilled ? (
+                                          <>
+                                            <SnowflakeIcon
+                                              className="size-3 text-[var(--status-chilled)] shrink-0"
+                                              weight="bold"
+                                            />
+                                            <span className="text-[var(--status-chilled)] text-[11px]">
+                                              Chilled
+                                            </span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <SunIcon
+                                              className="size-3 text-[var(--status-ambient)] shrink-0"
+                                              weight="bold"
+                                            />
+                                            <span className="text-[var(--status-ambient)] text-[11px]">
+                                              Ambient
+                                            </span>
+                                          </>
+                                        )}
+                                      </div>
+                                    }
+                                  />
+                                  <TooltipContent>
+                                    <span>
+                                      {isChilled
+                                        ? "Reefer vehicle required (0°C to 4°C)"
+                                        : "Ambient dry freight compartment"}
+                                    </span>
+                                  </TooltipContent>
+                                </Tooltip>
                               </TableCell>
 
-                              <TableCell className="py-2 px-4 whitespace-nowrap">
-                                <div className="flex items-center gap-1 text-xs font-semibold">
-                                  {isChilled ? (
-                                    <>
-                                      <SnowflakeIcon
-                                        className="size-3 text-[var(--status-chilled)] shrink-0"
-                                        weight="bold"
-                                      />
-                                      <span className="text-[var(--status-chilled)] text-[11px]">
-                                        Chilled
-                                      </span>
-                                    </>
-                                  ) : (
-                                    <>
-                                      <SunIcon
-                                        className="size-3 text-[var(--status-ambient)] shrink-0"
-                                        weight="bold"
-                                      />
-                                      <span className="text-[var(--status-ambient)] text-[11px]">
-                                        Ambient
-                                      </span>
-                                    </>
-                                  )}
-                                </div>
-                              </TableCell>
-
-                              <TableCell className="text-center font-bold text-foreground py-2 px-3 whitespace-nowrap">
+                              <TableCell className="text-center font-bold text-foreground">
                                 {ord.items.length} pkgs
                               </TableCell>
 
-                              <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap">
+                              <TableCell className="text-right font-medium text-foreground">
                                 {ord.totalWeightKg.toLocaleString()} kg
                               </TableCell>
 
-                              <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap">
+                              <TableCell className="text-right font-medium text-foreground">
                                 {ord.totalVolumeM3.toFixed(2)} m³
                               </TableCell>
 
-                              <TableCell className="text-right font-bold text-foreground py-2 px-4 whitespace-nowrap">
+                              <TableCell className="text-right font-bold text-foreground">
                                 LKR {ord.totalOrderValueLkr.toLocaleString()}
                               </TableCell>
 
-                              <TableCell className="text-xs font-medium text-foreground py-2 px-4 whitespace-nowrap">
+                              <TableCell className="text-xs font-medium text-foreground">
                                 {ord.deliveryWindow}
                               </TableCell>
 
-                              <TableCell className="text-right py-2 px-4 whitespace-nowrap">
+                              <TableCell className="text-right">
                                 <IconButton
                                   variant="ghost"
                                   size="xs"
@@ -887,142 +1110,10 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                             </TableRow>
                           );
                         })}
-
-                        <TableRow className="bg-muted/20 border-b-2 border-border/80 text-xs font-semibold">
-                          <TableCell className="py-2 px-4 font-bold text-[11px] text-muted-foreground whitespace-nowrap">
-                            <span className="pl-2">TOTAL ({group.outletId})</span>
-                          </TableCell>
-
-                          <TableCell className="py-2 px-4 text-xs font-semibold text-foreground">
-                            {group.totalOrders}{" "}
-                            {group.totalOrders === 1 ? "order" : "orders"}
-                          </TableCell>
-
-                          <TableCell className="py-2 px-4" />
-
-                          <TableCell className="text-center font-black text-foreground py-2 px-3 whitespace-nowrap">
-                            {group.totalPackages} pkgs
-                          </TableCell>
-
-                          <TableCell className="text-right font-black text-foreground py-2 px-4 whitespace-nowrap">
-                            {group.totalWeightKg.toLocaleString()} kg
-                          </TableCell>
-
-                          <TableCell className="text-right font-black text-foreground py-2 px-4 whitespace-nowrap">
-                            {group.totalVolumeM3.toFixed(2)} m³
-                          </TableCell>
-
-                          <TableCell className="text-right font-black text-primary py-2 px-4 whitespace-nowrap">
-                            LKR {group.totalValueLkr.toLocaleString()}
-                          </TableCell>
-
-                          <TableCell className="text-xs font-medium text-muted-foreground py-2 px-4 whitespace-nowrap">
-                            {group.deliveryWindow}
-                          </TableCell>
-
-                          <TableCell className="py-2 px-4" />
-                        </TableRow>
-                      </React.Fragment>
-                    ))
-                  : paginatedOrders.map((ord) => {
-                      const isChilled = ord.tempRequirement === "chilled";
-                      return (
-                        <TableRow
-                          key={ord.id}
-                          onClick={() => handleOpenDetail(ord)}
-                          className={`hover:bg-muted/30 cursor-pointer ${
-                            ord.deferredYesterday === 1
-                              ? "border-l-4 border-l-[var(--status-skip)] bg-[var(--status-skip-bg)]/20"
-                              : ord.isUrgent
-                                ? "border-l-4 border-l-[var(--status-urgent)]"
-                                : ""
-                          }`}
-                        >
-                          <TableCell className="font-bold text-foreground">
-                            #{ord.orderRef}
-                          </TableCell>
-
-                          <TableCell>
-                            <div>
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-bold text-xs text-foreground truncate max-w-[150px]">
-                                  {ord.outletName}
-                                </span>
-                                <span className="text-[10px] font-bold text-primary">
-                                  {ord.brand}
-                                </span>
-                              </div>
-                              <span className="text-[10px] text-muted-foreground truncate block">
-                                {ord.outletAddress}
-                              </span>
-                            </div>
-                          </TableCell>
-
-                          <TableCell>
-                            <div className="flex items-center gap-1 text-xs font-semibold">
-                              {isChilled ? (
-                                <>
-                                  <SnowflakeIcon
-                                    className="size-3 text-[var(--status-chilled)] shrink-0"
-                                    weight="bold"
-                                  />
-                                  <span className="text-[var(--status-chilled)] text-[11px]">
-                                    Chilled
-                                  </span>
-                                </>
-                              ) : (
-                                <>
-                                  <SunIcon
-                                    className="size-3 text-[var(--status-ambient)] shrink-0"
-                                    weight="bold"
-                                  />
-                                  <span className="text-[var(--status-ambient)] text-[11px]">
-                                    Ambient
-                                  </span>
-                                </>
-                              )}
-                            </div>
-                          </TableCell>
-
-                          <TableCell className="text-center font-bold text-foreground">
-                            {ord.items.length} pkgs
-                          </TableCell>
-
-                          <TableCell className="text-right font-medium text-foreground">
-                            {ord.totalWeightKg.toLocaleString()} kg
-                          </TableCell>
-
-                          <TableCell className="text-right font-medium text-foreground">
-                            {ord.totalVolumeM3.toFixed(2)} m³
-                          </TableCell>
-
-                          <TableCell className="text-right font-bold text-foreground">
-                            LKR {ord.totalOrderValueLkr.toLocaleString()}
-                          </TableCell>
-
-                          <TableCell className="text-xs font-medium text-foreground">
-                            {ord.deliveryWindow}
-                          </TableCell>
-
-                          <TableCell className="text-right">
-                            <IconButton
-                              variant="ghost"
-                              size="xs"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleOpenDetail(ord);
-                              }}
-                              className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
-                              title="Inspect Order Details"
-                            >
-                              <ArrowSquareOutIcon className="size-3.5" />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-              </TableBody>
-            </Table>
+                  </TableBody>
+                </table>
+              </div>
+            </TooltipProvider>
           </Card>
         )}
       </div>

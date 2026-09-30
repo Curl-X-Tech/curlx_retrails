@@ -23,13 +23,18 @@ import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { Input } from "@/components/ui/input";
 import {
-  Table,
   TableHeader,
   TableBody,
   TableRow,
   TableHead,
   TableCell,
 } from "@/components/ui/table";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -452,7 +457,11 @@ export function AllocationSummaryPage({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+      <div
+        className={`flex-1 min-h-0 p-4 sm:p-6 ${
+          viewMode === "grid" ? "overflow-y-auto" : "overflow-hidden flex flex-col"
+        }`}
+      >
         {filteredAllocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <TruckIcon className="size-10 text-muted-foreground/40 mb-3" />
@@ -486,9 +495,9 @@ export function AllocationSummaryPage({
             ))}
           </div>
         ) : (
-          <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex flex-col">
+          <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
             {/* Top Table Bar with Item Count & Top Pagination */}
-            <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+            <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
               <div className="text-muted-foreground text-[11px]">
                 Showing{" "}
                 <span className="font-bold text-foreground">
@@ -536,234 +545,267 @@ export function AllocationSummaryPage({
               </Pagination>
             </div>
 
-            <Table>
-              <TableHeader className="bg-muted/40">
-                <TableRow>
-                  <TableHead
-                    className="w-[130px] cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("plateNumber")}
-                    title="Sort by Vehicle Plate"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Vehicle</span>
-                      <SortHeaderIcon
-                        active={sortKey === "plateNumber"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead className="w-[190px]">Route</TableHead>
-                  <TableHead className="w-[150px]">Driver</TableHead>
-
-                  <TableHead
-                    className="w-[80px] text-center cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("crates")}
-                    title="Sort by Crates"
-                  >
-                    <div className="flex items-center justify-center gap-1">
-                      <span>Crates</span>
-                      <SortHeaderIcon
-                        active={sortKey === "crates"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead
-                    className="w-[180px] cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("weight")}
-                    title="Sort by Weight Load"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Weight Load</span>
-                      <SortHeaderIcon
-                        active={sortKey === "weight"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead
-                    className="w-[180px] cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("volume")}
-                    title="Sort by Volume Load"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Volume Load</span>
-                      <SortHeaderIcon
-                        active={sortKey === "volume"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead
-                    className="w-[100px] cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("departure")}
-                    title="Sort by Departure Time"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Departure</span>
-                      <SortHeaderIcon
-                        active={sortKey === "departure"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead
-                    className="w-[100px] cursor-pointer hover:text-foreground select-none transition-colors"
-                    onClick={() => handleSort("status")}
-                    title="Sort by Status"
-                  >
-                    <div className="flex items-center gap-1">
-                      <span>Status</span>
-                      <SortHeaderIcon
-                        active={sortKey === "status"}
-                        direction={sortDirection}
-                      />
-                    </div>
-                  </TableHead>
-
-                  <TableHead className="w-[60px] text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {paginatedAllocations.map((alloc) => {
-                  const isColdChain =
-                    alloc.temperatureZone === "frozen" ||
-                    alloc.temperatureZone === "chilled" ||
-                    alloc.vehicleCategory === "freeze_lorry";
-
-                  return (
-                    <TableRow
-                      key={alloc.id}
-                      onClick={() => onSelectAllocation?.(alloc)}
-                      className="hover:bg-muted/30 cursor-pointer"
-                    >
-                      {/* Vehicle Code & Plate */}
-                      <TableCell className="whitespace-nowrap">
-                        <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 whitespace-nowrap">
-                            <span className="font-heading font-black text-xs text-foreground shrink-0">
-                              # {alloc.plateNumber}
-                            </span>
-                            {isColdChain && (
-                              <div className="size-4 rounded-full bg-sky-100 dark:bg-sky-950 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
-                                <SnowflakeIcon weight="fill" className="size-2.5" />
-                              </div>
-                            )}
-                          </div>
-                          <p className="text-[10px] text-muted-foreground font-medium mt-0.5 truncate max-w-[130px]">
-                            {alloc.vehicleModel}
-                          </p>
-                        </div>
-                      </TableCell>
-
-                      {/* Route & Stops */}
-                      <TableCell>
-                        <div>
-                          <span className="font-medium text-xs text-foreground block truncate max-w-[180px]">
-                            {alloc.routeName}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            {alloc.assignedStops.length} stops scheduled
-                          </span>
-                        </div>
-                      </TableCell>
-
-                      {/* Driver & Phone */}
-                      <TableCell>
-                        <div>
-                          <span className="font-medium text-xs text-foreground block truncate">
-                            {alloc.driverName}
-                          </span>
-                          <span className="text-[10px] text-muted-foreground">
-                            {alloc.driverPhone}
-                          </span>
-                        </div>
-                      </TableCell>
-
-                      {/* Crates Count */}
-                      <TableCell className="text-center">
-                        <Badge
-                          variant="secondary"
-                          className="text-[11px] font-bold px-2 py-0.5"
-                        >
-                          {alloc.cratesAllocated}
-                        </Badge>
-                      </TableCell>
-
-                      {/* Weight Load with Circular Progress Ring */}
-                      <TableCell>
-                        <div className="flex items-center gap-2.5">
-                          <CircularProgressRing
-                            value={alloc.weightPercentage}
-                            size={22}
-                            strokeWidth={3}
+            <TooltipProvider delay={100}>
+              <div className="flex-1 min-h-0 overflow-auto">
+                <table className="w-full caption-bottom text-sm">
+                  <TableHeader className="sticky top-0 z-20 bg-card shadow-2xs border-b border-border/80">
+                    <TableRow className="border-b border-border/80 hover:bg-transparent">
+                      <TableHead
+                        className="w-[130px] cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("plateNumber")}
+                        title="Sort by Vehicle Plate"
+                      >
+                        <div className="flex items-center gap-1">
+                          <span>Vehicle</span>
+                          <SortHeaderIcon
+                            active={sortKey === "plateNumber"}
+                            direction={sortDirection}
                           />
-                          <div>
-                            <span className="font-bold text-xs text-foreground block leading-tight">
-                              {alloc.allocatedWeightKg.toLocaleString()} kg
-                            </span>
-                            <span className="text-[10px] text-muted-foreground font-medium block">
-                              {alloc.weightPercentage}% of{" "}
-                              {alloc.maxWeightKg.toLocaleString()} kg
-                            </span>
-                          </div>
                         </div>
-                      </TableCell>
+                      </TableHead>
 
-                      {/* Volume Load with Circular Progress Ring */}
-                      <TableCell>
-                        <div className="flex items-center gap-2.5">
-                          <CircularProgressRing
-                            value={alloc.volumePercentage}
-                            size={22}
-                            strokeWidth={3}
+                      <TableHead className="w-[190px] font-bold text-foreground text-xs">
+                        Route
+                      </TableHead>
+                      <TableHead className="w-[150px] font-bold text-foreground text-xs">
+                        Driver
+                      </TableHead>
+
+                      <TableHead
+                        className="w-[80px] text-center cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("crates")}
+                        title="Sort by Crates"
+                      >
+                        <div className="flex items-center justify-center gap-1">
+                          <span>Crates</span>
+                          <SortHeaderIcon
+                            active={sortKey === "crates"}
+                            direction={sortDirection}
                           />
-                          <div>
-                            <span className="font-bold text-xs text-foreground block leading-tight">
-                              {alloc.allocatedVolumeCbm} m³
-                            </span>
-                            <span className="text-[10px] text-muted-foreground font-medium block">
-                              {alloc.volumePercentage}% of {alloc.maxVolumeCbm} m³
-                            </span>
-                          </div>
                         </div>
-                      </TableCell>
+                      </TableHead>
 
-                      {/* Departure */}
-                      <TableCell>
-                        <span className="text-xs font-medium text-foreground">
-                          {alloc.departureTime}
-                        </span>
-                      </TableCell>
+                      <TableHead
+                        className="w-[180px] cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("weight")}
+                        title="Sort by Weight Load"
+                      >
+                        <div className="flex items-center gap-1">
+                          <span>Weight Load</span>
+                          <SortHeaderIcon
+                            active={sortKey === "weight"}
+                            direction={sortDirection}
+                          />
+                        </div>
+                      </TableHead>
 
-                      {/* Status */}
-                      <TableCell>{getStatusBadge(alloc.status)}</TableCell>
+                      <TableHead
+                        className="w-[180px] cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("volume")}
+                        title="Sort by Volume Load"
+                      >
+                        <div className="flex items-center gap-1">
+                          <span>Volume Load</span>
+                          <SortHeaderIcon
+                            active={sortKey === "volume"}
+                            direction={sortDirection}
+                          />
+                        </div>
+                      </TableHead>
 
-                      {/* Action */}
-                      <TableCell className="text-right">
-                        <IconButton
-                          variant="ghost"
-                          size="xs"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSelectAllocation?.(alloc);
-                          }}
-                          className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
-                          title="View Details"
-                        >
-                          <ArrowSquareOutIcon className="size-3.5" />
-                        </IconButton>
-                      </TableCell>
+                      <TableHead
+                        className="w-[100px] cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("departure")}
+                        title="Sort by Departure Time"
+                      >
+                        <div className="flex items-center gap-1">
+                          <span>Departure</span>
+                          <SortHeaderIcon
+                            active={sortKey === "departure"}
+                            direction={sortDirection}
+                          />
+                        </div>
+                      </TableHead>
+
+                      <TableHead
+                        className="w-[100px] cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
+                        onClick={() => handleSort("status")}
+                        title="Sort by Status"
+                      >
+                        <div className="flex items-center gap-1">
+                          <span>Status</span>
+                          <SortHeaderIcon
+                            active={sortKey === "status"}
+                            direction={sortDirection}
+                          />
+                        </div>
+                      </TableHead>
+
+                      <TableHead className="w-[60px] text-right font-bold text-foreground text-xs">
+                        Action
+                      </TableHead>
                     </TableRow>
-                  );
-                })}
-              </TableBody>
-            </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {paginatedAllocations.map((alloc) => {
+                      const isColdChain =
+                        alloc.temperatureZone === "frozen" ||
+                        alloc.temperatureZone === "chilled" ||
+                        alloc.vehicleCategory === "freeze_lorry";
+
+                      return (
+                        <TableRow
+                          key={alloc.id}
+                          onClick={() => onSelectAllocation?.(alloc)}
+                          className="hover:bg-muted/30 cursor-pointer border-border/30"
+                        >
+                          {/* Vehicle Code & Plate */}
+                          <TableCell className="whitespace-nowrap relative">
+                            {alloc.status === "delayed" ? (
+                              <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-destructive rounded-r" />
+                            ) : alloc.status === "loading" ? (
+                              <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-amber-500 rounded-r" />
+                            ) : alloc.status === "dispatched" ? (
+                              <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-primary rounded-r" />
+                            ) : alloc.status === "completed" ? (
+                              <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-emerald-500 rounded-r" />
+                            ) : null}
+                            <div className="min-w-0 pl-1">
+                              <div className="flex items-center gap-1.5 whitespace-nowrap">
+                                <span className="font-heading font-black text-xs text-foreground shrink-0">
+                                  # {alloc.plateNumber}
+                                </span>
+                                {isColdChain && (
+                                  <Tooltip>
+                                    <TooltipTrigger
+                                      render={
+                                        <div className="size-4 rounded-full bg-sky-100 dark:bg-sky-950 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0 cursor-help">
+                                          <SnowflakeIcon
+                                            weight="fill"
+                                            className="size-2.5"
+                                          />
+                                        </div>
+                                      }
+                                    />
+                                    <TooltipContent>
+                                      <span>
+                                        Reefer Cold Chain Compartment (0°C to 4°C)
+                                      </span>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
+                              <p className="text-[10px] text-muted-foreground font-medium mt-0.5 truncate max-w-[130px]">
+                                {alloc.vehicleModel}
+                              </p>
+                            </div>
+                          </TableCell>
+
+                          {/* Route & Stops */}
+                          <TableCell>
+                            <div>
+                              <span className="font-medium text-xs text-foreground block truncate max-w-[180px]">
+                                {alloc.routeName}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {alloc.assignedStops.length} stops scheduled
+                              </span>
+                            </div>
+                          </TableCell>
+
+                          {/* Driver & Phone */}
+                          <TableCell>
+                            <div>
+                              <span className="font-medium text-xs text-foreground block truncate">
+                                {alloc.driverName}
+                              </span>
+                              <span className="text-[10px] text-muted-foreground">
+                                {alloc.driverPhone}
+                              </span>
+                            </div>
+                          </TableCell>
+
+                          {/* Crates Count */}
+                          <TableCell className="text-center">
+                            <Badge
+                              variant="secondary"
+                              className="text-[11px] font-bold px-2 py-0.5"
+                            >
+                              {alloc.cratesAllocated}
+                            </Badge>
+                          </TableCell>
+
+                          {/* Weight Load with Circular Progress Ring */}
+                          <TableCell>
+                            <div className="flex items-center gap-2.5">
+                              <CircularProgressRing
+                                value={alloc.weightPercentage}
+                                size={22}
+                                strokeWidth={3}
+                              />
+                              <div>
+                                <span className="font-bold text-xs text-foreground block leading-tight">
+                                  {alloc.allocatedWeightKg.toLocaleString()} kg
+                                </span>
+                                <span className="text-[10px] text-muted-foreground font-medium block">
+                                  {alloc.weightPercentage}% of{" "}
+                                  {alloc.maxWeightKg.toLocaleString()} kg
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
+
+                          {/* Volume Load with Circular Progress Ring */}
+                          <TableCell>
+                            <div className="flex items-center gap-2.5">
+                              <CircularProgressRing
+                                value={alloc.volumePercentage}
+                                size={22}
+                                strokeWidth={3}
+                              />
+                              <div>
+                                <span className="font-bold text-xs text-foreground block leading-tight">
+                                  {alloc.allocatedVolumeCbm} m³
+                                </span>
+                                <span className="text-[10px] text-muted-foreground font-medium block">
+                                  {alloc.volumePercentage}% of {alloc.maxVolumeCbm} m³
+                                </span>
+                              </div>
+                            </div>
+                          </TableCell>
+
+                          {/* Departure */}
+                          <TableCell>
+                            <span className="text-xs font-medium text-foreground">
+                              {alloc.departureTime}
+                            </span>
+                          </TableCell>
+
+                          {/* Status */}
+                          <TableCell>{getStatusBadge(alloc.status)}</TableCell>
+
+                          {/* Action */}
+                          <TableCell className="text-right">
+                            <IconButton
+                              variant="ghost"
+                              size="xs"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onSelectAllocation?.(alloc);
+                              }}
+                              className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
+                              title="View Details"
+                            >
+                              <ArrowSquareOutIcon className="size-3.5" />
+                            </IconButton>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </table>
+              </div>
+            </TooltipProvider>
           </Card>
         )}
       </div>

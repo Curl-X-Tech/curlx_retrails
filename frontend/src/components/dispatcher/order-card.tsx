@@ -3,13 +3,13 @@ import {
   ClockIcon,
   SnowflakeIcon,
   SunIcon,
-  WarningOctagonIcon,
   ArrowSquareOutIcon,
   ScalesIcon,
   CubeIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { IconButton } from "@/components/ui/icon-button";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import type { QueuedOrder } from "@/types";
 
 interface OrderCardProps {
@@ -104,33 +104,65 @@ export function OrderCard({ order, onSelect, className }: OrderCardProps) {
         </div>
 
         <div className="flex items-center gap-2 shrink-0">
-          <div className="flex items-center gap-1 text-xs font-semibold">
-            {isChilled ? (
-              <>
-                <SnowflakeIcon
-                  className="size-3 text-[var(--status-chilled)]"
-                  weight="bold"
-                />
-                <span className="text-[var(--status-chilled)] text-[11px]">Chilled</span>
-              </>
-            ) : (
-              <>
-                <SunIcon className="size-3 text-[var(--status-ambient)]" weight="bold" />
-                <span className="text-[var(--status-ambient)] text-[11px]">Ambient</span>
-              </>
-            )}
-          </div>
+          <Tooltip>
+            <TooltipTrigger
+              render={
+                <div className="flex items-center gap-1 text-xs font-semibold cursor-help">
+                  {isChilled ? (
+                    <>
+                      <SnowflakeIcon
+                        className="size-3 text-[var(--status-chilled)]"
+                        weight="bold"
+                      />
+                      <span className="text-[var(--status-chilled)] text-[11px]">
+                        Chilled
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <SunIcon
+                        className="size-3 text-[var(--status-ambient)]"
+                        weight="bold"
+                      />
+                      <span className="text-[var(--status-ambient)] text-[11px]">
+                        Ambient
+                      </span>
+                    </>
+                  )}
+                </div>
+              }
+            />
+            <TooltipContent>
+              <span>
+                {isChilled
+                  ? "Reefer vehicle required (0°C to 4°C)"
+                  : "Ambient dry freight compartment"}
+              </span>
+            </TooltipContent>
+          </Tooltip>
 
-          {order.deferredYesterday === 1 ? (
-            <div className="flex items-center gap-0.5 text-[var(--status-skip)] font-bold text-[11px]">
-              <WarningOctagonIcon className="size-3" weight="bold" />
-              <span>Skip</span>
-            </div>
-          ) : order.isUrgent ? (
-            <span className="text-[var(--status-urgent)] font-bold text-[11px]">
-              Urgent
-            </span>
-          ) : null}
+          {(order.deferredYesterday === 1 || order.isUrgent) && (
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <span
+                    className={`size-2 rounded-full cursor-help ${
+                      order.deferredYesterday === 1
+                        ? "bg-[var(--status-skip)]"
+                        : "bg-[var(--status-urgent)]"
+                    }`}
+                  />
+                }
+              />
+              <TooltipContent>
+                <span>
+                  {order.deferredYesterday === 1
+                    ? "Yesterday Skip — Priority dispatch escalation"
+                    : "Urgent — High priority SLA delivery window"}
+                </span>
+              </TooltipContent>
+            </Tooltip>
+          )}
         </div>
       </div>
     </Card>
