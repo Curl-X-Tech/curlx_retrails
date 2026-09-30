@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useSearchParams, useLocation } from "react-router-dom";
 import {
   WarningOctagonIcon,
   ClockIcon,
@@ -146,63 +147,102 @@ interface DeferralsPageProps {
 }
 
 export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {}) {
-  const isAuditLog = viewMode === "deferral-log" || viewMode === "audit-log";
+  const [searchParams, setSearchParams] = useSearchParams();
+  const location = useLocation();
 
-  // Detail Sheet state
-  const [selectedOrder, setSelectedOrder] = React.useState<QueuedOrder | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
+  const isAuditLog =
+    viewMode === "deferral-log" ||
+    viewMode === "audit-log" ||
+    location.pathname.includes("audit-log") ||
+    location.pathname.includes("deferral-log");
 
-  // Carryover Tab State
-  const [carryoverSearch, setCarryoverSearch] = React.useState("");
-  const [carryoverBrandFilter, setCarryoverBrandFilter] = React.useState("all");
-  const [carryoverGroupBy, setCarryoverGroupBy] = React.useState<
-    "none" | "action" | "reason"
-  >("none");
-  const [carryoverPage, setCarryoverPage] = React.useState(1);
+  const orderParam = searchParams.get("order");
+
+  // Carryover Tab State derived from URL
+  const carryoverSearch = searchParams.get("search") || searchParams.get("q") || "";
+  const carryoverBrandFilter = searchParams.get("brand") || "all";
+  const carryoverGroupBy =
+    (searchParams.get("group") as "none" | "action" | "reason") || "none";
+  const carryoverPage = parseInt(searchParams.get("page") || "1", 10);
   const carryoverPageSize = 5;
 
-  // Audit Log Tab State
-  const [auditSearch, setAuditSearch] = React.useState("");
-  const [auditReasonFilter, setAuditReasonFilter] = React.useState("all");
-  const [auditResourceFilter, setAuditResourceFilter] = React.useState("all");
-  const [auditGroupBy, setAuditGroupBy] = React.useState<"none" | "action" | "reason">(
-    "none"
-  );
-  const [auditSortKey, setAuditSortKey] = React.useState<string | null>(null);
-  const [auditSortDirection, setAuditSortDirection] = React.useState<"asc" | "desc">(
-    "asc"
-  );
-  const [auditPage, setAuditPage] = React.useState(1);
+  // Audit Log Tab State derived from URL
+  const auditSearch = searchParams.get("search") || searchParams.get("q") || "";
+  const auditReasonFilter = searchParams.get("reason") || "all";
+  const auditResourceFilter = searchParams.get("resource") || "all";
+  const auditGroupBy =
+    (searchParams.get("group") as "none" | "action" | "reason") || "none";
+  const auditSortKey = searchParams.get("sort") || null;
+  const auditSortDirection = (searchParams.get("dir") as "asc" | "desc") || "asc";
+  const auditPage = parseInt(searchParams.get("page") || "1", 10);
   const auditPageSize = 5;
 
+  const updateQueryParams = React.useCallback(
+    (updates: Record<string, string | number | null | undefined>) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          Object.entries(updates).forEach(([key, val]) => {
+            if (
+              val === null ||
+              val === undefined ||
+              val === "" ||
+              val === "all" ||
+              val === "none" ||
+              (key === "page" && Number(val) <= 1)
+            ) {
+              next.delete(key);
+            } else {
+              next.set(key, String(val));
+            }
+          });
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
+
+  const selectedOrder: QueuedOrder | null = React.useMemo(() => {
+    if (!orderParam) return null;
+    return (
+      mockQueuedOrders.find((o) => o.orderRef === orderParam) || {
+        id: orderParam,
+        orderRef: orderParam,
+        outletId: "OUT001",
+        outletName: "Waypoint Outlet",
+        outletAddress: "Western Province",
+        brand: "Fresh" as const,
+        district: "Colombo",
+        depot: "Peliyagoda",
+        dockType: "rear_dock" as const,
+        parkingConstraint: "normal" as const,
+        deliveryWindow: "05:00 - 08:00 AM",
+        orderDate: "2026-10-01",
+        requiredDate: "2026-10-01",
+        tempRequirement: "chilled" as const,
+        status: "deferred" as const,
+        isUrgent: true,
+        deferredYesterday: 1 as const,
+        daysSinceLastServed: 2,
+        totalItems: 3,
+        totalWeightKg: 420.0,
+        totalVolumeM3: 2.8,
+        totalOrderValueLkr: 285000,
+        items: [],
+      }
+    );
+  }, [orderParam]);
+
+  const isDetailOpen = Boolean(orderParam);
+
   const handleOpenDetailByRef = (orderRef: string) => {
-    const matched = mockQueuedOrders.find((o) => o.orderRef === orderRef) || {
-      id: orderRef,
-      orderRef: orderRef,
-      outletId: "OUT001",
-      outletName: "Waypoint Outlet",
-      outletAddress: "Western Province",
-      brand: "Fresh" as const,
-      district: "Colombo",
-      depot: "Peliyagoda",
-      dockType: "rear_dock" as const,
-      parkingConstraint: "normal" as const,
-      deliveryWindow: "05:00 - 08:00 AM",
-      orderDate: "2026-10-01",
-      requiredDate: "2026-10-01",
-      tempRequirement: "chilled" as const,
-      status: "deferred" as const,
-      isUrgent: true,
-      deferredYesterday: 1 as const,
-      daysSinceLastServed: 2,
-      totalItems: 3,
-      totalWeightKg: 420.0,
-      totalVolumeM3: 2.8,
-      totalOrderValueLkr: 285000,
-      items: [],
-    };
-    setSelectedOrder(matched);
-    setIsDetailOpen(true);
+    updateQueryParams({ order: orderRef });
+  };
+
+  const handleCloseDetail = () => {
+    updateQueryParams({ order: null });
   };
 
   // Filtered Carryover Orders
@@ -476,14 +516,13 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
 
   const handleAuditSort = (key: string) => {
     if (auditSortKey === key) {
-      if (auditSortDirection === "asc") setAuditSortDirection("desc");
-      else {
-        setAuditSortKey(null);
-        setAuditSortDirection("asc");
+      if (auditSortDirection === "asc") {
+        updateQueryParams({ sort: key, dir: "desc" });
+      } else {
+        updateQueryParams({ sort: null, dir: null });
       }
     } else {
-      setAuditSortKey(key);
-      setAuditSortDirection("asc");
+      updateQueryParams({ sort: key, dir: "asc" });
     }
   };
 
@@ -799,8 +838,7 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                       placeholder="Search carryover orders..."
                       value={carryoverSearch}
                       onChange={(e) => {
-                        setCarryoverSearch(e.target.value);
-                        setCarryoverPage(1);
+                        updateQueryParams({ search: e.target.value, page: 1 });
                       }}
                       className="pl-7 h-7 text-xs bg-card"
                     />
@@ -832,8 +870,7 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                       <DropdownMenuRadioGroup
                         value={carryoverBrandFilter}
                         onValueChange={(val) => {
-                          setCarryoverBrandFilter(val ?? "all");
-                          setCarryoverPage(1);
+                          updateQueryParams({ brand: val ?? "all", page: 1 });
                         }}
                       >
                         <DropdownMenuRadioItem value="all" className="text-xs">
@@ -881,9 +918,9 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                       <DropdownMenuRadioGroup
                         value={carryoverGroupBy}
                         onValueChange={(val) =>
-                          setCarryoverGroupBy(
-                            (val as "none" | "action" | "reason") ?? "none"
-                          )
+                          updateQueryParams({
+                            group: (val as "none" | "action" | "reason") ?? "none",
+                          })
                         }
                       >
                         <DropdownMenuRadioItem value="none" className="text-xs">
@@ -930,7 +967,11 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                     <PaginationContent>
                       <PaginationItem>
                         <PaginationPrevious
-                          onClick={() => setCarryoverPage((p) => Math.max(p - 1, 1))}
+                          onClick={() =>
+                            updateQueryParams({
+                              page: Math.max(carryoverPage - 1, 1),
+                            })
+                          }
                           disabled={carryoverPage <= 1}
                         />
                       </PaginationItem>
@@ -939,7 +980,7 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                           <PaginationItem key={page}>
                             <PaginationLink
                               isActive={carryoverPage === page}
-                              onClick={() => setCarryoverPage(page)}
+                              onClick={() => updateQueryParams({ page })}
                             >
                               {page}
                             </PaginationLink>
@@ -949,7 +990,9 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                       <PaginationItem>
                         <PaginationNext
                           onClick={() =>
-                            setCarryoverPage((p) => Math.min(p + 1, totalCarryoverPages))
+                            updateQueryParams({
+                              page: Math.min(carryoverPage + 1, totalCarryoverPages),
+                            })
                           }
                           disabled={carryoverPage >= totalCarryoverPages}
                         />
@@ -1352,8 +1395,7 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                     placeholder="Search order ref, store, dispatcher, notes..."
                     value={auditSearch}
                     onChange={(e) => {
-                      setAuditSearch(e.target.value);
-                      setAuditPage(1);
+                      updateQueryParams({ search: e.target.value, page: 1 });
                     }}
                     className="pl-7 h-7 text-xs bg-card"
                   />
@@ -1388,8 +1430,7 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                     <DropdownMenuRadioGroup
                       value={auditReasonFilter}
                       onValueChange={(val) => {
-                        setAuditReasonFilter(val ?? "all");
-                        setAuditPage(1);
+                        updateQueryParams({ reason: val ?? "all", page: 1 });
                       }}
                     >
                       <DropdownMenuRadioItem value="all" className="text-xs">
@@ -1449,8 +1490,7 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                     <DropdownMenuRadioGroup
                       value={auditResourceFilter}
                       onValueChange={(val) => {
-                        setAuditResourceFilter(val ?? "all");
-                        setAuditPage(1);
+                        updateQueryParams({ resource: val ?? "all", page: 1 });
                       }}
                     >
                       <DropdownMenuRadioItem value="all" className="text-xs">
@@ -1501,7 +1541,9 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                     <DropdownMenuRadioGroup
                       value={auditGroupBy}
                       onValueChange={(val) =>
-                        setAuditGroupBy((val as "none" | "action" | "reason") ?? "none")
+                        updateQueryParams({
+                          group: (val as "none" | "action" | "reason") ?? "none",
+                        })
                       }
                     >
                       <DropdownMenuRadioItem value="none" className="text-xs">
@@ -1859,7 +1901,11 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setAuditPage((p) => Math.max(p - 1, 1))}
+                        onClick={() =>
+                          updateQueryParams({
+                            page: Math.max(auditPage - 1, 1),
+                          })
+                        }
                         disabled={auditPage <= 1}
                       />
                     </PaginationItem>
@@ -1868,7 +1914,7 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                         <PaginationItem key={page}>
                           <PaginationLink
                             isActive={auditPage === page}
-                            onClick={() => setAuditPage(page)}
+                            onClick={() => updateQueryParams({ page })}
                           >
                             {page}
                           </PaginationLink>
@@ -1878,7 +1924,9 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
                     <PaginationItem>
                       <PaginationNext
                         onClick={() =>
-                          setAuditPage((p) => Math.min(p + 1, totalAuditPages))
+                          updateQueryParams({
+                            page: Math.min(auditPage + 1, totalAuditPages),
+                          })
                         }
                         disabled={auditPage >= totalAuditPages}
                       />
@@ -1895,7 +1943,11 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
       <OrderDetailSheet
         order={selectedOrder}
         open={isDetailOpen}
-        onOpenChange={setIsDetailOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseDetail();
+          }
+        }}
       />
     </div>
   );

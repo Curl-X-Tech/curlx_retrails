@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   MagnifyingGlassIcon,
   SquaresFourIcon,
@@ -90,32 +91,80 @@ interface OrderQueuePageProps {
 }
 
 export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps = {}) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const [orders] = React.useState<QueuedOrder[]>(mockQueuedOrders);
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [viewMode, setViewMode] = React.useState<ViewMode>("table");
-  const [groupByStore, setGroupByStore] = React.useState<boolean>(true);
-  const [brandFilter, setBrandFilter] = React.useState<string>("all");
-  const [tempFilter, setTempFilter] = React.useState<string>("all");
-  const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const [dockFilter, setDockFilter] = React.useState<string>("all");
-  const [sortKey, setSortKey] = React.useState<SortKey | null>(null);
-  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("asc");
-  const [selectedOrder, setSelectedOrder] = React.useState<QueuedOrder | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
 
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const orderParam = searchParams.get("order");
+  const searchQuery = searchParams.get("search") || searchParams.get("q") || "";
+  const viewMode = (searchParams.get("view") as ViewMode) || "table";
+  const groupByStore = searchParams.get("group") !== "none";
+  const brandFilter = searchParams.get("brand") || "all";
+  const tempFilter = searchParams.get("temp") || "all";
+  const statusFilter = searchParams.get("status") || "all";
+  const dockFilter = searchParams.get("dock") || "all";
+  const sortKey = (searchParams.get("sort") as SortKey) || null;
+  const sortDirection = (searchParams.get("dir") as "asc" | "desc") || "asc";
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
+  const updateQueryParams = React.useCallback(
+    (updates: Record<string, string | number | boolean | null | undefined>) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          Object.entries(updates).forEach(([key, val]) => {
+            if (
+              val === null ||
+              val === undefined ||
+              val === "" ||
+              val === "all" ||
+              (key === "view" && val === "table") ||
+              (key === "group" && val === true) ||
+              (key === "page" && Number(val) <= 1)
+            ) {
+              next.delete(key);
+            } else if (key === "group") {
+              if (val === false || val === "none") {
+                next.set("group", "none");
+              } else {
+                next.delete("group");
+              }
+            } else {
+              next.set(key, String(val));
+            }
+          });
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
+
+  const selectedOrder: QueuedOrder | null = React.useMemo(() => {
+    if (!orderParam) return null;
+    return orders.find((o) => o.orderRef === orderParam || o.id === orderParam) || null;
+  }, [orderParam, orders]);
+
+  const isDetailOpen = Boolean(orderParam);
+
+  const handleOpenDetail = (order: QueuedOrder) => {
+    updateQueryParams({ order: order.orderRef });
+  };
+
+  const handleCloseDetail = () => {
+    updateQueryParams({ order: null });
+  };
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       if (sortDirection === "asc") {
-        setSortDirection("desc");
+        updateQueryParams({ sort: key, dir: "desc" });
       } else {
-        setSortKey(null);
-        setSortDirection("asc");
+        updateQueryParams({ sort: null, dir: null });
       }
     } else {
-      setSortKey(key);
-      setSortDirection("asc");
+      updateQueryParams({ sort: key, dir: "asc" });
     }
   };
 
@@ -214,25 +263,6 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
     return sortedOrders.slice(start, start + flatPageSize);
   }, [sortedOrders, currentPage]);
 
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [
-    viewMode,
-    groupByStore,
-    searchQuery,
-    brandFilter,
-    tempFilter,
-    statusFilter,
-    dockFilter,
-    sortKey,
-    sortDirection,
-  ]);
-
-  const handleOpenDetail = (order: QueuedOrder) => {
-    setSelectedOrder(order);
-    setIsDetailOpen(true);
-  };
-
   const handleExportOrders = () => {
     const dataStr =
       "data:text/json;charset=utf-8," +
@@ -268,17 +298,18 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
             <span>Export Orders</span>
           </Button>
 
-          {onNavigateToAllocation && (
-            <Button
-              variant="default"
-              size="xs"
-              className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg"
-              onClick={onNavigateToAllocation}
-            >
-              <TruckIcon className="size-3" />
-              <span>Proceed to Allocation</span>
-            </Button>
-          )}
+          <Button
+            variant="default"
+            size="xs"
+            className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg"
+            onClick={() => {
+              if (onNavigateToAllocation) onNavigateToAllocation();
+              else navigate("/dispatcher/allocations");
+            }}
+          >
+            <TruckIcon className="size-3" />
+            <span>Proceed to Allocation</span>
+          </Button>
         </div>
       </div>
 
@@ -361,7 +392,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
               type="search"
               placeholder="Search order ref, outlet, SKU, package..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => updateQueryParams({ search: e.target.value, page: 1 })}
               className="pl-7 h-7 text-xs bg-card"
             />
           </div>
@@ -388,7 +419,9 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
               <DropdownMenuSeparator />
               <DropdownMenuRadioGroup
                 value={brandFilter}
-                onValueChange={(val) => setBrandFilter(val ?? "all")}
+                onValueChange={(val) =>
+                  updateQueryParams({ brand: val ?? "all", page: 1 })
+                }
               >
                 <DropdownMenuRadioItem value="all" className="text-xs">
                   All Brands
@@ -426,7 +459,9 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
               <DropdownMenuSeparator />
               <DropdownMenuRadioGroup
                 value={tempFilter}
-                onValueChange={(val) => setTempFilter(val ?? "all")}
+                onValueChange={(val) =>
+                  updateQueryParams({ temp: val ?? "all", page: 1 })
+                }
               >
                 <DropdownMenuRadioItem value="all" className="text-xs">
                   All Zones
@@ -461,7 +496,9 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
               <DropdownMenuSeparator />
               <DropdownMenuRadioGroup
                 value={statusFilter}
-                onValueChange={(val) => setStatusFilter(val ?? "all")}
+                onValueChange={(val) =>
+                  updateQueryParams({ status: val ?? "all", page: 1 })
+                }
               >
                 <DropdownMenuRadioItem value="all" className="text-xs">
                   All Statuses
@@ -480,7 +517,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
             <Button
               variant={groupByStore ? "default" : "outline"}
               size="xs"
-              onClick={() => setGroupByStore(!groupByStore)}
+              onClick={() => updateQueryParams({ group: !groupByStore })}
               className="h-7 px-2.5 text-[11px] font-semibold cursor-pointer rounded-lg"
             >
               <MapPinIcon className="size-3 mr-1" />
@@ -492,7 +529,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
             <IconButton
               variant={viewMode === "table" ? "default" : "ghost"}
               size="xs"
-              onClick={() => setViewMode("table")}
+              onClick={() => updateQueryParams({ view: "table" })}
               className="size-6 rounded-md cursor-pointer"
               title="Table View"
             >
@@ -502,7 +539,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
             <IconButton
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="xs"
-              onClick={() => setViewMode("grid")}
+              onClick={() => updateQueryParams({ view: "grid" })}
               className="size-6 rounded-md cursor-pointer"
               title="Card Grid View"
             >
@@ -531,11 +568,14 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
               size="sm"
               className="mt-4 text-xs"
               onClick={() => {
-                setSearchQuery("");
-                setBrandFilter("all");
-                setTempFilter("all");
-                setStatusFilter("all");
-                setDockFilter("all");
+                updateQueryParams({
+                  search: null,
+                  brand: null,
+                  temp: null,
+                  status: null,
+                  dock: null,
+                  page: 1,
+                });
               }}
             >
               Reset Filters
@@ -561,7 +601,9 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                        onClick={() =>
+                          updateQueryParams({ page: Math.max(currentPage - 1, 1) })
+                        }
                         disabled={currentPage <= 1}
                       />
                     </PaginationItem>
@@ -570,7 +612,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                       <PaginationItem key={page}>
                         <PaginationLink
                           isActive={currentPage === page}
-                          onClick={() => setCurrentPage(page)}
+                          onClick={() => updateQueryParams({ page })}
                         >
                           {page}
                         </PaginationLink>
@@ -579,7 +621,11 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
 
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                        onClick={() =>
+                          updateQueryParams({
+                            page: Math.min(currentPage + 1, totalPages),
+                          })
+                        }
                         disabled={currentPage >= totalPages}
                       />
                     </PaginationItem>
@@ -631,7 +677,9 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                   <PaginationContent>
                     <PaginationItem>
                       <PaginationPrevious
-                        onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                        onClick={() =>
+                          updateQueryParams({ page: Math.max(currentPage - 1, 1) })
+                        }
                         disabled={currentPage <= 1}
                       />
                     </PaginationItem>
@@ -640,7 +688,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                       <PaginationItem key={page}>
                         <PaginationLink
                           isActive={currentPage === page}
-                          onClick={() => setCurrentPage(page)}
+                          onClick={() => updateQueryParams({ page })}
                         >
                           {page}
                         </PaginationLink>
@@ -649,7 +697,11 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
 
                     <PaginationItem>
                       <PaginationNext
-                        onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                        onClick={() =>
+                          updateQueryParams({
+                            page: Math.min(currentPage + 1, totalPages),
+                          })
+                        }
                         disabled={currentPage >= totalPages}
                       />
                     </PaginationItem>
@@ -1121,7 +1173,11 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
       <OrderDetailSheet
         order={selectedOrder}
         open={isDetailOpen}
-        onOpenChange={setIsDetailOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleCloseDetail();
+          }
+        }}
       />
     </div>
   );

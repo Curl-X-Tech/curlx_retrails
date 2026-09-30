@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   MagnifyingGlassIcon,
   CheckCircleIcon,
@@ -32,20 +33,16 @@ interface AllocationDetailPageProps {
 export function AllocationDetailPage({
   initialAllocationId,
   onSelectAllocation,
-}: AllocationDetailPageProps) {
+}: AllocationDetailPageProps = {}) {
+  const { id: paramAllocId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [allocations] = React.useState<VehicleAllocation[]>(mockVehicleAllocations);
-  const [selectedAllocationId, setSelectedAllocationId] = React.useState<string>(
-    initialAllocationId || mockVehicleAllocations[0]?.id || "alloc-01"
-  );
+
+  const selectedAllocationId =
+    paramAllocId || initialAllocationId || mockVehicleAllocations[0]?.id || "alloc-01";
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("active");
   const [isCargoListOpen, setIsCargoListOpen] = React.useState<boolean>(false);
-
-  React.useEffect(() => {
-    if (initialAllocationId) {
-      setSelectedAllocationId(initialAllocationId);
-    }
-  }, [initialAllocationId]);
 
   const selectedAllocation =
     allocations.find((a) => a.id === selectedAllocationId) || allocations[0];
@@ -155,7 +152,7 @@ export function AllocationDetailPage({
                   allocation={alloc}
                   isSelected={alloc.id === selectedAllocationId}
                   onSelect={(item) => {
-                    setSelectedAllocationId(item.id);
+                    navigate(`/dispatcher/allocations/${item.id}`);
                     onSelectAllocation?.(item);
                   }}
                 />

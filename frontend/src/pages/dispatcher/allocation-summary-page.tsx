@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import {
   MagnifyingGlassIcon,
   SquaresFourIcon,
@@ -143,27 +144,60 @@ interface AllocationSummaryPageProps {
 export function AllocationSummaryPage({
   onSelectAllocation,
 }: AllocationSummaryPageProps = {}) {
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [viewMode, setViewMode] = React.useState<"grid" | "table">("grid");
-  const [statusFilter, setStatusFilter] = React.useState<string>("all");
-  const [categoryFilter, setCategoryFilter] = React.useState<string>("all");
-  const [sortKey, setSortKey] = React.useState<SortKey | null>(null);
-  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("asc");
-  const [currentPage, setCurrentPage] = React.useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const searchQuery = searchParams.get("search") || searchParams.get("q") || "";
+  const viewMode = (searchParams.get("view") as "grid" | "table") || "grid";
+  const statusFilter = searchParams.get("status") || "all";
+  const categoryFilter = searchParams.get("category") || "all";
+  const sortKey = (searchParams.get("sort") as SortKey) || null;
+  const sortDirection = (searchParams.get("dir") as "asc" | "desc") || "asc";
+  const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = 5;
+
+  const updateQueryParams = React.useCallback(
+    (updates: Record<string, string | number | null | undefined>) => {
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          Object.entries(updates).forEach(([key, val]) => {
+            if (
+              val === null ||
+              val === undefined ||
+              val === "" ||
+              val === "all" ||
+              (key === "view" && val === "grid") ||
+              (key === "page" && Number(val) <= 1)
+            ) {
+              next.delete(key);
+            } else {
+              next.set(key, String(val));
+            }
+          });
+          return next;
+        },
+        { replace: true }
+      );
+    },
+    [setSearchParams]
+  );
 
   const handleSort = (key: SortKey) => {
     if (sortKey === key) {
       if (sortDirection === "asc") {
-        setSortDirection("desc");
+        updateQueryParams({ sort: key, dir: "desc" });
       } else {
-        setSortKey(null);
-        setSortDirection("asc");
+        updateQueryParams({ sort: null, dir: null });
       }
     } else {
-      setSortKey(key);
-      setSortDirection("asc");
+      updateQueryParams({ sort: key, dir: "asc" });
     }
+  };
+
+  const handleSelect = (alloc: VehicleAllocation) => {
+    onSelectAllocation?.(alloc);
+    navigate(`/dispatcher/allocations/${alloc.id}`);
   };
 
   // Filtered allocations
@@ -217,11 +251,6 @@ export function AllocationSummaryPage({
       return sortDirection === "asc" ? comparison : -comparison;
     });
   }, [filteredAllocations, sortKey, sortDirection]);
-
-  // Reset to page 1 when search, filters, or sorting change
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, statusFilter, categoryFilter, sortKey, sortDirection]);
 
   const totalPages = Math.max(1, Math.ceil(sortedAllocations.length / pageSize));
 
@@ -354,7 +383,7 @@ export function AllocationSummaryPage({
               type="search"
               placeholder="Search vehicle, route, driver, plate..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => updateQueryParams({ search: e.target.value, page: 1 })}
               className="pl-7 h-7 text-xs bg-card"
             />
           </div>
@@ -381,7 +410,9 @@ export function AllocationSummaryPage({
               <DropdownMenuSeparator />
               <DropdownMenuRadioGroup
                 value={statusFilter}
-                onValueChange={(val) => setStatusFilter(val ?? "all")}
+                onValueChange={(val) =>
+                  updateQueryParams({ status: val ?? "all", page: 1 })
+                }
               >
                 <DropdownMenuRadioItem value="all" className="text-xs">
                   All Statuses
@@ -419,7 +450,9 @@ export function AllocationSummaryPage({
               <DropdownMenuSeparator />
               <DropdownMenuRadioGroup
                 value={categoryFilter}
-                onValueChange={(val) => setCategoryFilter(val ?? "all")}
+                onValueChange={(val) =>
+                  updateQueryParams({ category: val ?? "all", page: 1 })
+                }
               >
                 <DropdownMenuRadioItem value="all" className="text-xs">
                   All Types
@@ -438,7 +471,7 @@ export function AllocationSummaryPage({
             <IconButton
               variant={viewMode === "grid" ? "default" : "ghost"}
               size="xs"
-              onClick={() => setViewMode("grid")}
+              onClick={() => updateQueryParams({ view: "grid" })}
               className="size-6 rounded-md cursor-pointer"
               title="Grid View"
             >
@@ -447,7 +480,7 @@ export function AllocationSummaryPage({
             <IconButton
               variant={viewMode === "table" ? "default" : "ghost"}
               size="xs"
-              onClick={() => setViewMode("table")}
+              onClick={() => updateQueryParams({ view: "table" })}
               className="size-6 rounded-md cursor-pointer"
               title="Table View"
             >
@@ -476,9 +509,12 @@ export function AllocationSummaryPage({
               size="sm"
               className="mt-4 text-xs"
               onClick={() => {
-                setSearchQuery("");
-                setStatusFilter("all");
-                setCategoryFilter("all");
+                updateQueryParams({
+                  search: null,
+                  status: null,
+                  category: null,
+                  page: 1,
+                });
               }}
             >
               Reset Filters
@@ -490,7 +526,7 @@ export function AllocationSummaryPage({
               <AllocationVehicleCard
                 key={alloc.id}
                 allocation={alloc}
-                onSelect={(item) => onSelectAllocation?.(item)}
+                onSelect={(item) => handleSelect(item)}
               />
             ))}
           </div>
@@ -519,7 +555,9 @@ export function AllocationSummaryPage({
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious
-                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      onClick={() =>
+                        updateQueryParams({ page: Math.max(currentPage - 1, 1) })
+                      }
                       disabled={currentPage <= 1}
                     />
                   </PaginationItem>
@@ -528,7 +566,7 @@ export function AllocationSummaryPage({
                     <PaginationItem key={page}>
                       <PaginationLink
                         isActive={currentPage === page}
-                        onClick={() => setCurrentPage(page)}
+                        onClick={() => updateQueryParams({ page })}
                       >
                         {page}
                       </PaginationLink>
@@ -537,7 +575,9 @@ export function AllocationSummaryPage({
 
                   <PaginationItem>
                     <PaginationNext
-                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                      onClick={() =>
+                        updateQueryParams({ page: Math.min(currentPage + 1, totalPages) })
+                      }
                       disabled={currentPage >= totalPages}
                     />
                   </PaginationItem>
@@ -791,7 +831,7 @@ export function AllocationSummaryPage({
                               size="xs"
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onSelectAllocation?.(alloc);
+                                handleSelect(alloc);
                               }}
                               className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
                               title="View Details"

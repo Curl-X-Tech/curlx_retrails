@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import {
   SquaresFourIcon,
   TrayIcon,
@@ -52,16 +53,20 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/context/auth-context";
+import { MOCK_HUBS, type HubInfo } from "@/data/mock-hubs";
 
 export interface SubNavItem {
   title: string;
   id: string;
+  path: string;
   badge?: string | number;
 }
 
 export interface NavItem {
   title: string;
   id: string;
+  path?: string;
   icon: React.ReactNode;
   badge?: string | number;
   badgeVariant?: "default" | "warning" | "destructive" | "info";
@@ -74,6 +79,7 @@ export const navGroups: { label?: string; items: NavItem[] }[] = [
       {
         title: "Dashboard",
         id: "dashboard",
+        path: "/dispatcher/dashboard",
         icon: <SquaresFourIcon weight="duotone" className="size-5" />,
       },
     ],
@@ -84,27 +90,47 @@ export const navGroups: { label?: string; items: NavItem[] }[] = [
       {
         title: "Order queue",
         id: "order-queue",
+        path: "/dispatcher/orders",
         icon: <TrayIcon weight="duotone" className="size-5" />,
         badge: 14,
       },
       {
         title: "Allocation",
         id: "allocation",
+        path: "/dispatcher/allocations",
         icon: <ChartBarIcon weight="duotone" className="size-5" />,
         items: [
-          { title: "Summary", id: "allocation-summary" },
-          { title: "Detail", id: "allocation-detail" },
+          {
+            title: "Summary",
+            id: "allocation-summary",
+            path: "/dispatcher/allocations",
+          },
+          {
+            title: "Detail",
+            id: "allocation-detail",
+            path: "/dispatcher/allocations/alloc-01",
+          },
         ],
       },
       {
         title: "Deferrals",
         id: "deferrals",
+        path: "/dispatcher/deferrals/carryover",
         icon: <WarningOctagonIcon weight="duotone" className="size-5" />,
         badge: 4,
         badgeVariant: "warning",
         items: [
-          { title: "Carryover", id: "carryover", badge: 4 },
-          { title: "Deferral log", id: "deferral-log" },
+          {
+            title: "Carryover",
+            id: "carryover",
+            path: "/dispatcher/deferrals/carryover",
+            badge: 4,
+          },
+          {
+            title: "Deferral log",
+            id: "deferral-log",
+            path: "/dispatcher/deferrals/audit-log",
+          },
         ],
       },
     ],
@@ -115,6 +141,7 @@ export const navGroups: { label?: string; items: NavItem[] }[] = [
       {
         title: "Live Tracking",
         id: "live-tracking",
+        path: "/dispatcher/live-map",
         icon: <NavigationArrowIcon weight="duotone" className="size-5" />,
         badge: "Live",
         badgeVariant: "info",
@@ -122,16 +149,30 @@ export const navGroups: { label?: string; items: NavItem[] }[] = [
       {
         title: "Fleet",
         id: "fleet",
+        path: "/dispatcher/fleet/vehicles",
         icon: <TruckIcon weight="duotone" className="size-5" />,
         items: [
-          { title: "Vehicles", id: "vehicles" },
-          { title: "Workshop log", id: "workshop-log" },
-          { title: "Fuel quotas", id: "fuel-quotas" },
+          {
+            title: "Vehicles",
+            id: "vehicles",
+            path: "/dispatcher/fleet/vehicles",
+          },
+          {
+            title: "Workshop log",
+            id: "workshop-log",
+            path: "/dispatcher/fleet/workshop-log",
+          },
+          {
+            title: "Fuel quotas",
+            id: "fuel-quotas",
+            path: "/dispatcher/fleet/fuel-quotas",
+          },
         ],
       },
       {
         title: "Outlets",
         id: "outlets",
+        path: "/dispatcher/outlets",
         icon: <StorefrontIcon weight="duotone" className="size-5" />,
       },
     ],
@@ -142,28 +183,90 @@ export const navGroups: { label?: string; items: NavItem[] }[] = [
       {
         title: "Forecasts",
         id: "forecasts",
+        path: "/dispatcher/forecasts",
         icon: <TrendUpIcon weight="duotone" className="size-5" />,
       },
       {
         title: "Reports",
         id: "reports",
+        path: "/dispatcher/reports",
         icon: <FileTextIcon weight="duotone" className="size-5" />,
       },
     ],
   },
 ];
 
-import { MOCK_HUBS, type HubInfo } from "@/data/mock-hubs";
-
 interface AppSidebarProps {
   activeId?: string;
   onSelect?: (id: string) => void;
 }
 
-export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps) {
+export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
   const [activeHub, setActiveHub] = React.useState<HubInfo>(MOCK_HUBS[0]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
+
+  const isSubItemActive = (sub: SubNavItem) => {
+    if (activeId) return activeId === sub.id;
+    if (sub.id === "allocation-summary") {
+      return (
+        location.pathname === "/dispatcher/allocations" ||
+        location.pathname === "/dispatcher/allocations/"
+      );
+    }
+    if (sub.id === "allocation-detail") {
+      return (
+        location.pathname.startsWith("/dispatcher/allocations/") &&
+        location.pathname !== "/dispatcher/allocations" &&
+        location.pathname !== "/dispatcher/allocations/"
+      );
+    }
+    if (sub.id === "carryover") {
+      return (
+        location.pathname === "/dispatcher/deferrals/carryover" ||
+        location.pathname === "/dispatcher/deferrals"
+      );
+    }
+    if (sub.id === "deferral-log") {
+      return (
+        location.pathname === "/dispatcher/deferrals/audit-log" ||
+        location.pathname === "/dispatcher/deferrals/deferral-log"
+      );
+    }
+    return location.pathname === sub.path;
+  };
+
+  const isItemActive = (item: NavItem) => {
+    if (activeId) {
+      if (activeId === item.id) return true;
+      if (item.items?.some((sub) => sub.id === activeId)) return true;
+    }
+    if (item.items && item.items.length > 0) {
+      return item.items.some((sub) => isSubItemActive(sub));
+    }
+    if (item.path) {
+      if (item.id === "live-tracking") {
+        return (
+          location.pathname === "/dispatcher/live-map" ||
+          location.pathname === "/dispatcher/live-tracking"
+        );
+      }
+      return location.pathname === item.path;
+    }
+    return false;
+  };
+
+  const handleNavigate = (path?: string, id?: string) => {
+    if (id) {
+      onSelect?.(id);
+    }
+    if (path) {
+      navigate(path);
+    }
+  };
 
   return (
     <Sidebar
@@ -242,9 +345,7 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
               <SidebarMenu className="space-y-1">
                 {group.items.map((item) => {
                   const hasSubItems = item.items && item.items.length > 0;
-                  const isCurrentActive =
-                    activeId === item.id ||
-                    item.items?.some((sub) => sub.id === activeId);
+                  const isCurrentActive = isItemActive(item);
 
                   if (hasSubItems) {
                     if (isCollapsed) {
@@ -289,11 +390,11 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
                               <DropdownMenuSeparator />
                               <DropdownMenuGroup>
                                 {item.items?.map((sub) => {
-                                  const isSubActive = activeId === sub.id;
+                                  const isSubActive = isSubItemActive(sub);
                                   return (
                                     <DropdownMenuItem
                                       key={sub.id}
-                                      onClick={() => onSelect?.(sub.id)}
+                                      onClick={() => handleNavigate(sub.path, sub.id)}
                                       className={cn(
                                         "text-xs p-2 rounded-lg flex items-center justify-between cursor-pointer",
                                         isSubActive &&
@@ -375,7 +476,7 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
                           <CollapsibleContent>
                             <SidebarMenuSub className="my-1.5 pl-6 ml-3.5 !border-l-0 !border-transparent relative space-y-1">
                               {item.items?.map((sub) => {
-                                const isSubActive = activeId === sub.id;
+                                const isSubActive = isSubItemActive(sub);
                                 return (
                                   <SidebarMenuSubItem
                                     key={sub.id}
@@ -385,7 +486,7 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
 
                                     <SidebarMenuSubButton
                                       isActive={isSubActive}
-                                      onClick={() => onSelect?.(sub.id)}
+                                      onClick={() => handleNavigate(sub.path, sub.id)}
                                       className={cn(
                                         "h-9 text-[13px] rounded-lg px-2.5 cursor-pointer justify-between transition-colors w-full",
                                         isSubActive
@@ -428,7 +529,7 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
                       <SidebarMenuButton
                         tooltip={item.title}
                         isActive={isCurrentActive}
-                        onClick={() => onSelect?.(item.id)}
+                        onClick={() => handleNavigate(item.path, item.id)}
                         className={cn(
                           "h-10 text-[13.5px] font-medium cursor-pointer px-3 rounded-xl transition-colors",
                           isCurrentActive &&
@@ -483,10 +584,10 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
                 </div>
                 <div className="grid flex-1 text-left text-xs leading-tight min-w-0 ml-1">
                   <span className="truncate font-semibold text-foreground text-[13px]">
-                    K. Jayawardena
+                    {user?.name || "K. Jayawardena"}
                   </span>
-                  <span className="truncate text-[11px] text-muted-foreground mt-0.5">
-                    Lead Dispatcher
+                  <span className="truncate text-[11px] text-muted-foreground mt-0.5 capitalize">
+                    {user?.role?.replace("_", " ") || "Lead Dispatcher"}
                   </span>
                 </div>
                 <CaretRightIcon className="ml-auto size-3.5 text-muted-foreground rotate-90" />
@@ -500,7 +601,7 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
                 <DropdownMenuLabel className="text-xs text-muted-foreground font-normal p-2">
                   Signed in as{" "}
                   <span className="font-semibold text-foreground block truncate">
-                    k.jayawardena@curlx.lk
+                    {user?.email || "k.jayawardena@curlx.lk"}
                   </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -519,7 +620,10 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-xs p-2 gap-2.5 rounded-lg text-destructive focus:text-destructive cursor-pointer">
+                <DropdownMenuItem
+                  onClick={logout}
+                  className="text-xs p-2 gap-2.5 rounded-lg text-destructive focus:text-destructive cursor-pointer"
+                >
                   <SignOutIcon className="size-4" />
                   Log out of Console
                 </DropdownMenuItem>
