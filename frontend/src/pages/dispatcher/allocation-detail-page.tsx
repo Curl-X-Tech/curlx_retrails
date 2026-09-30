@@ -1,13 +1,8 @@
 import * as React from "react";
-import {
-  MagnifyingGlassIcon,
-  CheckCircleIcon,
-  ClockIcon,
-  PauseCircleIcon,
-  WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, CheckCircleIcon } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
-import { AllocationVehicleCard } from "@/components/dispatcher/allocation-vehicle-card";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { AllocationManifestCard } from "@/components/dispatcher/allocation-manifest-card";
 import { AllocationDriverCard } from "@/components/dispatcher/allocation-driver-card";
 import { AllocationVehicleSpecCard } from "@/components/dispatcher/allocation-vehicle-spec-card";
 import { AllocationRouteMap } from "@/components/dispatcher/allocation-route-map";
@@ -155,8 +150,8 @@ export function AllocationDetailPage({
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 overflow-hidden">
         {/* Left Column: Master Manifest / Vehicle Allocations (lg:col-span-4 xl:col-span-4) */}
         <div className="lg:col-span-4 xl:col-span-4 border-r border-border/80 flex flex-col min-h-0 bg-card/30">
-          {/* Search Bar */}
-          <div className="p-3 border-b border-border/60 shrink-0">
+          {/* Search Bar & Status Tabs */}
+          <div className="p-3 border-b border-border/60 shrink-0 space-y-2.5">
             <div className="relative">
               <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
@@ -167,72 +162,53 @@ export function AllocationDetailPage({
               />
             </div>
 
-            {/* Status Filter Pills */}
-            <div className="flex items-center gap-1 mt-2.5 overflow-x-auto no-scrollbar py-0.5 text-xs font-semibold">
-              <button
-                type="button"
-                onClick={() => setStatusFilter("active")}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0 ${
-                  statusFilter === "active"
-                    ? "bg-primary text-primary-foreground shadow-xs font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
+            {/* Status Tabs Bar with Check Circle Icons & Underline */}
+            <Tabs
+              value={statusFilter}
+              onValueChange={(val) => setStatusFilter(val as StatusFilter)}
+              className="w-full"
+            >
+              <TabsList
+                variant="line"
+                className="w-full justify-between border-b border-border/80 px-1 pt-1 pb-0 bg-transparent"
               >
-                <CheckCircleIcon
-                  className="size-3.5"
-                  weight={statusFilter === "active" ? "fill" : "regular"}
-                />
-                <span>Active</span>
-              </button>
+                <TabsTrigger
+                  value="active"
+                  variant="line"
+                  className="flex items-center gap-1.5 pb-2 text-xs font-semibold data-[state=active]:font-bold data-[state=active]:text-foreground data-[state=active]:border-foreground cursor-pointer px-1"
+                >
+                  <CheckCircleIcon className="size-4 shrink-0" weight="bold" />
+                  <span>Active</span>
+                </TabsTrigger>
 
-              <button
-                type="button"
-                onClick={() => setStatusFilter("loading")}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0 ${
-                  statusFilter === "loading"
-                    ? "bg-primary text-primary-foreground shadow-xs font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                <ClockIcon
-                  className="size-3.5"
-                  weight={statusFilter === "loading" ? "fill" : "regular"}
-                />
-                <span>Loading</span>
-              </button>
+                <TabsTrigger
+                  value="loading"
+                  variant="line"
+                  className="flex items-center gap-1.5 pb-2 text-xs font-semibold data-[state=active]:font-bold data-[state=active]:text-foreground data-[state=active]:border-foreground cursor-pointer px-1"
+                >
+                  <CheckCircleIcon className="size-4 shrink-0" weight="bold" />
+                  <span>Loading</span>
+                </TabsTrigger>
 
-              <button
-                type="button"
-                onClick={() => setStatusFilter("idle")}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0 ${
-                  statusFilter === "idle"
-                    ? "bg-primary text-primary-foreground shadow-xs font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                <PauseCircleIcon
-                  className="size-3.5"
-                  weight={statusFilter === "idle" ? "fill" : "regular"}
-                />
-                <span>Idle</span>
-              </button>
+                <TabsTrigger
+                  value="idle"
+                  variant="line"
+                  className="flex items-center gap-1.5 pb-2 text-xs font-semibold data-[state=active]:font-bold data-[state=active]:text-foreground data-[state=active]:border-foreground cursor-pointer px-1"
+                >
+                  <CheckCircleIcon className="size-4 shrink-0" weight="bold" />
+                  <span>Idle</span>
+                </TabsTrigger>
 
-              <button
-                type="button"
-                onClick={() => setStatusFilter("break_down")}
-                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0 ${
-                  statusFilter === "break_down"
-                    ? "bg-destructive text-destructive-foreground shadow-xs font-bold"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                <WarningCircleIcon
-                  className="size-3.5"
-                  weight={statusFilter === "break_down" ? "fill" : "regular"}
-                />
-                <span>Break Down</span>
-              </button>
-            </div>
+                <TabsTrigger
+                  value="break_down"
+                  variant="line"
+                  className="flex items-center gap-1.5 pb-2 text-xs font-semibold data-[state=active]:font-bold data-[state=active]:text-foreground data-[state=active]:border-foreground cursor-pointer px-1"
+                >
+                  <CheckCircleIcon className="size-4 shrink-0" weight="bold" />
+                  <span>Break Down</span>
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
           </div>
 
           {/* Scrollable Vehicle Cards List */}
@@ -243,7 +219,7 @@ export function AllocationDetailPage({
               </div>
             ) : (
               filteredAllocations.map((alloc) => (
-                <AllocationVehicleCard
+                <AllocationManifestCard
                   key={alloc.id}
                   allocation={alloc}
                   isSelected={alloc.id === selectedAllocationId}
