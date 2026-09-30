@@ -1,10 +1,24 @@
 # ReTrails Database Architecture & Schema Specification
 
-This document outlines the PostgreSQL 15+ database schema powering **ReTrails (Team CurlX)**. The schema is organized around the 4 operational roles, 7 feasibility rules, and offline-first logistics engine defined in the Hackathon Challenge Brief.
+This document outlines the PostgreSQL 15+ database schema powering **ReTrails (Team CurlX)**. The schema is organized around the 5 operational roles, 7 feasibility rules, and offline-first logistics engine defined in the Hackathon Challenge Brief.
 
 ---
 
-## 1. Entity Reference & Purpose
+## 1. Enterprise Roles & Seeded Accounts
+
+The platform supports 5 distinct user roles in `staff_profile`:
+
+| Role | Seeded Account | Assigned Facility | Primary Responsibilities |
+| :--- | :--- | :--- | :--- |
+| **`system_admin`** | `admin@curlx.tech` (`ADM-001`) | HQ / System Management | Platform configuration, fleet catalog, and user provisioning |
+| **`dispatcher`** | `dispatcher@curlx.tech` (`DSP-101`) | Peliyagoda DC (`PEL`) | Planning board, 3D cargo allocator, live fleet map, deferral logging |
+| **`loader`** | `loader@curlx.tech` (`LDR-201`) | Peliyagoda Loading Dock | Dock barcode scanning checklist, LIFO bay verification, shortfall flagging |
+| **`driver`** | `driver@curlx.tech` (`DRV-301`) | Peliyagoda DC (`VEH001`) | Road navigation PWA, offline signature POD capture, delivery handovers |
+| **`store_manager`** | `manager.out001@curlx.tech` (`MGR-401`) | Outlet `OUT001` (Colombo) | Store order placement before 4 PM, live ETA tracking, receipt confirmation |
+
+---
+
+## 2. Entity Reference & Purpose
 
 ### Reference & Master Domain
 - **`depot`**: Stores the 2 distribution hubs (Peliyagoda and Kandy) to enforce vehicle home-depot constraints.
@@ -41,7 +55,7 @@ This document outlines the PostgreSQL 15+ database schema powering **ReTrails (T
 
 ---
 
-## 2. Dynamic Database Views
+## 3. Dynamic Database Views
 
 - **`v_active_price_list`**: Resolves current active selling and cost price per item based on today's date.
 - **`v_customer_order_summary`**: Computes total order weight, volume, and monetary value dynamically from `order_item` without redundant header storage.
@@ -49,7 +63,7 @@ This document outlines the PostgreSQL 15+ database schema powering **ReTrails (T
 
 ---
 
-## 3. Automated Database Trigger Functions
+## 4. Automated Database Trigger Functions
 
 1. **`fn_update_timestamp()` (`trg_*_updated_at`)**:
    Automatically sets `updated_at = NOW()` across all mutable master and transactional tables upon row modification.
