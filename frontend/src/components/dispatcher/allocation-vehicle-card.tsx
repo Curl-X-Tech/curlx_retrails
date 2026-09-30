@@ -172,19 +172,19 @@ export function AllocationVehicleCard({
             e.stopPropagation();
             onSelect?.(allocation);
           }}
-          className="cursor-pointer"
+          className="cursor-pointer min-w-0"
         >
-          <div className="flex items-center gap-1.5">
-            <h3 className="font-heading font-black text-base text-foreground tracking-tight group-hover:text-primary transition-colors">
+          <div className="flex items-center gap-1.5 whitespace-nowrap">
+            <h3 className="font-heading font-black text-base text-foreground tracking-tight group-hover:text-primary transition-colors shrink-0">
               # {allocation.plateNumber}
             </h3>
             {isColdChain && (
-              <div className="size-5 rounded-full bg-sky-100 dark:bg-sky-950 flex items-center justify-center text-sky-600 dark:text-sky-400">
+              <div className="size-5 rounded-full bg-sky-100 dark:bg-sky-950 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
                 <SnowflakeIcon weight="fill" className="size-3.5" />
               </div>
             )}
           </div>
-          <p className="text-xs text-muted-foreground font-medium mt-0.5">
+          <p className="text-xs text-muted-foreground font-medium mt-0.5 truncate max-w-[160px]">
             {allocation.vehicleModel}
           </p>
         </div>

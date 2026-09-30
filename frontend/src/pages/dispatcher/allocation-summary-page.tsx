@@ -12,6 +12,10 @@ import {
   ScalesIcon,
   CubeIcon,
   ChartPieIcon,
+  SnowflakeIcon,
+  CaretUpDownIcon,
+  CaretUpIcon,
+  CaretDownIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -36,17 +40,120 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   mockVehicleAllocations,
   mockAllocationKPIs,
   type VehicleAllocation,
 } from "@/data/mock-allocations";
 import { AllocationVehicleCard } from "@/components/dispatcher/allocation-vehicle-card";
 
+function CircularProgressRing({
+  value,
+  size = 22,
+  strokeWidth = 3,
+}: {
+  value: number;
+  size?: number;
+  strokeWidth?: number;
+}) {
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const clamped = Math.min(Math.max(value, 0), 100);
+  const strokeDashoffset = circumference - (clamped / 100) * circumference;
+
+  const getColor = (pct: number) => {
+    if (pct >= 90) return "text-red-500";
+    if (pct >= 75) return "text-orange-500";
+    return "text-emerald-500";
+  };
+
+  return (
+    <div className="relative inline-flex items-center justify-center shrink-0">
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="-rotate-90 transform-gpu"
+      >
+        {/* Background Track */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          className="text-muted/60"
+        />
+        {/* Progress Arc */}
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          stroke="currentColor"
+          strokeWidth={strokeWidth}
+          fill="transparent"
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          className={`transition-all duration-500 ease-out ${getColor(clamped)}`}
+        />
+      </svg>
+    </div>
+  );
+}
+
+function SortHeaderIcon({
+  active,
+  direction,
+}: {
+  active: boolean;
+  direction: "asc" | "desc";
+}) {
+  if (!active) {
+    return (
+      <CaretUpDownIcon className="size-3 text-muted-foreground/40 shrink-0 ml-0.5" />
+    );
+  }
+  return direction === "asc" ? (
+    <CaretUpIcon className="size-3 text-primary shrink-0 ml-0.5 font-bold" />
+  ) : (
+    <CaretDownIcon className="size-3 text-primary shrink-0 ml-0.5 font-bold" />
+  );
+}
+
+type SortKey = "plateNumber" | "crates" | "weight" | "volume" | "departure" | "status";
+
 export function AllocationSummaryPage() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [viewMode, setViewMode] = React.useState<"grid" | "table">("grid");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
   const [categoryFilter, setCategoryFilter] = React.useState<string>("all");
+  const [sortKey, setSortKey] = React.useState<SortKey | null>(null);
+  const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const pageSize = 5;
+
+  const handleSort = (key: SortKey) => {
+    if (sortKey === key) {
+      if (sortDirection === "asc") {
+        setSortDirection("desc");
+      } else {
+        setSortKey(null);
+        setSortDirection("asc");
+      }
+    } else {
+      setSortKey(key);
+      setSortDirection("asc");
+    }
+  };
 
   // Filtered allocations
   const filteredAllocations = React.useMemo(() => {
@@ -69,6 +176,48 @@ export function AllocationSummaryPage() {
       return matchesSearch && matchesStatus && matchesCategory;
     });
   }, [searchQuery, statusFilter, categoryFilter]);
+
+  // Sorted allocations
+  const sortedAllocations = React.useMemo(() => {
+    if (!sortKey) return filteredAllocations;
+
+    return [...filteredAllocations].sort((a, b) => {
+      let comparison = 0;
+      switch (sortKey) {
+        case "plateNumber":
+          comparison = a.plateNumber.localeCompare(b.plateNumber);
+          break;
+        case "crates":
+          comparison = a.cratesAllocated - b.cratesAllocated;
+          break;
+        case "weight":
+          comparison = a.allocatedWeightKg - b.allocatedWeightKg;
+          break;
+        case "volume":
+          comparison = a.allocatedVolumeCbm - b.allocatedVolumeCbm;
+          break;
+        case "departure":
+          comparison = a.departureTime.localeCompare(b.departureTime);
+          break;
+        case "status":
+          comparison = a.status.localeCompare(b.status);
+          break;
+      }
+      return sortDirection === "asc" ? comparison : -comparison;
+    });
+  }, [filteredAllocations, sortKey, sortDirection]);
+
+  // Reset to page 1 when search, filters, or sorting change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, categoryFilter, sortKey, sortDirection]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedAllocations.length / pageSize));
+
+  const paginatedAllocations = React.useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return sortedAllocations.slice(start, start + pageSize);
+  }, [sortedAllocations, currentPage, pageSize]);
 
   const getStatusBadge = (status: VehicleAllocation["status"]) => {
     switch (status) {
@@ -105,12 +254,6 @@ export function AllocationSummaryPage() {
       default:
         return null;
     }
-  };
-
-  const getLoadProgressBarColor = (pct: number) => {
-    if (pct >= 90) return "bg-red-500";
-    if (pct >= 75) return "bg-orange-500";
-    return "bg-emerald-500";
   };
 
   return (
@@ -268,7 +411,7 @@ export function AllocationSummaryPage() {
             >
               <TruckIcon className="size-3 text-muted-foreground" />
               <span className="capitalize">
-                Type: {categoryFilter === "all" ? "All" : categoryFilter}
+                Type: {categoryFilter === "all" ? "All Types" : categoryFilter}
               </span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-36">
@@ -315,7 +458,7 @@ export function AllocationSummaryPage() {
         </div>
       </div>
 
-      {/* 4. Main Content Area: Maximum Viewport Height for Cards */}
+      {/* 4. Main Content Area */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         {filteredAllocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -340,9 +483,9 @@ export function AllocationSummaryPage() {
             </Button>
           </div>
         ) : viewMode === "grid" ? (
-          /* Grid View Layout matching user's reference mockup */
+          /* Grid View Layout */
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {filteredAllocations.map((alloc) => (
+            {sortedAllocations.map((alloc) => (
               <AllocationVehicleCard
                 key={alloc.id}
                 allocation={alloc}
@@ -351,37 +494,185 @@ export function AllocationSummaryPage() {
             ))}
           </div>
         ) : (
-          /* Table View Layout */
-          <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden">
+          /* Table View Layout with Top Pagination and Column Sorting */
+          <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex flex-col">
+            {/* Top Table Bar with Item Count & Top Pagination */}
+            <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+              <div className="text-muted-foreground text-[11px]">
+                Showing{" "}
+                <span className="font-bold text-foreground">
+                  {sortedAllocations.length === 0 ? 0 : (currentPage - 1) * pageSize + 1}
+                </span>{" "}
+                to{" "}
+                <span className="font-bold text-foreground">
+                  {Math.min(currentPage * pageSize, sortedAllocations.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-bold text-foreground">
+                  {sortedAllocations.length}
+                </span>{" "}
+                vehicles
+              </div>
+
+              {/* Standard shadcn Top Pagination Controls */}
+              <Pagination className="mx-0 w-auto justify-end">
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                      disabled={currentPage <= 1}
+                    />
+                  </PaginationItem>
+
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        isActive={currentPage === page}
+                        onClick={() => setCurrentPage(page)}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
+                      disabled={currentPage >= totalPages}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+
+            {/* Table Content with Interactive Sortable Headers */}
             <Table>
               <TableHeader className="bg-muted/40">
                 <TableRow>
-                  <TableHead className="w-[120px]">Vehicle</TableHead>
-                  <TableHead className="w-[180px]">Route</TableHead>
-                  <TableHead className="w-[140px]">Driver</TableHead>
-                  <TableHead className="w-[90px] text-center">Crates</TableHead>
-                  <TableHead className="w-[170px]">Weight Load</TableHead>
-                  <TableHead className="w-[170px]">Volume Load</TableHead>
-                  <TableHead className="w-[100px]">Departure</TableHead>
-                  <TableHead className="w-[100px]">Status</TableHead>
-                  <TableHead className="w-[70px] text-right">Action</TableHead>
+                  {/* Vehicle Column (Sortable) */}
+                  <TableHead
+                    className="w-[130px] cursor-pointer hover:text-foreground select-none transition-colors"
+                    onClick={() => handleSort("plateNumber")}
+                    title="Sort by Vehicle Plate"
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>Vehicle</span>
+                      <SortHeaderIcon
+                        active={sortKey === "plateNumber"}
+                        direction={sortDirection}
+                      />
+                    </div>
+                  </TableHead>
+
+                  {/* Route Column */}
+                  <TableHead className="w-[190px]">Route</TableHead>
+
+                  {/* Driver Column */}
+                  <TableHead className="w-[150px]">Driver</TableHead>
+
+                  {/* Crates Column (Sortable) */}
+                  <TableHead
+                    className="w-[80px] text-center cursor-pointer hover:text-foreground select-none transition-colors"
+                    onClick={() => handleSort("crates")}
+                    title="Sort by Crates"
+                  >
+                    <div className="flex items-center justify-center gap-1">
+                      <span>Crates</span>
+                      <SortHeaderIcon
+                        active={sortKey === "crates"}
+                        direction={sortDirection}
+                      />
+                    </div>
+                  </TableHead>
+
+                  {/* Weight Load Column (Sortable) */}
+                  <TableHead
+                    className="w-[180px] cursor-pointer hover:text-foreground select-none transition-colors"
+                    onClick={() => handleSort("weight")}
+                    title="Sort by Weight Load"
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>Weight Load</span>
+                      <SortHeaderIcon
+                        active={sortKey === "weight"}
+                        direction={sortDirection}
+                      />
+                    </div>
+                  </TableHead>
+
+                  {/* Volume Load Column (Sortable) */}
+                  <TableHead
+                    className="w-[180px] cursor-pointer hover:text-foreground select-none transition-colors"
+                    onClick={() => handleSort("volume")}
+                    title="Sort by Volume Load"
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>Volume Load</span>
+                      <SortHeaderIcon
+                        active={sortKey === "volume"}
+                        direction={sortDirection}
+                      />
+                    </div>
+                  </TableHead>
+
+                  {/* Departure Column (Sortable) */}
+                  <TableHead
+                    className="w-[100px] cursor-pointer hover:text-foreground select-none transition-colors"
+                    onClick={() => handleSort("departure")}
+                    title="Sort by Departure Time"
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>Departure</span>
+                      <SortHeaderIcon
+                        active={sortKey === "departure"}
+                        direction={sortDirection}
+                      />
+                    </div>
+                  </TableHead>
+
+                  {/* Status Column (Sortable) */}
+                  <TableHead
+                    className="w-[100px] cursor-pointer hover:text-foreground select-none transition-colors"
+                    onClick={() => handleSort("status")}
+                    title="Sort by Status"
+                  >
+                    <div className="flex items-center gap-1">
+                      <span>Status</span>
+                      <SortHeaderIcon
+                        active={sortKey === "status"}
+                        direction={sortDirection}
+                      />
+                    </div>
+                  </TableHead>
+
+                  {/* Action Column */}
+                  <TableHead className="w-[60px] text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAllocations.map((alloc) => {
-                  const weightColor = getLoadProgressBarColor(alloc.weightPercentage);
-                  const volumeColor = getLoadProgressBarColor(alloc.volumePercentage);
+                {paginatedAllocations.map((alloc) => {
+                  const isColdChain =
+                    alloc.temperatureZone === "frozen" ||
+                    alloc.temperatureZone === "chilled" ||
+                    alloc.vehicleCategory === "freeze_lorry";
 
                   return (
                     <TableRow key={alloc.id} className="hover:bg-muted/30">
                       {/* Vehicle Code & Plate */}
-                      <TableCell>
-                        <div>
-                          <span className="font-heading font-black text-xs text-foreground">
-                            {alloc.code}
-                          </span>
-                          <p className="text-[10px] font-mono text-muted-foreground mt-0.5">
-                            {alloc.plateNumber}
+                      <TableCell className="whitespace-nowrap">
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 whitespace-nowrap">
+                            <span className="font-heading font-black text-xs text-foreground shrink-0">
+                              # {alloc.plateNumber}
+                            </span>
+                            {isColdChain && (
+                              <div className="size-4 rounded-full bg-sky-100 dark:bg-sky-950 flex items-center justify-center text-sky-600 dark:text-sky-400 shrink-0">
+                                <SnowflakeIcon weight="fill" className="size-2.5" />
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-[10px] text-muted-foreground font-medium mt-0.5 truncate max-w-[130px]">
+                            {alloc.vehicleModel}
                           </p>
                         </div>
                       </TableCell>
@@ -389,7 +680,7 @@ export function AllocationSummaryPage() {
                       {/* Route & Stops */}
                       <TableCell>
                         <div>
-                          <span className="font-medium text-xs text-foreground block truncate max-w-[170px]">
+                          <span className="font-medium text-xs text-foreground block truncate max-w-[180px]">
                             {alloc.routeName}
                           </span>
                           <span className="text-[10px] text-muted-foreground">
@@ -420,46 +711,41 @@ export function AllocationSummaryPage() {
                         </Badge>
                       </TableCell>
 
-                      {/* Weight Progress & Figures */}
+                      {/* Weight Load with Circular Progress Ring */}
                       <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-[10px]">
-                            <span className="font-bold text-foreground">
+                        <div className="flex items-center gap-2.5">
+                          <CircularProgressRing
+                            value={alloc.weightPercentage}
+                            size={22}
+                            strokeWidth={3}
+                          />
+                          <div>
+                            <span className="font-bold text-xs text-foreground block leading-tight">
                               {alloc.allocatedWeightKg.toLocaleString()} kg
                             </span>
-                            <span className="text-muted-foreground font-semibold">
-                              {alloc.weightPercentage}%
+                            <span className="text-[10px] text-muted-foreground font-medium block">
+                              {alloc.weightPercentage}% of{" "}
+                              {alloc.maxWeightKg.toLocaleString()} kg
                             </span>
-                          </div>
-                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full ${weightColor}`}
-                              style={{
-                                width: `${Math.min(alloc.weightPercentage, 100)}%`,
-                              }}
-                            />
                           </div>
                         </div>
                       </TableCell>
 
-                      {/* Volume Progress & Figures */}
+                      {/* Volume Load with Circular Progress Ring */}
                       <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex justify-between text-[10px]">
-                            <span className="font-bold text-foreground">
+                        <div className="flex items-center gap-2.5">
+                          <CircularProgressRing
+                            value={alloc.volumePercentage}
+                            size={22}
+                            strokeWidth={3}
+                          />
+                          <div>
+                            <span className="font-bold text-xs text-foreground block leading-tight">
                               {alloc.allocatedVolumeCbm} m³
                             </span>
-                            <span className="text-muted-foreground font-semibold">
-                              {alloc.volumePercentage}%
+                            <span className="text-[10px] text-muted-foreground font-medium block">
+                              {alloc.volumePercentage}% of {alloc.maxVolumeCbm} m³
                             </span>
-                          </div>
-                          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                            <div
-                              className={`h-full rounded-full ${volumeColor}`}
-                              style={{
-                                width: `${Math.min(alloc.volumePercentage, 100)}%`,
-                              }}
-                            />
                           </div>
                         </div>
                       </TableCell>
@@ -474,12 +760,12 @@ export function AllocationSummaryPage() {
                       {/* Status */}
                       <TableCell>{getStatusBadge(alloc.status)}</TableCell>
 
-                      {/* Actions */}
+                      {/* Action */}
                       <TableCell className="text-right">
                         <IconButton
                           variant="ghost"
                           size="xs"
-                          className="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
+                          className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
                           title="View Details"
                         >
                           <ArrowSquareOutIcon className="size-3.5" />
