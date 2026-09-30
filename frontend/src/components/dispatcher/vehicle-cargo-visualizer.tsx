@@ -53,11 +53,10 @@ export function VehicleCargoVisualizer({
         borderRadius: "4px",
       };
 
-  // Status-driven fill color (vibrant red/coral/blue)
   const getFillColor = (pct: number) => {
-    if (pct >= 85) return "#EF4444"; // Red (high load)
-    if (pct >= 60) return "#F97316"; // Orange / Coral
-    return "#0069A8"; // Brand Blue
+    if (pct >= 85) return "#EF4444";
+    if (pct >= 60) return "#F97316";
+    return "#0069A8";
   };
 
   const toggleMode = () => {
@@ -69,7 +68,6 @@ export function VehicleCargoVisualizer({
     onToggleMode?.(targetMode);
   };
 
-  // Touch swipe handling
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStartX(e.touches[0].clientX);
     setIsDragging(true);
@@ -80,7 +78,6 @@ export function VehicleCargoVisualizer({
     if (touchStartX === null) return;
     const currentX = e.touches[0].clientX;
     const offset = currentX - touchStartX;
-    // Apply resistance at edges
     if ((activeIndex === 0 && offset > 0) || (activeIndex === 1 && offset < 0)) {
       setDragOffset(offset * 0.3);
     } else {
@@ -108,7 +105,6 @@ export function VehicleCargoVisualizer({
     return (
       <div className="w-1/2 min-w-[50%] max-w-[50%] shrink-0 flex items-center justify-center overflow-hidden h-40 sm:h-48 my-1 select-none pointer-events-none">
         <div className="relative inline-block aspect-square h-56 sm:h-64 scale-[1.24] sm:scale-[1.3] transform-gpu pointer-events-none">
-          {/* Base Vehicle PNG Asset */}
           <img
             src={vehicle.imageUrl}
             alt={vehicle.code}
@@ -116,7 +112,6 @@ export function VehicleCargoVisualizer({
             draggable={false}
           />
 
-          {/* Overlaid Cargo Container Bay Area */}
           <div
             style={{
               ...containerStyle,
@@ -128,7 +123,6 @@ export function VehicleCargoVisualizer({
             }}
             className="absolute overflow-hidden flex backdrop-blur-[0.5px]"
           >
-            {/* Filled Level Background: Vertical for Weight/Mass, Horizontal for Volume */}
             {slideType === "weight" ? (
               <div
                 className="w-full self-end transition-all duration-500 ease-out relative"
@@ -151,7 +145,6 @@ export function VehicleCargoVisualizer({
               />
             )}
 
-            {/* Centered Big Label inside the Cargo Bay */}
             <div className="absolute inset-0 flex flex-col items-center justify-center p-0.5 pointer-events-none">
               <div className="flex items-baseline gap-0.5 sm:gap-1 text-black dark:text-white font-extrabold select-none">
                 <span
@@ -187,7 +180,6 @@ export function VehicleCargoVisualizer({
       onTouchEnd={handleTouchEnd}
       onTouchCancel={handleTouchEnd}
     >
-      {/* Sliding Carousel Viewport */}
       <div className="relative w-full max-w-full overflow-hidden min-w-0 touch-pan-y cursor-grab active:cursor-grabbing">
         <div
           className="flex w-[200%] min-w-[200%] max-w-[200%] transform-gpu will-change-transform"
@@ -200,17 +192,12 @@ export function VehicleCargoVisualizer({
               : "transform 350ms cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         >
-          {/* Slide 1: Mass / Weight View */}
           {renderVehicleSlide("weight")}
-
-          {/* Slide 2: Volume View */}
           {renderVehicleSlide("volume")}
         </div>
       </div>
 
-      {/* Swipable / Paginated Mode Indicator with Left and Right Navigation Arrows */}
       <div className="flex items-center justify-between w-full px-2 pt-2 border-t border-border/40 text-xs">
-        {/* Left Arrow Button */}
         <IconButton
           variant="ghost"
           size="xs"
@@ -225,12 +212,10 @@ export function VehicleCargoVisualizer({
           <CaretLeftIcon className="size-3.5" />
         </IconButton>
 
-        {/* Central Paginated Pill with Dot Indicators */}
         <div
           onClick={toggleMode}
           className="flex items-center gap-2 px-3 py-1 bg-muted/80 hover:bg-muted rounded-full border border-border/50 cursor-pointer transition-colors"
         >
-          {/* Pagination Dots */}
           <div className="flex items-center gap-1">
             <span
               className={`size-1.5 rounded-full transition-all duration-300 ${
@@ -244,7 +229,6 @@ export function VehicleCargoVisualizer({
             />
           </div>
 
-          {/* Active Mode Label */}
           <span className="font-semibold text-xs text-foreground tracking-tight">
             {mode === "weight" ? "Mass (Weight)" : "Volume Capacity"}
           </span>
@@ -254,7 +238,6 @@ export function VehicleCargoVisualizer({
           </span>
         </div>
 
-        {/* Right Arrow Button */}
         <IconButton
           variant="ghost"
           size="xs"

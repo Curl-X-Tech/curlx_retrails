@@ -122,7 +122,6 @@ export function AllocationRouteMap({
         attributionControl: false,
       });
 
-      // Custom Clean Tile Layer with dynamic API Key support
       L.tileLayer(resolvedTileUrl, {
         maxZoom: 20,
         subdomains: "abcd",
@@ -133,7 +132,6 @@ export function AllocationRouteMap({
 
     const map = mapInstanceRef.current;
 
-    // Clear previous markers
     markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
     if (vehicleMarkerRef.current) {
@@ -145,7 +143,6 @@ export function AllocationRouteMap({
 
     const allCoords: [number, number][] = [];
 
-    // Render Location Waypoints (Clean point-based map without cluttering lines)
     waypoints.forEach((wp) => {
       const pos: [number, number] = [wp.lat, wp.lng];
       allCoords.push(pos);
@@ -182,7 +179,6 @@ export function AllocationRouteMap({
       markersRef.current.push(marker);
     });
 
-    // Render Top-View Vehicle Location Marker
     if (vehiclePosition) {
       const vPos: [number, number] = [vehiclePosition.lat, vehiclePosition.lng];
       allCoords.push(vPos);
@@ -254,10 +250,8 @@ export function AllocationRouteMap({
     <Card
       className={`relative isolate overflow-hidden rounded-2xl border border-border/80 shadow-xs h-[230px] sm:h-[260px] min-w-0 ${className || ""}`}
     >
-      {/* Custom Map Canvas */}
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
-      {/* Clean Route Status Legend */}
       <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 bg-background/92 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-border/70 shadow-xs text-[11px] font-medium text-foreground select-none">
         <div className="flex items-center gap-1">
           <span className="size-2 rounded-full bg-[#059669]" />
@@ -275,7 +269,6 @@ export function AllocationRouteMap({
         </div>
       </div>
 
-      {/* Floating Map Controls in bottom right */}
       <div className="absolute right-3 bottom-3 z-10 flex flex-col gap-1 bg-card/90 backdrop-blur-md p-1 rounded-xl border border-border/80 shadow-md">
         <IconButton
           variant="ghost"

@@ -155,18 +155,15 @@ export function AllocationCargoList({
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       {trigger && <SheetTrigger render={trigger as React.ReactElement} />}
 
-      {/* Slide-Over Sheet */}
       <SheetContent
         side="right"
         className={`w-full data-[side=right]:sm:max-w-2xl data-[side=right]:md:max-w-3xl data-[side=right]:lg:max-w-4xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl p-0 flex flex-col h-full bg-card border-l border-border/80 shadow-2xl ${className || ""}`}
       >
-        {/* Header Bar */}
         <SheetHeader className="p-5 border-b border-border/80 bg-muted/20 shrink-0 space-y-3">
           <SheetTitle className="font-heading font-black text-lg text-foreground tracking-tight">
             {manifestCode || "Cargo Orders"}
           </SheetTitle>
 
-          {/* Search, Grouping Toggle & Actions */}
           <div className="flex items-center gap-2 pt-1">
             <div className="relative flex-1">
               <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
@@ -210,7 +207,6 @@ export function AllocationCargoList({
           </div>
         </SheetHeader>
 
-        {/* Unified Single Table Body */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-5">
           {filteredItems.length === 0 ? (
             <div className="p-12 text-center text-xs text-muted-foreground">
@@ -275,7 +271,6 @@ export function AllocationCargoList({
                   {groupByStops
                     ? stopGroups.map((group) => (
                         <React.Fragment key={group.seq}>
-                          {/* Group Section Row */}
                           <TableRow className="bg-muted/60 hover:bg-muted/60 border-t border-b border-border/60">
                             <TableCell
                               colSpan={5}
@@ -297,7 +292,6 @@ export function AllocationCargoList({
                             </TableCell>
                           </TableRow>
 
-                          {/* Items for this stop */}
                           {group.items.map((item) => (
                             <TableRow
                               key={item.id}
@@ -356,7 +350,6 @@ export function AllocationCargoList({
           )}
         </div>
 
-        {/* Footer Bar */}
         <SheetFooter className="p-4 border-t border-border/80 bg-muted/20 shrink-0 flex flex-row items-center justify-between gap-3">
           <span className="text-xs text-muted-foreground">
             {filteredItems.length} items • {totalWeightKg} kg total

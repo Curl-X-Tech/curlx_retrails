@@ -35,7 +35,6 @@ export function AllocationManifestCard({
         className
       )}
     >
-      {/* Right Side Cropped Vehicle Asset (Front cab visible on card, rear half cropped outside right boundary) */}
       <div className="absolute -right-24 sm:-right-28 top-1/2 -translate-y-1/2 w-64 sm:w-72 h-44 sm:h-48 pointer-events-none flex items-center justify-center select-none overflow-visible">
         <img
           src={allocation.imageUrl}
@@ -45,9 +44,7 @@ export function AllocationManifestCard({
         />
       </div>
 
-      {/* Left Content Column */}
       <div className="relative z-10 max-w-[60%] sm:max-w-[64%] space-y-3">
-        {/* Header: Plate Number + Cold-Chain Badge & Model */}
         <div className="leading-tight">
           <div className="flex items-center gap-1.5 whitespace-nowrap">
             <span className="font-heading font-black text-sm sm:text-base text-foreground tracking-tight">
@@ -64,9 +61,7 @@ export function AllocationManifestCard({
           </p>
         </div>
 
-        {/* Origin Depot -> Stops Pill -> Next Stop Sequence */}
         <div className="space-y-1.5 text-xs">
-          {/* Origin Stop: Blue Truck Icon + Hub Name */}
           <div className="flex items-center gap-2">
             <TruckIcon className="size-4 text-[#0070BA] shrink-0" weight="regular" />
             <span className="font-medium text-foreground truncate text-[11px] sm:text-xs">
@@ -74,7 +69,6 @@ export function AllocationManifestCard({
             </span>
           </div>
 
-          {/* Vertical Connector Path with Prominent Blue Stops Pill Badge */}
           <div className="flex items-center pl-[7px]">
             <div className="h-6 sm:h-7 border-l-2 border-dashed border-border/80 flex items-center">
               <Badge className="bg-[#0070BA] hover:bg-[#0070BA] text-white text-[11px] font-bold px-2.5 py-0.5 rounded-full ml-3 shrink-0 shadow-xs">
@@ -83,7 +77,6 @@ export function AllocationManifestCard({
             </div>
           </div>
 
-          {/* Next Destination Stop: Filled Black MapPin Icon + Stop Name */}
           <div className="flex items-center gap-2">
             <MapPinIcon className="size-4 text-foreground shrink-0" weight="fill" />
             <span className="font-medium text-foreground truncate text-[11px] sm:text-xs">

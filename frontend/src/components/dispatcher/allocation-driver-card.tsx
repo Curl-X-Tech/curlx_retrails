@@ -70,9 +70,8 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
     }
   };
 
-  // Semi-circle SVG arc parameters
   const radius = 28;
-  const arcLength = Math.PI * radius; // ~87.96
+  const arcLength = Math.PI * radius;
   const strokeOffset = arcLength * (1 - shift.percentage / 100);
 
   return (
@@ -81,7 +80,6 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
         className || ""
       }`}
     >
-      {/* 1. Top Section: Avatar, Driver Name & Prominent Blood Group (without badge) */}
       <div className="flex items-center gap-3 min-w-0 pb-2 border-b border-border/50">
         <div className="relative shrink-0">
           <div className="size-11 rounded-xl bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm shadow-xs">
@@ -91,7 +89,6 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
               <UserIcon className="size-5" weight="bold" />
             )}
           </div>
-          {/* Live On-Duty Status Dot */}
           <span className="absolute -bottom-0.5 -right-0.5 size-3 rounded-full bg-emerald-500 ring-2 ring-card" />
         </div>
 
@@ -100,7 +97,6 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
             <h4 className="font-heading font-bold text-sm sm:text-base text-foreground truncate">
               {driver.name}
             </h4>
-            {/* Prominent Blood Group (No Badge) */}
             <span className="font-mono font-black text-sm sm:text-base text-rose-600 dark:text-rose-400 select-none shrink-0 tracking-tight">
               {bloodGroup}
             </span>
@@ -111,9 +107,7 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
         </div>
       </div>
 
-      {/* 2. Driver Credentials List: 1 Per Line (License, Expiry Date) */}
       <div className="space-y-1 py-2 border-b border-border/50 text-xs">
-        {/* Line 1: License */}
         <div className="flex items-center justify-between py-1 border-b border-border/40">
           <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
             <IdentificationCardIcon className="size-3.5 text-primary shrink-0" />
@@ -124,7 +118,6 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
           </span>
         </div>
 
-        {/* Line 2: Expiry Date */}
         <div className="flex items-center justify-between py-1">
           <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
             <CalendarIcon className="size-3.5 text-primary shrink-0" />
@@ -136,11 +129,8 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
         </div>
       </div>
 
-      {/* 3. Stats Section: Rating, Deliveries & Semi-Circular Shift Progress Gauge */}
       <div className="flex-1 grid grid-cols-2 gap-3 py-2 items-center">
-        {/* Left: Star Rating & Deliveries Badge */}
         <div className="flex flex-col justify-center gap-2">
-          {/* Rating Visualizer */}
           <div className="flex items-center gap-2 bg-muted/40 px-2.5 py-1.5 rounded-xl border border-border/40">
             <div className="flex items-center">
               {[1, 2, 3, 4, 5].map((star) => (
@@ -160,7 +150,6 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
             </span>
           </div>
 
-          {/* Deliveries Count */}
           <div className="flex items-center justify-between bg-muted/40 px-2.5 py-1.5 rounded-xl border border-border/40">
             <div className="flex items-center gap-1.5 text-muted-foreground text-[11px] font-medium">
               <CheckCircleIcon className="size-3.5 text-emerald-600" weight="fill" />
@@ -172,11 +161,9 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
           </div>
         </div>
 
-        {/* Right: Semi-Circular Work Time / Shift Progress Gauge */}
         <div className="flex flex-col items-center justify-center bg-muted/30 p-2 rounded-xl border border-border/40 relative">
           <div className="relative w-[76px] h-[40px] flex items-center justify-center overflow-hidden">
             <svg className="w-[76px] h-[76px] absolute -top-[4px]" viewBox="0 0 76 76">
-              {/* Background Arc */}
               <circle
                 cx="38"
                 cy="38"
@@ -190,7 +177,6 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
                 strokeLinecap="round"
                 transform="rotate(180 38 38)"
               />
-              {/* Active Duty Arc */}
               <circle
                 cx="38"
                 cy="38"
@@ -205,7 +191,6 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
               />
             </svg>
 
-            {/* Gauge Inner Text */}
             <div className="absolute bottom-0 text-center flex flex-col items-center leading-none">
               <span className="font-heading font-black text-xs text-foreground">
                 {shift.workedHours}
@@ -222,7 +207,6 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
         </div>
       </div>
 
-      {/* 4. Bottom Contact Bar: Phone Number, Eye Toggle, Copy Button & Call Action */}
       <div className="flex items-center justify-between gap-2 pt-2 border-t border-border/60">
         <div className="flex items-center gap-1.5 bg-muted/80 px-2 py-1 rounded-xl border border-border/60 min-w-0 flex-1 justify-between">
           <div className="flex items-center gap-1.5 min-w-0">

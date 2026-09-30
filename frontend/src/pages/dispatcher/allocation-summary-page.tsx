@@ -264,7 +264,6 @@ export function AllocationSummaryPage({
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
-      {/* 1. Slim Header Bar */}
       <div className="px-4 sm:px-6 py-2.5 border-b border-border/60 bg-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
         <div>
           <h1 className="text-lg font-heading font-black tracking-tight text-foreground">
@@ -297,9 +296,7 @@ export function AllocationSummaryPage({
         </div>
       </div>
 
-      {/* 2. Compact Space-Saving KPI Metrics Strip */}
       <div className="px-4 sm:px-6 py-2 border-b border-border/50 bg-muted/20 flex items-center gap-2 sm:gap-4 overflow-x-auto text-xs whitespace-nowrap scrollbar-none">
-        {/* Vehicles */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <TruckIcon className="size-3.5 text-primary shrink-0" />
           <span className="text-muted-foreground text-[11px]">Vehicles:</span>
@@ -308,7 +305,6 @@ export function AllocationSummaryPage({
           </span>
         </div>
 
-        {/* Crates */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <PackageIcon className="size-3.5 text-sky-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Crates:</span>
@@ -317,7 +313,6 @@ export function AllocationSummaryPage({
           </span>
         </div>
 
-        {/* Weight */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <ScalesIcon className="size-3.5 text-emerald-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Weight:</span>
@@ -329,7 +324,6 @@ export function AllocationSummaryPage({
           </span>
         </div>
 
-        {/* Volume */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <CubeIcon className="size-3.5 text-violet-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Volume:</span>
@@ -338,7 +332,6 @@ export function AllocationSummaryPage({
           </span>
         </div>
 
-        {/* Fleet Utilization */}
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <ChartPieIcon className="size-3.5 text-amber-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Avg Load:</span>
@@ -348,7 +341,6 @@ export function AllocationSummaryPage({
         </div>
       </div>
 
-      {/* 3. Compact Filter and View Mode Toolbar */}
       <div className="px-4 sm:px-6 py-2 border-b border-border/50 bg-background flex flex-wrap items-center justify-between gap-2.5">
         <div className="flex items-center gap-2 flex-1 min-w-[220px] max-w-sm">
           <div className="relative w-full">
@@ -363,9 +355,7 @@ export function AllocationSummaryPage({
           </div>
         </div>
 
-        {/* Filter Dropdowns and View Toggle */}
         <div className="flex items-center gap-1.5">
-          {/* Status Filter Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -404,7 +394,6 @@ export function AllocationSummaryPage({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* Vehicle Category Filter */}
           <DropdownMenu>
             <DropdownMenuTrigger
               render={
@@ -440,7 +429,6 @@ export function AllocationSummaryPage({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          {/* View Mode Toggle Buttons (Grid vs Table) */}
           <div className="flex items-center border border-border/70 rounded-lg p-0.5 bg-card">
             <IconButton
               variant={viewMode === "grid" ? "default" : "ghost"}
@@ -464,7 +452,6 @@ export function AllocationSummaryPage({
         </div>
       </div>
 
-      {/* 4. Main Content Area */}
       <div className="flex-1 overflow-y-auto p-4 sm:p-6">
         {filteredAllocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -489,7 +476,6 @@ export function AllocationSummaryPage({
             </Button>
           </div>
         ) : viewMode === "grid" ? (
-          /* Grid View Layout */
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {sortedAllocations.map((alloc) => (
               <AllocationVehicleCard
@@ -500,7 +486,6 @@ export function AllocationSummaryPage({
             ))}
           </div>
         ) : (
-          /* Table View Layout with Top Pagination and Column Sorting */
           <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex flex-col">
             {/* Top Table Bar with Item Count & Top Pagination */}
             <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
@@ -551,11 +536,9 @@ export function AllocationSummaryPage({
               </Pagination>
             </div>
 
-            {/* Table Content with Interactive Sortable Headers */}
             <Table>
               <TableHeader className="bg-muted/40">
                 <TableRow>
-                  {/* Vehicle Column (Sortable) */}
                   <TableHead
                     className="w-[130px] cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("plateNumber")}
@@ -570,13 +553,9 @@ export function AllocationSummaryPage({
                     </div>
                   </TableHead>
 
-                  {/* Route Column */}
                   <TableHead className="w-[190px]">Route</TableHead>
-
-                  {/* Driver Column */}
                   <TableHead className="w-[150px]">Driver</TableHead>
 
-                  {/* Crates Column (Sortable) */}
                   <TableHead
                     className="w-[80px] text-center cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("crates")}
@@ -591,7 +570,6 @@ export function AllocationSummaryPage({
                     </div>
                   </TableHead>
 
-                  {/* Weight Load Column (Sortable) */}
                   <TableHead
                     className="w-[180px] cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("weight")}
@@ -606,7 +584,6 @@ export function AllocationSummaryPage({
                     </div>
                   </TableHead>
 
-                  {/* Volume Load Column (Sortable) */}
                   <TableHead
                     className="w-[180px] cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("volume")}
@@ -621,7 +598,6 @@ export function AllocationSummaryPage({
                     </div>
                   </TableHead>
 
-                  {/* Departure Column (Sortable) */}
                   <TableHead
                     className="w-[100px] cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("departure")}
@@ -636,7 +612,6 @@ export function AllocationSummaryPage({
                     </div>
                   </TableHead>
 
-                  {/* Status Column (Sortable) */}
                   <TableHead
                     className="w-[100px] cursor-pointer hover:text-foreground select-none transition-colors"
                     onClick={() => handleSort("status")}
@@ -651,7 +626,6 @@ export function AllocationSummaryPage({
                     </div>
                   </TableHead>
 
-                  {/* Action Column */}
                   <TableHead className="w-[60px] text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>

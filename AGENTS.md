@@ -45,6 +45,10 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
      - Special Handling Codes: `COL` (Cold Chain), `FRG` (Fragile), `MAL` (Mall Bay), `HAZ` (Hazardous).
      - Fleet & Units: `weight_cap_kg`, `volume_cap_m3`, `fuel_type`, `km_per_l`, `weekly_fuel_quota_l`, `type` (`truck` | `van`), `temp` (`reefer` | `ambient`).
      - Pricing & Valuation: Currency `LKR` and unit prices adhering to `price_list` / `order_item.unit_price`.
+13. **Comment Discipline & Minimalist Code**:
+   - Do not add noisy, redundant, or self-evident comments (e.g. step numbers, section banners for obvious JSX tags, line-by-line field descriptions, or conversational thoughts).
+   - Code must be self-documenting through clear, meaningful identifiers, strict TypeScript interfaces, and focused modular functions.
+   - Reserve comments exclusively for complex mathematical models, unusual coordinate offsets, or non-obvious business/domain logic invariants.
 
 
 

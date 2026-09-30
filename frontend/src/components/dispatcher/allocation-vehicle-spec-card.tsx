@@ -32,7 +32,6 @@ export function AllocationVehicleSpecCard({
       </div>
 
       <div className="flex-1 flex flex-col justify-around text-xs mt-2.5">
-        {/* Registration */}
         <div className="flex items-center justify-between py-1.5 border-b border-border/40">
           <div className="flex items-center gap-2 text-muted-foreground">
             <IdentificationCardIcon
@@ -44,7 +43,6 @@ export function AllocationVehicleSpecCard({
           <span className="font-bold text-foreground font-mono">{specs.regNumber}</span>
         </div>
 
-        {/* Security Seal */}
         <div className="flex items-center justify-between py-1.5 border-b border-border/40">
           <div className="flex items-center gap-2 text-muted-foreground">
             <LockKeyIcon className="size-4 text-primary shrink-0" weight="regular" />
@@ -53,7 +51,6 @@ export function AllocationVehicleSpecCard({
           <span className="font-semibold text-primary font-mono">{specs.sealNumber}</span>
         </div>
 
-        {/* Max Payload */}
         <div className="flex items-center justify-between py-1.5 border-b border-border/40">
           <div className="flex items-center gap-2 text-muted-foreground">
             <ArrowsOutCardinalIcon
@@ -67,7 +64,6 @@ export function AllocationVehicleSpecCard({
           </span>
         </div>
 
-        {/* Box Volume */}
         <div className="flex items-center justify-between py-1.5">
           <div className="flex items-center gap-2 text-muted-foreground">
             <CubeIcon className="size-4 text-primary shrink-0" weight="regular" />

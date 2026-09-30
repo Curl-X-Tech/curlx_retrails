@@ -59,7 +59,6 @@ export function LiveVehicleCard({
 
   return (
     <Card className="w-96 sm:w-[460px] max-w-[calc(100vw-2rem)] bg-card/95 backdrop-blur-md border border-border/80 shadow-2xl rounded-2xl overflow-hidden pointer-events-auto transition-all duration-300">
-      {/* Header Section: Title on Left, Status Badge & Controls on Right */}
       <div className="p-3.5 pb-2.5 border-b border-border/50 flex items-center justify-between">
         <div>
           <h3 className="font-heading font-bold text-sm tracking-tight text-foreground">
@@ -70,7 +69,6 @@ export function LiveVehicleCard({
           </p>
         </div>
 
-        {/* Right Section: Status Badge + Minimize / Close Action Buttons */}
         <div className="flex items-center gap-1.5">
           {getStatusBadge(vehicle.status)}
 
@@ -103,7 +101,6 @@ export function LiveVehicleCard({
         </div>
       </div>
 
-      {/* Smoothly Animated Collapsible Body (Maintains Full Width at all times) */}
       <div
         className={cn(
           "grid transition-all duration-300 ease-in-out overflow-hidden w-full max-w-full",
@@ -111,7 +108,6 @@ export function LiveVehicleCard({
         )}
       >
         <div className="min-h-0 min-w-0 flex flex-col w-full max-w-full overflow-hidden">
-          {/* Cargo Container Fill Visualizer on Vehicle Graphic with Swipe & Pagination */}
           <div className="p-3 bg-muted/20 border-b border-border/40 overflow-hidden w-full max-w-full min-w-0">
             <VehicleCargoVisualizer
               vehicle={vehicle}
@@ -120,9 +116,7 @@ export function LiveVehicleCard({
             />
           </div>
 
-          {/* Operational Information */}
           <div className="p-3.5 space-y-3">
-            {/* Driver Contact Row */}
             <div className="flex items-center justify-between bg-muted/40 p-2 rounded-xl border border-border/40 text-xs">
               <div className="flex items-center gap-2 min-w-0">
                 <div className="size-7 rounded-full bg-primary/10 text-primary flex items-center justify-center font-bold text-[11px]">
@@ -148,7 +142,6 @@ export function LiveVehicleCard({
               </Button>
             </div>
 
-            {/* Next Delivery Stop & Mission Progress */}
             <div className="bg-primary/5 border border-primary/15 rounded-xl p-2.5 flex items-start gap-2">
               <MapPinIcon className="size-4 text-primary shrink-0 mt-0.5" />
               <div className="flex-1 min-w-0 text-xs">
@@ -182,7 +175,6 @@ export function LiveVehicleCard({
             </div>
           </div>
 
-          {/* Action Footer */}
           <div className="p-2.5 pt-0 flex items-center gap-2">
             <Button
               variant="outline"

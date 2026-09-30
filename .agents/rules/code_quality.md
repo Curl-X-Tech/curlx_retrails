@@ -28,4 +28,9 @@ Before committing any changes to the repository, all quality checks MUST pass cl
 - Store all mock data, seed arrays, and static records in dedicated files under `frontend/src/data/` (e.g., `frontend/src/data/mock-live-map.ts`, `frontend/src/data/mock-orders.ts`).
 - Export explicit TypeScript types alongside mock records to ensure strong typing across hooks, stores, and components.
 
+## 6. Comment Discipline & Minimalist Code
+- Do not clutter code with redundant, conversational, or self-evident comments (e.g., step numbers, section banners on obvious tags, or field-by-field annotations).
+- Rely on self-documenting code with clear variable and function names, strong TypeScript typings, and single-responsibility components.
+- Comments are only acceptable for non-obvious algorithms, mathematical calculations, coordinate scaling matrices, or critical domain invariants.
+
 

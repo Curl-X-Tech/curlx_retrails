@@ -112,6 +112,8 @@ export interface AllocatedStoreStop {
   sequence: number;
 }
 
+export type AssignedStop = AllocatedStoreStop;
+
 export interface VehicleAllocation {
   id: string;
   code: string;

@@ -53,11 +53,10 @@ export function AllocationVehicleCard({
         borderRadius: "3px",
       };
 
-  // Status/Load-driven fill color (vivid green for optimal load matching mockup)
   const getFillColor = (pct: number) => {
-    if (pct >= 90) return "#EF4444"; // High load (Red)
-    if (pct >= 75) return "#F97316"; // Moderate load (Orange)
-    return "#00E600"; // Optimal load (Bright Green matching mockup)
+    if (pct >= 90) return "#EF4444";
+    if (pct >= 75) return "#F97316";
+    return "#00E600";
   };
 
   const toggleMode = () => {
@@ -295,9 +294,7 @@ export function AllocationVehicleCard({
         </div>
       </div>
 
-      {/* 3. Location & Stops Section (Exact visual match to user's mockup) */}
       <div className="pt-2 border-t border-border/50 space-y-1.5">
-        {/* Origin Stop: Blue Truck Icon + Hub Name */}
         <div className="flex items-center gap-2.5">
           <TruckIcon className="size-5 text-[#0070BA] shrink-0" weight="regular" />
           <span className="text-xs font-semibold text-foreground truncate">
@@ -305,7 +302,6 @@ export function AllocationVehicleCard({
           </span>
         </div>
 
-        {/* Vertical Connector Path with Blue Pill Badge */}
         <div className="flex items-center pl-[9px]">
           <div className="h-6 border-l-2 border-dashed border-border/80 flex items-center">
             <Badge className="bg-[#0070BA] hover:bg-[#0070BA] text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full ml-3 shrink-0 shadow-xs">
@@ -314,7 +310,6 @@ export function AllocationVehicleCard({
           </div>
         </div>
 
-        {/* Next Destination Stop: Filled Black MapPin Icon + Stop Name */}
         <div className="flex items-center gap-2.5">
           <MapPinIcon className="size-5 text-foreground shrink-0" weight="fill" />
           <span className="text-xs font-semibold text-foreground truncate">

@@ -55,7 +55,6 @@ export function LiveMapPage() {
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [selectedThemeId, setSelectedThemeId] = React.useState<string>("carto-positron");
 
-  // Checklist Filter States
   const [selectedVehicleStatuses, setSelectedVehicleStatuses] = React.useState<string[]>([
     "en_route",
     "at_stop",
@@ -73,7 +72,6 @@ export function LiveMapPage() {
 
   const resolvedTileUrl = buildTileUrl(selectedTheme.url, apiKey);
 
-  // Initialize Map
   React.useEffect(() => {
     if (!mapContainerRef.current || mapInstance) return;
 
@@ -93,7 +91,6 @@ export function LiveMapPage() {
 
     tileLayerRef.current = tileLayer;
 
-    // Add Central Hub Marker
     L.marker(CENTRAL_HUB.location, { icon: createHubIcon() })
       .bindPopup(
         `<div style="font-family: sans-serif; padding: 4px;"><p style="font-weight: bold; margin: 0; font-size: 13px; color: #0f172a;">${CENTRAL_HUB.name}</p><p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">${CENTRAL_HUB.code}</p></div>`
@@ -108,7 +105,6 @@ export function LiveMapPage() {
     };
   }, []);
 
-  // Update Tile Layer when theme changes
   React.useEffect(() => {
     if (!mapInstance) return;
 
@@ -125,13 +121,11 @@ export function LiveMapPage() {
     tileLayerRef.current = tileLayer;
   }, [mapInstance, resolvedTileUrl, selectedTheme.attribution, selectedTheme.maxZoom]);
 
-  // Update Vehicle Markers based on checklist
   React.useEffect(() => {
     if (!mapInstance) return;
 
     const filtered = vehicles.filter((v) => selectedVehicleStatuses.includes(v.status));
 
-    // Remove obsolete markers
     Object.keys(vehicleMarkersRef.current).forEach((id) => {
       if (!filtered.some((v) => v.id === id)) {
         vehicleMarkersRef.current[id].remove();
@@ -139,7 +133,6 @@ export function LiveMapPage() {
       }
     });
 
-    // Add / update markers
     filtered.forEach((vehicle) => {
       const icon = createTopViewVehicleIcon(vehicle);
 
@@ -172,7 +165,6 @@ export function LiveMapPage() {
     });
   }, [mapInstance, vehicles, selectedVehicleStatuses]);
 
-  // Update Store Markers based on checklist
   React.useEffect(() => {
     if (!mapInstance) return;
 
@@ -186,7 +178,6 @@ export function LiveMapPage() {
       selectedStoreCategories.includes(s.category)
     );
 
-    // Remove old markers
     Object.keys(storeMarkersRef.current).forEach((id) => {
       if (!filteredStores.some((s) => s.id === id)) {
         storeMarkersRef.current[id].remove();

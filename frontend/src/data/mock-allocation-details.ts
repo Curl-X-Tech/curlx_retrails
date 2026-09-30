@@ -4,7 +4,9 @@ import type {
   AllocationVehiclePosition,
   AllocationVehicleSpec,
   AllocationWaypoint,
+  AssignedStop,
   CargoItem,
+  VehicleAllocation,
 } from "@/types";
 
 export type {
@@ -13,7 +15,9 @@ export type {
   AllocationVehiclePosition,
   AllocationVehicleSpec,
   AllocationWaypoint,
+  AssignedStop,
   CargoItem,
+  VehicleAllocation,
 };
 
 export const mockAllocationManifests: Record<string, AllocationManifestDetail> = {
@@ -688,3 +692,134 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
     ],
   },
 };
+
+export function getManifestForAllocation(
+  allocation: VehicleAllocation
+): AllocationManifestDetail {
+  if (mockAllocationManifests[allocation.id]) {
+    return mockAllocationManifests[allocation.id];
+  }
+
+  const cleanReg = allocation.plateNumber.replace(/[^a-zA-Z0-9]/g, "");
+  const isVan = allocation.vehicleCategory === "van";
+
+  return {
+    id: `mnf-${allocation.id}`,
+    manifestCode: `MNF-${cleanReg}`,
+    allocationId: allocation.id,
+    tripCode: allocation.routeCode || `RT-${cleanReg.slice(0, 4)}`,
+    tripSequence: allocation.tripSequence || 1,
+    brand: allocation.brand || "Fresh",
+    district: "Colombo",
+    depot: allocation.depot || "Peliyagoda",
+    driver: {
+      employeeCode: "DRV-301",
+      name: allocation.driverName,
+      email: "driver@curlx.tech",
+      role: "driver",
+      designation: isVan ? "Express Delivery Specialist" : "Heavy Commercial Pilot",
+      licenseId: "DL-88291-WP-90",
+      licenseClass: isVan ? "Van (Class B)" : "Heavy Commercial (Class A)",
+      licenseExpiryDate: "2028-11-15",
+      bloodGroup: "O+",
+      phone: allocation.driverPhone,
+      avatarText: allocation.driverName
+        .split(" ")
+        .map((n: string) => n[0])
+        .join(""),
+      experienceYears: 5,
+      rating: 4.9,
+      deliveriesCompleted: 1240,
+      shiftStatus: "Active On Duty",
+      hoursOnDuty: "3h 30m / 8h",
+    },
+    specs: {
+      unitId: allocation.code,
+      vehicleId: allocation.vehicleId || "VEH001",
+      model: allocation.vehicleModel,
+      regNumber: allocation.plateNumber,
+      sealNumber: "SL-80129-A",
+      type: allocation.type || (isVan ? "van" : "truck"),
+      temp:
+        allocation.temp ||
+        (allocation.temperatureZone === "frozen" ||
+        allocation.temperatureZone === "chilled"
+          ? "reefer"
+          : "ambient"),
+      maxPayloadKg: allocation.maxWeightKg,
+      boxVolumeCbm: allocation.maxVolumeCbm,
+      weeklyFuelQuotaL: allocation.weeklyFuelQuotaL || 450,
+      consumedFuelL: allocation.consumedFuelL || 120,
+    },
+    payloadKg: allocation.allocatedWeightKg,
+    maxPayloadKg: allocation.maxWeightKg,
+    payloadPercentage: allocation.weightPercentage,
+    volumeCbm: allocation.allocatedVolumeCbm,
+    maxVolumeCbm: allocation.maxVolumeCbm,
+    volumePercentage: allocation.volumePercentage,
+    vehiclePosition: {
+      lat: 6.9482,
+      lng: 79.872,
+      heading: 190,
+      speedKmH: 35,
+      reeferTempCelsius:
+        allocation.temperatureZone === "frozen"
+          ? -18.2
+          : allocation.temperatureZone === "chilled"
+            ? 3.4
+            : undefined,
+      lastUpdated: "Just now",
+    },
+    waypoints: [
+      {
+        seq: 1,
+        name: `${allocation.hubName} (Origin)`,
+        lat: 6.9654,
+        lng: 79.9042,
+        crates: 0,
+        eta: allocation.departureTime,
+        status: "completed",
+      },
+      ...allocation.assignedStops.map((stop: AssignedStop, idx: number) => ({
+        seq: idx + 2,
+        outletId: stop.outletId,
+        name: stop.name,
+        lat: 6.9366 + idx * 0.04,
+        lng: 79.8454 + idx * 0.03,
+        crates: stop.crates,
+        eta: stop.deliveryWindow.split(" - ")[0],
+        status: (idx === 0 ? "completed" : "upcoming") as "completed" | "upcoming",
+      })),
+    ],
+    cargoList: allocation.assignedStops.flatMap((stop: AssignedStop, sIdx: number) => [
+      {
+        id: `cg-${allocation.id}-${sIdx * 2 + 1}`,
+        code: `PKG${Math.floor(100000000 + Math.random() * 900000000)}-LK`,
+        weightKg: Math.round(
+          (allocation.allocatedWeightKg / (allocation.assignedStops.length * 2)) * 0.9
+        ),
+        store: stop.chain,
+        stopSeq: sIdx + 1,
+        stopName: stop.name,
+        destination: stop.address,
+        shc:
+          allocation.temperatureZone === "frozen" ||
+          allocation.temperatureZone === "chilled"
+            ? "COL"
+            : "GEN",
+      },
+      {
+        id: `cg-${allocation.id}-${sIdx * 2 + 2}`,
+        code: `PKG${Math.floor(100000000 + Math.random() * 900000000)}-LK`,
+        weightKg: Math.round(
+          (allocation.allocatedWeightKg / (allocation.assignedStops.length * 2)) * 1.1
+        ),
+        store: stop.chain,
+        stopSeq: sIdx + 1,
+        stopName: stop.name,
+        destination: stop.address,
+        shc: "GEN",
+      },
+    ]),
+  };
+}

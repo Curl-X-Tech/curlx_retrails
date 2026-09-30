@@ -154,11 +154,7 @@ export const navGroups: { label?: string; items: NavItem[] }[] = [
   },
 ];
 
-const hubs = [
-  { id: "h1", name: "Peliyagoda Central Hub", sector: "Western Province", active: true },
-  { id: "h2", name: "Kandy Regional Depot", sector: "Central Province", active: false },
-  { id: "h3", name: "Galle Southern Depot", sector: "Southern Province", active: false },
-];
+import { MOCK_HUBS, type HubInfo } from "@/data/mock-hubs";
 
 interface AppSidebarProps {
   activeId?: string;
@@ -168,14 +164,13 @@ interface AppSidebarProps {
 export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps) {
   const { state } = useSidebar();
   const isCollapsed = state === "collapsed";
-  const [activeHub, setActiveHub] = React.useState(hubs[0]);
+  const [activeHub, setActiveHub] = React.useState<HubInfo>(MOCK_HUBS[0]);
 
   return (
     <Sidebar
       collapsible="icon"
       className="border-r border-sidebar-border font-sans bg-sidebar select-none"
     >
-      {/* Workspace Hub Header */}
       <SidebarHeader className="border-b border-sidebar-border h-16 justify-center px-3.5">
         <div className="flex items-center justify-between w-full">
           {!isCollapsed ? (
@@ -210,7 +205,7 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
                   Active Distribution Hubs
                 </DropdownMenuLabel>
                 <DropdownMenuGroup>
-                  {hubs.map((hub) => (
+                  {MOCK_HUBS.map((hub) => (
                     <DropdownMenuItem
                       key={hub.id}
                       onClick={() => setActiveHub(hub)}
@@ -236,7 +231,6 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
         </div>
       </SidebarHeader>
 
-      {/* Main Navigation Content */}
       <SidebarContent className="px-2.5 py-3 space-y-3">
         {navGroups.map((group, idx) => (
           <SidebarGroup key={idx} className="py-0.5">
@@ -388,7 +382,6 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
                                     key={sub.id}
                                     className="relative flex items-center"
                                   >
-                                    {/* Discrete thick, darker dashed L-shape connector with corner radius */}
                                     <div className="absolute -left-3.5 top-0 h-1/2 w-3.5 border-l-2 border-b-2 border-dashed border-neutral-400 rounded-bl-[4px] pointer-events-none" />
 
                                     <SidebarMenuSubButton
@@ -474,7 +467,6 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
         ))}
       </SidebarContent>
 
-      {/* Footer Profile Dropdown */}
       <SidebarFooter className="border-t border-sidebar-border p-2.5">
         <SidebarMenu>
           <SidebarMenuItem>

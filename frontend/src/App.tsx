@@ -15,7 +15,7 @@ import { AllocationSummaryPage } from "@/pages/dispatcher/allocation-summary-pag
 import { AllocationDetailPage } from "@/pages/dispatcher/allocation-detail-page";
 
 import { mockVehicleAllocations } from "@/data/mock-allocations";
-import { mockAllocationManifests } from "@/data/mock-allocation-details";
+import { getManifestForAllocation } from "@/data/mock-allocation-details";
 
 interface CrumbItem {
   label: string;
@@ -29,8 +29,7 @@ function getBreadcrumbs(id: string, selectedAllocationId?: string): CrumbItem[] 
     const activeAlloc =
       mockVehicleAllocations.find((a) => a.id === selectedAllocationId) ||
       mockVehicleAllocations[0];
-    const manifestCode =
-      mockAllocationManifests[activeAlloc.id]?.manifestCode || activeAlloc.plateNumber;
+    const manifestCode = getManifestForAllocation(activeAlloc).manifestCode;
 
     return [
       { label: "Planning" },
