@@ -34,5 +34,10 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
 10. **Data & Mock Separation**:
    - Never inline large mock datasets, seed lists, or static coordinate tables directly inside UI component/page files.
    - Always store mock data, seed arrays, and static datasets in dedicated files under `frontend/src/data/` (e.g. `mock-live-map.ts`, `mock-orders.ts`) to keep page and component files lean and focused on presentation and interaction logic.
+11. **Minimalist UI & Badge Discipline**:
+   - Do not scatter translucent, noisy, or pastel badges across tables, cards, and headers.
+   - If a status or tag is necessary, use solid, high-contrast colors or clean monospace text labels rather than washed-out pills.
+   - Avoid filler tags and keep layouts lean, minimal, and focused on essential data.
+
 
 

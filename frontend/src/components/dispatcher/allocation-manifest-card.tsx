@@ -35,12 +35,12 @@ export function AllocationManifestCard({
         className
       )}
     >
-      {/* Right Side Cropped Vehicle Asset (Front cab visible on card, rear 50% overflowing outside right border) */}
-      <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-[48%] w-56 sm:w-64 h-36 pointer-events-none flex items-center justify-start select-none">
+      {/* Right Side Cropped Vehicle Asset (Front cab visible on card, rear half cropped outside right boundary) */}
+      <div className="absolute -right-24 sm:-right-28 top-1/2 -translate-y-1/2 w-64 sm:w-72 h-44 sm:h-48 pointer-events-none flex items-center justify-center select-none overflow-visible">
         <img
           src={allocation.imageUrl}
           alt={allocation.plateNumber}
-          className="h-full w-auto object-contain drop-shadow-md select-none pointer-events-none"
+          className="h-full w-full object-contain scale-125 transform translate-x-10 drop-shadow-md select-none pointer-events-none"
           loading="lazy"
         />
       </div>

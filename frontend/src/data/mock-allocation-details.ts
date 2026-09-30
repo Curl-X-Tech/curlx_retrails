@@ -3,6 +3,8 @@ export interface CargoItem {
   code: string;
   weightKg: number;
   store: string;
+  stopSeq: number;
+  stopName: string;
   destination: string;
   shc: "AVI" | "ELI" | "PER" | "GEN";
 }
@@ -11,8 +13,15 @@ export interface AllocationDriverDetails {
   name: string;
   role: string;
   licenseId: string;
+  licenseExpiryDate?: string;
   phone: string;
   avatarText: string;
+  bloodGroup?: string;
+  experienceYears?: number;
+  rating?: number;
+  deliveriesCompleted?: number;
+  shiftStatus?: string;
+  hoursOnDuty?: string;
 }
 
 export interface AllocationVehicleSpec {
@@ -31,7 +40,15 @@ export interface AllocationWaypoint {
   lng: number;
   crates: number;
   eta: string;
-  status: "completed" | "current" | "pending";
+  status: "completed" | "upcoming" | "newly_added" | "current" | "pending";
+}
+
+export interface AllocationVehiclePosition {
+  lat: number;
+  lng: number;
+  heading?: number;
+  speedKmH?: number;
+  lastUpdated?: string;
 }
 
 export interface AllocationManifestDetail {
@@ -46,6 +63,7 @@ export interface AllocationManifestDetail {
   volumeCbm: number;
   maxVolumeCbm: number;
   volumePercentage: number;
+  vehiclePosition?: AllocationVehiclePosition;
   waypoints: AllocationWaypoint[];
   cargoList: CargoItem[];
 }
@@ -59,9 +77,17 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
       name: "Saman Perera",
       role: "Heavy Vehicle Pilot",
       licenseId: "DL-90821-WP-89",
+      licenseExpiryDate: "2028-11-15",
       phone: "+94 77 123 4567",
       avatarText: "SP",
+      bloodGroup: "O+",
+      experienceYears: 6,
+      rating: 4.9,
+      deliveriesCompleted: 1420,
+      shiftStatus: "Active On Duty",
+      hoursOnDuty: "3h 45m / 8h",
     },
+
     specs: {
       unitId: "RT-14",
       model: "Isuzu ELF NPR",
@@ -76,6 +102,13 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
     volumeCbm: 22.4,
     maxVolumeCbm: 28.0,
     volumePercentage: 80,
+    vehiclePosition: {
+      lat: 6.9482,
+      lng: 79.872,
+      heading: 205,
+      speedKmH: 38,
+      lastUpdated: "Just now",
+    },
     waypoints: [
       {
         seq: 1,
@@ -93,7 +126,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8924,
         crates: 32,
         eta: "07:30 AM",
-        status: "current",
+        status: "completed",
       },
       {
         seq: 3,
@@ -102,16 +135,16 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8528,
         crates: 28,
         eta: "09:30 AM",
-        status: "pending",
+        status: "upcoming",
       },
       {
         seq: 4,
-        name: "Arpico Supercentre - Hyde Park",
+        name: "Arpico Supercentre - Hyde Park (Added Post-Dispatch)",
         lat: 6.9189,
         lng: 79.8624,
         crates: 20,
         eta: "11:30 AM",
-        status: "pending",
+        status: "newly_added",
       },
       {
         seq: 5,
@@ -120,7 +153,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.9042,
         crates: 0,
         eta: "02:30 PM",
-        status: "pending",
+        status: "upcoming",
       },
     ],
     cargoList: [
@@ -129,7 +162,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG726108724-JK",
         weightKg: 55,
         store: "Store 1",
-        destination: "Jakarta Hub",
+        stopSeq: 1,
+        stopName: "Waypoint Fresh Wattala",
+        destination: "Wattala Hub Store",
         shc: "AVI",
       },
       {
@@ -137,7 +172,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG994012841-SY",
         weightKg: 112,
         store: "Store 1",
-        destination: "Sydney Terminal 02",
+        stopSeq: 1,
+        stopName: "Waypoint Fresh Wattala",
+        destination: "Wattala Cold Section",
         shc: "ELI",
       },
       {
@@ -145,7 +182,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG448190332-ML",
         weightKg: 80,
         store: "Store 4",
-        destination: "Melbourne Depot",
+        stopSeq: 2,
+        stopName: "Keells Super - Kollupitiya",
+        destination: "Kollupitiya Meat Depot",
         shc: "PER",
       },
       {
@@ -153,7 +192,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG112948750-AU",
         weightKg: 43,
         store: "Store 6",
-        destination: "Ultimo Hub",
+        stopSeq: 2,
+        stopName: "Keells Super - Kollupitiya",
+        destination: "Kollupitiya General Grocery",
         shc: "GEN",
       },
       {
@@ -161,7 +202,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG883019283-LK",
         weightKg: 68,
         store: "Store 2",
-        destination: "Negombo Cold Hub",
+        stopSeq: 3,
+        stopName: "Arpico Supercentre - Hyde Park",
+        destination: "Hyde Park Dairy Section",
         shc: "PER",
       },
       {
@@ -169,11 +212,14 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG552910482-CM",
         weightKg: 94,
         store: "Store 3",
-        destination: "Kollupitiya Super",
+        stopSeq: 3,
+        stopName: "Arpico Supercentre - Hyde Park",
+        destination: "Hyde Park Main Bay",
         shc: "GEN",
       },
     ],
   },
+
   "alloc-02": {
     id: "mnf-02",
     manifestCode: "MNF-3120-02",
@@ -199,6 +245,13 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
     volumeCbm: 17.8,
     maxVolumeCbm: 22.0,
     volumePercentage: 81,
+    vehiclePosition: {
+      lat: 7.0124,
+      lng: 79.8942,
+      heading: 350,
+      speedKmH: 42,
+      lastUpdated: "Just now",
+    },
     waypoints: [
       {
         seq: 1,
@@ -216,7 +269,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8924,
         crates: 62,
         eta: "09:00 AM",
-        status: "current",
+        status: "completed",
       },
       {
         seq: 3,
@@ -225,7 +278,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8972,
         crates: 56,
         eta: "11:00 AM",
-        status: "pending",
+        status: "upcoming",
       },
       {
         seq: 4,
@@ -234,7 +287,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8911,
         crates: 50,
         eta: "01:30 PM",
-        status: "pending",
+        status: "upcoming",
       },
     ],
     cargoList: [
@@ -243,7 +296,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG882910492-LK",
         weightKg: 120,
         store: "Store 1",
-        destination: "Wattala Express",
+        stopSeq: 1,
+        stopName: "Keells Super - Wattala",
+        destination: "Wattala Express Store",
         shc: "GEN",
       },
       {
@@ -251,7 +306,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG339102847-LK",
         weightKg: 145,
         store: "Store 2",
-        destination: "Kandana Center",
+        stopSeq: 2,
+        stopName: "Cargills Food City - Kandana",
+        destination: "Kandana Distribution Center",
         shc: "GEN",
       },
       {
@@ -259,7 +316,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG771029384-LK",
         weightKg: 98,
         store: "Store 3",
-        destination: "Ja-Ela Hub",
+        stopSeq: 3,
+        stopName: "Laugfs Super - Ja-Ela",
+        destination: "Ja-Ela Hub Refrigerated",
         shc: "PER",
       },
       {
@@ -267,7 +326,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG441920381-LK",
         weightKg: 65,
         store: "Store 1",
-        destination: "Wattala Express",
+        stopSeq: 1,
+        stopName: "Keells Super - Wattala",
+        destination: "Wattala Express Depot",
         shc: "AVI",
       },
     ],
@@ -297,6 +358,13 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
     volumeCbm: 5.6,
     maxVolumeCbm: 7.2,
     volumePercentage: 78,
+    vehiclePosition: {
+      lat: 6.9175,
+      lng: 79.855,
+      heading: 120,
+      speedKmH: 28,
+      lastUpdated: "1m ago",
+    },
     waypoints: [
       {
         seq: 1,
@@ -314,16 +382,16 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8495,
         crates: 18,
         eta: "08:15 AM",
-        status: "current",
+        status: "completed",
       },
       {
         seq: 3,
-        name: "Union Chemists - Town Hall",
+        name: "Union Chemists - Town Hall (Added Post-Dispatch)",
         lat: 6.9147,
         lng: 79.8661,
         crates: 22,
         eta: "10:00 AM",
-        status: "pending",
+        status: "newly_added",
       },
       {
         seq: 4,
@@ -332,7 +400,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8592,
         crates: 12,
         eta: "11:45 AM",
-        status: "pending",
+        status: "upcoming",
       },
     ],
     cargoList: [
@@ -341,7 +409,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG661928301-HG",
         weightKg: 35,
         store: "Store 1",
-        destination: "Crescat Boulevard",
+        stopSeq: 1,
+        stopName: "Healthguard - Crescat",
+        destination: "Crescat Boulevard Health",
         shc: "PER",
       },
       {
@@ -349,7 +419,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG220918237-UC",
         weightKg: 48,
         store: "Store 2",
-        destination: "Town Hall Pharmacy",
+        stopSeq: 2,
+        stopName: "Union Chemists - Town Hall",
+        destination: "Town Hall Pharmacy Dispensary",
         shc: "ELI",
       },
       {
@@ -357,7 +429,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG881029384-SP",
         weightKg: 28,
         store: "Store 3",
-        destination: "Union Place Hub",
+        stopSeq: 3,
+        stopName: "SPAR - Union Place",
+        destination: "Union Place Hub Goods In",
         shc: "GEN",
       },
     ],
@@ -387,6 +461,13 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
     volumeCbm: 15.6,
     maxVolumeCbm: 18.0,
     volumePercentage: 87,
+    vehiclePosition: {
+      lat: 6.9015,
+      lng: 79.932,
+      heading: 145,
+      speedKmH: 36,
+      lastUpdated: "Just now",
+    },
     waypoints: [
       {
         seq: 1,
@@ -404,7 +485,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.9542,
         crates: 52,
         eta: "09:45 AM",
-        status: "current",
+        status: "completed",
       },
       {
         seq: 3,
@@ -413,7 +494,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.9189,
         crates: 46,
         eta: "11:45 AM",
-        status: "pending",
+        status: "upcoming",
       },
       {
         seq: 4,
@@ -422,7 +503,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.9324,
         crates: 40,
         eta: "02:00 PM",
-        status: "pending",
+        status: "upcoming",
       },
     ],
     cargoList: [
@@ -431,7 +512,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG551029381-ML",
         weightKg: 85,
         store: "Store 1",
-        destination: "Malabe Hub",
+        stopSeq: 1,
+        stopName: "Keells Super - Malabe",
+        destination: "Malabe Hub Grocery",
         shc: "GEN",
       },
       {
@@ -439,7 +522,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG992019283-BT",
         weightKg: 95,
         store: "Store 2",
-        destination: "Battaramulla Super",
+        stopSeq: 2,
+        stopName: "Cargills Food City - Battaramulla",
+        destination: "Battaramulla Super Depot",
         shc: "GEN",
       },
       {
@@ -447,7 +532,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG119283019-TL",
         weightKg: 78,
         store: "Store 3",
-        destination: "Thalawathugoda Center",
+        stopSeq: 3,
+        stopName: "Arpico Daily - Thalawathugoda",
+        destination: "Thalawathugoda Center Cold Store",
         shc: "PER",
       },
     ],
@@ -477,6 +564,13 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
     volumeCbm: 4.8,
     maxVolumeCbm: 7.2,
     volumePercentage: 67,
+    vehiclePosition: {
+      lat: 6.845,
+      lng: 79.866,
+      heading: 180,
+      speedKmH: 30,
+      lastUpdated: "Just now",
+    },
     waypoints: [
       {
         seq: 1,
@@ -494,7 +588,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8654,
         crates: 24,
         eta: "10:00 AM",
-        status: "current",
+        status: "completed",
       },
       {
         seq: 3,
@@ -503,7 +597,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8662,
         crates: 20,
         eta: "12:00 PM",
-        status: "pending",
+        status: "upcoming",
       },
     ],
     cargoList: [
@@ -512,7 +606,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG441029381-DH",
         weightKg: 42,
         store: "Store 1",
-        destination: "Dehiwala Coast",
+        stopSeq: 1,
+        stopName: "Keells Super - Dehiwala",
+        destination: "Dehiwala Coast Pantry",
         shc: "PER",
       },
       {
@@ -520,7 +616,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG772019283-ML",
         weightKg: 58,
         store: "Store 2",
-        destination: "Mount Lavinia Super",
+        stopSeq: 2,
+        stopName: "Cargills Food City - Mount Lavinia",
+        destination: "Mount Lavinia Super Main",
         shc: "GEN",
       },
     ],
@@ -550,6 +648,13 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
     volumeCbm: 20.2,
     maxVolumeCbm: 22.0,
     volumePercentage: 92,
+    vehiclePosition: {
+      lat: 7.211,
+      lng: 79.841,
+      heading: 20,
+      speedKmH: 45,
+      lastUpdated: "Just now",
+    },
     waypoints: [
       {
         seq: 1,
@@ -567,7 +672,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8358,
         crates: 74,
         eta: "09:30 AM",
-        status: "current",
+        status: "completed",
       },
       {
         seq: 3,
@@ -576,7 +681,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8624,
         crates: 62,
         eta: "11:45 AM",
-        status: "pending",
+        status: "upcoming",
       },
       {
         seq: 4,
@@ -585,7 +690,7 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         lng: 79.8456,
         crates: 48,
         eta: "02:00 PM",
-        status: "pending",
+        status: "upcoming",
       },
     ],
     cargoList: [
@@ -594,7 +699,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG331029381-NG",
         weightKg: 110,
         store: "Store 1",
-        destination: "Negombo Main",
+        stopSeq: 1,
+        stopName: "Keells Super - Negombo Town",
+        destination: "Negombo Main Perishables",
         shc: "PER",
       },
       {
@@ -602,7 +709,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG882019283-KK",
         weightKg: 95,
         store: "Store 2",
-        destination: "Kochchikade Harbor",
+        stopSeq: 2,
+        stopName: "Cargills Food City - Kochchikade",
+        destination: "Kochchikade Harbor Storage",
         shc: "AVI",
       },
       {
@@ -610,7 +719,9 @@ export const mockAllocationManifests: Record<string, AllocationManifestDetail> =
         code: "PKG119283019-GL",
         weightKg: 85,
         store: "Store 3",
-        destination: "Glomark Negombo",
+        stopSeq: 3,
+        stopName: "Glomark - Negombo",
+        destination: "Glomark Negombo Logistics Bay",
         shc: "GEN",
       },
     ],

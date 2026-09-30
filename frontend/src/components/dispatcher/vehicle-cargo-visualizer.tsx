@@ -1,10 +1,23 @@
 import * as React from "react";
 import { CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import { IconButton } from "@/components/ui/icon-button";
-import type { VehicleTrackingData } from "@/data/mock-live-map";
+
+export interface VehicleVisualizerData {
+  vehicleCategory: "lorry" | "van" | string;
+  weightPercentage: number;
+  volumePercentage: number;
+  imageUrl: string;
+  code?: string;
+  weightKg?: number;
+  allocatedWeightKg?: number;
+  maxWeightKg: number;
+  volumeCbm?: number;
+  allocatedVolumeCbm?: number;
+  maxVolumeCbm: number;
+}
 
 interface VehicleCargoVisualizerProps {
-  vehicle: VehicleTrackingData;
+  vehicle: VehicleVisualizerData;
   mode: "weight" | "volume";
   onToggleMode?: (mode: "weight" | "volume") => void;
 }
@@ -109,7 +122,7 @@ export function VehicleCargoVisualizer({
               ...containerStyle,
               borderColor: color,
               borderWidth: "2.5px",
-              borderStyle: "solid",
+              borderStyle: "dashed",
               backgroundColor: `${color}18`,
               boxShadow: `0 0 14px ${color}45, inset 0 0 10px ${color}30`,
             }}
@@ -262,14 +275,16 @@ export function VehicleCargoVisualizer({
         {mode === "weight" ? (
           <span>
             <strong className="text-foreground">
-              {vehicle.weightKg.toLocaleString()}
+              {(vehicle.weightKg ?? vehicle.allocatedWeightKg ?? 0).toLocaleString()}
             </strong>{" "}
             / {vehicle.maxWeightKg.toLocaleString()} kg
           </span>
         ) : (
           <span>
-            <strong className="text-foreground">{vehicle.volumeCbm}</strong> /{" "}
-            {vehicle.maxVolumeCbm} m³
+            <strong className="text-foreground">
+              {(vehicle.volumeCbm ?? vehicle.allocatedVolumeCbm ?? 0).toFixed(1)}
+            </strong>{" "}
+            / {vehicle.maxVolumeCbm.toFixed(1)} m³
           </span>
         )}
       </div>

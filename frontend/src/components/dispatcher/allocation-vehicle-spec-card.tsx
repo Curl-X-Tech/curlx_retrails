@@ -18,60 +18,62 @@ export function AllocationVehicleSpecCard({
 }: AllocationVehicleSpecCardProps) {
   return (
     <Card
-      className={`p-4 bg-card rounded-2xl border border-border/80 shadow-xs space-y-3 min-w-0 ${className || ""}`}
+      className={`p-4 bg-card rounded-2xl border border-border/80 shadow-xs flex flex-col justify-between min-w-0 ${
+        className || ""
+      }`}
     >
-      <div className="leading-tight">
-        <h3 className="font-heading font-black text-lg text-foreground tracking-tight">
-          {specs.unitId}
-        </h3>
-        <p className="text-xs font-semibold text-[#0070BA] mt-0.5">{specs.model}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h3 className="font-heading font-black text-lg text-foreground tracking-tight">
+            Unit {specs.unitId}
+          </h3>
+          <p className="text-xs font-semibold text-primary mt-0.5">{specs.model}</p>
+        </div>
       </div>
 
-      <div className="space-y-1.5 text-xs">
-        {/* Reg */}
-        <div className="flex items-center justify-between py-1 border-b border-border/40">
+      <div className="flex-1 flex flex-col justify-around text-xs mt-2.5">
+        {/* Registration */}
+        <div className="flex items-center justify-between py-1.5 border-b border-border/40">
           <div className="flex items-center gap-2 text-muted-foreground">
             <IdentificationCardIcon
-              className="size-4 text-[#0070BA] shrink-0"
+              className="size-4 text-primary shrink-0"
               weight="regular"
             />
-            <span>Reg</span>
+            <span>Registration</span>
           </div>
-          <span className="font-mono font-bold text-foreground">{specs.regNumber}</span>
+          <span className="font-bold text-foreground font-mono">{specs.regNumber}</span>
         </div>
 
-        {/* Seal */}
-        <div className="flex items-center justify-between py-1 border-b border-border/40">
+        {/* Security Seal */}
+        <div className="flex items-center justify-between py-1.5 border-b border-border/40">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <LockKeyIcon className="size-4 text-[#0070BA] shrink-0" weight="regular" />
-            <span>Seal</span>
+            <LockKeyIcon className="size-4 text-primary shrink-0" weight="regular" />
+            <span>Security Seal</span>
           </div>
-          <span className="font-mono font-semibold text-[#0070BA] hover:underline cursor-pointer">
-            {specs.sealNumber}
-          </span>
+          <span className="font-semibold text-primary font-mono">{specs.sealNumber}</span>
         </div>
 
         {/* Max Payload */}
-        <div className="flex items-center justify-between py-1 border-b border-border/40">
+        <div className="flex items-center justify-between py-1.5 border-b border-border/40">
           <div className="flex items-center gap-2 text-muted-foreground">
             <ArrowsOutCardinalIcon
-              className="size-4 text-[#0070BA] shrink-0"
+              className="size-4 text-primary shrink-0"
               weight="regular"
             />
-            <span>Max. Payload</span>
+            <span>Max Payload</span>
           </div>
-          <span className="font-mono font-semibold text-foreground">
+          <span className="font-semibold text-foreground">
             {specs.maxPayloadKg.toLocaleString()} kg
           </span>
         </div>
 
         {/* Box Volume */}
-        <div className="flex items-center justify-between py-1">
+        <div className="flex items-center justify-between py-1.5">
           <div className="flex items-center gap-2 text-muted-foreground">
-            <CubeIcon className="size-4 text-[#0070BA] shrink-0" weight="regular" />
+            <CubeIcon className="size-4 text-primary shrink-0" weight="regular" />
             <span>Box Volume</span>
           </div>
-          <span className="font-mono font-semibold text-foreground">
+          <span className="font-semibold text-foreground">
             {specs.boxVolumeCbm.toFixed(1)} m³
           </span>
         </div>
