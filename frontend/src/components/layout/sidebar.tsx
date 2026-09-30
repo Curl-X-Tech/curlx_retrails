@@ -17,7 +17,6 @@ import {
   GearSixIcon,
   WarehouseIcon,
   CheckIcon,
-  ReceiptIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import {
@@ -89,14 +88,13 @@ export const navGroups: { label?: string; items: NavItem[] }[] = [
         badge: 14,
       },
       {
-        title: "Allocation summary",
-        id: "allocation-summary",
+        title: "Allocation",
+        id: "allocation",
         icon: <ChartBarIcon weight="duotone" className="size-5" />,
-      },
-      {
-        title: "Allocation detail",
-        id: "allocation-detail",
-        icon: <ReceiptIcon weight="duotone" className="size-5" />,
+        items: [
+          { title: "Summary", id: "allocation-summary" },
+          { title: "Detail", id: "allocation-detail" },
+        ],
       },
       {
         title: "Deferrals",
@@ -341,7 +339,11 @@ export function AppSidebar({ activeId = "dashboard", onSelect }: AppSidebarProps
                     return (
                       <Collapsible
                         key={item.id}
-                        defaultOpen={item.id === "deferrals"}
+                        defaultOpen={
+                          item.id === "deferrals" ||
+                          item.id === "allocation" ||
+                          isCurrentActive
+                        }
                         className="group/collapsible"
                       >
                         <SidebarMenuItem>

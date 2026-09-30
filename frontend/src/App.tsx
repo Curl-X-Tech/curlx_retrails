@@ -34,7 +34,8 @@ function getBreadcrumbs(id: string, selectedAllocationId?: string): CrumbItem[] 
 
     return [
       { label: "Planning" },
-      { label: "Allocation summary", navId: "allocation-summary" },
+      { label: "Allocation" },
+      { label: "Summary", navId: "allocation-summary" },
       { label: `# ${manifestCode}`, isCurrent: true, isCode: true },
     ];
   }
