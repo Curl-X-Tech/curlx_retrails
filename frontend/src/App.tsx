@@ -100,7 +100,7 @@ export function App() {
                         <BreadcrumbPage
                           className={
                             crumb.isCode
-                              ? "font-mono font-bold tracking-tight text-foreground text-xs sm:text-sm"
+                              ? "font-bold tracking-tight text-foreground text-xs sm:text-sm"
                               : ""
                           }
                         >

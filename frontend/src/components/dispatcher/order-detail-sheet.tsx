@@ -61,7 +61,7 @@ export function OrderDetailSheet({
               </SheetTitle>
               <Badge
                 variant="outline"
-                className="font-mono text-xs px-2 py-0.5 border-border/80"
+                className="text-xs font-semibold px-2 py-0.5 border-border/80"
               >
                 {order.outletId}
               </Badge>
@@ -180,7 +180,7 @@ export function OrderDetailSheet({
 
             <div className="flex items-center gap-2">
               <span className="text-muted-foreground">Days Since Last Served:</span>
-              <span className="font-mono font-bold text-foreground">
+              <span className="font-bold text-foreground">
                 {order.daysSinceLastServed} d
               </span>
             </div>
@@ -226,7 +226,7 @@ export function OrderDetailSheet({
               <TableBody>
                 {order.items.map((item) => (
                   <TableRow key={item.id} className="border-border/40 text-xs">
-                    <TableCell className="font-mono font-bold text-foreground py-2.5 px-4 whitespace-nowrap">
+                    <TableCell className="font-bold text-foreground py-2.5 px-4 whitespace-nowrap">
                       {item.packageCode}
                     </TableCell>
                     <TableCell className="py-2.5 px-4 max-w-[220px]">
@@ -246,13 +246,13 @@ export function OrderDetailSheet({
                     <TableCell className="text-right font-medium text-foreground py-2.5 px-3 whitespace-nowrap">
                       {item.totalVolumeM3.toFixed(2)} m³
                     </TableCell>
-                    <TableCell className="text-right font-mono font-bold text-foreground py-2.5 px-4 whitespace-nowrap">
+                    <TableCell className="text-right font-bold text-foreground py-2.5 px-4 whitespace-nowrap">
                       {item.totalPriceLkr.toLocaleString()}
                     </TableCell>
                     <TableCell className="text-center py-2.5 px-3 whitespace-nowrap">
                       <Badge
                         variant="outline"
-                        className="text-[10px] font-mono font-bold px-1.5 py-0 border-border/80"
+                        className="text-[10px] font-bold px-1.5 py-0 border-border/80"
                       >
                         {item.specialHandlingCode}
                       </Badge>

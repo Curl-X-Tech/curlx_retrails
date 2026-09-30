@@ -87,7 +87,7 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
             <h4 className="font-heading font-bold text-sm sm:text-base text-foreground truncate">
               {driver.name}
             </h4>
-            <span className="font-mono font-black text-sm sm:text-base text-rose-600 dark:text-rose-400 select-none shrink-0 tracking-tight">
+            <span className="font-bold text-sm sm:text-base text-rose-600 dark:text-rose-400 select-none shrink-0 tracking-tight">
               {bloodGroup}
             </span>
           </div>
@@ -103,7 +103,7 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
             <IdentificationCardIcon className="size-3.5 text-primary shrink-0" />
             <span>Driving License</span>
           </div>
-          <span className="font-mono font-bold text-foreground text-[11px]">
+          <span className="font-bold text-foreground text-[11px]">
             {driver.licenseId}
           </span>
         </div>
@@ -113,9 +113,7 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
             <CalendarIcon className="size-3.5 text-primary shrink-0" />
             <span>License Expiry</span>
           </div>
-          <span className="font-mono font-bold text-foreground text-[11px]">
-            {licenseExpiry}
-          </span>
+          <span className="font-bold text-foreground text-[11px]">{licenseExpiry}</span>
         </div>
       </div>
 
@@ -201,7 +199,7 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
         <div className="flex items-center gap-1.5 bg-muted/80 px-2 py-1 rounded-xl border border-border/60 min-w-0 flex-1 justify-between">
           <div className="flex items-center gap-1.5 min-w-0">
             <PhoneIcon className="size-3.5 text-primary shrink-0" weight="bold" />
-            <span className="font-mono text-[11px] text-foreground font-semibold select-none truncate">
+            <span className="text-[11px] text-foreground font-semibold select-none truncate">
               {showPhone ? rawPhone : maskedPhone}
             </span>
           </div>

@@ -38,7 +38,7 @@ export function OrderCard({ order, onSelect, className }: OrderCardProps) {
 
             <Badge
               variant="outline"
-              className="text-[9px] font-mono px-1.5 py-0 border-border/80"
+              className="text-[9px] font-semibold px-1.5 py-0 border-border/80"
             >
               {order.outletId}
             </Badge>
@@ -94,7 +94,7 @@ export function OrderCard({ order, onSelect, className }: OrderCardProps) {
 
         <div className="flex items-center justify-between text-xs pt-1.5 border-t border-border/40">
           <span className="text-[11px] text-muted-foreground">Order Valuation</span>
-          <span className="font-mono font-bold text-foreground">
+          <span className="font-bold text-foreground">
             LKR {order.totalOrderValueLkr.toLocaleString()}
           </span>
         </div>

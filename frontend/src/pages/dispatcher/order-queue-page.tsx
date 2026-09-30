@@ -678,7 +678,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                             <div className="flex flex-wrap items-center justify-between gap-2">
                               <div className="flex items-center gap-2">
                                 <StorefrontIcon className="size-4 text-primary shrink-0" />
-                                <span className="font-mono text-xs font-bold text-foreground">
+                                <span className="text-xs font-bold text-foreground">
                                   {group.outletId}
                                 </span>
                                 <span className="text-muted-foreground">•</span>
@@ -732,7 +732,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                               onClick={() => handleOpenDetail(ord)}
                               className="border-border/30 hover:bg-muted/30 cursor-pointer text-xs"
                             >
-                              <TableCell className="font-mono font-bold text-foreground py-2 px-4 whitespace-nowrap">
+                              <TableCell className="font-bold text-foreground py-2 px-4 whitespace-nowrap">
                                 <div className="flex items-center gap-2 pl-2">
                                   <span className="size-1.5 rounded-full bg-primary shrink-0" />
                                   <span>#{ord.orderRef}</span>
@@ -779,7 +779,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                                 {ord.totalVolumeM3.toFixed(2)} m³
                               </TableCell>
 
-                              <TableCell className="text-right font-mono font-bold text-foreground py-2 px-4 whitespace-nowrap">
+                              <TableCell className="text-right font-bold text-foreground py-2 px-4 whitespace-nowrap">
                                 LKR {ord.totalOrderValueLkr.toLocaleString()}
                               </TableCell>
 
@@ -806,7 +806,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                         })}
 
                         <TableRow className="bg-muted/20 border-b-2 border-border/80 text-xs font-semibold">
-                          <TableCell className="py-2 px-4 font-mono font-bold text-[11px] text-muted-foreground whitespace-nowrap">
+                          <TableCell className="py-2 px-4 font-bold text-[11px] text-muted-foreground whitespace-nowrap">
                             <span className="pl-2">TOTAL ({group.outletId})</span>
                           </TableCell>
 
@@ -829,7 +829,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                             {group.totalVolumeM3.toFixed(2)} m³
                           </TableCell>
 
-                          <TableCell className="text-right font-mono font-black text-primary py-2 px-4 whitespace-nowrap">
+                          <TableCell className="text-right font-black text-primary py-2 px-4 whitespace-nowrap">
                             LKR {group.totalValueLkr.toLocaleString()}
                           </TableCell>
 
@@ -849,7 +849,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                           onClick={() => handleOpenDetail(ord)}
                           className="hover:bg-muted/30 cursor-pointer"
                         >
-                          <TableCell className="font-mono font-bold text-foreground">
+                          <TableCell className="font-bold text-foreground">
                             #{ord.orderRef}
                           </TableCell>
 
@@ -900,7 +900,7 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
                             {ord.totalVolumeM3.toFixed(2)} m³
                           </TableCell>
 
-                          <TableCell className="text-right font-mono font-bold text-foreground">
+                          <TableCell className="text-right font-bold text-foreground">
                             LKR {ord.totalOrderValueLkr.toLocaleString()}
                           </TableCell>
 

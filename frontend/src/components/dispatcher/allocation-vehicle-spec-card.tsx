@@ -40,7 +40,7 @@ export function AllocationVehicleSpecCard({
             />
             <span>Registration</span>
           </div>
-          <span className="font-bold text-foreground font-mono">{specs.regNumber}</span>
+          <span className="font-bold text-foreground">{specs.regNumber}</span>
         </div>
 
         <div className="flex items-center justify-between py-1.5 border-b border-border/40">
@@ -48,7 +48,7 @@ export function AllocationVehicleSpecCard({
             <LockKeyIcon className="size-4 text-primary shrink-0" weight="regular" />
             <span>Security Seal</span>
           </div>
-          <span className="font-semibold text-primary font-mono">{specs.sealNumber}</span>
+          <span className="font-semibold text-primary">{specs.sealNumber}</span>
         </div>
 
         <div className="flex items-center justify-between py-1.5 border-b border-border/40">
