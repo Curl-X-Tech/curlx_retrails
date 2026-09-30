@@ -1,0 +1,618 @@
+export interface CargoItem {
+  id: string;
+  code: string;
+  weightKg: number;
+  store: string;
+  destination: string;
+  shc: "AVI" | "ELI" | "PER" | "GEN";
+}
+
+export interface AllocationDriverDetails {
+  name: string;
+  role: string;
+  licenseId: string;
+  phone: string;
+  avatarText: string;
+}
+
+export interface AllocationVehicleSpec {
+  unitId: string;
+  model: string;
+  regNumber: string;
+  sealNumber: string;
+  maxPayloadKg: number;
+  boxVolumeCbm: number;
+}
+
+export interface AllocationWaypoint {
+  seq: number;
+  name: string;
+  lat: number;
+  lng: number;
+  crates: number;
+  eta: string;
+  status: "completed" | "current" | "pending";
+}
+
+export interface AllocationManifestDetail {
+  id: string;
+  manifestCode: string;
+  allocationId: string;
+  driver: AllocationDriverDetails;
+  specs: AllocationVehicleSpec;
+  payloadKg: number;
+  maxPayloadKg: number;
+  payloadPercentage: number;
+  volumeCbm: number;
+  maxVolumeCbm: number;
+  volumePercentage: number;
+  waypoints: AllocationWaypoint[];
+  cargoList: CargoItem[];
+}
+
+export const mockAllocationManifests: Record<string, AllocationManifestDetail> = {
+  "alloc-01": {
+    id: "mnf-01",
+    manifestCode: "MNF-4811-01",
+    allocationId: "alloc-01",
+    driver: {
+      name: "Saman Perera",
+      role: "Heavy Vehicle Pilot",
+      licenseId: "DL-90821-WP-89",
+      phone: "+94 77 123 4567",
+      avatarText: "SP",
+    },
+    specs: {
+      unitId: "RT-14",
+      model: "Isuzu ELF NPR",
+      regNumber: "NP-4811",
+      sealNumber: "SL-90821-B",
+      maxPayloadKg: 4200,
+      boxVolumeCbm: 28.0,
+    },
+    payloadKg: 3360,
+    maxPayloadKg: 4200,
+    payloadPercentage: 80,
+    volumeCbm: 22.4,
+    maxVolumeCbm: 28.0,
+    volumePercentage: 80,
+    waypoints: [
+      {
+        seq: 1,
+        name: "Peliyagoda Hub (Origin)",
+        lat: 6.9654,
+        lng: 79.9042,
+        crates: 0,
+        eta: "06:30 AM",
+        status: "completed",
+      },
+      {
+        seq: 2,
+        name: "Waypoint Fresh Wattala",
+        lat: 6.9892,
+        lng: 79.8924,
+        crates: 32,
+        eta: "07:30 AM",
+        status: "current",
+      },
+      {
+        seq: 3,
+        name: "Keells Super - Kollupitiya",
+        lat: 6.9082,
+        lng: 79.8528,
+        crates: 28,
+        eta: "09:30 AM",
+        status: "pending",
+      },
+      {
+        seq: 4,
+        name: "Arpico Supercentre - Hyde Park",
+        lat: 6.9189,
+        lng: 79.8624,
+        crates: 20,
+        eta: "11:30 AM",
+        status: "pending",
+      },
+      {
+        seq: 5,
+        name: "Peliyagoda Hub (Return)",
+        lat: 6.9654,
+        lng: 79.9042,
+        crates: 0,
+        eta: "02:30 PM",
+        status: "pending",
+      },
+    ],
+    cargoList: [
+      {
+        id: "cg-101",
+        code: "PKG726108724-JK",
+        weightKg: 55,
+        store: "Store 1",
+        destination: "Jakarta Hub",
+        shc: "AVI",
+      },
+      {
+        id: "cg-102",
+        code: "PKG994012841-SY",
+        weightKg: 112,
+        store: "Store 1",
+        destination: "Sydney Terminal 02",
+        shc: "ELI",
+      },
+      {
+        id: "cg-103",
+        code: "PKG448190332-ML",
+        weightKg: 80,
+        store: "Store 4",
+        destination: "Melbourne Depot",
+        shc: "PER",
+      },
+      {
+        id: "cg-104",
+        code: "PKG112948750-AU",
+        weightKg: 43,
+        store: "Store 6",
+        destination: "Ultimo Hub",
+        shc: "GEN",
+      },
+      {
+        id: "cg-105",
+        code: "PKG883019283-LK",
+        weightKg: 68,
+        store: "Store 2",
+        destination: "Negombo Cold Hub",
+        shc: "PER",
+      },
+      {
+        id: "cg-106",
+        code: "PKG552910482-CM",
+        weightKg: 94,
+        store: "Store 3",
+        destination: "Kollupitiya Super",
+        shc: "GEN",
+      },
+    ],
+  },
+  "alloc-02": {
+    id: "mnf-02",
+    manifestCode: "MNF-3120-02",
+    allocationId: "alloc-02",
+    driver: {
+      name: "Ruwan Silva",
+      role: "Heavy Vehicle Pilot",
+      licenseId: "DL-48190-WP-92",
+      phone: "+94 71 456 7890",
+      avatarText: "RS",
+    },
+    specs: {
+      unitId: "RT-08",
+      model: "Mitsubishi Fuso Canter",
+      regNumber: "WP-NE-3120",
+      sealNumber: "SL-43891-A",
+      maxPayloadKg: 6000,
+      boxVolumeCbm: 22.0,
+    },
+    payloadKg: 4920,
+    maxPayloadKg: 6000,
+    payloadPercentage: 82,
+    volumeCbm: 17.8,
+    maxVolumeCbm: 22.0,
+    volumePercentage: 81,
+    waypoints: [
+      {
+        seq: 1,
+        name: "Peliyagoda Hub (Origin)",
+        lat: 6.9654,
+        lng: 79.9042,
+        crates: 0,
+        eta: "08:00 AM",
+        status: "completed",
+      },
+      {
+        seq: 2,
+        name: "Keells Super - Wattala",
+        lat: 6.9892,
+        lng: 79.8924,
+        crates: 62,
+        eta: "09:00 AM",
+        status: "current",
+      },
+      {
+        seq: 3,
+        name: "Cargills Food City - Kandana",
+        lat: 7.0489,
+        lng: 79.8972,
+        crates: 56,
+        eta: "11:00 AM",
+        status: "pending",
+      },
+      {
+        seq: 4,
+        name: "Laugfs Super - Ja-Ela",
+        lat: 7.0762,
+        lng: 79.8911,
+        crates: 50,
+        eta: "01:30 PM",
+        status: "pending",
+      },
+    ],
+    cargoList: [
+      {
+        id: "cg-201",
+        code: "PKG882910492-LK",
+        weightKg: 120,
+        store: "Store 1",
+        destination: "Wattala Express",
+        shc: "GEN",
+      },
+      {
+        id: "cg-202",
+        code: "PKG339102847-LK",
+        weightKg: 145,
+        store: "Store 2",
+        destination: "Kandana Center",
+        shc: "GEN",
+      },
+      {
+        id: "cg-203",
+        code: "PKG771029384-LK",
+        weightKg: 98,
+        store: "Store 3",
+        destination: "Ja-Ela Hub",
+        shc: "PER",
+      },
+      {
+        id: "cg-204",
+        code: "PKG441920381-LK",
+        weightKg: 65,
+        store: "Store 1",
+        destination: "Wattala Express",
+        shc: "AVI",
+      },
+    ],
+  },
+  "alloc-03": {
+    id: "mnf-03",
+    manifestCode: "MNF-5521-03",
+    allocationId: "alloc-03",
+    driver: {
+      name: "Dinesh Fernando",
+      role: "Express Delivery Specialist",
+      licenseId: "DL-66291-WP-95",
+      phone: "+94 76 987 6543",
+      avatarText: "DF",
+    },
+    specs: {
+      unitId: "RT-22",
+      model: "Nissan NV350 Caravan",
+      regNumber: "WP-NB-5521",
+      sealNumber: "SL-11209-C",
+      maxPayloadKg: 1800,
+      boxVolumeCbm: 7.2,
+    },
+    payloadKg: 1390,
+    maxPayloadKg: 1800,
+    payloadPercentage: 77,
+    volumeCbm: 5.6,
+    maxVolumeCbm: 7.2,
+    volumePercentage: 78,
+    waypoints: [
+      {
+        seq: 1,
+        name: "Peliyagoda Hub (Origin)",
+        lat: 6.9654,
+        lng: 79.9042,
+        crates: 0,
+        eta: "07:15 AM",
+        status: "completed",
+      },
+      {
+        seq: 2,
+        name: "Healthguard - Crescat",
+        lat: 6.9202,
+        lng: 79.8495,
+        crates: 18,
+        eta: "08:15 AM",
+        status: "current",
+      },
+      {
+        seq: 3,
+        name: "Union Chemists - Town Hall",
+        lat: 6.9147,
+        lng: 79.8661,
+        crates: 22,
+        eta: "10:00 AM",
+        status: "pending",
+      },
+      {
+        seq: 4,
+        name: "SPAR - Union Place",
+        lat: 6.9198,
+        lng: 79.8592,
+        crates: 12,
+        eta: "11:45 AM",
+        status: "pending",
+      },
+    ],
+    cargoList: [
+      {
+        id: "cg-301",
+        code: "PKG661928301-HG",
+        weightKg: 35,
+        store: "Store 1",
+        destination: "Crescat Boulevard",
+        shc: "PER",
+      },
+      {
+        id: "cg-302",
+        code: "PKG220918237-UC",
+        weightKg: 48,
+        store: "Store 2",
+        destination: "Town Hall Pharmacy",
+        shc: "ELI",
+      },
+      {
+        id: "cg-303",
+        code: "PKG881029384-SP",
+        weightKg: 28,
+        store: "Store 3",
+        destination: "Union Place Hub",
+        shc: "GEN",
+      },
+    ],
+  },
+  "alloc-04": {
+    id: "mnf-04",
+    manifestCode: "MNF-9921-04",
+    allocationId: "alloc-04",
+    driver: {
+      name: "Kasun Jayawardena",
+      role: "Heavy Vehicle Pilot",
+      licenseId: "DL-33918-WP-90",
+      phone: "+94 77 345 6789",
+      avatarText: "KJ",
+    },
+    specs: {
+      unitId: "RT-05",
+      model: "Toyota Dyna 150",
+      regNumber: "WP-NF-9921",
+      sealNumber: "SL-67291-D",
+      maxPayloadKg: 5200,
+      boxVolumeCbm: 18.0,
+    },
+    payloadKg: 4420,
+    maxPayloadKg: 5200,
+    payloadPercentage: 85,
+    volumeCbm: 15.6,
+    maxVolumeCbm: 18.0,
+    volumePercentage: 87,
+    waypoints: [
+      {
+        seq: 1,
+        name: "Peliyagoda Hub (Origin)",
+        lat: 6.9654,
+        lng: 79.9042,
+        crates: 0,
+        eta: "08:45 AM",
+        status: "completed",
+      },
+      {
+        seq: 2,
+        name: "Keells Super - Malabe",
+        lat: 6.9045,
+        lng: 79.9542,
+        crates: 52,
+        eta: "09:45 AM",
+        status: "current",
+      },
+      {
+        seq: 3,
+        name: "Cargills Food City - Battaramulla",
+        lat: 6.8988,
+        lng: 79.9189,
+        crates: 46,
+        eta: "11:45 AM",
+        status: "pending",
+      },
+      {
+        seq: 4,
+        name: "Arpico Daily - Thalawathugoda",
+        lat: 6.8778,
+        lng: 79.9324,
+        crates: 40,
+        eta: "02:00 PM",
+        status: "pending",
+      },
+    ],
+    cargoList: [
+      {
+        id: "cg-401",
+        code: "PKG551029381-ML",
+        weightKg: 85,
+        store: "Store 1",
+        destination: "Malabe Hub",
+        shc: "GEN",
+      },
+      {
+        id: "cg-402",
+        code: "PKG992019283-BT",
+        weightKg: 95,
+        store: "Store 2",
+        destination: "Battaramulla Super",
+        shc: "GEN",
+      },
+      {
+        id: "cg-403",
+        code: "PKG119283019-TL",
+        weightKg: 78,
+        store: "Store 3",
+        destination: "Thalawathugoda Center",
+        shc: "PER",
+      },
+    ],
+  },
+  "alloc-05": {
+    id: "mnf-05",
+    manifestCode: "MNF-1089-05",
+    allocationId: "alloc-05",
+    driver: {
+      name: "Pradeep Kumara",
+      role: "Express Delivery Specialist",
+      licenseId: "DL-11928-WP-98",
+      phone: "+94 72 234 5678",
+      avatarText: "PK",
+    },
+    specs: {
+      unitId: "RT-19",
+      model: "Tata Ace Mega Express",
+      regNumber: "WP-NC-1089",
+      sealNumber: "SL-88192-E",
+      maxPayloadKg: 1800,
+      boxVolumeCbm: 7.2,
+    },
+    payloadKg: 1150,
+    maxPayloadKg: 1800,
+    payloadPercentage: 64,
+    volumeCbm: 4.8,
+    maxVolumeCbm: 7.2,
+    volumePercentage: 67,
+    waypoints: [
+      {
+        seq: 1,
+        name: "Peliyagoda Hub (Origin)",
+        lat: 6.9654,
+        lng: 79.9042,
+        crates: 0,
+        eta: "09:00 AM",
+        status: "completed",
+      },
+      {
+        seq: 2,
+        name: "Keells Super - Dehiwala",
+        lat: 6.8512,
+        lng: 79.8654,
+        crates: 24,
+        eta: "10:00 AM",
+        status: "current",
+      },
+      {
+        seq: 3,
+        name: "Cargills Food City - Mount Lavinia",
+        lat: 6.8365,
+        lng: 79.8662,
+        crates: 20,
+        eta: "12:00 PM",
+        status: "pending",
+      },
+    ],
+    cargoList: [
+      {
+        id: "cg-501",
+        code: "PKG441029381-DH",
+        weightKg: 42,
+        store: "Store 1",
+        destination: "Dehiwala Coast",
+        shc: "PER",
+      },
+      {
+        id: "cg-502",
+        code: "PKG772019283-ML",
+        weightKg: 58,
+        store: "Store 2",
+        destination: "Mount Lavinia Super",
+        shc: "GEN",
+      },
+    ],
+  },
+  "alloc-06": {
+    id: "mnf-06",
+    manifestCode: "MNF-4412-06",
+    allocationId: "alloc-06",
+    driver: {
+      name: "Anura Wickramasinghe",
+      role: "Heavy Vehicle Pilot",
+      licenseId: "DL-77291-WP-88",
+      phone: "+94 78 765 4321",
+      avatarText: "AW",
+    },
+    specs: {
+      unitId: "RT-11",
+      model: "Hino 300 Series",
+      regNumber: "WP-NH-4412",
+      sealNumber: "SL-99102-F",
+      maxPayloadKg: 6000,
+      boxVolumeCbm: 22.0,
+    },
+    payloadKg: 5460,
+    maxPayloadKg: 6000,
+    payloadPercentage: 91,
+    volumeCbm: 20.2,
+    maxVolumeCbm: 22.0,
+    volumePercentage: 92,
+    waypoints: [
+      {
+        seq: 1,
+        name: "Peliyagoda Hub (Origin)",
+        lat: 6.9654,
+        lng: 79.9042,
+        crates: 0,
+        eta: "08:15 AM",
+        status: "completed",
+      },
+      {
+        seq: 2,
+        name: "Keells Super - Negombo Town",
+        lat: 7.2083,
+        lng: 79.8358,
+        crates: 74,
+        eta: "09:30 AM",
+        status: "current",
+      },
+      {
+        seq: 3,
+        name: "Cargills Food City - Kochchikade",
+        lat: 7.2612,
+        lng: 79.8624,
+        crates: 62,
+        eta: "11:45 AM",
+        status: "pending",
+      },
+      {
+        seq: 4,
+        name: "Glomark - Negombo",
+        lat: 7.2145,
+        lng: 79.8456,
+        crates: 48,
+        eta: "02:00 PM",
+        status: "pending",
+      },
+    ],
+    cargoList: [
+      {
+        id: "cg-601",
+        code: "PKG331029381-NG",
+        weightKg: 110,
+        store: "Store 1",
+        destination: "Negombo Main",
+        shc: "PER",
+      },
+      {
+        id: "cg-602",
+        code: "PKG882019283-KK",
+        weightKg: 95,
+        store: "Store 2",
+        destination: "Kochchikade Harbor",
+        shc: "AVI",
+      },
+      {
+        id: "cg-603",
+        code: "PKG119283019-GL",
+        weightKg: 85,
+        store: "Store 3",
+        destination: "Glomark Negombo",
+        shc: "GEN",
+      },
+    ],
+  },
+};

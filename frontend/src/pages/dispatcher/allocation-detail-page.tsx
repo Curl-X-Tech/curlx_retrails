@@ -1,0 +1,280 @@
+import * as React from "react";
+import {
+  MagnifyingGlassIcon,
+  CheckCircleIcon,
+  ClockIcon,
+  PauseCircleIcon,
+  WarningCircleIcon,
+} from "@phosphor-icons/react";
+import { Input } from "@/components/ui/input";
+import { AllocationVehicleCard } from "@/components/dispatcher/allocation-vehicle-card";
+import { AllocationDriverCard } from "@/components/dispatcher/allocation-driver-card";
+import { AllocationVehicleSpecCard } from "@/components/dispatcher/allocation-vehicle-spec-card";
+import { AllocationRouteMap } from "@/components/dispatcher/allocation-route-map";
+import { AllocationPayloadCard } from "@/components/dispatcher/allocation-payload-card";
+import { AllocationCargoList } from "@/components/dispatcher/allocation-cargo-list";
+import { type VehicleAllocation, mockVehicleAllocations } from "@/data/mock-allocations";
+import {
+  type AllocationManifestDetail,
+  mockAllocationManifests,
+} from "@/data/mock-allocation-details";
+
+type StatusFilter = "all" | "active" | "loading" | "idle" | "break_down";
+
+interface AllocationDetailPageProps {
+  initialAllocationId?: string;
+  onSelectAllocation?: (allocation: VehicleAllocation) => void;
+}
+
+export function AllocationDetailPage({
+  initialAllocationId,
+  onSelectAllocation,
+}: AllocationDetailPageProps) {
+  const [allocations] = React.useState<VehicleAllocation[]>(mockVehicleAllocations);
+  const [selectedAllocationId, setSelectedAllocationId] = React.useState<string>(
+    initialAllocationId || mockVehicleAllocations[0]?.id || "alloc-01"
+  );
+  const [searchQuery, setSearchQuery] = React.useState<string>("");
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("active");
+
+  React.useEffect(() => {
+    if (initialAllocationId) {
+      setSelectedAllocationId(initialAllocationId);
+    }
+  }, [initialAllocationId]);
+
+  const selectedAllocation =
+    allocations.find((a) => a.id === selectedAllocationId) || allocations[0];
+
+  // Retrieve or create manifest details for the selected allocation
+  const currentManifest: AllocationManifestDetail = React.useMemo(() => {
+    if (selectedAllocation && mockAllocationManifests[selectedAllocation.id]) {
+      return mockAllocationManifests[selectedAllocation.id];
+    }
+    // Fallback dynamic manifest
+    return {
+      id: `mnf-${selectedAllocation.id}`,
+      manifestCode: `MNF-${selectedAllocation.plateNumber.replace(/[^a-zA-Z0-9]/g, "")}`,
+      allocationId: selectedAllocation.id,
+      driver: {
+        name: selectedAllocation.driverName,
+        role:
+          selectedAllocation.vehicleCategory === "van"
+            ? "Express Delivery Specialist"
+            : "Heavy Vehicle Pilot",
+        licenseId: "DL-88291-WP-90",
+        phone: selectedAllocation.driverPhone,
+        avatarText: selectedAllocation.driverName
+          .split(" ")
+          .map((n) => n[0])
+          .join(""),
+      },
+      specs: {
+        unitId: selectedAllocation.code,
+        model: selectedAllocation.vehicleModel,
+        regNumber: selectedAllocation.plateNumber,
+        sealNumber: "SL-80129-A",
+        maxPayloadKg: selectedAllocation.maxWeightKg,
+        boxVolumeCbm: selectedAllocation.maxVolumeCbm,
+      },
+      payloadKg: selectedAllocation.allocatedWeightKg,
+      maxPayloadKg: selectedAllocation.maxWeightKg,
+      payloadPercentage: selectedAllocation.weightPercentage,
+      volumeCbm: selectedAllocation.allocatedVolumeCbm,
+      maxVolumeCbm: selectedAllocation.maxVolumeCbm,
+      volumePercentage: selectedAllocation.volumePercentage,
+      waypoints: [
+        {
+          seq: 1,
+          name: `${selectedAllocation.hubName} (Origin)`,
+          lat: 6.9654,
+          lng: 79.9042,
+          crates: 0,
+          eta: selectedAllocation.departureTime,
+          status: "completed",
+        },
+        ...selectedAllocation.assignedStops.map((stop, idx) => ({
+          seq: idx + 2,
+          name: stop.name,
+          lat: 6.9366 + idx * 0.04,
+          lng: 79.8454 + idx * 0.03,
+          crates: stop.crates,
+          eta: stop.deliveryWindow.split(" - ")[0],
+          status: (idx === 0 ? "current" : "pending") as "current" | "pending",
+        })),
+      ],
+      cargoList: [
+        {
+          id: `cg-${selectedAllocation.id}-1`,
+          code: `PKG${Math.floor(100000000 + Math.random() * 900000000)}-LK`,
+          weightKg: Math.round(selectedAllocation.allocatedWeightKg * 0.35),
+          store: "Store 1",
+          destination: selectedAllocation.assignedStops[0]?.name || "Central Store",
+          shc: selectedAllocation.temperatureZone === "frozen" ? "PER" : "GEN",
+        },
+        {
+          id: `cg-${selectedAllocation.id}-2`,
+          code: `PKG${Math.floor(100000000 + Math.random() * 900000000)}-LK`,
+          weightKg: Math.round(selectedAllocation.allocatedWeightKg * 0.45),
+          store: "Store 2",
+          destination: selectedAllocation.assignedStops[1]?.name || "Retail Outlet",
+          shc: "GEN",
+        },
+      ],
+    };
+  }, [selectedAllocation]);
+
+  // Filter master list
+  const filteredAllocations = React.useMemo(() => {
+    return allocations.filter((item) => {
+      const matchesSearch =
+        searchQuery === "" ||
+        item.plateNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.vehicleModel.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.routeName.toLowerCase().includes(searchQuery.toLowerCase());
+
+      let matchesStatus = true;
+      if (statusFilter === "active") {
+        matchesStatus = item.status === "dispatched" || item.status === "allocated";
+      } else if (statusFilter === "loading") {
+        matchesStatus = item.status === "loading";
+      } else if (statusFilter === "idle") {
+        matchesStatus = item.status === "delayed" || item.status === "completed";
+      } else if (statusFilter === "break_down") {
+        matchesStatus = false;
+      }
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [allocations, searchQuery, statusFilter]);
+
+  return (
+    <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-muted/20 font-sans">
+      {/* Main 2-Column Master-Detail Layout */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 min-h-0 overflow-hidden">
+        {/* Left Column: Master Manifest / Vehicle Allocations (lg:col-span-4 xl:col-span-4) */}
+        <div className="lg:col-span-4 xl:col-span-4 border-r border-border/80 flex flex-col min-h-0 bg-card/30">
+          {/* Search Bar */}
+          <div className="p-3 border-b border-border/60 shrink-0">
+            <div className="relative">
+              <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+              <Input
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search manifest entries..."
+                className="pl-9 h-9 text-xs bg-background/80 rounded-xl"
+              />
+            </div>
+
+            {/* Status Filter Pills */}
+            <div className="flex items-center gap-1 mt-2.5 overflow-x-auto no-scrollbar py-0.5 text-xs font-semibold">
+              <button
+                type="button"
+                onClick={() => setStatusFilter("active")}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0 ${
+                  statusFilter === "active"
+                    ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <CheckCircleIcon
+                  className="size-3.5"
+                  weight={statusFilter === "active" ? "fill" : "regular"}
+                />
+                <span>Active</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStatusFilter("loading")}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0 ${
+                  statusFilter === "loading"
+                    ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <ClockIcon
+                  className="size-3.5"
+                  weight={statusFilter === "loading" ? "fill" : "regular"}
+                />
+                <span>Loading</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStatusFilter("idle")}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0 ${
+                  statusFilter === "idle"
+                    ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <PauseCircleIcon
+                  className="size-3.5"
+                  weight={statusFilter === "idle" ? "fill" : "regular"}
+                />
+                <span>Idle</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setStatusFilter("break_down")}
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-colors cursor-pointer shrink-0 ${
+                  statusFilter === "break_down"
+                    ? "bg-destructive text-destructive-foreground shadow-xs font-bold"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                }`}
+              >
+                <WarningCircleIcon
+                  className="size-3.5"
+                  weight={statusFilter === "break_down" ? "fill" : "regular"}
+                />
+                <span>Break Down</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Scrollable Vehicle Cards List */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+            {filteredAllocations.length === 0 ? (
+              <div className="p-8 text-center text-xs text-muted-foreground">
+                No manifest vehicles match the filter criteria.
+              </div>
+            ) : (
+              filteredAllocations.map((alloc) => (
+                <AllocationVehicleCard
+                  key={alloc.id}
+                  allocation={alloc}
+                  isSelected={alloc.id === selectedAllocationId}
+                  onSelect={(item) => {
+                    setSelectedAllocationId(item.id);
+                    onSelectAllocation?.(item);
+                  }}
+                />
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Detailed Workspace (lg:col-span-8 xl:col-span-8) */}
+        <div className="lg:col-span-8 xl:col-span-8 flex flex-col min-h-0 overflow-y-auto p-3 sm:p-4 space-y-4">
+          {/* Row 1: Driver Profile & Vehicle Specs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <AllocationDriverCard driver={currentManifest.driver} />
+            <AllocationVehicleSpecCard specs={currentManifest.specs} />
+          </div>
+
+          {/* Row 2: Route Waypoint Map & Payload Visualizer */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+            <AllocationRouteMap waypoints={currentManifest.waypoints} />
+            <AllocationPayloadCard allocation={selectedAllocation} />
+          </div>
+
+          {/* Row 3: Cargo List Table */}
+          <AllocationCargoList cargoList={currentManifest.cargoList} />
+        </div>
+      </div>
+    </div>
+  );
+}

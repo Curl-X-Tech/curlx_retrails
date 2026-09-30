@@ -131,7 +131,13 @@ function SortHeaderIcon({
 
 type SortKey = "plateNumber" | "crates" | "weight" | "volume" | "departure" | "status";
 
-export function AllocationSummaryPage() {
+interface AllocationSummaryPageProps {
+  onSelectAllocation?: (allocation: VehicleAllocation) => void;
+}
+
+export function AllocationSummaryPage({
+  onSelectAllocation,
+}: AllocationSummaryPageProps = {}) {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [viewMode, setViewMode] = React.useState<"grid" | "table">("grid");
   const [statusFilter, setStatusFilter] = React.useState<string>("all");
@@ -489,7 +495,7 @@ export function AllocationSummaryPage() {
               <AllocationVehicleCard
                 key={alloc.id}
                 allocation={alloc}
-                onSelect={() => {}}
+                onSelect={(item) => onSelectAllocation?.(item)}
               />
             ))}
           </div>
@@ -657,7 +663,11 @@ export function AllocationSummaryPage() {
                     alloc.vehicleCategory === "freeze_lorry";
 
                   return (
-                    <TableRow key={alloc.id} className="hover:bg-muted/30">
+                    <TableRow
+                      key={alloc.id}
+                      onClick={() => onSelectAllocation?.(alloc)}
+                      className="hover:bg-muted/30 cursor-pointer"
+                    >
                       {/* Vehicle Code & Plate */}
                       <TableCell className="whitespace-nowrap">
                         <div className="min-w-0">
@@ -765,6 +775,10 @@ export function AllocationSummaryPage() {
                         <IconButton
                           variant="ghost"
                           size="xs"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectAllocation?.(alloc);
+                          }}
                           className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
                           title="View Details"
                         >

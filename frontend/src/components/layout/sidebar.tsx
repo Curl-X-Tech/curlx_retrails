@@ -17,6 +17,7 @@ import {
   GearSixIcon,
   WarehouseIcon,
   CheckIcon,
+  ReceiptIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import {
@@ -91,6 +92,11 @@ export const navGroups: { label?: string; items: NavItem[] }[] = [
         title: "Allocation summary",
         id: "allocation-summary",
         icon: <ChartBarIcon weight="duotone" className="size-5" />,
+      },
+      {
+        title: "Allocation detail",
+        id: "allocation-detail",
+        icon: <ReceiptIcon weight="duotone" className="size-5" />,
       },
       {
         title: "Deferrals",

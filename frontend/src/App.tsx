@@ -12,8 +12,33 @@ import {
 } from "@/components/ui/breadcrumb";
 import { LiveMapPage } from "@/pages/dispatcher/live-map-page";
 import { AllocationSummaryPage } from "@/pages/dispatcher/allocation-summary-page";
+import { AllocationDetailPage } from "@/pages/dispatcher/allocation-detail-page";
 
-function getBreadcrumbs(id: string) {
+import { mockVehicleAllocations } from "@/data/mock-allocations";
+import { mockAllocationManifests } from "@/data/mock-allocation-details";
+
+interface CrumbItem {
+  label: string;
+  isCurrent?: boolean;
+  navId?: string;
+  isCode?: boolean;
+}
+
+function getBreadcrumbs(id: string, selectedAllocationId?: string): CrumbItem[] {
+  if (id === "allocation-detail") {
+    const activeAlloc =
+      mockVehicleAllocations.find((a) => a.id === selectedAllocationId) ||
+      mockVehicleAllocations[0];
+    const manifestCode =
+      mockAllocationManifests[activeAlloc.id]?.manifestCode || activeAlloc.plateNumber;
+
+    return [
+      { label: "Planning" },
+      { label: "Allocation summary", navId: "allocation-summary" },
+      { label: `# ${manifestCode}`, isCurrent: true, isCode: true },
+    ];
+  }
+
   for (const group of navGroups) {
     for (const item of group.items) {
       if (item.id === id) {
@@ -27,10 +52,13 @@ function getBreadcrumbs(id: string) {
             return group.label
               ? [
                   { label: group.label },
-                  { label: item.title },
+                  { label: item.title, navId: item.id },
                   { label: sub.title, isCurrent: true },
                 ]
-              : [{ label: item.title }, { label: sub.title, isCurrent: true }];
+              : [
+                  { label: item.title, navId: item.id },
+                  { label: sub.title, isCurrent: true },
+                ];
           }
         }
       }
@@ -41,7 +69,8 @@ function getBreadcrumbs(id: string) {
 
 export function App() {
   const [activeNavId, setActiveNavId] = React.useState("allocation-summary");
-  const crumbs = getBreadcrumbs(activeNavId);
+  const [selectedAllocationId, setSelectedAllocationId] = React.useState("alloc-01");
+  const crumbs = getBreadcrumbs(activeNavId, selectedAllocationId);
 
   return (
     <SidebarProvider defaultOpen={true}>
@@ -55,7 +84,10 @@ export function App() {
             <Breadcrumb className="flex items-center">
               <BreadcrumbList>
                 <BreadcrumbItem>
-                  <BreadcrumbLink onClick={() => setActiveNavId("dashboard")}>
+                  <BreadcrumbLink
+                    onClick={() => setActiveNavId("dashboard")}
+                    className="cursor-pointer hover:text-foreground transition-colors"
+                  >
                     ReTrails Console
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -64,7 +96,22 @@ export function App() {
                     <BreadcrumbSeparator />
                     <BreadcrumbItem>
                       {crumb.isCurrent ? (
-                        <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                        <BreadcrumbPage
+                          className={
+                            crumb.isCode
+                              ? "font-mono font-bold tracking-tight text-foreground text-xs sm:text-sm"
+                              : ""
+                          }
+                        >
+                          {crumb.label}
+                        </BreadcrumbPage>
+                      ) : crumb.navId ? (
+                        <BreadcrumbLink
+                          onClick={() => setActiveNavId(crumb.navId!)}
+                          className="cursor-pointer hover:text-foreground transition-colors"
+                        >
+                          {crumb.label}
+                        </BreadcrumbLink>
                       ) : (
                         <span className="text-muted-foreground font-medium">
                           {crumb.label}
@@ -81,7 +128,17 @@ export function App() {
         {activeNavId === "live-tracking" ? (
           <LiveMapPage />
         ) : activeNavId === "allocation-summary" ? (
-          <AllocationSummaryPage />
+          <AllocationSummaryPage
+            onSelectAllocation={(alloc) => {
+              setSelectedAllocationId(alloc.id);
+              setActiveNavId("allocation-detail");
+            }}
+          />
+        ) : activeNavId === "allocation-detail" ? (
+          <AllocationDetailPage
+            initialAllocationId={selectedAllocationId}
+            onSelectAllocation={(alloc) => setSelectedAllocationId(alloc.id)}
+          />
         ) : (
           <main className="flex-1 p-6 overflow-y-auto">
             <div className="max-w-5xl space-y-4">

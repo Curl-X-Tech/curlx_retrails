@@ -7,6 +7,7 @@ import {
   CaretRightIcon,
   ArrowSquareOutIcon,
 } from "@phosphor-icons/react";
+import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { IconButton } from "@/components/ui/icon-button";
@@ -15,11 +16,15 @@ import type { VehicleAllocation } from "@/data/mock-allocations";
 interface AllocationVehicleCardProps {
   allocation: VehicleAllocation;
   onSelect?: (allocation: VehicleAllocation) => void;
+  isSelected?: boolean;
+  className?: string;
 }
 
 export function AllocationVehicleCard({
   allocation,
   onSelect,
+  isSelected = false,
+  className,
 }: AllocationVehicleCardProps) {
   const [mode, setMode] = React.useState<"weight" | "volume">("weight");
   const [touchStartX, setTouchStartX] = React.useState<number | null>(null);
@@ -163,7 +168,11 @@ export function AllocationVehicleCard({
   return (
     <Card
       onClick={() => onSelect?.(allocation)}
-      className="bg-card border border-border/80 shadow-xs rounded-2xl p-4 flex flex-col justify-between select-none hover:border-border hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden min-w-0 group"
+      className={cn(
+        "bg-card border border-border/80 shadow-xs rounded-2xl p-4 flex flex-col justify-between select-none hover:border-border hover:shadow-md transition-all duration-200 cursor-pointer overflow-hidden min-w-0 group",
+        isSelected && "border-primary ring-2 ring-primary/20 bg-primary/[0.02] shadow-sm",
+        className
+      )}
     >
       {/* 1. Header Section: # Plate + Cold Chain Icon, Vehicle Model & Action Icon Button */}
       <div className="flex items-start justify-between">
