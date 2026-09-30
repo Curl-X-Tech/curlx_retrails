@@ -47,29 +47,6 @@ print_banner() {
     echo ""
 }
 
-# Display microservices stack status banner
-print_microservices_banner() {
-    echo ""
-    echo -e "${BOLD}================================================================${RESET}"
-    echo -e "  ${BOLD}Waypoint Microservices Stack (Team CurlX)${RESET}"
-    echo -e "${BOLD}================================================================${RESET}"
-    echo -e "  ${GREEN}Order Service:${RESET}             ${CYAN}http://localhost:8001${RESET}"
-    echo -e "  ${GREEN}Outlet Manager Service:${RESET}    ${CYAN}http://localhost:8002${RESET}"
-    echo -e "  ${GREEN}Route Management Service:${RESET}  ${CYAN}http://localhost:8003${RESET}"
-    echo -e "  ${GREEN}Vehicle Manager Service:${RESET}   ${CYAN}http://localhost:8004${RESET}"
-    echo -e "  ${GREEN}Planning Engine Service:${RESET}   ${CYAN}http://localhost:8005${RESET}"
-    echo -e "  ${GREEN}Dispatcher Service:${RESET}        ${CYAN}http://localhost:8006${RESET}"
-    echo -e "  ${GREEN}PostgreSQL Database:${RESET}       ${CYAN}localhost:5432${RESET}"
-    echo -e "  ${GREEN}Redis Cache / Broker:${RESET}      ${CYAN}localhost:6379${RESET}"
-    echo -e "  ${GREEN}RabbitMQ AMQP:${RESET}            ${CYAN}localhost:5672${RESET}"
-    echo -e "  ${GREEN}RabbitMQ Management UI:${RESET}    ${CYAN}http://localhost:15672${RESET} (waypoint/waypoint)"
-    echo -e "  ${GREEN}pgAdmin 4:${RESET}                ${CYAN}http://localhost:5050${RESET}"
-    echo -e "${BOLD}================================================================${RESET}"
-    echo -e "  ${YELLOW}Stack running in background. Use './dev.sh microservices:down' to stop.${RESET}"
-    echo -e "${BOLD}================================================================${RESET}"
-    echo ""
-}
-
 # Check for required tools
 check_prerequisites() {
     if ! command -v uv &> /dev/null; then
@@ -148,24 +125,10 @@ run_services_up() {
 }
 
 run_services_down() {
-    log_info "Stopping dev infrastructure..."
+    log_info "Stopping dev infrastructure (PostgreSQL, Redis, Mailpit)..."
     docker compose -f "$ROOT_DIR/docker-compose.dev.yml" down 2>/dev/null || true
-    log_success "Dev infrastructure stopped."
-}
-
-# Run the full Waypoint microservices stack via docker-compose.yml
-run_microservices_up() {
-    log_info "Building and starting Waypoint microservices stack..."
-    docker compose -f "$ROOT_DIR/docker-compose.yml" up -d --build
-    echo ""
-    log_success "Microservices stack running."
-    print_microservices_banner
-}
-
-run_microservices_down() {
-    log_info "Stopping Waypoint microservices stack..."
     docker compose -f "$ROOT_DIR/docker-compose.yml" down 2>/dev/null || true
-    log_success "Microservices stack stopped."
+    log_success "Dev infrastructure stopped."
 }
 
 # Run full development stack (Backend + Frontend + Auto Dev Services)
@@ -278,7 +241,7 @@ run_check() {
 run_docker_up() {
     ensure_env
     log_info "Starting full Docker Compose services (App + DB + Redis + Mailpit)..."
-    docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d
+    docker compose up -d
 }
 
 run_docker_down() {
@@ -304,27 +267,24 @@ show_help() {
     echo "Usage: ./dev.sh [command]"
     echo ""
     echo "Commands:"
-    echo "  dev                  Start backend, frontend, and emails concurrently (default)"
-    echo "  services             Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
-    echo "  services:down        Stop dev infrastructure"
-    echo "  microservices        Build and start the full Waypoint microservices stack"
-    echo "  microservices:down   Stop the Waypoint microservices stack"
-    echo "  down                 Stop all running Docker containers (dev + microservices)"
-    echo "  stop                 Alias for down"
-    echo "  install              Install all dependencies for backend, frontend, and emails"
-    echo "  backend              Start backend server only (FastAPI on port 8000)"
-    echo "  frontend             Start frontend server only (Vite on port 5173)"
-    echo "  emails               Start React Email preview server on port 3001"
-    echo "  lint                 Run linter on backend and frontend"
-    echo "  format               Auto-format code across backend, frontend, and emails"
-    echo "  format:check         Verify code formatting"
-    echo "  typecheck            Run TypeScript compiler type checks"
-    echo "  test                 Run backend test suite"
-    echo "  check                Run all quality checks (lint + format + typecheck + test)"
-    echo "  docker               Start dev infrastructure in background (alias for services)"
-    echo "  docker:down          Stop all Docker Compose services"
-    echo "  clean                Remove virtual environments and node_modules"
-    echo "  help                 Show this help message"
+    echo "  dev            Start backend, frontend, and emails concurrently (default)"
+    echo "  services       Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
+    echo "  down           Stop all running Docker containers (dev & prod)"
+    echo "  stop           Alias for down"
+    echo "  install        Install all dependencies for backend, frontend, and emails"
+    echo "  backend        Start backend server only (FastAPI on port 8000)"
+    echo "  frontend       Start frontend server only (Vite on port 5173)"
+    echo "  emails         Start React Email preview server on port 3001"
+    echo "  lint           Run linter on backend and frontend"
+    echo "  format         Auto-format code across backend, frontend, and emails"
+    echo "  format:check   Verify code formatting"
+    echo "  typecheck      Run TypeScript compiler type checks"
+    echo "  test           Run backend test suite"
+    echo "  check          Run all quality checks (lint + format + typecheck + test)"
+    echo "  docker         Start full Docker Compose environment in background"
+    echo "  docker:down    Stop all Docker Compose services"
+    echo "  clean          Remove virtual environments and node_modules"
+    echo "  help           Show this help message"
     echo ""
 }
 
@@ -338,17 +298,8 @@ case "$COMMAND" in
     services|infra)
         run_services_up
         ;;
-    services:down|infra:down)
+    services:down|infra:down|down|stop)
         run_services_down
-        ;;
-    microservices)
-        run_microservices_up
-        ;;
-    microservices:down)
-        run_microservices_down
-        ;;
-    down|stop)
-        run_docker_down
         ;;
     install)
         install_deps

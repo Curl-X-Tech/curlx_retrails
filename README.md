@@ -52,23 +52,9 @@ graph TD
     Client[Web Browser / Mobile] -->|HTTP / HTTPS| Frontend[React PWA + Tailwind CSS]
     Frontend -->|IndexedDB| Dexie[Dexie Local Storage]
     Frontend -->|REST API / JWT| Backend[FastAPI Backend]
-    Backend -->|SQLAlchemy 2.0 / Alembic| DB[(PostgreSQL)]
+    Backend -->|SQLAlchemy 2.0 / Alembic| DB[(PostgreSQL Database)]
     Backend -->|SMTP| Mailer[Mailpit / SMTP Gateway]
     Emails[React Email Templates] -->|Compiled HTML| Backend
-
-    subgraph Waypoint Microservices
-        OrderSvc[Order Service :8001]
-        OutletSvc[Outlet Manager :8002]
-        RouteSvc[Route Management :8003]
-        VehicleSvc[Vehicle Manager :8004]
-        PlanningSvc[Planning Engine :8005]
-        DispatchSvc[Dispatcher :8006]
-        PlanningSvc --> CeleryWorker[Celery Worker]
-    end
-
-    OrderSvc & OutletSvc & RouteSvc & VehicleSvc & PlanningSvc & DispatchSvc -->|SQLAlchemy| PGDB[(PostgreSQL :5432)]
-    PlanningSvc & CeleryWorker -->|Celery tasks| Redis[(Redis :6379)]
-    OrderSvc & VehicleSvc & PlanningSvc & DispatchSvc & CeleryWorker -->|AMQP| RabbitMQ[RabbitMQ :5672]
 ```
 
 ---
@@ -77,17 +63,12 @@ graph TD
 
 ```text
 .
-├── backend/                     # Waypoint microservices (uv per-service)
-│   ├── order_service/           # Order Service (port 8001)
-│   ├── outlet_service/          # Outlet Manager Service (port 8002)
-│   ├── route_service/           # Route Management Service (port 8003)
-│   ├── vehicle_service/         # Vehicle Manager Service (port 8004)
-│   ├── planning_service/        # Planning Engine + Celery Worker (port 8005)
-│   ├── dispatch_service/        # Dispatcher Service (port 8006)
-│   ├── shared/                  # Shared utilities across services
-│   └── helpers/
-│       └── init-db.sql          # PostgreSQL multi-database init script
-├── frontend/                    # React PWA frontend (bun)
+├── backend/                  # FastAPI backend (uv)
+│   ├── app/
+│   │   └── main.py           # Application entrypoint
+│   ├── Dockerfile
+│   └── pyproject.toml
+├── frontend/                 # React PWA frontend (bun)
 │   ├── src/
 │   │   ├── App.tsx
 │   │   ├── index.css
@@ -95,13 +76,12 @@ graph TD
 │   ├── Dockerfile
 │   ├── package.json
 │   └── vite.config.ts
-├── packages/emails/             # React Email templates (bun)
+├── packages/emails/          # React Email templates (bun)
 │   ├── emails/
 │   ├── package.json
 │   └── tsconfig.json
-├── docker-compose.yml           # Waypoint microservices stack
-├── docker-compose.dev.yml       # Local dev infrastructure (PostgreSQL, Redis, Mailpit)
-└── .env.example                 # Environment variables template
+├── docker-compose.yml        # Multi-container orchestration
+└── .env.example              # Environment variables template
 ```
 
 ---
@@ -109,9 +89,9 @@ graph TD
 ## Quickstart
 
 ### Prerequisites
-- Python 3.10+ and `uv` for local backend development
-- `bun` for local frontend and email development
-- Docker Engine or Docker Desktop with Docker Compose v2 for container deployment
+- Python 3.10+ and `uv`
+- `bun`
+- (Optional) Docker and Docker Compose
 
 ### Fast One-Command Setup & Run
 
@@ -139,40 +119,7 @@ graph TD
 
 # Run tests
 ./dev.sh test
-
-# Start dev infrastructure only (PostgreSQL, Redis, Mailpit)
-./dev.sh services
-./dev.sh services:down
 ```
-
-### Microservices Stack
-
-Build and run all six Waypoint microservices plus their infrastructure (PostgreSQL,
-Redis, RabbitMQ, pgAdmin) from the repository root:
-
-```bash
-# Build images and start all services in the background
-./dev.sh microservices
-
-# Follow logs across all containers
-docker compose logs -f
-
-# Stop and remove containers
-./dev.sh microservices:down
-```
-
-Port registry when the microservices stack is running:
-
-| Service | URL |
-|---|---|
-| Order Service | http://localhost:8001 |
-| Outlet Manager | http://localhost:8002 |
-| Route Management | http://localhost:8003 |
-| Vehicle Manager | http://localhost:8004 |
-| Planning Engine | http://localhost:8005 |
-| Dispatcher | http://localhost:8006 |
-| RabbitMQ Management | http://localhost:15672 |
-| pgAdmin 4 | http://localhost:5050 |
 
 ---
 
