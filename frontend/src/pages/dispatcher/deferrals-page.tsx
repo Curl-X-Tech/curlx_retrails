@@ -59,6 +59,8 @@ import {
   mockDeferralAuditLogs,
 } from "@/data/mock-deferrals";
 import { OrderDetailSheet } from "@/components/dispatcher/order-detail-sheet";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { useSimulatedLoading } from "@/lib/simulated-delay";
 import { mockQueuedOrders } from "@/data/mock-orders";
 import type { QueuedOrder } from "@/types";
 
@@ -143,10 +145,14 @@ function SortHeaderIcon({
 
 interface DeferralsPageProps {
   viewMode?: "carryover" | "deferral-log" | "audit-log";
+  isLoading?: boolean;
   onNavigateToOrder?: (orderRef: string) => void;
 }
 
-export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {}) {
+export function DeferralsPage({
+  viewMode = "carryover",
+  isLoading = false,
+}: DeferralsPageProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
@@ -176,6 +182,22 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
   const auditSortDirection = (searchParams.get("dir") as "asc" | "desc") || "asc";
   const auditPage = parseInt(searchParams.get("page") || "1", 10);
   const auditPageSize = 5;
+
+  const isSimulatedLoading = useSimulatedLoading([
+    carryoverSearch,
+    carryoverBrandFilter,
+    carryoverGroupBy,
+    carryoverPage,
+    auditSearch,
+    auditReasonFilter,
+    auditResourceFilter,
+    auditGroupBy,
+    auditSortKey,
+    auditSortDirection,
+    auditPage,
+  ]);
+
+  const effectiveLoading = isLoading || isSimulatedLoading;
 
   const updateQueryParams = React.useCallback(
     (updates: Record<string, string | number | null | undefined>) => {
@@ -827,562 +849,572 @@ export function DeferralsPage({ viewMode = "carryover" }: DeferralsPageProps = {
               </Tooltip>
             </div>
 
-            <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
-              {/* Top Table Bar with Count & Pagination */}
-              <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-                <div className="flex items-center gap-3">
-                  <div className="relative w-56">
-                    <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
-                    <Input
-                      type="search"
-                      placeholder="Search carryover orders..."
-                      value={carryoverSearch}
-                      onChange={(e) => {
-                        updateQueryParams({ search: e.target.value, page: 1 });
-                      }}
-                      className="pl-7 h-7 text-xs bg-card"
-                    />
-                  </div>
-
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="outline"
-                          size="xs"
-                          className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card"
-                        />
-                      }
-                    >
-                      <FunnelIcon className="size-3 text-muted-foreground" />
-                      <span>
-                        Brand:{" "}
-                        {carryoverBrandFilter === "all"
-                          ? "All"
-                          : `Waypoint ${carryoverBrandFilter}`}
-                      </span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-36">
-                      <DropdownMenuLabel className="text-xs">
-                        Filter Brand
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuRadioGroup
-                        value={carryoverBrandFilter}
-                        onValueChange={(val) => {
-                          updateQueryParams({ brand: val ?? "all", page: 1 });
+            {effectiveLoading ? (
+              <TableSkeleton columns={8} rowCount={5} />
+            ) : (
+              <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
+                {/* Top Table Bar with Count & Pagination */}
+                <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
+                  <div className="flex items-center gap-3">
+                    <div className="relative w-56">
+                      <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+                      <Input
+                        type="search"
+                        placeholder="Search carryover orders..."
+                        value={carryoverSearch}
+                        onChange={(e) => {
+                          updateQueryParams({ search: e.target.value, page: 1 });
                         }}
-                      >
-                        <DropdownMenuRadioItem value="all" className="text-xs">
-                          All Brands
-                        </DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="Fresh" className="text-xs">
-                          Waypoint Fresh
-                        </DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="Style" className="text-xs">
-                          Waypoint Style
-                        </DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="Tech" className="text-xs">
-                          Waypoint Tech
-                        </DropdownMenuRadioItem>
-                      </DropdownMenuRadioGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        className="pl-7 h-7 text-xs bg-card"
+                      />
+                    </div>
 
-                  {/* Group By Dropdown */}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger
-                      render={
-                        <Button
-                          variant="outline"
-                          size="xs"
-                          className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card"
-                        />
-                      }
-                    >
-                      <RowsIcon className="size-3 text-muted-foreground" />
-                      <span>
-                        Group:{" "}
-                        {carryoverGroupBy === "none"
-                          ? "None"
-                          : carryoverGroupBy === "action"
-                            ? "By Action"
-                            : "By Reason"}
-                      </span>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-44">
-                      <DropdownMenuLabel className="text-xs">
-                        Group Orders
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuRadioGroup
-                        value={carryoverGroupBy}
-                        onValueChange={(val) =>
-                          updateQueryParams({
-                            group: (val as "none" | "action" | "reason") ?? "none",
-                          })
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card"
+                          />
                         }
                       >
-                        <DropdownMenuRadioItem value="none" className="text-xs">
-                          None (Flat Table)
-                        </DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="action" className="text-xs">
-                          Group by Action
-                        </DropdownMenuRadioItem>
-                        <DropdownMenuRadioItem value="reason" className="text-xs">
-                          Group by Deferral Reason
-                        </DropdownMenuRadioItem>
-                      </DropdownMenuRadioGroup>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                        <FunnelIcon className="size-3 text-muted-foreground" />
+                        <span>
+                          Brand:{" "}
+                          {carryoverBrandFilter === "all"
+                            ? "All"
+                            : `Waypoint ${carryoverBrandFilter}`}
+                        </span>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-36">
+                        <DropdownMenuLabel className="text-xs">
+                          Filter Brand
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuRadioGroup
+                          value={carryoverBrandFilter}
+                          onValueChange={(val) => {
+                            updateQueryParams({ brand: val ?? "all", page: 1 });
+                          }}
+                        >
+                          <DropdownMenuRadioItem value="all" className="text-xs">
+                            All Brands
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="Fresh" className="text-xs">
+                            Waypoint Fresh
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="Style" className="text-xs">
+                            Waypoint Style
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="Tech" className="text-xs">
+                            Waypoint Tech
+                          </DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
 
-                  <div className="text-muted-foreground text-[11px]">
-                    Showing{" "}
-                    <span className="font-bold text-foreground">
-                      {filteredCarryover.length === 0
-                        ? 0
-                        : carryoverGroupBy === "none"
-                          ? (carryoverPage - 1) * carryoverPageSize + 1
-                          : 1}
-                    </span>{" "}
-                    to{" "}
-                    <span className="font-bold text-foreground">
-                      {carryoverGroupBy === "none"
-                        ? Math.min(
-                            carryoverPage * carryoverPageSize,
-                            filteredCarryover.length
-                          )
-                        : filteredCarryover.length}
-                    </span>{" "}
-                    of{" "}
-                    <span className="font-bold text-foreground">
-                      {filteredCarryover.length}
-                    </span>{" "}
-                    orders
+                    {/* Group By Dropdown */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger
+                        render={
+                          <Button
+                            variant="outline"
+                            size="xs"
+                            className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card"
+                          />
+                        }
+                      >
+                        <RowsIcon className="size-3 text-muted-foreground" />
+                        <span>
+                          Group:{" "}
+                          {carryoverGroupBy === "none"
+                            ? "None"
+                            : carryoverGroupBy === "action"
+                              ? "By Action"
+                              : "By Reason"}
+                        </span>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="w-44">
+                        <DropdownMenuLabel className="text-xs">
+                          Group Orders
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuRadioGroup
+                          value={carryoverGroupBy}
+                          onValueChange={(val) =>
+                            updateQueryParams({
+                              group: (val as "none" | "action" | "reason") ?? "none",
+                            })
+                          }
+                        >
+                          <DropdownMenuRadioItem value="none" className="text-xs">
+                            None (Flat Table)
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="action" className="text-xs">
+                            Group by Action
+                          </DropdownMenuRadioItem>
+                          <DropdownMenuRadioItem value="reason" className="text-xs">
+                            Group by Deferral Reason
+                          </DropdownMenuRadioItem>
+                        </DropdownMenuRadioGroup>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <div className="text-muted-foreground text-[11px]">
+                      Showing{" "}
+                      <span className="font-bold text-foreground">
+                        {filteredCarryover.length === 0
+                          ? 0
+                          : carryoverGroupBy === "none"
+                            ? (carryoverPage - 1) * carryoverPageSize + 1
+                            : 1}
+                      </span>{" "}
+                      to{" "}
+                      <span className="font-bold text-foreground">
+                        {carryoverGroupBy === "none"
+                          ? Math.min(
+                              carryoverPage * carryoverPageSize,
+                              filteredCarryover.length
+                            )
+                          : filteredCarryover.length}
+                      </span>{" "}
+                      of{" "}
+                      <span className="font-bold text-foreground">
+                        {filteredCarryover.length}
+                      </span>{" "}
+                      orders
+                    </div>
                   </div>
+
+                  {carryoverGroupBy === "none" && totalCarryoverPages > 1 && (
+                    <Pagination className="mx-0 w-auto justify-end">
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            onClick={() =>
+                              updateQueryParams({
+                                page: Math.max(carryoverPage - 1, 1),
+                              })
+                            }
+                            disabled={carryoverPage <= 1}
+                          />
+                        </PaginationItem>
+                        {Array.from({ length: totalCarryoverPages }, (_, i) => i + 1).map(
+                          (page) => (
+                            <PaginationItem key={page}>
+                              <PaginationLink
+                                isActive={carryoverPage === page}
+                                onClick={() => updateQueryParams({ page })}
+                              >
+                                {page}
+                              </PaginationLink>
+                            </PaginationItem>
+                          )
+                        )}
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() =>
+                              updateQueryParams({
+                                page: Math.min(carryoverPage + 1, totalCarryoverPages),
+                              })
+                            }
+                            disabled={carryoverPage >= totalCarryoverPages}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  )}
                 </div>
 
-                {carryoverGroupBy === "none" && totalCarryoverPages > 1 && (
-                  <Pagination className="mx-0 w-auto justify-end">
-                    <PaginationContent>
-                      <PaginationItem>
-                        <PaginationPrevious
-                          onClick={() =>
-                            updateQueryParams({
-                              page: Math.max(carryoverPage - 1, 1),
-                            })
-                          }
-                          disabled={carryoverPage <= 1}
-                        />
-                      </PaginationItem>
-                      {Array.from({ length: totalCarryoverPages }, (_, i) => i + 1).map(
-                        (page) => (
-                          <PaginationItem key={page}>
-                            <PaginationLink
-                              isActive={carryoverPage === page}
-                              onClick={() => updateQueryParams({ page })}
-                            >
-                              {page}
-                            </PaginationLink>
-                          </PaginationItem>
-                        )
-                      )}
-                      <PaginationItem>
-                        <PaginationNext
-                          onClick={() =>
-                            updateQueryParams({
-                              page: Math.min(carryoverPage + 1, totalCarryoverPages),
-                            })
-                          }
-                          disabled={carryoverPage >= totalCarryoverPages}
-                        />
-                      </PaginationItem>
-                    </PaginationContent>
-                  </Pagination>
-                )}
-              </div>
+                {/* Carryover Table Viewport */}
+                <TooltipProvider delay={100}>
+                  <div className="flex-1 min-h-0 overflow-auto">
+                    <table className="w-full caption-bottom text-sm">
+                      <TableHeader className="sticky top-0 z-20 bg-card shadow-2xs border-b border-border/80">
+                        <TableRow className="border-b border-border/80 hover:bg-transparent">
+                          <TableHead className="w-[140px] font-bold text-foreground text-xs">
+                            Order
+                          </TableHead>
+                          <TableHead className="w-[220px] font-bold text-foreground text-xs">
+                            Destination Store
+                          </TableHead>
+                          <TableHead className="w-[90px] font-bold text-foreground text-xs">
+                            Temp Zone
+                          </TableHead>
+                          <TableHead className="w-[110px] text-right font-bold text-foreground text-xs">
+                            Weight
+                          </TableHead>
+                          <TableHead className="w-[100px] text-right font-bold text-foreground text-xs">
+                            Volume
+                          </TableHead>
+                          <TableHead className="w-[130px] text-right font-bold text-foreground text-xs">
+                            Value (LKR)
+                          </TableHead>
+                          <TableHead className="w-[170px] font-bold text-foreground text-xs">
+                            Deferral Reason
+                          </TableHead>
+                          <TableHead className="w-[170px] font-bold text-foreground text-xs">
+                            Recommended Fleet
+                          </TableHead>
+                          <TableHead className="w-[60px] text-right font-bold text-foreground text-xs">
+                            Action
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
 
-              {/* Carryover Table Viewport */}
-              <TooltipProvider delay={100}>
-                <div className="flex-1 min-h-0 overflow-auto">
-                  <table className="w-full caption-bottom text-sm">
-                    <TableHeader className="sticky top-0 z-20 bg-card shadow-2xs border-b border-border/80">
-                      <TableRow className="border-b border-border/80 hover:bg-transparent">
-                        <TableHead className="w-[140px] font-bold text-foreground text-xs">
-                          Order
-                        </TableHead>
-                        <TableHead className="w-[220px] font-bold text-foreground text-xs">
-                          Destination Store
-                        </TableHead>
-                        <TableHead className="w-[90px] font-bold text-foreground text-xs">
-                          Temp Zone
-                        </TableHead>
-                        <TableHead className="w-[110px] text-right font-bold text-foreground text-xs">
-                          Weight
-                        </TableHead>
-                        <TableHead className="w-[100px] text-right font-bold text-foreground text-xs">
-                          Volume
-                        </TableHead>
-                        <TableHead className="w-[130px] text-right font-bold text-foreground text-xs">
-                          Value (LKR)
-                        </TableHead>
-                        <TableHead className="w-[170px] font-bold text-foreground text-xs">
-                          Deferral Reason
-                        </TableHead>
-                        <TableHead className="w-[170px] font-bold text-foreground text-xs">
-                          Recommended Fleet
-                        </TableHead>
-                        <TableHead className="w-[60px] text-right font-bold text-foreground text-xs">
-                          Action
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-
-                    <TableBody>
-                      {carryoverGroupBy !== "none" && groupedCarryover
-                        ? groupedCarryover.map((group) => (
-                            <React.Fragment key={group.key}>
-                              {/* Group Header Row */}
-                              <TableRow className="bg-muted/40 hover:bg-muted/40 border-y border-border/70 select-none">
-                                <TableCell colSpan={9} className="py-2 px-4">
-                                  <div className="flex items-center justify-between gap-2">
-                                    <div className="flex items-center gap-2">
-                                      <span className="font-heading font-bold text-xs text-foreground">
-                                        {group.title}
-                                      </span>
-                                      <span className="text-[10px] font-bold text-muted-foreground bg-card px-1.5 py-0.5 rounded border border-border/50">
-                                        {group.items.length}{" "}
-                                        {group.items.length === 1 ? "order" : "orders"}
-                                      </span>
-                                      {group.description && (
-                                        <span className="text-[11px] text-muted-foreground hidden lg:inline">
-                                          • {group.description}
+                      <TableBody>
+                        {carryoverGroupBy !== "none" && groupedCarryover
+                          ? groupedCarryover.map((group) => (
+                              <React.Fragment key={group.key}>
+                                {/* Group Header Row */}
+                                <TableRow className="bg-muted/40 hover:bg-muted/40 border-y border-border/70 select-none">
+                                  <TableCell colSpan={9} className="py-2 px-4">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <div className="flex items-center gap-2">
+                                        <span className="font-heading font-bold text-xs text-foreground">
+                                          {group.title}
                                         </span>
-                                      )}
-                                    </div>
-                                    <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground font-mono">
-                                      <span>
-                                        {group.totalWeightKg.toLocaleString()} kg
-                                      </span>
-                                      <span>•</span>
-                                      <span>{group.totalVolumeM3} m³</span>
-                                      <span>•</span>
-                                      <span>
-                                        LKR {group.totalValueLkr.toLocaleString()}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </TableCell>
-                              </TableRow>
-
-                              {group.items.map((ord) => {
-                                const isMandatory = ord.deferredYesterday === 1;
-                                const isCold = ord.tempRequirement === "chilled";
-
-                                return (
-                                  <TableRow
-                                    key={ord.id}
-                                    onClick={() => handleOpenDetailByRef(ord.orderRef)}
-                                    className="border-border/30 hover:bg-muted/30 cursor-pointer text-xs"
-                                  >
-                                    {/* Order Ref & Indicator Stroke */}
-                                    <TableCell className="font-bold text-foreground py-2.5 px-4 whitespace-nowrap relative">
-                                      {isMandatory ? (
-                                        <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-red-500 rounded-r" />
-                                      ) : (
-                                        <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-amber-500 rounded-r" />
-                                      )}
-                                      <Tooltip>
-                                        <TooltipTrigger
-                                          render={
-                                            <div className="flex items-center gap-2 pl-1 cursor-help group/ref">
-                                              <span
-                                                className={`size-1.5 rounded-full shrink-0 ${
-                                                  isMandatory
-                                                    ? "bg-red-500"
-                                                    : "bg-amber-500"
-                                                }`}
-                                              />
-                                              <span className="group-hover/ref:text-primary transition-colors">
-                                                #{ord.orderRef}
-                                              </span>
-                                              {isMandatory && (
-                                                <LockKeyIcon
-                                                  className="size-3 text-red-500 shrink-0"
-                                                  weight="bold"
-                                                />
-                                              )}
-                                            </div>
-                                          }
-                                        />
-                                        <TooltipContent className="flex items-center gap-1.5 p-1.5">
-                                          <span className="text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                                            Waypoint {ord.brand}
+                                        <span className="text-[10px] font-bold text-muted-foreground bg-card px-1.5 py-0.5 rounded border border-border/50">
+                                          {group.items.length}{" "}
+                                          {group.items.length === 1 ? "order" : "orders"}
+                                        </span>
+                                        {group.description && (
+                                          <span className="text-[11px] text-muted-foreground hidden lg:inline">
+                                            • {group.description}
                                           </span>
-                                          {isMandatory ? (
-                                            <span className="text-red-700 bg-red-100 dark:bg-red-950 text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                                              <WarningOctagonIcon
-                                                className="size-2.5"
-                                                weight="bold"
-                                              />
-                                              Mandatory Serve Tomorrow (Consecutive Skip
-                                              Lock)
-                                            </span>
-                                          ) : (
-                                            <span className="text-amber-700 bg-amber-100 dark:bg-amber-950 text-[11px] font-bold px-1.5 py-0.5 rounded">
-                                              Carryover to Wave 1
-                                            </span>
-                                          )}
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TableCell>
-
-                                    {/* Destination Store */}
-                                    <TableCell>
-                                      <div>
-                                        <span className="font-bold text-xs text-foreground block truncate max-w-[200px]">
-                                          {ord.outletName}
+                                        )}
+                                      </div>
+                                      <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground font-mono">
+                                        <span>
+                                          {group.totalWeightKg.toLocaleString()} kg
                                         </span>
-                                        <span className="text-[10px] text-muted-foreground">
-                                          {ord.outletId} • {ord.district} (
-                                          {ord.dockType.replace("_", " ")})
+                                        <span>•</span>
+                                        <span>{group.totalVolumeM3} m³</span>
+                                        <span>•</span>
+                                        <span>
+                                          LKR {group.totalValueLkr.toLocaleString()}
                                         </span>
                                       </div>
-                                    </TableCell>
+                                    </div>
+                                  </TableCell>
+                                </TableRow>
 
-                                    {/* Temp Zone */}
-                                    <TableCell>
-                                      <span
-                                        className={`text-[11px] font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1 ${
-                                          isCold
-                                            ? "bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300"
-                                            : "bg-muted text-foreground"
-                                        }`}
-                                      >
-                                        {isCold && (
-                                          <SnowflakeIcon className="size-2.5 shrink-0" />
+                                {group.items.map((ord) => {
+                                  const isMandatory = ord.deferredYesterday === 1;
+                                  const isCold = ord.tempRequirement === "chilled";
+
+                                  return (
+                                    <TableRow
+                                      key={ord.id}
+                                      onClick={() => handleOpenDetailByRef(ord.orderRef)}
+                                      className="border-border/30 hover:bg-muted/30 cursor-pointer text-xs"
+                                    >
+                                      {/* Order Ref & Indicator Stroke */}
+                                      <TableCell className="font-bold text-foreground py-2.5 px-4 whitespace-nowrap relative">
+                                        {isMandatory ? (
+                                          <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-red-500 rounded-r" />
+                                        ) : (
+                                          <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-amber-500 rounded-r" />
                                         )}
-                                        <span className="capitalize">
-                                          {ord.tempRequirement}
-                                        </span>
-                                      </span>
-                                    </TableCell>
-
-                                    {/* Weight */}
-                                    <TableCell className="text-right font-bold text-foreground">
-                                      {ord.totalWeightKg.toLocaleString()} kg
-                                    </TableCell>
-
-                                    {/* Volume */}
-                                    <TableCell className="text-right font-medium text-foreground">
-                                      {ord.totalVolumeM3} m³
-                                    </TableCell>
-
-                                    {/* Value (LKR) */}
-                                    <TableCell className="text-right font-bold text-foreground">
-                                      LKR {ord.totalValueLkr.toLocaleString()}
-                                    </TableCell>
-
-                                    {/* Deferral Reason */}
-                                    <TableCell>
-                                      <Tooltip>
-                                        <TooltipTrigger
-                                          render={
-                                            <span className="text-[11px] font-medium text-foreground block truncate max-w-[160px] cursor-help">
-                                              {getReasonLabel(ord.deferralReason)}
-                                            </span>
-                                          }
-                                        />
-                                        <TooltipContent className="max-w-xs">
-                                          <span>
-                                            {ord.notes ||
-                                              getReasonLabel(ord.deferralReason)}
-                                          </span>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TableCell>
-
-                                    {/* Recommended Fleet */}
-                                    <TableCell>
-                                      <span className="text-[11px] font-semibold text-muted-foreground block truncate max-w-[160px]">
-                                        {ord.suggestedVehicleCategory}
-                                      </span>
-                                    </TableCell>
-
-                                    {/* Action */}
-                                    <TableCell className="text-right">
-                                      <IconButton
-                                        variant="ghost"
-                                        size="xs"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleOpenDetailByRef(ord.orderRef);
-                                        }}
-                                        className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
-                                        title="Inspect Order"
-                                      >
-                                        <ArrowSquareOutIcon className="size-3.5" />
-                                      </IconButton>
-                                    </TableCell>
-                                  </TableRow>
-                                );
-                              })}
-                            </React.Fragment>
-                          ))
-                        : paginatedCarryover.map((ord) => {
-                            const isMandatory = ord.deferredYesterday === 1;
-                            const isCold = ord.tempRequirement === "chilled";
-
-                            return (
-                              <TableRow
-                                key={ord.id}
-                                onClick={() => handleOpenDetailByRef(ord.orderRef)}
-                                className="border-border/30 hover:bg-muted/30 cursor-pointer text-xs"
-                              >
-                                {/* Order Ref & Indicator Stroke */}
-                                <TableCell className="font-bold text-foreground py-2.5 px-4 whitespace-nowrap relative">
-                                  {isMandatory ? (
-                                    <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-red-500 rounded-r" />
-                                  ) : (
-                                    <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-amber-500 rounded-r" />
-                                  )}
-                                  <Tooltip>
-                                    <TooltipTrigger
-                                      render={
-                                        <div className="flex items-center gap-2 pl-1 cursor-help group/ref">
-                                          <span
-                                            className={`size-1.5 rounded-full shrink-0 ${
-                                              isMandatory ? "bg-red-500" : "bg-amber-500"
-                                            }`}
+                                        <Tooltip>
+                                          <TooltipTrigger
+                                            render={
+                                              <div className="flex items-center gap-2 pl-1 cursor-help group/ref">
+                                                <span
+                                                  className={`size-1.5 rounded-full shrink-0 ${
+                                                    isMandatory
+                                                      ? "bg-red-500"
+                                                      : "bg-amber-500"
+                                                  }`}
+                                                />
+                                                <span className="group-hover/ref:text-primary transition-colors">
+                                                  #{ord.orderRef}
+                                                </span>
+                                                {isMandatory && (
+                                                  <LockKeyIcon
+                                                    className="size-3 text-red-500 shrink-0"
+                                                    weight="bold"
+                                                  />
+                                                )}
+                                              </div>
+                                            }
                                           />
-                                          <span className="group-hover/ref:text-primary transition-colors">
-                                            #{ord.orderRef}
+                                          <TooltipContent className="flex items-center gap-1.5 p-1.5">
+                                            <span className="text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                                              Waypoint {ord.brand}
+                                            </span>
+                                            {isMandatory ? (
+                                              <span className="text-red-700 bg-red-100 dark:bg-red-950 text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                                                <WarningOctagonIcon
+                                                  className="size-2.5"
+                                                  weight="bold"
+                                                />
+                                                Mandatory Serve Tomorrow (Consecutive Skip
+                                                Lock)
+                                              </span>
+                                            ) : (
+                                              <span className="text-amber-700 bg-amber-100 dark:bg-amber-950 text-[11px] font-bold px-1.5 py-0.5 rounded">
+                                                Carryover to Wave 1
+                                              </span>
+                                            )}
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TableCell>
+
+                                      {/* Destination Store */}
+                                      <TableCell>
+                                        <div>
+                                          <span className="font-bold text-xs text-foreground block truncate max-w-[200px]">
+                                            {ord.outletName}
                                           </span>
-                                          {isMandatory && (
-                                            <LockKeyIcon
-                                              className="size-3 text-red-500 shrink-0"
+                                          <span className="text-[10px] text-muted-foreground">
+                                            {ord.outletId} • {ord.district} (
+                                            {ord.dockType.replace("_", " ")})
+                                          </span>
+                                        </div>
+                                      </TableCell>
+
+                                      {/* Temp Zone */}
+                                      <TableCell>
+                                        <span
+                                          className={`text-[11px] font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1 ${
+                                            isCold
+                                              ? "bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300"
+                                              : "bg-muted text-foreground"
+                                          }`}
+                                        >
+                                          {isCold && (
+                                            <SnowflakeIcon className="size-2.5 shrink-0" />
+                                          )}
+                                          <span className="capitalize">
+                                            {ord.tempRequirement}
+                                          </span>
+                                        </span>
+                                      </TableCell>
+
+                                      {/* Weight */}
+                                      <TableCell className="text-right font-bold text-foreground">
+                                        {ord.totalWeightKg.toLocaleString()} kg
+                                      </TableCell>
+
+                                      {/* Volume */}
+                                      <TableCell className="text-right font-medium text-foreground">
+                                        {ord.totalVolumeM3} m³
+                                      </TableCell>
+
+                                      {/* Value (LKR) */}
+                                      <TableCell className="text-right font-bold text-foreground">
+                                        LKR {ord.totalValueLkr.toLocaleString()}
+                                      </TableCell>
+
+                                      {/* Deferral Reason */}
+                                      <TableCell>
+                                        <Tooltip>
+                                          <TooltipTrigger
+                                            render={
+                                              <span className="text-[11px] font-medium text-foreground block truncate max-w-[160px] cursor-help">
+                                                {getReasonLabel(ord.deferralReason)}
+                                              </span>
+                                            }
+                                          />
+                                          <TooltipContent className="max-w-xs">
+                                            <span>
+                                              {ord.notes ||
+                                                getReasonLabel(ord.deferralReason)}
+                                            </span>
+                                          </TooltipContent>
+                                        </Tooltip>
+                                      </TableCell>
+
+                                      {/* Recommended Fleet */}
+                                      <TableCell>
+                                        <span className="text-[11px] font-semibold text-muted-foreground block truncate max-w-[160px]">
+                                          {ord.suggestedVehicleCategory}
+                                        </span>
+                                      </TableCell>
+
+                                      {/* Action */}
+                                      <TableCell className="text-right">
+                                        <IconButton
+                                          variant="ghost"
+                                          size="xs"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenDetailByRef(ord.orderRef);
+                                          }}
+                                          className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
+                                          title="Inspect Order"
+                                        >
+                                          <ArrowSquareOutIcon className="size-3.5" />
+                                        </IconButton>
+                                      </TableCell>
+                                    </TableRow>
+                                  );
+                                })}
+                              </React.Fragment>
+                            ))
+                          : paginatedCarryover.map((ord) => {
+                              const isMandatory = ord.deferredYesterday === 1;
+                              const isCold = ord.tempRequirement === "chilled";
+
+                              return (
+                                <TableRow
+                                  key={ord.id}
+                                  onClick={() => handleOpenDetailByRef(ord.orderRef)}
+                                  className="border-border/30 hover:bg-muted/30 cursor-pointer text-xs"
+                                >
+                                  {/* Order Ref & Indicator Stroke */}
+                                  <TableCell className="font-bold text-foreground py-2.5 px-4 whitespace-nowrap relative">
+                                    {isMandatory ? (
+                                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-red-500 rounded-r" />
+                                    ) : (
+                                      <span className="absolute left-0 top-1.5 bottom-1.5 w-1 bg-amber-500 rounded-r" />
+                                    )}
+                                    <Tooltip>
+                                      <TooltipTrigger
+                                        render={
+                                          <div className="flex items-center gap-2 pl-1 cursor-help group/ref">
+                                            <span
+                                              className={`size-1.5 rounded-full shrink-0 ${
+                                                isMandatory
+                                                  ? "bg-red-500"
+                                                  : "bg-amber-500"
+                                              }`}
+                                            />
+                                            <span className="group-hover/ref:text-primary transition-colors">
+                                              #{ord.orderRef}
+                                            </span>
+                                            {isMandatory && (
+                                              <LockKeyIcon
+                                                className="size-3 text-red-500 shrink-0"
+                                                weight="bold"
+                                              />
+                                            )}
+                                          </div>
+                                        }
+                                      />
+                                      <TooltipContent className="flex items-center gap-1.5 p-1.5">
+                                        <span className="text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
+                                          Waypoint {ord.brand}
+                                        </span>
+                                        {isMandatory ? (
+                                          <span className="text-red-700 bg-red-100 dark:bg-red-950 text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
+                                            <WarningOctagonIcon
+                                              className="size-2.5"
                                               weight="bold"
                                             />
-                                          )}
-                                        </div>
-                                      }
-                                    />
-                                    <TooltipContent className="flex items-center gap-1.5 p-1.5">
-                                      <span className="text-[11px] font-bold text-primary bg-primary/10 px-1.5 py-0.5 rounded">
-                                        Waypoint {ord.brand}
+                                            Mandatory Serve Tomorrow (Consecutive Skip
+                                            Lock)
+                                          </span>
+                                        ) : (
+                                          <span className="text-amber-700 bg-amber-100 dark:bg-amber-950 text-[11px] font-bold px-1.5 py-0.5 rounded">
+                                            Carryover to Wave 1
+                                          </span>
+                                        )}
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TableCell>
+
+                                  {/* Destination Store */}
+                                  <TableCell>
+                                    <div>
+                                      <span className="font-bold text-xs text-foreground block truncate max-w-[200px]">
+                                        {ord.outletName}
                                       </span>
-                                      {isMandatory ? (
-                                        <span className="text-red-700 bg-red-100 dark:bg-red-950 text-[11px] font-bold px-1.5 py-0.5 rounded flex items-center gap-1">
-                                          <WarningOctagonIcon
-                                            className="size-2.5"
-                                            weight="bold"
-                                          />
-                                          Mandatory Serve Tomorrow (Consecutive Skip Lock)
-                                        </span>
-                                      ) : (
-                                        <span className="text-amber-700 bg-amber-100 dark:bg-amber-950 text-[11px] font-bold px-1.5 py-0.5 rounded">
-                                          Carryover to Wave 1
-                                        </span>
+                                      <span className="text-[10px] text-muted-foreground">
+                                        {ord.outletId} • {ord.district} (
+                                        {ord.dockType.replace("_", " ")})
+                                      </span>
+                                    </div>
+                                  </TableCell>
+
+                                  {/* Temp Zone */}
+                                  <TableCell>
+                                    <span
+                                      className={`text-[11px] font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1 ${
+                                        isCold
+                                          ? "bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300"
+                                          : "bg-muted text-foreground"
+                                      }`}
+                                    >
+                                      {isCold && (
+                                        <SnowflakeIcon className="size-2.5 shrink-0" />
                                       )}
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TableCell>
-
-                                {/* Destination Store */}
-                                <TableCell>
-                                  <div>
-                                    <span className="font-bold text-xs text-foreground block truncate max-w-[200px]">
-                                      {ord.outletName}
-                                    </span>
-                                    <span className="text-[10px] text-muted-foreground">
-                                      {ord.outletId} • {ord.district} (
-                                      {ord.dockType.replace("_", " ")})
-                                    </span>
-                                  </div>
-                                </TableCell>
-
-                                {/* Temp Zone */}
-                                <TableCell>
-                                  <span
-                                    className={`text-[11px] font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1 ${
-                                      isCold
-                                        ? "bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300"
-                                        : "bg-muted text-foreground"
-                                    }`}
-                                  >
-                                    {isCold && (
-                                      <SnowflakeIcon className="size-2.5 shrink-0" />
-                                    )}
-                                    <span className="capitalize">
-                                      {ord.tempRequirement}
-                                    </span>
-                                  </span>
-                                </TableCell>
-
-                                {/* Weight */}
-                                <TableCell className="text-right font-bold text-foreground">
-                                  {ord.totalWeightKg.toLocaleString()} kg
-                                </TableCell>
-
-                                {/* Volume */}
-                                <TableCell className="text-right font-medium text-foreground">
-                                  {ord.totalVolumeM3} m³
-                                </TableCell>
-
-                                {/* Value (LKR) */}
-                                <TableCell className="text-right font-bold text-foreground">
-                                  LKR {ord.totalValueLkr.toLocaleString()}
-                                </TableCell>
-
-                                {/* Deferral Reason */}
-                                <TableCell>
-                                  <Tooltip>
-                                    <TooltipTrigger
-                                      render={
-                                        <span className="text-[11px] font-medium text-foreground block truncate max-w-[160px] cursor-help">
-                                          {getReasonLabel(ord.deferralReason)}
-                                        </span>
-                                      }
-                                    />
-                                    <TooltipContent className="max-w-xs">
-                                      <span>
-                                        {ord.notes || getReasonLabel(ord.deferralReason)}
+                                      <span className="capitalize">
+                                        {ord.tempRequirement}
                                       </span>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TableCell>
+                                    </span>
+                                  </TableCell>
 
-                                {/* Recommended Fleet */}
-                                <TableCell>
-                                  <span className="text-[11px] font-semibold text-muted-foreground block truncate max-w-[160px]">
-                                    {ord.suggestedVehicleCategory}
-                                  </span>
-                                </TableCell>
+                                  {/* Weight */}
+                                  <TableCell className="text-right font-bold text-foreground">
+                                    {ord.totalWeightKg.toLocaleString()} kg
+                                  </TableCell>
 
-                                {/* Action */}
-                                <TableCell className="text-right">
-                                  <IconButton
-                                    variant="ghost"
-                                    size="xs"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      handleOpenDetailByRef(ord.orderRef);
-                                    }}
-                                    className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
-                                    title="Inspect Order"
-                                  >
-                                    <ArrowSquareOutIcon className="size-3.5" />
-                                  </IconButton>
-                                </TableCell>
-                              </TableRow>
-                            );
-                          })}
-                    </TableBody>
-                  </table>
-                </div>
-              </TooltipProvider>
-            </Card>
+                                  {/* Volume */}
+                                  <TableCell className="text-right font-medium text-foreground">
+                                    {ord.totalVolumeM3} m³
+                                  </TableCell>
+
+                                  {/* Value (LKR) */}
+                                  <TableCell className="text-right font-bold text-foreground">
+                                    LKR {ord.totalValueLkr.toLocaleString()}
+                                  </TableCell>
+
+                                  {/* Deferral Reason */}
+                                  <TableCell>
+                                    <Tooltip>
+                                      <TooltipTrigger
+                                        render={
+                                          <span className="text-[11px] font-medium text-foreground block truncate max-w-[160px] cursor-help">
+                                            {getReasonLabel(ord.deferralReason)}
+                                          </span>
+                                        }
+                                      />
+                                      <TooltipContent className="max-w-xs">
+                                        <span>
+                                          {ord.notes ||
+                                            getReasonLabel(ord.deferralReason)}
+                                        </span>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TableCell>
+
+                                  {/* Recommended Fleet */}
+                                  <TableCell>
+                                    <span className="text-[11px] font-semibold text-muted-foreground block truncate max-w-[160px]">
+                                      {ord.suggestedVehicleCategory}
+                                    </span>
+                                  </TableCell>
+
+                                  {/* Action */}
+                                  <TableCell className="text-right">
+                                    <IconButton
+                                      variant="ghost"
+                                      size="xs"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenDetailByRef(ord.orderRef);
+                                      }}
+                                      className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
+                                      title="Inspect Order"
+                                    >
+                                      <ArrowSquareOutIcon className="size-3.5" />
+                                    </IconButton>
+                                  </TableCell>
+                                </TableRow>
+                              );
+                            })}
+                      </TableBody>
+                    </table>
+                  </div>
+                </TooltipProvider>
+              </Card>
+            )}
           </>
+        ) : effectiveLoading ? (
+          <TableSkeleton columns={9} rowCount={5} />
         ) : (
           <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
             {/* Filter Bar */}

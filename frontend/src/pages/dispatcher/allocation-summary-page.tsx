@@ -59,6 +59,9 @@ import {
   type VehicleAllocation,
 } from "@/data/mock-allocations";
 import { AllocationVehicleCard } from "@/components/dispatcher/allocation-vehicle-card";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { CardGridSkeleton } from "@/components/skeletons/card-grid-skeleton";
+import { useSimulatedLoading } from "@/lib/simulated-delay";
 
 function CircularProgressRing({
   value,
@@ -138,10 +141,12 @@ function SortHeaderIcon({
 type SortKey = "plateNumber" | "crates" | "weight" | "volume" | "departure" | "status";
 
 interface AllocationSummaryPageProps {
+  isLoading?: boolean;
   onSelectAllocation?: (allocation: VehicleAllocation) => void;
 }
 
 export function AllocationSummaryPage({
+  isLoading = false,
   onSelectAllocation,
 }: AllocationSummaryPageProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -155,6 +160,18 @@ export function AllocationSummaryPage({
   const sortDirection = (searchParams.get("dir") as "asc" | "desc") || "asc";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = 5;
+
+  const isSimulatedLoading = useSimulatedLoading([
+    searchQuery,
+    statusFilter,
+    categoryFilter,
+    viewMode,
+    sortKey,
+    sortDirection,
+    currentPage,
+  ]);
+
+  const effectiveLoading = isLoading || isSimulatedLoading;
 
   const updateQueryParams = React.useCallback(
     (updates: Record<string, string | number | null | undefined>) => {
@@ -495,7 +512,13 @@ export function AllocationSummaryPage({
           viewMode === "grid" ? "overflow-y-auto" : "overflow-hidden flex flex-col"
         }`}
       >
-        {filteredAllocations.length === 0 ? (
+        {effectiveLoading ? (
+          viewMode === "grid" ? (
+            <CardGridSkeleton count={10} />
+          ) : (
+            <TableSkeleton columns={8} rowCount={5} />
+          )
+        ) : filteredAllocations.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <TruckIcon className="size-10 text-muted-foreground/40 mb-3" />
             <h3 className="text-sm font-semibold text-foreground">

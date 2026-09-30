@@ -63,6 +63,9 @@ import {
 import type { QueuedOrder } from "@/types";
 import { OrderDetailSheet } from "@/components/dispatcher/order-detail-sheet";
 import { OrderCard } from "@/components/dispatcher/order-card";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { CardGridSkeleton } from "@/components/skeletons/card-grid-skeleton";
+import { useSimulatedLoading } from "@/lib/simulated-delay";
 
 type ViewMode = "table" | "grid";
 type SortKey = "orderRef" | "outlet" | "weight" | "volume" | "value" | "window";
@@ -87,10 +90,14 @@ function SortHeaderIcon({
 }
 
 interface OrderQueuePageProps {
+  isLoading?: boolean;
   onNavigateToAllocation?: () => void;
 }
 
-export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps = {}) {
+export function OrderQueuePage({
+  isLoading = false,
+  onNavigateToAllocation,
+}: OrderQueuePageProps = {}) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [orders] = React.useState<QueuedOrder[]>(mockQueuedOrders);
@@ -106,6 +113,21 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
   const sortKey = (searchParams.get("sort") as SortKey) || null;
   const sortDirection = (searchParams.get("dir") as "asc" | "desc") || "asc";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
+  const isSimulatedLoading = useSimulatedLoading([
+    searchQuery,
+    brandFilter,
+    tempFilter,
+    statusFilter,
+    dockFilter,
+    groupByStore,
+    viewMode,
+    sortKey,
+    sortDirection,
+    currentPage,
+  ]);
+
+  const effectiveLoading = isLoading || isSimulatedLoading;
 
   const updateQueryParams = React.useCallback(
     (updates: Record<string, string | number | boolean | null | undefined>) => {
@@ -554,7 +576,16 @@ export function OrderQueuePage({ onNavigateToAllocation }: OrderQueuePageProps =
           viewMode === "grid" ? "overflow-y-auto" : "overflow-hidden flex flex-col"
         }`}
       >
-        {filteredOrders.length === 0 ? (
+        {effectiveLoading ? (
+          viewMode === "grid" ? (
+            <CardGridSkeleton
+              count={8}
+              columnsClassName="grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+            />
+          ) : (
+            <TableSkeleton columns={9} rowCount={6} />
+          )
+        ) : filteredOrders.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <PackageIcon className="size-10 text-muted-foreground/40 mb-3" />
             <h3 className="text-sm font-semibold text-foreground">
