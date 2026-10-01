@@ -15,6 +15,9 @@ import {
   ScalesIcon,
   SparkleIcon,
   XIcon,
+  CubeIcon,
+  ReceiptIcon,
+  ArrowsClockwiseIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -53,6 +56,8 @@ import {
   type StoreOutletOption,
 } from "@/data/mock-store-orders";
 
+const DRAFT_STORAGE_KEY = "retrails_store_draft_order";
+
 export function StoreCreateOrderPage() {
   const navigate = useNavigate();
 
@@ -72,50 +77,83 @@ export function StoreCreateOrderPage() {
   // Search catalog bar
   const [catalogSearch, setCatalogSearch] = React.useState<string>("");
   const [isSearchingCatalog, setIsSearchingCatalog] = React.useState<boolean>(false);
+  const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   // Line items state
-  const [rows, setRows] = React.useState<StoreOrderItemRow[]>([
-    {
-      id: "row-1",
-      productId: CATALOG_PRODUCTS[0].id,
-      sku: CATALOG_PRODUCTS[0].sku,
-      name: CATALOG_PRODUCTS[0].name,
-      category: CATALOG_PRODUCTS[0].category,
-      unit: CATALOG_PRODUCTS[0].unit,
-      quantity: 10,
-      unitWeightKg: CATALOG_PRODUCTS[0].unitWeightKg,
-      unitVolumeM3: CATALOG_PRODUCTS[0].unitVolumeM3,
-      unitPriceLkr: CATALOG_PRODUCTS[0].unitPriceLkr,
-      totalWeightKg: CATALOG_PRODUCTS[0].unitWeightKg * 10,
-      totalVolumeM3: CATALOG_PRODUCTS[0].unitVolumeM3 * 10,
-      totalPriceLkr: CATALOG_PRODUCTS[0].unitPriceLkr * 10,
-      specialHandlingCode: CATALOG_PRODUCTS[0].specialHandlingCode,
-    },
-    {
-      id: "row-2",
-      productId: CATALOG_PRODUCTS[1].id,
-      sku: CATALOG_PRODUCTS[1].sku,
-      name: CATALOG_PRODUCTS[1].name,
-      category: CATALOG_PRODUCTS[1].category,
-      unit: CATALOG_PRODUCTS[1].unit,
-      quantity: 8,
-      unitWeightKg: CATALOG_PRODUCTS[1].unitWeightKg,
-      unitVolumeM3: CATALOG_PRODUCTS[1].unitVolumeM3,
-      unitPriceLkr: CATALOG_PRODUCTS[1].unitPriceLkr,
-      totalWeightKg: CATALOG_PRODUCTS[1].unitWeightKg * 8,
-      totalVolumeM3: CATALOG_PRODUCTS[1].unitVolumeM3 * 8,
-      totalPriceLkr: CATALOG_PRODUCTS[1].unitPriceLkr * 8,
-      specialHandlingCode: CATALOG_PRODUCTS[1].specialHandlingCode,
-    },
-  ]);
+  const [rows, setRows] = React.useState<StoreOrderItemRow[]>(() => {
+    try {
+      const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch {
+      // fallback
+    }
+    return [
+      {
+        id: "row-1",
+        productId: CATALOG_PRODUCTS[0].id,
+        sku: CATALOG_PRODUCTS[0].sku,
+        name: CATALOG_PRODUCTS[0].name,
+        category: CATALOG_PRODUCTS[0].category,
+        unit: CATALOG_PRODUCTS[0].unit,
+        quantity: 10,
+        unitWeightKg: CATALOG_PRODUCTS[0].unitWeightKg,
+        unitVolumeM3: CATALOG_PRODUCTS[0].unitVolumeM3,
+        unitPriceLkr: CATALOG_PRODUCTS[0].unitPriceLkr,
+        totalWeightKg: CATALOG_PRODUCTS[0].unitWeightKg * 10,
+        totalVolumeM3: CATALOG_PRODUCTS[0].unitVolumeM3 * 10,
+        totalPriceLkr: CATALOG_PRODUCTS[0].unitPriceLkr * 10,
+        specialHandlingCode: CATALOG_PRODUCTS[0].specialHandlingCode,
+      },
+      {
+        id: "row-2",
+        productId: CATALOG_PRODUCTS[1].id,
+        sku: CATALOG_PRODUCTS[1].sku,
+        name: CATALOG_PRODUCTS[1].name,
+        category: CATALOG_PRODUCTS[1].category,
+        unit: CATALOG_PRODUCTS[1].unit,
+        quantity: 8,
+        unitWeightKg: CATALOG_PRODUCTS[1].unitWeightKg,
+        unitVolumeM3: CATALOG_PRODUCTS[1].unitVolumeM3,
+        unitPriceLkr: CATALOG_PRODUCTS[1].unitPriceLkr,
+        totalWeightKg: CATALOG_PRODUCTS[1].unitWeightKg * 8,
+        totalVolumeM3: CATALOG_PRODUCTS[1].unitVolumeM3 * 8,
+        totalPriceLkr: CATALOG_PRODUCTS[1].unitPriceLkr * 8,
+        specialHandlingCode: CATALOG_PRODUCTS[1].specialHandlingCode,
+      },
+    ];
+  });
 
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = React.useState<boolean>(false);
+  const [showPrintPreview, setShowPrintPreview] = React.useState<boolean>(false);
+
+  // Auto-save draft locally
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(rows));
+    } catch {
+      // ignore
+    }
+  }, [rows]);
+
+  // Keyboard shortcut: Cmd/Ctrl + Enter to submit
+  React.useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+        e.preventDefault();
+        handleConfirmOrder();
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  });
 
   // Add new item to order
   const handleAddProduct = (product: CatalogProduct, qty: number = 10) => {
-    // Check if already in rows
     const existingIndex = rows.findIndex((r) => r.productId === product.id);
     if (existingIndex >= 0) {
       handleUpdateQuantity(rows[existingIndex].id, rows[existingIndex].quantity + qty);
@@ -190,6 +228,11 @@ export function StoreCreateOrderPage() {
     setSelectedRowIds((prev) => prev.filter((id) => id !== rowId));
   };
 
+  const handleClearDraft = () => {
+    setRows([]);
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+  };
+
   const allRowsSelected =
     rows.length > 0 && rows.every((r) => selectedRowIds.includes(r.id));
   const toggleSelectAllRows = () => {
@@ -235,6 +278,7 @@ export function StoreCreateOrderPage() {
         items: rows,
       });
       setIsSubmitting(false);
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
       setShowSuccessModal(true);
     }, 400);
   };
@@ -254,38 +298,51 @@ export function StoreCreateOrderPage() {
   );
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-background font-sans">
+    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-[#FBFBFB] dark:bg-background font-sans">
       {/* Scrollable Form Body */}
       <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 max-w-7xl w-full mx-auto space-y-6">
         {/* Page Title & Context Header matching Reference 2 */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2 border-b border-border/60">
           <div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5">
               <h1 className="font-heading font-bold text-2xl sm:text-3xl text-foreground tracking-tight">
                 Create New Order
               </h1>
               <Badge
                 variant="outline"
-                className="text-xs font-semibold px-2 py-0.5 border-primary/30 text-primary"
+                className="text-xs font-semibold px-2 py-0.5 border-primary/30 text-primary bg-primary/5"
               >
                 Draft #{orderRef}
               </Badge>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Compose store replenishments and submit daily manifests for depot
-              fulfillment
+              Compose store replenishment manifest, assign destination outlet, and
+              dispatch for depot allocation
             </p>
           </div>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate("/store/orders")}
-            className="self-start sm:self-auto text-xs gap-1.5 rounded-xl border-border hover:bg-muted/40 cursor-pointer"
-          >
-            <ArrowLeftIcon className="size-4" />
-            Back to Orders
-          </Button>
+          <div className="flex items-center gap-2 self-start sm:self-auto">
+            {rows.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearDraft}
+                className="text-xs text-muted-foreground hover:text-destructive gap-1 rounded-xl"
+              >
+                <ArrowsClockwiseIcon className="size-3.5" />
+                Reset
+              </Button>
+            )}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/store/orders")}
+              className="text-xs gap-1.5 rounded-xl border-border hover:bg-muted/40 cursor-pointer shadow-2xs"
+            >
+              <ArrowLeftIcon className="size-4" />
+              Back to Orders
+            </Button>
+          </div>
         </div>
 
         {/* Top Destination & Date Selectors matching Reference 2 */}
@@ -301,18 +358,18 @@ export function StoreCreateOrderPage() {
                 render={
                   <button
                     type="button"
-                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-muted/40 hover:bg-muted/60 border border-border text-left transition-colors cursor-pointer outline-none shadow-2xs"
+                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-card hover:bg-muted/30 border border-border text-left transition-colors cursor-pointer outline-none shadow-2xs"
                   />
                 }
               >
                 <div className="flex items-center gap-3 min-w-0">
                   <MagnifyingGlassIcon className="size-4 text-muted-foreground shrink-0" />
                   <div className="min-w-0">
-                    <p className="text-xs font-semibold text-foreground truncate">
+                    <p className="text-xs font-bold text-foreground truncate">
                       {selectedOutlet.name} ({selectedOutlet.code})
                     </p>
-                    <p className="text-[11px] text-muted-foreground truncate">
-                      {selectedOutlet.address} •{" "}
+                    <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                      {selectedOutlet.address} • {selectedOutlet.district} •{" "}
                       {selectedOutlet.dockType.replace("_", " ")}
                     </p>
                   </div>
@@ -337,7 +394,7 @@ export function StoreCreateOrderPage() {
                     <DropdownMenuItem
                       key={outlet.id}
                       onClick={() => setSelectedOutlet(outlet)}
-                      className="p-2 rounded-lg cursor-pointer flex flex-col items-start gap-0.5"
+                      className="p-2.5 rounded-lg cursor-pointer flex flex-col items-start gap-0.5"
                     >
                       <div className="flex items-center justify-between w-full">
                         <span className="font-semibold text-foreground">
@@ -369,10 +426,10 @@ export function StoreCreateOrderPage() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="pl-9 h-12 text-xs rounded-xl bg-muted/40 border-border font-medium cursor-pointer shadow-2xs"
+                className="pl-9 h-12 text-xs rounded-xl bg-card border-border font-medium cursor-pointer shadow-2xs"
               />
             </div>
-            <div className="flex items-center gap-2 pt-0.5">
+            <div className="flex items-center justify-between pt-0.5">
               <label className="text-[11px] text-muted-foreground flex items-center gap-1.5 cursor-pointer hover:text-foreground transition-colors">
                 <input
                   type="checkbox"
@@ -382,6 +439,9 @@ export function StoreCreateOrderPage() {
                 />
                 <span>Flag as Priority / Urgent Delivery</span>
               </label>
+              <span className="text-[10px] text-muted-foreground">
+                Shortcuts: Press Enter in search to add
+              </span>
             </div>
           </div>
         </div>
@@ -391,14 +451,21 @@ export function StoreCreateOrderPage() {
           <div className="relative">
             <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
             <Input
+              ref={searchInputRef}
               type="text"
               value={catalogSearch}
               onFocus={() => setIsSearchingCatalog(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && searchResults.length > 0) {
+                  e.preventDefault();
+                  handleAddProduct(searchResults[0], 10);
+                }
+              }}
               onChange={(e) => {
                 setCatalogSearch(e.target.value);
                 setIsSearchingCatalog(true);
               }}
-              placeholder="Search product catalog to quickly add items (e.g. Milk, Strawberries, Chicken)..."
+              placeholder="Search product catalog to add items (e.g. Milk, Strawberries, Salmon, Bread)..."
               className="pl-10 pr-9 h-11 text-xs rounded-xl bg-card border-border shadow-2xs focus-visible:ring-primary"
             />
             {catalogSearch && (
@@ -451,7 +518,10 @@ export function StoreCreateOrderPage() {
                         <span className="font-bold text-foreground">
                           LKR {prod.unitPriceLkr.toLocaleString()}
                         </span>
-                        <Button size="sm" className="h-7 text-xs px-2.5 rounded-lg gap-1">
+                        <Button
+                          size="sm"
+                          className="h-7 text-xs px-2.5 rounded-lg gap-1 cursor-pointer"
+                        >
                           <PlusIcon className="size-3 font-bold" />
                           Add
                         </Button>
@@ -467,14 +537,14 @@ export function StoreCreateOrderPage() {
           <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
             <span className="text-[11px] font-medium flex items-center gap-1 mr-1">
               <SparkleIcon className="size-3.5 text-amber-500" />
-              Popular items:
+              Frequently ordered:
             </span>
-            {CATALOG_PRODUCTS.slice(0, 5).map((prod) => (
+            {CATALOG_PRODUCTS.slice(0, 6).map((prod) => (
               <button
                 key={prod.id}
                 type="button"
                 onClick={() => handleAddProduct(prod, 10)}
-                className="px-2.5 py-1 rounded-lg bg-muted/40 hover:bg-muted border border-border text-[11px] font-medium text-foreground transition-colors cursor-pointer flex items-center gap-1"
+                className="px-2.5 py-1 rounded-lg bg-card hover:bg-muted border border-border/80 text-[11px] font-medium text-foreground transition-all cursor-pointer flex items-center gap-1 shadow-2xs hover:border-primary/40"
               >
                 <PlusIcon className="size-3 text-primary" />
                 <span>{prod.name.split("(")[0].trim()}</span>
@@ -493,7 +563,7 @@ export function StoreCreateOrderPage() {
               {hasColdChain && (
                 <Badge className="bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30 text-[10px] font-semibold gap-1">
                   <SnowflakeIcon className="size-3" />
-                  Cold Chain Active
+                  Reefer Temp Controlled
                 </Badge>
               )}
             </div>
@@ -516,7 +586,7 @@ export function StoreCreateOrderPage() {
           {/* Desktop & Tablet Table */}
           <div className="hidden sm:block rounded-xl border border-border bg-card shadow-xs overflow-hidden">
             <Table>
-              <TableHeader className="bg-muted/40">
+              <TableHeader className="bg-muted/30">
                 <TableRow className="hover:bg-transparent">
                   <TableHead className="w-10 px-3">
                     <input
@@ -554,8 +624,8 @@ export function StoreCreateOrderPage() {
                       colSpan={8}
                       className="h-36 text-center text-muted-foreground text-xs"
                     >
-                      No items added yet. Search products above or click the + button to
-                      add items.
+                      No items in draft. Type in the search box above or click the +
+                      button to add products.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -564,7 +634,7 @@ export function StoreCreateOrderPage() {
                     return (
                       <TableRow
                         key={row.id}
-                        className="hover:bg-muted/20 transition-colors"
+                        className="hover:bg-muted/15 transition-colors"
                       >
                         {/* Checkbox */}
                         <TableCell className="px-3">
@@ -847,10 +917,17 @@ export function StoreCreateOrderPage() {
             <span className="text-base font-bold text-foreground mt-0.5 block">
               {totalWeightKg.toFixed(1)} kg
             </span>
+            <div className="w-full bg-muted/60 h-1.5 rounded-full mt-2 overflow-hidden">
+              <div
+                className="bg-primary h-full rounded-full transition-all duration-300"
+                style={{ width: `${Math.min(100, (totalWeightKg / 2500) * 100)}%` }}
+              />
+            </div>
           </div>
 
           <div className="p-3.5 rounded-xl border border-border bg-card shadow-xs">
-            <span className="text-[11px] text-muted-foreground block font-medium">
+            <span className="text-[11px] text-muted-foreground block font-medium flex items-center gap-1">
+              <CubeIcon className="size-3.5 text-primary" />
               Cargo Volume
             </span>
             <span className="text-base font-bold text-foreground mt-0.5 block">
@@ -875,24 +952,123 @@ export function StoreCreateOrderPage() {
         <Button
           variant="outline"
           size="default"
-          onClick={() => window.print()}
-          className="h-10 px-4 text-xs font-semibold gap-2 rounded-xl border-border hover:bg-muted/50 cursor-pointer"
+          onClick={() => setShowPrintPreview(true)}
+          className="h-10 px-4 text-xs font-semibold gap-2 rounded-xl border-border hover:bg-muted/50 cursor-pointer shadow-2xs"
         >
           <PrinterIcon className="size-4 text-muted-foreground" />
           <span>Print Draft</span>
         </Button>
 
         {/* Right Confirm Button */}
-        <Button
-          size="default"
-          disabled={isSubmitting || rows.length === 0}
-          onClick={handleConfirmOrder}
-          className="h-10 px-6 text-xs font-bold gap-2 rounded-xl bg-[#0080FF] hover:bg-[#0070E0] text-white shadow-md cursor-pointer transition-all active:scale-95"
-        >
-          <CheckCircleIcon className="size-4 font-bold" />
-          <span>{isSubmitting ? "Submitting..." : "Confirm & Place Order"}</span>
-        </Button>
+        <div className="flex items-center gap-3">
+          <span className="text-xs text-muted-foreground hidden md:inline">
+            Press{" "}
+            <kbd className="px-1.5 py-0.5 bg-muted rounded border border-border font-medium text-[10px]">
+              Cmd+Enter
+            </kbd>
+          </span>
+          <Button
+            size="default"
+            disabled={isSubmitting || rows.length === 0}
+            onClick={handleConfirmOrder}
+            className="h-10 px-6 text-xs font-bold gap-2 rounded-xl bg-[#0080FF] hover:bg-[#0070E0] text-white shadow-md cursor-pointer transition-all active:scale-95"
+          >
+            <CheckCircleIcon className="size-4 font-bold" />
+            <span>{isSubmitting ? "Submitting..." : "Confirm & Place Order"}</span>
+          </Button>
+        </div>
       </div>
+
+      {/* Print Draft Modal */}
+      <Sheet open={showPrintPreview} onOpenChange={setShowPrintPreview}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-lg p-0 flex flex-col h-full bg-card"
+        >
+          <SheetHeader className="p-6 border-b border-border bg-muted/20">
+            <div className="flex items-center gap-2">
+              <ReceiptIcon className="size-5 text-primary" />
+              <SheetTitle className="text-lg font-bold text-foreground">
+                Draft Manifest Bill of Lading
+              </SheetTitle>
+            </div>
+            <SheetDescription className="text-xs text-muted-foreground">
+              Draft #{orderRef} • {selectedOutlet.name}
+            </SheetDescription>
+          </SheetHeader>
+
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 text-xs">
+            <div className="p-4 rounded-xl border border-border bg-muted/30 space-y-2">
+              <div className="flex justify-between font-semibold">
+                <span>Destination:</span>
+                <span>
+                  {selectedOutlet.name} ({selectedOutlet.code})
+                </span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Target Date:</span>
+                <span>{selectedDate}</span>
+              </div>
+              <div className="flex justify-between text-muted-foreground">
+                <span>Depot DC:</span>
+                <span>{selectedOutlet.depot} Distribution Center</span>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="font-bold uppercase tracking-wider text-muted-foreground text-[10px]">
+                Itemized Summary ({rows.length} items)
+              </h4>
+              {rows.map((r, i) => (
+                <div
+                  key={i}
+                  className="p-2.5 rounded-lg border border-border flex justify-between"
+                >
+                  <div>
+                    <span className="font-semibold block text-foreground">{r.name}</span>
+                    <span className="text-[11px] text-muted-foreground">
+                      {r.sku} • {r.quantity} {r.unit}
+                    </span>
+                  </div>
+                  <span className="font-bold text-foreground">
+                    LKR {r.totalPriceLkr.toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 space-y-1.5">
+              <div className="flex justify-between text-xs font-semibold text-foreground">
+                <span>Gross Weight:</span>
+                <span>{totalWeightKg.toFixed(1)} kg</span>
+              </div>
+              <div className="flex justify-between text-xs font-bold text-primary">
+                <span>Total Order Value:</span>
+                <span>LKR {totalOrderValueLkr.toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="p-4 border-t border-border bg-muted/20 flex items-center justify-end gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowPrintPreview(false)}
+              className="rounded-xl"
+            >
+              Close
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => window.print()}
+              className="rounded-xl bg-primary text-primary-foreground gap-1.5"
+            >
+              <PrinterIcon className="size-4" />
+              Print Now
+            </Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Order Confirmation Success Sheet/Modal */}
       <Sheet open={showSuccessModal} onOpenChange={setShowSuccessModal}>
@@ -905,12 +1081,12 @@ export function StoreCreateOrderPage() {
               <CheckCircleIcon className="size-7" weight="bold" />
             </div>
             <SheetTitle className="text-xl font-bold text-foreground">
-              Order Confirmed & Queued!
+              Order Confirmed & Dispatched!
             </SheetTitle>
             <SheetDescription className="text-xs text-muted-foreground">
               Order <span className="font-semibold text-foreground">{orderRef}</span> has
-              been dispatched to {selectedOutlet.depot} Distribution Center for vehicle
-              allocation.
+              been transmitted to {selectedOutlet.depot} Distribution Center for route
+              batching.
             </SheetDescription>
           </SheetHeader>
 
