@@ -46,11 +46,16 @@ const LoaderBaysPage = lazyWithDelay(() =>
     default: m.LoaderBaysPage,
   }))
 );
+const LoaderManifestsPage = lazyWithDelay(() =>
+  import("@/pages/loader/loader-manifests-page").then((m) => ({
+    default: m.LoaderManifestsPage,
+  }))
+);
 
 export function App() {
   const activeDomainRole = getActiveDomainRole();
   const rootDefaultPath =
-    activeDomainRole === "loader" ? "/loader/bays" : "/dispatcher/allocations";
+    activeDomainRole === "loader" ? "/loader/manifests" : "/dispatcher/allocations";
 
   return (
     <Routes>
@@ -150,7 +155,7 @@ export function App() {
       {/* ----------------------------------------------------------- */}
       {/* 2. Protected Loader Route Tree (Glove-friendly Tablet UI)   */}
       {/* ----------------------------------------------------------- */}
-      <Route path="/loader" element={<Navigate to="/loader/bays" replace />} />
+      <Route path="/loader" element={<Navigate to="/loader/manifests" replace />} />
       <Route
         element={
           <ProtectedRoute allowedRoles={["loader", "system_admin", "dispatcher"]}>
@@ -159,6 +164,18 @@ export function App() {
         }
       >
         <Route
+          path="/loader/manifests"
+          element={
+            <React.Suspense fallback={<LoaderPageSkeleton />}>
+              <LoaderManifestsPage />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/loader/queue"
+          element={<Navigate to="/loader/manifests" replace />}
+        />
+        <Route
           path="/loader/bays"
           element={
             <React.Suspense fallback={<LoaderPageSkeleton />}>
@@ -166,7 +183,7 @@ export function App() {
             </React.Suspense>
           }
         />
-        <Route path="/loader/*" element={<Navigate to="/loader/bays" replace />} />
+        <Route path="/loader/*" element={<Navigate to="/loader/manifests" replace />} />
       </Route>
 
       {/* Catch-all global fallback */}

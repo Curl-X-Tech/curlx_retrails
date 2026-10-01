@@ -49,6 +49,18 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
    - Do not add noisy, redundant, or self-evident comments (e.g. step numbers, section banners for obvious JSX tags, line-by-line field descriptions, or conversational thoughts).
    - Code must be self-documenting through clear, meaningful identifiers, strict TypeScript interfaces, and focused modular functions.
    - Reserve comments exclusively for complex mathematical models, unusual coordinate offsets, or non-obvious business/domain logic invariants.
+14. **Standard 4-Tier Enterprise Responsive Layout System**:
+   - All page layouts, dashboard grids, and container views must adhere strictly to the role-optimized 4-tier design system:
+     - **Wide / Command Center ($\ge 1440\text{px}$)**: 12–16 Columns, Gutter: $36\text{px}$, Margins: $64\text{px}$ (or $0\text{px}$ for flush views).
+     - **Desktop Planning ($1024\text{px} - 1439\text{px}$)**: 12 Columns, Gutter: $36\text{px}$, Margins: $48\text{px}$ (or $0\text{px}$ for flush views).
+     - **Tablet Bay Station ($600\text{px} - 1023\text{px}$)**: 8 Columns, Gutter: $24\text{px}$, Margins: $24\text{px}$ (or $0\text{px}$ for flush views).
+     - **Mobile Field Driver/Store ($320\text{px} - 599\text{px}$)**: 4 Columns, Gutter: $16\text{px}$, Margins: $16\text{px}$ (or $0\text{px}$ for flush views).
+   - Use pre-built CSS utility classes from `src/index.css` instead of writing custom media queries or long ad-hoc class chains:
+     - Container Modes: `.page-container-compact`, `.page-container-tablet`, `.page-container-desktop`, `.page-container-fluid`.
+     - Layout Patterns: `.page-grid-padded`, `.page-grid-flush`, `.split-workspace-grid`, `.command-center-grid`.
+     - Responsive Spacing: `.gutter-responsive`, `.margin-responsive`.
+
+
 
 
 

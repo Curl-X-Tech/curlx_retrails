@@ -572,7 +572,7 @@ export function OrderQueuePage({
       </div>
 
       <div
-        className={`flex-1 min-h-0 p-4 sm:p-6 ${
+        className={`flex-1 min-h-0 margin-responsive py-4 sm:py-5 ${
           viewMode === "grid" ? "overflow-y-auto" : "overflow-hidden flex flex-col"
         }`}
       >
@@ -580,7 +580,7 @@ export function OrderQueuePage({
           viewMode === "grid" ? (
             <CardGridSkeleton
               count={8}
-              columnsClassName="grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+              columnsClassName="grid-cols-1 phone:grid-cols-2 tablet:grid-cols-3 desktop:grid-cols-4"
             />
           ) : (
             <TableSkeleton columns={9} rowCount={6} />
@@ -614,7 +614,7 @@ export function OrderQueuePage({
           </div>
         ) : viewMode === "grid" ? (
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 phone:grid-cols-2 tablet:grid-cols-3 desktop:grid-cols-4 wide:grid-cols-4 gutter-responsive">
               {paginatedGridOrders.map((order) => (
                 <OrderCard key={order.id} order={order} onSelect={handleOpenDetail} />
               ))}

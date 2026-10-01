@@ -696,11 +696,11 @@ export function DeferralsPage({
       </div>
 
       {/* Main Content Area */}
-      <div className="flex-1 min-h-0 p-4 sm:p-6 overflow-hidden flex flex-col">
+      <div className="flex-1 min-h-0 margin-responsive py-4 sm:py-5 overflow-hidden flex flex-col">
         {!isAuditLog ? (
           <>
             {/* Tomorrow's Wave 1 Fleet Allocations: 3 Vehicle Circular Rings with Images & Tooltips */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 shrink-0">
+            <div className="grid grid-cols-1 tablet:grid-cols-3 gutter-responsive mb-4 shrink-0">
               {/* Card 1: Cold Lorry */}
               <Tooltip>
                 <TooltipTrigger

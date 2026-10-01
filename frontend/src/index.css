@@ -6,6 +6,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --breakpoint-phone: 320px;
+  --breakpoint-tablet: 600px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1440px;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -294,4 +301,216 @@
 
 .animate-lock-shake {
   animation: lock-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ============================================================ */
+/* 4-Tier Enterprise Responsive Grid System Utilities           */
+/* Roles & Screen Tiers:                                        */
+/* 1. Phone (< 600px): Driver / Store Manager (4 Cols)          */
+/* 2. Tablet (600px - 1023px): Warehouse Loader (8 Cols)        */
+/* 3. Desktop (1024px - 1439px): Dispatcher Console (12 Cols)   */
+/* 4. Wide (>= 1440px): Live Command Center Wall (12/16 Cols)   */
+/* ============================================================ */
+
+/* Grid Patterns */
+.page-grid-padded {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .page-grid-padded {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 24px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-grid-padded {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 36px;
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .page-grid-padded {
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+}
+
+.page-grid-flush {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (min-width: 600px) {
+  .page-grid-flush {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-grid-flush {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 36px;
+  }
+}
+
+/* Container Modes */
+.page-container-compact {
+  width: 100%;
+  max-width: 599px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.page-container-tablet {
+  width: 100%;
+  max-width: 1023px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .page-container-tablet {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+.page-container-desktop {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .page-container-desktop {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container-desktop {
+    padding-left: 36px;
+    padding-right: 36px;
+  }
+}
+
+.page-container-fluid {
+  width: 100%;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .page-container-fluid {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container-fluid {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* Dual-Pane Split Workspace (Tablet Landscape & Desktop) */
+.split-workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .split-workspace-grid {
+    grid-template-columns: 5fr 7fr;
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .split-workspace-grid {
+    gap: 36px;
+  }
+}
+
+/* 3-Pane Command Center Grid (Live Map & Fleet View) */
+.command-center-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .command-center-grid {
+    grid-template-columns: 3fr 6fr 3fr;
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .command-center-grid {
+    gap: 28px;
+  }
+}
+
+/* Responsive Gutter & Margin Utility */
+.gutter-responsive {
+  gap: 16px;
+}
+
+@media (min-width: 600px) {
+  .gutter-responsive {
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .gutter-responsive {
+    gap: 36px;
+  }
+}
+
+.margin-responsive {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .margin-responsive {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .margin-responsive {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
 }

@@ -1,5 +1,10 @@
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
-import { TruckIcon, UserCircleIcon, SwapIcon } from "@phosphor-icons/react";
+import {
+  TruckIcon,
+  UserCircleIcon,
+  SwapIcon,
+  ListBulletsIcon,
+} from "@phosphor-icons/react";
 import { useAuth } from "@/context/auth-context";
 import {
   DropdownMenu,
@@ -16,18 +21,26 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import { cn } from "@/lib/utils";
 
 export function LoaderLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, setRole } = useAuth();
 
+  const isManifestsActive =
+    location.pathname.startsWith("/loader/manifests") ||
+    location.pathname.startsWith("/loader/queue");
+  const isBaysActive =
+    location.pathname.startsWith("/loader/bays") ||
+    (!isManifestsActive && location.pathname.startsWith("/loader"));
+
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-background text-foreground font-sans">
+    <div className="flex h-dvh max-h-dvh w-screen overflow-hidden bg-background text-foreground font-sans">
       {/* Center-Aligned Slim Icon Sidebar */}
       <aside className="flex flex-col items-center justify-between border-r border-border/80 bg-sidebar py-3 w-16 shrink-0 z-30 select-none">
-        {/* Top: Logo & Single Large Centered Nav Action */}
-        <div className="flex flex-col items-center gap-4 w-full">
+        {/* Top: Logo & Dual Navigation Actions */}
+        <div className="flex flex-col items-center gap-3 w-full">
           {/* Logo Mark */}
           <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary font-heading font-black text-sm tracking-wider">
             CX
@@ -35,14 +48,34 @@ export function LoaderLayout() {
 
           <Separator className="w-8 bg-border/60" />
 
-          {/* Single Large Centered Navigation Button */}
-          <nav className="flex flex-col items-center w-full px-2">
+          {/* Navigation Buttons */}
+          <nav className="flex flex-col items-center gap-2 w-full px-2">
+            {/* 1. Manifests & History List */}
+            <button
+              onClick={() => navigate("/loader/manifests")}
+              title="Dock Queue & Loading Manifests"
+              className={cn(
+                "flex size-11 items-center justify-center rounded-2xl transition-all cursor-pointer shadow-xs",
+                isManifestsActive
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground"
+              )}
+            >
+              <ListBulletsIcon className="size-5.5" weight="bold" />
+            </button>
+
+            {/* 2. Active Loading Bay Station */}
             <button
               onClick={() => navigate("/loader/bays")}
-              title="Loading Bays Manifest"
-              className="flex size-12 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm hover:bg-primary/90 transition-transform active:scale-95"
+              title="Active Loading Bay Manifest"
+              className={cn(
+                "flex size-11 items-center justify-center rounded-2xl transition-all cursor-pointer shadow-xs",
+                isBaysActive
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground"
+              )}
             >
-              <TruckIcon className="size-6" weight="bold" />
+              <TruckIcon className="size-5.5" weight="bold" />
             </button>
           </nav>
         </div>
@@ -51,7 +84,7 @@ export function LoaderLayout() {
         <div className="flex flex-col items-center gap-2 w-full px-2">
           <DropdownMenu>
             <DropdownMenuTrigger
-              className="flex size-11 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground hover:bg-accent transition-colors"
+              className="flex size-11 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground hover:bg-accent transition-colors cursor-pointer"
               title="Switch Role or Account"
             >
               <UserCircleIcon className="size-7" />
@@ -89,7 +122,7 @@ export function LoaderLayout() {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink
-                    onClick={() => navigate("/loader/bays")}
+                    onClick={() => navigate("/loader/manifests")}
                     className="cursor-pointer hover:text-foreground transition-colors font-medium text-xs sm:text-sm"
                   >
                     ReTrails
@@ -98,18 +131,16 @@ export function LoaderLayout() {
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbLink
-                    onClick={() => navigate("/loader/bays")}
+                    onClick={() => navigate("/loader/manifests")}
                     className="cursor-pointer hover:text-foreground transition-colors font-medium text-xs sm:text-sm"
                   >
-                    Loading Bay Station
+                    Dock Operations
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
                   <BreadcrumbPage className="font-bold tracking-tight text-foreground text-xs sm:text-sm">
-                    {location.pathname.startsWith("/loader/bays")
-                      ? "Bay 4C Manifest"
-                      : "Station Work area"}
+                    {isManifestsActive ? "Manifests & Queue" : "Bay Station Work area"}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
@@ -119,7 +150,9 @@ export function LoaderLayout() {
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
               <span>Depot:</span>
-              <strong className="text-foreground font-semibold">Peliyagoda Hub</strong>
+              <strong className="text-foreground font-semibold">
+                {user?.depotName || "Peliyagoda Depot"}
+              </strong>
             </div>
             <Separator
               orientation="vertical"
@@ -133,7 +166,7 @@ export function LoaderLayout() {
         </header>
 
         {/* Page Content Viewport */}
-        <main className="flex-1 overflow-auto bg-muted/20 p-4 sm:p-5">
+        <main className="flex-1 overflow-hidden bg-muted/20 px-3.5 sm:px-5 py-3 flex flex-col min-h-0">
           <Outlet />
         </main>
       </div>
