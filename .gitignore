@@ -88,3 +88,7 @@ data/raw/
 
 */figma-variables.json
 
+# Graphify Local Cache (keep graph.json tracked)
+graphify-out/cache/
+
+

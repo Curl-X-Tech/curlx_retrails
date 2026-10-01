@@ -57,11 +57,7 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
      - **Mobile Field Driver/Store ($320\text{px} - 599\text{px}$)**: 4 Columns, Gutter: $16\text{px}$, Margins: $16\text{px}$ (or $0\text{px}$ for flush views).
    - Use pre-built CSS utility classes from `src/index.css` instead of writing custom media queries or long ad-hoc class chains:
      - Container Modes: `.page-container-compact`, `.page-container-tablet`, `.page-container-desktop`, `.page-container-fluid`.
-     - Layout Patterns: `.page-grid-padded`, `.page-grid-flush`, `.split-workspace-grid`, `.command-center-grid`.
-     - Responsive Spacing: `.gutter-responsive`, `.margin-responsive`.
-
-
-
-
-
-
+15. **Graphify Knowledge Graph & Token Preservation**:
+   - `graphify-out/graph.json` is the canonical knowledge graph for the entire repository.
+   - Before performing wide repository file scans or dumping entire directories into context, the AI assistant MUST query the Graphify graph (via MCP tools `query_graph`, `get_node`, `get_neighbors`, `god_nodes`, or the CLI `graphify query "<feature>"`) to locate affected symbols, relationships, and dependencies.
+   - Keep the graph synced whenever structural changes or major modules are added via `./dev.sh graphify`.
