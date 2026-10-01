@@ -10,6 +10,11 @@ import {
   StorefrontIcon,
   CaretDownIcon,
   ArrowLeftIcon,
+  SnowflakeIcon,
+  PackageIcon,
+  ScalesIcon,
+  SparkleIcon,
+  XIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -51,7 +56,7 @@ import {
 export function StoreCreateOrderPage() {
   const navigate = useNavigate();
 
-  // Header generated draft reference
+  // Generated draft reference
   const [orderRef] = React.useState<string>(
     () => `ORD-2026-${Math.floor(100 + Math.random() * 900)}`
   );
@@ -62,6 +67,11 @@ export function StoreCreateOrderPage() {
   );
   const [selectedDate, setSelectedDate] = React.useState<string>("2026-10-02");
   const [isUrgent, setIsUrgent] = React.useState<boolean>(false);
+  const [outletSearch, setOutletSearch] = React.useState<string>("");
+
+  // Search catalog bar
+  const [catalogSearch, setCatalogSearch] = React.useState<string>("");
+  const [isSearchingCatalog, setIsSearchingCatalog] = React.useState<boolean>(false);
 
   // Line items state
   const [rows, setRows] = React.useState<StoreOrderItemRow[]>([
@@ -72,26 +82,48 @@ export function StoreCreateOrderPage() {
       name: CATALOG_PRODUCTS[0].name,
       category: CATALOG_PRODUCTS[0].category,
       unit: CATALOG_PRODUCTS[0].unit,
-      quantity: 200,
+      quantity: 10,
       unitWeightKg: CATALOG_PRODUCTS[0].unitWeightKg,
       unitVolumeM3: CATALOG_PRODUCTS[0].unitVolumeM3,
       unitPriceLkr: CATALOG_PRODUCTS[0].unitPriceLkr,
-      totalWeightKg: CATALOG_PRODUCTS[0].unitWeightKg * 200,
-      totalVolumeM3: CATALOG_PRODUCTS[0].unitVolumeM3 * 200,
-      totalPriceLkr: CATALOG_PRODUCTS[0].unitPriceLkr * 200,
+      totalWeightKg: CATALOG_PRODUCTS[0].unitWeightKg * 10,
+      totalVolumeM3: CATALOG_PRODUCTS[0].unitVolumeM3 * 10,
+      totalPriceLkr: CATALOG_PRODUCTS[0].unitPriceLkr * 10,
       specialHandlingCode: CATALOG_PRODUCTS[0].specialHandlingCode,
+    },
+    {
+      id: "row-2",
+      productId: CATALOG_PRODUCTS[1].id,
+      sku: CATALOG_PRODUCTS[1].sku,
+      name: CATALOG_PRODUCTS[1].name,
+      category: CATALOG_PRODUCTS[1].category,
+      unit: CATALOG_PRODUCTS[1].unit,
+      quantity: 8,
+      unitWeightKg: CATALOG_PRODUCTS[1].unitWeightKg,
+      unitVolumeM3: CATALOG_PRODUCTS[1].unitVolumeM3,
+      unitPriceLkr: CATALOG_PRODUCTS[1].unitPriceLkr,
+      totalWeightKg: CATALOG_PRODUCTS[1].unitWeightKg * 8,
+      totalVolumeM3: CATALOG_PRODUCTS[1].unitVolumeM3 * 8,
+      totalPriceLkr: CATALOG_PRODUCTS[1].unitPriceLkr * 8,
+      specialHandlingCode: CATALOG_PRODUCTS[1].specialHandlingCode,
     },
   ]);
 
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = React.useState<boolean>(false);
-  const [outletSearch, setOutletSearch] = React.useState<string>("");
 
-  // Add new empty row
-  const handleAddRow = (presetProduct?: CatalogProduct) => {
-    const product =
-      presetProduct || CATALOG_PRODUCTS[rows.length % CATALOG_PRODUCTS.length];
+  // Add new item to order
+  const handleAddProduct = (product: CatalogProduct, qty: number = 10) => {
+    // Check if already in rows
+    const existingIndex = rows.findIndex((r) => r.productId === product.id);
+    if (existingIndex >= 0) {
+      handleUpdateQuantity(rows[existingIndex].id, rows[existingIndex].quantity + qty);
+      setCatalogSearch("");
+      setIsSearchingCatalog(false);
+      return;
+    }
+
     const newRowId = `row-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     const newRow: StoreOrderItemRow = {
       id: newRowId,
@@ -100,16 +132,18 @@ export function StoreCreateOrderPage() {
       name: product.name,
       category: product.category,
       unit: product.unit,
-      quantity: 10,
+      quantity: qty,
       unitWeightKg: product.unitWeightKg,
       unitVolumeM3: product.unitVolumeM3,
       unitPriceLkr: product.unitPriceLkr,
-      totalWeightKg: product.unitWeightKg * 10,
-      totalVolumeM3: product.unitVolumeM3 * 10,
-      totalPriceLkr: product.unitPriceLkr * 10,
+      totalWeightKg: Number((product.unitWeightKg * qty).toFixed(2)),
+      totalVolumeM3: Number((product.unitVolumeM3 * qty).toFixed(4)),
+      totalPriceLkr: product.unitPriceLkr * qty,
       specialHandlingCode: product.specialHandlingCode,
     };
     setRows((prev) => [...prev, newRow]);
+    setCatalogSearch("");
+    setIsSearchingCatalog(false);
   };
 
   const handleUpdateProduct = (rowId: string, product: CatalogProduct) => {
@@ -151,12 +185,7 @@ export function StoreCreateOrderPage() {
     );
   };
 
-  const handleUpdateUnit = (rowId: string, unit: string) => {
-    setRows((prev) => prev.map((r) => (r.id === rowId ? { ...r, unit } : r)));
-  };
-
   const handleRemoveRow = (rowId: string) => {
-    if (rows.length <= 1) return;
     setRows((prev) => prev.filter((r) => r.id !== rowId));
     setSelectedRowIds((prev) => prev.filter((id) => id !== rowId));
   };
@@ -183,6 +212,7 @@ export function StoreCreateOrderPage() {
   const hasColdChain = rows.some((r) => r.specialHandlingCode === "COL");
 
   const handleConfirmOrder = () => {
+    if (rows.length === 0) return;
     setIsSubmitting(true);
     setTimeout(() => {
       createStoreOrder({
@@ -216,6 +246,13 @@ export function StoreCreateOrderPage() {
       o.code.toLowerCase().includes(outletSearch.toLowerCase())
   );
 
+  const searchResults = CATALOG_PRODUCTS.filter(
+    (p) =>
+      p.name.toLowerCase().includes(catalogSearch.toLowerCase()) ||
+      p.sku.toLowerCase().includes(catalogSearch.toLowerCase()) ||
+      p.category.toLowerCase().includes(catalogSearch.toLowerCase())
+  );
+
   return (
     <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-background font-sans">
       {/* Scrollable Form Body */}
@@ -235,8 +272,8 @@ export function StoreCreateOrderPage() {
               </Badge>
             </div>
             <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-              Compose outlet line items, select target fulfillment depot, and dispatch
-              manifest request
+              Compose store replenishments and submit daily manifests for depot
+              fulfillment
             </p>
           </div>
 
@@ -264,11 +301,11 @@ export function StoreCreateOrderPage() {
                 render={
                   <button
                     type="button"
-                    className="w-full flex items-center justify-between p-3 rounded-xl bg-muted/40 hover:bg-muted/60 border border-border text-left transition-colors cursor-pointer outline-none"
+                    className="w-full flex items-center justify-between p-3.5 rounded-xl bg-muted/40 hover:bg-muted/60 border border-border text-left transition-colors cursor-pointer outline-none shadow-2xs"
                   />
                 }
               >
-                <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex items-center gap-3 min-w-0">
                   <MagnifyingGlassIcon className="size-4 text-muted-foreground shrink-0" />
                   <div className="min-w-0">
                     <p className="text-xs font-semibold text-foreground truncate">
@@ -332,7 +369,7 @@ export function StoreCreateOrderPage() {
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="pl-9 h-12 text-xs rounded-xl bg-muted/40 border-border font-medium cursor-pointer"
+                className="pl-9 h-12 text-xs rounded-xl bg-muted/40 border-border font-medium cursor-pointer shadow-2xs"
               />
             </div>
             <div className="flex items-center gap-2 pt-0.5">
@@ -343,29 +380,137 @@ export function StoreCreateOrderPage() {
                   onChange={(e) => setIsUrgent(e.target.checked)}
                   className="size-3.5 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
                 />
-                <span>Priority Order Flag</span>
+                <span>Flag as Priority / Urgent Delivery</span>
               </label>
             </div>
+          </div>
+        </div>
+
+        {/* Quick Add Catalog Search Bar */}
+        <div className="space-y-2">
+          <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Input
+              type="text"
+              value={catalogSearch}
+              onFocus={() => setIsSearchingCatalog(true)}
+              onChange={(e) => {
+                setCatalogSearch(e.target.value);
+                setIsSearchingCatalog(true);
+              }}
+              placeholder="Search product catalog to quickly add items (e.g. Milk, Strawberries, Chicken)..."
+              className="pl-10 pr-9 h-11 text-xs rounded-xl bg-card border-border shadow-2xs focus-visible:ring-primary"
+            />
+            {catalogSearch && (
+              <button
+                type="button"
+                onClick={() => {
+                  setCatalogSearch("");
+                  setIsSearchingCatalog(false);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <XIcon className="size-4" />
+              </button>
+            )}
+
+            {/* Instant Search Results Dropdown */}
+            {isSearchingCatalog && catalogSearch.trim().length > 0 && (
+              <Card className="absolute top-full mt-1.5 left-0 right-0 z-30 p-2 shadow-xl rounded-xl border border-border bg-card max-h-64 overflow-y-auto">
+                {searchResults.length === 0 ? (
+                  <p className="text-xs text-muted-foreground p-3 text-center">
+                    No matching catalog products found.
+                  </p>
+                ) : (
+                  searchResults.map((prod) => (
+                    <div
+                      key={prod.id}
+                      onClick={() => handleAddProduct(prod, 10)}
+                      className="p-2.5 rounded-lg hover:bg-muted/60 transition-colors flex items-center justify-between gap-3 cursor-pointer text-xs"
+                    >
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-foreground truncate">
+                            {prod.name}
+                          </span>
+                          {prod.specialHandlingCode && (
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1 py-0 h-4"
+                            >
+                              {prod.specialHandlingCode}
+                            </Badge>
+                          )}
+                        </div>
+                        <span className="text-[11px] text-muted-foreground">
+                          {prod.sku} • {prod.category} • {prod.unitWeightKg} kg/
+                          {prod.unit}
+                        </span>
+                      </div>
+                      <div className="text-right shrink-0 flex items-center gap-3">
+                        <span className="font-bold text-foreground">
+                          LKR {prod.unitPriceLkr.toLocaleString()}
+                        </span>
+                        <Button size="sm" className="h-7 text-xs px-2.5 rounded-lg gap-1">
+                          <PlusIcon className="size-3 font-bold" />
+                          Add
+                        </Button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </Card>
+            )}
+          </div>
+
+          {/* Quick Preset Chips */}
+          <div className="flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="text-[11px] font-medium flex items-center gap-1 mr-1">
+              <SparkleIcon className="size-3.5 text-amber-500" />
+              Popular items:
+            </span>
+            {CATALOG_PRODUCTS.slice(0, 5).map((prod) => (
+              <button
+                key={prod.id}
+                type="button"
+                onClick={() => handleAddProduct(prod, 10)}
+                className="px-2.5 py-1 rounded-lg bg-muted/40 hover:bg-muted border border-border text-[11px] font-medium text-foreground transition-colors cursor-pointer flex items-center gap-1"
+              >
+                <PlusIcon className="size-3 text-primary" />
+                <span>{prod.name.split("(")[0].trim()}</span>
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Dynamic Items Table Section matching Reference 2 */}
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h3 className="font-heading font-semibold text-sm sm:text-base text-foreground">
-              Order Items ({rows.length})
-            </h3>
             <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => handleAddRow()}
-                className="h-8 text-xs gap-1.5 rounded-lg border-primary/30 text-primary hover:bg-primary/10 cursor-pointer"
-              >
-                <PlusIcon className="size-3.5 font-bold" />
-                Add Item
-              </Button>
+              <h3 className="font-heading font-semibold text-sm sm:text-base text-foreground">
+                Order Items ({rows.length})
+              </h3>
+              {hasColdChain && (
+                <Badge className="bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30 text-[10px] font-semibold gap-1">
+                  <SnowflakeIcon className="size-3" />
+                  Cold Chain Active
+                </Badge>
+              )}
             </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() =>
+                handleAddProduct(
+                  CATALOG_PRODUCTS[rows.length % CATALOG_PRODUCTS.length],
+                  10
+                )
+              }
+              className="h-8 text-xs gap-1.5 rounded-lg border-primary/30 text-primary hover:bg-primary/10 cursor-pointer"
+            >
+              <PlusIcon className="size-3.5 font-bold" />
+              Add Row
+            </Button>
           </div>
 
           {/* Desktop & Tablet Table */}
@@ -384,192 +529,200 @@ export function StoreCreateOrderPage() {
                   <TableHead className="text-xs font-semibold text-foreground min-w-[240px]">
                     Item
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-foreground w-28">
+                  <TableHead className="text-xs font-semibold text-foreground w-24">
                     unit
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-foreground w-28 text-right">
+                  <TableHead className="text-xs font-semibold text-foreground w-36 text-center">
                     Qnt
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-foreground w-32 text-right">
+                  <TableHead className="text-xs font-semibold text-foreground w-28 text-right">
                     Unit Price
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-foreground w-28 text-right">
+                  <TableHead className="text-xs font-semibold text-foreground w-24 text-right">
                     Weight
                   </TableHead>
-                  <TableHead className="text-xs font-semibold text-foreground w-36 text-right">
+                  <TableHead className="text-xs font-semibold text-foreground w-32 text-right">
                     Subtotal (LKR)
                   </TableHead>
                   <TableHead className="w-12 text-right pr-4"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {rows.map((row) => {
-                  const isChecked = selectedRowIds.includes(row.id);
-                  return (
-                    <TableRow
-                      key={row.id}
-                      className="hover:bg-muted/20 transition-colors"
+                {rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={8}
+                      className="h-36 text-center text-muted-foreground text-xs"
                     >
-                      {/* Checkbox */}
-                      <TableCell className="px-3">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleSelectRow(row.id)}
-                          className="size-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
-                        />
-                      </TableCell>
+                      No items added yet. Search products above or click the + button to
+                      add items.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  rows.map((row) => {
+                    const isChecked = selectedRowIds.includes(row.id);
+                    return (
+                      <TableRow
+                        key={row.id}
+                        className="hover:bg-muted/20 transition-colors"
+                      >
+                        {/* Checkbox */}
+                        <TableCell className="px-3">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleSelectRow(row.id)}
+                            className="size-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
+                          />
+                        </TableCell>
 
-                      {/* Item Selector */}
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={
-                              <button
-                                type="button"
-                                className="w-full text-left p-2 rounded-lg hover:bg-muted/50 transition-colors flex items-center justify-between gap-2 cursor-pointer group"
-                              />
-                            }
-                          >
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-1.5">
-                                <span className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors truncate">
-                                  {row.name}
+                        {/* Item Selector */}
+                        <TableCell>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={
+                                <button
+                                  type="button"
+                                  className="w-full text-left p-1.5 rounded-lg hover:bg-muted/50 transition-colors flex items-center justify-between gap-2 cursor-pointer group"
+                                />
+                              }
+                            >
+                              <div className="min-w-0">
+                                <div className="flex items-center gap-1.5">
+                                  <span className="font-semibold text-xs text-foreground group-hover:text-primary transition-colors truncate">
+                                    {row.name}
+                                  </span>
+                                  {row.specialHandlingCode && (
+                                    <Badge
+                                      variant="outline"
+                                      className="text-[10px] px-1.5 py-0 h-4 border-amber-500/30 text-amber-700 dark:text-amber-300"
+                                    >
+                                      {row.specialHandlingCode}
+                                    </Badge>
+                                  )}
+                                </div>
+                                <span className="text-[11px] text-muted-foreground block truncate">
+                                  {row.sku} • {row.category}
                                 </span>
-                                {row.specialHandlingCode && (
-                                  <Badge
-                                    variant="outline"
-                                    className="text-[10px] px-1.5 py-0 h-4 border-amber-500/30 text-amber-700 dark:text-amber-300"
-                                  >
-                                    {row.specialHandlingCode}
-                                  </Badge>
-                                )}
                               </div>
-                              <span className="text-[11px] text-muted-foreground block truncate">
-                                {row.sku} • {row.category}
-                              </span>
-                            </div>
-                            <CaretDownIcon className="size-3.5 text-muted-foreground shrink-0" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="start"
-                            className="w-[320px] p-2 text-xs shadow-lg rounded-xl"
+                              <CaretDownIcon className="size-3.5 text-muted-foreground shrink-0" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              align="start"
+                              className="w-[320px] p-2 text-xs shadow-lg rounded-xl"
+                            >
+                              <DropdownMenuLabel className="text-xs text-muted-foreground px-2">
+                                Change Product
+                              </DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <div className="max-h-60 overflow-y-auto space-y-1">
+                                {CATALOG_PRODUCTS.map((prod) => (
+                                  <DropdownMenuItem
+                                    key={prod.id}
+                                    onClick={() => handleUpdateProduct(row.id, prod)}
+                                    className="p-2 rounded-lg cursor-pointer flex flex-col items-start gap-0.5"
+                                  >
+                                    <div className="flex items-center justify-between w-full">
+                                      <span className="font-semibold text-foreground truncate">
+                                        {prod.name}
+                                      </span>
+                                      {prod.specialHandlingCode && (
+                                        <Badge
+                                          variant="outline"
+                                          className="text-[9px] px-1 h-3.5"
+                                        >
+                                          {prod.specialHandlingCode}
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center justify-between w-full text-[11px] text-muted-foreground">
+                                      <span>
+                                        {prod.sku} • {prod.category}
+                                      </span>
+                                      <span className="font-medium text-foreground">
+                                        LKR {prod.unitPriceLkr.toLocaleString()}
+                                      </span>
+                                    </div>
+                                  </DropdownMenuItem>
+                                ))}
+                              </div>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </TableCell>
+
+                        {/* Unit */}
+                        <TableCell>
+                          <span className="px-2 py-1 rounded-md bg-muted/40 border border-border text-xs font-semibold text-muted-foreground inline-block">
+                            {row.unit}
+                          </span>
+                        </TableCell>
+
+                        {/* Quantity with Stepper */}
+                        <TableCell>
+                          <div className="flex items-center justify-center gap-1">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleUpdateQuantity(row.id, row.quantity - 1)
+                              }
+                              className="size-7 rounded-lg bg-muted/40 hover:bg-muted text-foreground font-bold flex items-center justify-center transition-colors cursor-pointer text-xs"
+                            >
+                              -
+                            </button>
+                            <Input
+                              type="number"
+                              min={1}
+                              value={row.quantity}
+                              onChange={(e) =>
+                                handleUpdateQuantity(
+                                  row.id,
+                                  parseInt(e.target.value, 10) || 1
+                                )
+                              }
+                              className="h-7 w-14 text-center text-xs rounded-lg bg-muted/30 border-border font-bold p-0"
+                            />
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleUpdateQuantity(row.id, row.quantity + 1)
+                              }
+                              className="size-7 rounded-lg bg-muted/40 hover:bg-muted text-foreground font-bold flex items-center justify-center transition-colors cursor-pointer text-xs"
+                            >
+                              +
+                            </button>
+                          </div>
+                        </TableCell>
+
+                        {/* Unit Price */}
+                        <TableCell className="text-right text-xs text-muted-foreground font-medium">
+                          LKR {row.unitPriceLkr.toLocaleString()}
+                        </TableCell>
+
+                        {/* Weight */}
+                        <TableCell className="text-right text-xs text-muted-foreground font-medium">
+                          {row.totalWeightKg.toFixed(1)} kg
+                        </TableCell>
+
+                        {/* Subtotal */}
+                        <TableCell className="text-right text-xs font-bold text-foreground">
+                          LKR {row.totalPriceLkr.toLocaleString()}
+                        </TableCell>
+
+                        {/* Delete */}
+                        <TableCell className="text-right pr-3">
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveRow(row.id)}
+                            className="p-1.5 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                            title="Remove item"
                           >
-                            <DropdownMenuLabel className="text-xs text-muted-foreground px-2">
-                              Select Catalog Item
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <div className="max-h-60 overflow-y-auto space-y-1">
-                              {CATALOG_PRODUCTS.map((prod) => (
-                                <DropdownMenuItem
-                                  key={prod.id}
-                                  onClick={() => handleUpdateProduct(row.id, prod)}
-                                  className="p-2 rounded-lg cursor-pointer flex flex-col items-start gap-0.5"
-                                >
-                                  <div className="flex items-center justify-between w-full">
-                                    <span className="font-semibold text-foreground truncate">
-                                      {prod.name}
-                                    </span>
-                                    {prod.specialHandlingCode && (
-                                      <Badge
-                                        variant="outline"
-                                        className="text-[9px] px-1 h-3.5"
-                                      >
-                                        {prod.specialHandlingCode}
-                                      </Badge>
-                                    )}
-                                  </div>
-                                  <div className="flex items-center justify-between w-full text-[11px] text-muted-foreground">
-                                    <span>
-                                      {prod.sku} • {prod.category}
-                                    </span>
-                                    <span className="font-medium text-foreground">
-                                      LKR {prod.unitPriceLkr.toLocaleString()}
-                                    </span>
-                                  </div>
-                                </DropdownMenuItem>
-                              ))}
-                            </div>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-
-                      {/* Unit */}
-                      <TableCell>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger
-                            render={
-                              <button
-                                type="button"
-                                className="px-2.5 py-1.5 rounded-lg bg-muted/30 hover:bg-muted/60 border border-border text-xs font-medium text-foreground flex items-center justify-between w-full cursor-pointer"
-                              />
-                            }
-                          >
-                            <span>{row.unit}</span>
-                            <CaretDownIcon className="size-3 text-muted-foreground" />
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent
-                            align="start"
-                            className="w-28 text-xs shadow-md rounded-lg"
-                          >
-                            {["Crate", "Box", "Nos", "Pack", "Kg"].map((u) => (
-                              <DropdownMenuItem
-                                key={u}
-                                onClick={() => handleUpdateUnit(row.id, u)}
-                              >
-                                {u}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-
-                      {/* Quantity */}
-                      <TableCell className="text-right">
-                        <Input
-                          type="number"
-                          min={1}
-                          value={row.quantity}
-                          onChange={(e) =>
-                            handleUpdateQuantity(
-                              row.id,
-                              parseInt(e.target.value, 10) || 1
-                            )
-                          }
-                          className="h-8 w-20 text-right text-xs rounded-lg bg-muted/30 border-border font-semibold ml-auto"
-                        />
-                      </TableCell>
-
-                      {/* Unit Price */}
-                      <TableCell className="text-right text-xs text-muted-foreground font-medium">
-                        LKR {row.unitPriceLkr.toLocaleString()}
-                      </TableCell>
-
-                      {/* Weight */}
-                      <TableCell className="text-right text-xs text-muted-foreground font-medium">
-                        {row.totalWeightKg.toFixed(1)} kg
-                      </TableCell>
-
-                      {/* Subtotal */}
-                      <TableCell className="text-right text-xs font-bold text-foreground">
-                        LKR {row.totalPriceLkr.toLocaleString()}
-                      </TableCell>
-
-                      {/* Delete */}
-                      <TableCell className="text-right pr-3">
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveRow(row.id)}
-                          disabled={rows.length <= 1}
-                          className="p-1.5 text-muted-foreground hover:text-destructive transition-colors disabled:opacity-30 cursor-pointer"
-                          title="Remove item"
-                        >
-                          <TrashIcon className="size-4" />
-                        </button>
-                      </TableCell>
-                    </TableRow>
-                  );
-                })}
+                            <TrashIcon className="size-4" />
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                )}
               </TableBody>
             </Table>
 
@@ -577,7 +730,12 @@ export function StoreCreateOrderPage() {
             <div className="py-3 bg-muted/10 border-t border-border/50 flex justify-center">
               <button
                 type="button"
-                onClick={() => handleAddRow()}
+                onClick={() =>
+                  handleAddProduct(
+                    CATALOG_PRODUCTS[rows.length % CATALOG_PRODUCTS.length],
+                    10
+                  )
+                }
                 className="size-8 rounded-full bg-[#0080FF] hover:bg-[#0070E0] text-white flex items-center justify-center shadow-sm hover:scale-105 active:scale-95 transition-all cursor-pointer"
                 title="Add New Row"
               >
@@ -605,8 +763,7 @@ export function StoreCreateOrderPage() {
                   <button
                     type="button"
                     onClick={() => handleRemoveRow(row.id)}
-                    disabled={rows.length <= 1}
-                    className="p-1 text-muted-foreground hover:text-destructive disabled:opacity-30"
+                    className="p-1 text-muted-foreground hover:text-destructive"
                   >
                     <TrashIcon className="size-4" />
                   </button>
@@ -619,7 +776,7 @@ export function StoreCreateOrderPage() {
                       <button
                         type="button"
                         onClick={() => handleUpdateQuantity(row.id, row.quantity - 1)}
-                        className="px-2 py-1 bg-muted/40 hover:bg-muted text-xs font-bold"
+                        className="px-2.5 py-1 bg-muted/40 hover:bg-muted text-xs font-bold"
                       >
                         -
                       </button>
@@ -629,12 +786,14 @@ export function StoreCreateOrderPage() {
                       <button
                         type="button"
                         onClick={() => handleUpdateQuantity(row.id, row.quantity + 1)}
-                        className="px-2 py-1 bg-muted/40 hover:bg-muted text-xs font-bold"
+                        className="px-2.5 py-1 bg-muted/40 hover:bg-muted text-xs font-bold"
                       >
                         +
                       </button>
                     </div>
-                    <span className="text-muted-foreground text-[11px]">{row.unit}</span>
+                    <span className="text-muted-foreground text-[11px] font-semibold">
+                      {row.unit}
+                    </span>
                   </div>
 
                   <div className="text-right">
@@ -653,7 +812,12 @@ export function StoreCreateOrderPage() {
             <div className="flex justify-center pt-2">
               <Button
                 variant="outline"
-                onClick={() => handleAddRow()}
+                onClick={() =>
+                  handleAddProduct(
+                    CATALOG_PRODUCTS[rows.length % CATALOG_PRODUCTS.length],
+                    10
+                  )
+                }
                 className="w-full py-2.5 text-xs gap-2 rounded-xl border-dashed border-primary/40 text-primary font-semibold"
               >
                 <PlusIcon className="size-4" />
@@ -663,37 +827,42 @@ export function StoreCreateOrderPage() {
           </div>
         </div>
 
-        {/* Metrics Summary Strip */}
+        {/* Metrics Summary Strip with Truck Payload Load Gauge */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="p-3 rounded-xl border border-border bg-card shadow-xs">
-            <span className="text-[11px] text-muted-foreground block font-medium">
-              Total Line Items
+          <div className="p-3.5 rounded-xl border border-border bg-card shadow-xs">
+            <span className="text-[11px] text-muted-foreground block font-medium flex items-center gap-1">
+              <PackageIcon className="size-3.5 text-primary" />
+              Total Package Units
             </span>
-            <span className="text-base font-bold text-foreground">
-              {totalItems} ({totalUnits} units)
+            <span className="text-base font-bold text-foreground mt-0.5 block">
+              {totalItems} items ({totalUnits} units)
             </span>
           </div>
-          <div className="p-3 rounded-xl border border-border bg-card shadow-xs">
-            <span className="text-[11px] text-muted-foreground block font-medium">
+
+          <div className="p-3.5 rounded-xl border border-border bg-card shadow-xs">
+            <span className="text-[11px] text-muted-foreground block font-medium flex items-center gap-1">
+              <ScalesIcon className="size-3.5 text-primary" />
               Gross Weight
             </span>
-            <span className="text-base font-bold text-foreground">
+            <span className="text-base font-bold text-foreground mt-0.5 block">
               {totalWeightKg.toFixed(1)} kg
             </span>
           </div>
-          <div className="p-3 rounded-xl border border-border bg-card shadow-xs">
+
+          <div className="p-3.5 rounded-xl border border-border bg-card shadow-xs">
             <span className="text-[11px] text-muted-foreground block font-medium">
               Cargo Volume
             </span>
-            <span className="text-base font-bold text-foreground">
+            <span className="text-base font-bold text-foreground mt-0.5 block">
               {totalVolumeM3.toFixed(2)} m³
             </span>
           </div>
-          <div className="p-3 rounded-xl border border-border bg-primary/5 shadow-xs border-primary/20">
+
+          <div className="p-3.5 rounded-xl border border-primary/20 bg-primary/5 shadow-xs">
             <span className="text-[11px] text-primary block font-semibold">
               Total Order Valuation
             </span>
-            <span className="text-base font-extrabold text-primary">
+            <span className="text-base font-extrabold text-primary mt-0.5 block">
               LKR {totalOrderValueLkr.toLocaleString()}
             </span>
           </div>
@@ -710,7 +879,7 @@ export function StoreCreateOrderPage() {
           className="h-10 px-4 text-xs font-semibold gap-2 rounded-xl border-border hover:bg-muted/50 cursor-pointer"
         >
           <PrinterIcon className="size-4 text-muted-foreground" />
-          <span>Print</span>
+          <span>Print Draft</span>
         </Button>
 
         {/* Right Confirm Button */}
@@ -721,7 +890,7 @@ export function StoreCreateOrderPage() {
           className="h-10 px-6 text-xs font-bold gap-2 rounded-xl bg-[#0080FF] hover:bg-[#0070E0] text-white shadow-md cursor-pointer transition-all active:scale-95"
         >
           <CheckCircleIcon className="size-4 font-bold" />
-          <span>{isSubmitting ? "Submitting..." : "Confirm"}</span>
+          <span>{isSubmitting ? "Submitting..." : "Confirm & Place Order"}</span>
         </Button>
       </div>
 
@@ -740,7 +909,7 @@ export function StoreCreateOrderPage() {
             </SheetTitle>
             <SheetDescription className="text-xs text-muted-foreground">
               Order <span className="font-semibold text-foreground">{orderRef}</span> has
-              been dispatched to {selectedOutlet.depot} Distribution Center for
+              been dispatched to {selectedOutlet.depot} Distribution Center for vehicle
               allocation.
             </SheetDescription>
           </SheetHeader>
@@ -761,7 +930,7 @@ export function StoreCreateOrderPage() {
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Valuation:</span>
+              <span className="text-muted-foreground">Total Valuation:</span>
               <span className="font-bold text-primary">
                 LKR {totalOrderValueLkr.toLocaleString()}
               </span>
@@ -773,26 +942,9 @@ export function StoreCreateOrderPage() {
               variant="outline"
               onClick={() => {
                 setShowSuccessModal(false);
-                setRows([
-                  {
-                    id: "row-1",
-                    productId: CATALOG_PRODUCTS[0].id,
-                    sku: CATALOG_PRODUCTS[0].sku,
-                    name: CATALOG_PRODUCTS[0].name,
-                    category: CATALOG_PRODUCTS[0].category,
-                    unit: CATALOG_PRODUCTS[0].unit,
-                    quantity: 50,
-                    unitWeightKg: CATALOG_PRODUCTS[0].unitWeightKg,
-                    unitVolumeM3: CATALOG_PRODUCTS[0].unitVolumeM3,
-                    unitPriceLkr: CATALOG_PRODUCTS[0].unitPriceLkr,
-                    totalWeightKg: CATALOG_PRODUCTS[0].unitWeightKg * 50,
-                    totalVolumeM3: CATALOG_PRODUCTS[0].unitVolumeM3 * 50,
-                    totalPriceLkr: CATALOG_PRODUCTS[0].unitPriceLkr * 50,
-                    specialHandlingCode: CATALOG_PRODUCTS[0].specialHandlingCode,
-                  },
-                ]);
+                setRows([]);
               }}
-              className="flex-1 rounded-xl text-xs"
+              className="flex-1 rounded-xl text-xs cursor-pointer"
             >
               Create Another
             </Button>
@@ -801,7 +953,7 @@ export function StoreCreateOrderPage() {
                 setShowSuccessModal(false);
                 navigate("/store/orders");
               }}
-              className="flex-1 rounded-xl text-xs bg-primary text-primary-foreground font-semibold"
+              className="flex-1 rounded-xl text-xs bg-primary text-primary-foreground font-semibold cursor-pointer"
             >
               View in Queue
             </Button>
