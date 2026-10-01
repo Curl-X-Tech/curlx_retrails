@@ -211,6 +211,15 @@ export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
 
   const isSubItemActive = (sub: SubNavItem) => {
     if (activeId) return activeId === sub.id;
+    if (sub.id === "order-queue") {
+      return (
+        location.pathname === "/dispatcher/orders" ||
+        location.pathname === "/dispatcher/orders/" ||
+        location.pathname === "/store/orders" ||
+        location.pathname === "/store/orders/" ||
+        location.pathname === "/store/queue"
+      );
+    }
     if (sub.id === "allocation-summary") {
       return (
         location.pathname === "/dispatcher/allocations" ||
@@ -565,6 +574,21 @@ export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
             </SidebarGroupContent>
           </SidebarGroup>
         ))}
+
+        <div className="pt-2 px-1 pb-1">
+          <button
+            type="button"
+            onClick={() => navigate("/store/orders/new")}
+            className={cn(
+              "w-full bg-[#0080FF] hover:bg-[#0070E0] text-white font-semibold shadow-xs flex items-center justify-start gap-2.5 h-11 px-3 rounded-xl transition-all cursor-pointer",
+              isCollapsed && "justify-center px-0 h-10 w-10 mx-auto"
+            )}
+            title="Create Order"
+          >
+            <SquaresFourIcon weight="bold" className="size-5 shrink-0" />
+            {!isCollapsed && <span className="text-[13.5px]">Create Order</span>}
+          </button>
+        </div>
       </SidebarContent>
 
       <SidebarFooter className="border-t border-sidebar-border p-2.5">
@@ -606,6 +630,16 @@ export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setRole("store_manager");
+                      navigate("/store/orders");
+                    }}
+                    className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer font-semibold"
+                  >
+                    <StorefrontIcon className="size-4 text-primary" />
+                    Switch to Store Manager
+                  </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => {
                       setRole("loader");

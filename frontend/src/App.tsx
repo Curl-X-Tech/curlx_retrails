@@ -74,6 +74,18 @@ const DriverUnloadingPage = lazyWithDelay(() =>
   }))
 );
 
+const StoreOrdersPage = lazyWithDelay(() =>
+  import("@/pages/store/store-orders-page").then((m) => ({
+    default: m.StoreOrdersPage,
+  }))
+);
+
+const StoreCreateOrderPage = lazyWithDelay(() =>
+  import("@/pages/store/store-create-order-page").then((m) => ({
+    default: m.StoreCreateOrderPage,
+  }))
+);
+
 export function App() {
   const activeDomainRole = getActiveDomainRole();
   const rootDefaultPath =
@@ -81,7 +93,9 @@ export function App() {
       ? "/loader/manifests"
       : activeDomainRole === "driver"
         ? "/driver/active"
-        : "/dispatcher/allocations";
+        : activeDomainRole === "store_manager"
+          ? "/store/orders"
+          : "/dispatcher/allocations";
 
   return (
     <Routes>
@@ -257,6 +271,45 @@ export function App() {
           }
         />
         <Route path="/driver/*" element={<Navigate to="/driver/active" replace />} />
+      </Route>
+
+      {/* ----------------------------------------------------------- */}
+      {/* 4. Protected Store Manager Route Tree                       */}
+      {/* ----------------------------------------------------------- */}
+      <Route path="/store" element={<Navigate to="/store/orders" replace />} />
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["store_manager", "system_admin", "dispatcher"]}>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route
+          path="/store/orders"
+          element={
+            <React.Suspense fallback={<OrderQueuePageSkeleton />}>
+              <StoreOrdersPage />
+            </React.Suspense>
+          }
+        />
+        <Route path="/store/queue" element={<Navigate to="/store/orders" replace />} />
+        <Route
+          path="/store/orders/new"
+          element={
+            <React.Suspense fallback={<OrderQueuePageSkeleton />}>
+              <StoreCreateOrderPage />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/store/create-order"
+          element={<Navigate to="/store/orders/new" replace />}
+        />
+        <Route
+          path="/store/create"
+          element={<Navigate to="/store/orders/new" replace />}
+        />
+        <Route path="/store/*" element={<Navigate to="/store/orders" replace />} />
       </Route>
 
       {/* Catch-all global fallback */}

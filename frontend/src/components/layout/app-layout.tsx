@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -41,6 +42,21 @@ function getBreadcrumbs(pathname: string): CrumbItem[] {
       { label: "Planning" },
       { label: "Allocation", path: "/dispatcher/allocations" },
       { label: "Summary", isCurrent: true },
+    ];
+  }
+
+  if (
+    pathname === "/store/orders" ||
+    pathname === "/store/orders/" ||
+    pathname === "/store/queue"
+  ) {
+    return [{ label: "Planning" }, { label: "Order queue", isCurrent: true }];
+  }
+
+  if (pathname === "/store/orders/new" || pathname === "/store/create-order") {
+    return [
+      { label: "Planning" },
+      { label: "New Order #Draft", isCurrent: true, isCode: true },
     ];
   }
 
@@ -87,7 +103,7 @@ function getBreadcrumbs(pathname: string): CrumbItem[] {
     return [{ label: "Dashboard", isCurrent: true }];
   }
 
-  return [{ label: "Dispatcher Console", isCurrent: true }];
+  return [{ label: "ReTrails Console", isCurrent: true }];
 }
 
 export function AppLayout() {
@@ -101,29 +117,29 @@ export function AppLayout() {
       <SidebarInset className="bg-muted/20 flex flex-col h-screen overflow-hidden">
         {/* Top bar header strictly matching sidebar h-16 height */}
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4">
-          <div className="flex items-center gap-2.5">
-            <SidebarTrigger className="shrink-0 text-muted-foreground hover:text-foreground" />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <SidebarTrigger className="shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />
             <Separator orientation="vertical" className="h-4" />
-            <Breadcrumb className="flex items-center">
+            <Breadcrumb className="flex items-center truncate">
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink
-                    onClick={() => navigate("/dispatcher/allocations")}
-                    className="cursor-pointer hover:text-foreground transition-colors"
+                    onClick={() => navigate("/store/orders")}
+                    className="cursor-pointer hover:text-foreground transition-colors hidden sm:inline"
                   >
-                    ReTrails Console
+                    ReTrails
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 {crumbs.map((crumb, idx) => (
                   <React.Fragment key={idx}>
-                    <BreadcrumbSeparator />
+                    <BreadcrumbSeparator className="hidden sm:inline" />
                     <BreadcrumbItem>
                       {crumb.isCurrent ? (
                         <BreadcrumbPage
                           className={
                             crumb.isCode
                               ? "font-bold tracking-tight text-foreground text-xs sm:text-sm"
-                              : ""
+                              : "text-xs sm:text-sm font-semibold"
                           }
                         >
                           {crumb.label}
@@ -131,12 +147,12 @@ export function AppLayout() {
                       ) : crumb.path ? (
                         <BreadcrumbLink
                           onClick={() => navigate(crumb.path!)}
-                          className="cursor-pointer hover:text-foreground transition-colors"
+                          className="cursor-pointer hover:text-foreground transition-colors text-xs sm:text-sm"
                         >
                           {crumb.label}
                         </BreadcrumbLink>
                       ) : (
-                        <span className="text-muted-foreground font-medium">
+                        <span className="text-muted-foreground font-medium text-xs sm:text-sm">
                           {crumb.label}
                         </span>
                       )}
@@ -145,6 +161,18 @@ export function AppLayout() {
                 ))}
               </BreadcrumbList>
             </Breadcrumb>
+          </div>
+
+          {/* Right Role Indicator matching Reference 1 & 2 */}
+          <div className="flex items-center gap-2 shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate("/store/orders/new")}
+              className="h-8 px-2.5 text-xs font-semibold gap-1.5 rounded-lg border-border hover:bg-muted/50 cursor-pointer hidden md:flex"
+            >
+              Role: Store Manager
+            </Button>
           </div>
         </header>
 
