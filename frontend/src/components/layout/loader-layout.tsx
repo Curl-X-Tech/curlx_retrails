@@ -101,6 +101,15 @@ export function LoaderLayout() {
               </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
+                  setRole("driver");
+                  navigate("/driver/active");
+                }}
+              >
+                <SwapIcon className="size-4 mr-2" />
+                Switch to Driver
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
                   setRole("dispatcher");
                   navigate("/dispatcher/allocations");
                 }}

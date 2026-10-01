@@ -207,7 +207,7 @@ export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
   const [activeHub, setActiveHub] = React.useState<HubInfo>(MOCK_HUBS[0]);
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, setRole } = useAuth();
 
   const isSubItemActive = (sub: SubNavItem) => {
     if (activeId) return activeId === sub.id;
@@ -606,6 +606,26 @@ export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setRole("loader");
+                      navigate("/loader/manifests");
+                    }}
+                    className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer font-semibold"
+                  >
+                    <WarehouseIcon className="size-4 text-primary" />
+                    Switch to Loader Station
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setRole("driver");
+                      navigate("/driver/active");
+                    }}
+                    className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer font-semibold"
+                  >
+                    <TruckIcon className="size-4 text-primary" />
+                    Switch to Driver Console
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer">
                     <UserIcon className="size-4 text-muted-foreground" />
                     Profile & Role Details

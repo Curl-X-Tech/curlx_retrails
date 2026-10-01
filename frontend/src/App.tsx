@@ -2,6 +2,7 @@ import * as React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/app-layout";
 import { LoaderLayout } from "@/components/layout/loader-layout";
+import { DriverLayout } from "@/components/layout/driver-layout";
 import { ProtectedRoute } from "@/components/auth/protected-route";
 import {
   DeferralsPageSkeleton,
@@ -52,10 +53,30 @@ const LoaderManifestsPage = lazyWithDelay(() =>
   }))
 );
 
+const DriverActiveTripPage = lazyWithDelay(() =>
+  import("@/pages/driver/driver-active-trip-page").then((m) => ({
+    default: m.DriverActiveTripPage,
+  }))
+);
+const DriverStopsPage = lazyWithDelay(() =>
+  import("@/pages/driver/driver-stops-page").then((m) => ({
+    default: m.DriverStopsPage,
+  }))
+);
+const DriverVehiclePage = lazyWithDelay(() =>
+  import("@/pages/driver/driver-vehicle-page").then((m) => ({
+    default: m.DriverVehiclePage,
+  }))
+);
+
 export function App() {
   const activeDomainRole = getActiveDomainRole();
   const rootDefaultPath =
-    activeDomainRole === "loader" ? "/loader/manifests" : "/dispatcher/allocations";
+    activeDomainRole === "loader"
+      ? "/loader/manifests"
+      : activeDomainRole === "driver"
+        ? "/driver/active"
+        : "/dispatcher/allocations";
 
   return (
     <Routes>
@@ -184,6 +205,45 @@ export function App() {
           }
         />
         <Route path="/loader/*" element={<Navigate to="/loader/manifests" replace />} />
+      </Route>
+
+      {/* ----------------------------------------------------------- */}
+      {/* 3. Protected Driver Route Tree (Mobile Field Driver UI)     */}
+      {/* ----------------------------------------------------------- */}
+      <Route path="/driver" element={<Navigate to="/driver/active" replace />} />
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["driver", "system_admin", "dispatcher"]}>
+            <DriverLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route
+          path="/driver/active"
+          element={
+            <React.Suspense fallback={<LoaderPageSkeleton />}>
+              <DriverActiveTripPage />
+            </React.Suspense>
+          }
+        />
+        <Route path="/driver/run" element={<Navigate to="/driver/active" replace />} />
+        <Route
+          path="/driver/stops"
+          element={
+            <React.Suspense fallback={<LoaderPageSkeleton />}>
+              <DriverStopsPage />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/driver/vehicle"
+          element={
+            <React.Suspense fallback={<LoaderPageSkeleton />}>
+              <DriverVehiclePage />
+            </React.Suspense>
+          }
+        />
+        <Route path="/driver/*" element={<Navigate to="/driver/active" replace />} />
       </Route>
 
       {/* Catch-all global fallback */}
