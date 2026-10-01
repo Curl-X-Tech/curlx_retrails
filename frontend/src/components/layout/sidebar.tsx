@@ -196,6 +196,81 @@ export const navGroups: { label?: string; items: NavItem[] }[] = [
   },
 ];
 
+export const storeNavGroups: { label?: string; items: NavItem[] }[] = [
+  {
+    items: [
+      {
+        title: "Dashboard",
+        id: "store-dashboard",
+        path: "/store/dashboard",
+        icon: <SquaresFourIcon weight="duotone" className="size-5" />,
+        items: [
+          {
+            title: "System alerts",
+            id: "system-alerts",
+            path: "/store/dashboard",
+            badge: "2",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Planning",
+    items: [
+      {
+        title: "Order queue",
+        id: "order-queue",
+        path: "/store/orders",
+        icon: <TrayIcon weight="duotone" className="size-5" />,
+        badge: 6,
+      },
+    ],
+  },
+  {
+    label: "Deferrals",
+    items: [
+      {
+        title: "Deferrals",
+        id: "deferrals",
+        path: "/store/deferrals/unserved",
+        icon: <WarningOctagonIcon weight="duotone" className="size-5" />,
+        badge: 3,
+        badgeVariant: "warning",
+        items: [
+          {
+            title: "Un served queue",
+            id: "unserved-queue",
+            path: "/store/deferrals/unserved",
+            badge: 1,
+          },
+          {
+            title: "Deferral log",
+            id: "deferral-log",
+            path: "/store/deferrals/log",
+          },
+          {
+            title: "Carryover",
+            id: "carryover",
+            path: "/store/deferrals/carryover",
+            badge: 2,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    items: [
+      {
+        title: "Reports",
+        id: "reports",
+        path: "/store/reports",
+        icon: <FileTextIcon weight="duotone" className="size-5" />,
+      },
+    ],
+  },
+];
+
 interface AppSidebarProps {
   activeId?: string;
   onSelect?: (id: string) => void;
@@ -209,8 +284,37 @@ export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
   const navigate = useNavigate();
   const { user, logout, setRole } = useAuth();
 
+  const isStoreRole =
+    user?.role === "store_manager" || location.pathname.startsWith("/store");
+  const currentNavGroups = isStoreRole ? storeNavGroups : navGroups;
+
   const isSubItemActive = (sub: SubNavItem) => {
     if (activeId) return activeId === sub.id;
+    if (sub.id === "system-alerts") {
+      return (
+        location.pathname === "/store/dashboard" || location.pathname === "/store/alerts"
+      );
+    }
+    if (sub.id === "unserved-queue") {
+      return (
+        location.pathname === "/store/deferrals/unserved" ||
+        (location.pathname === "/store/deferrals" && location.search.includes("unserved"))
+      );
+    }
+    if (sub.id === "deferral-log") {
+      return (
+        location.pathname === "/store/deferrals/log" ||
+        location.pathname === "/dispatcher/deferrals/audit-log" ||
+        location.pathname === "/dispatcher/deferrals/deferral-log"
+      );
+    }
+    if (sub.id === "carryover") {
+      return (
+        location.pathname === "/store/deferrals/carryover" ||
+        location.pathname === "/dispatcher/deferrals/carryover" ||
+        location.pathname === "/dispatcher/deferrals"
+      );
+    }
     if (sub.id === "order-queue") {
       return (
         location.pathname === "/dispatcher/orders" ||
@@ -231,18 +335,6 @@ export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
         location.pathname.startsWith("/dispatcher/allocations/") &&
         location.pathname !== "/dispatcher/allocations" &&
         location.pathname !== "/dispatcher/allocations/"
-      );
-    }
-    if (sub.id === "carryover") {
-      return (
-        location.pathname === "/dispatcher/deferrals/carryover" ||
-        location.pathname === "/dispatcher/deferrals"
-      );
-    }
-    if (sub.id === "deferral-log") {
-      return (
-        location.pathname === "/dispatcher/deferrals/audit-log" ||
-        location.pathname === "/dispatcher/deferrals/deferral-log"
       );
     }
     return location.pathname === sub.path;
@@ -343,7 +435,7 @@ export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent className="px-2.5 py-3 space-y-3">
-        {navGroups.map((group, idx) => (
+        {currentNavGroups.map((group, idx) => (
           <SidebarGroup key={idx} className="py-0.5">
             {group.label && !isCollapsed && (
               <SidebarGroupLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 px-3 mb-1">

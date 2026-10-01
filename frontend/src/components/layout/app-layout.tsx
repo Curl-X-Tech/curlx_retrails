@@ -45,6 +45,10 @@ function getBreadcrumbs(pathname: string): CrumbItem[] {
     ];
   }
 
+  if (pathname === "/store/dashboard" || pathname === "/store/alerts") {
+    return [{ label: "Dashboard" }, { label: "System alerts", isCurrent: true }];
+  }
+
   if (
     pathname === "/store/orders" ||
     pathname === "/store/orders/" ||
@@ -58,6 +62,34 @@ function getBreadcrumbs(pathname: string): CrumbItem[] {
       { label: "Planning" },
       { label: "New Order #Draft", isCurrent: true, isCode: true },
     ];
+  }
+
+  if (pathname === "/store/deferrals/unserved" || pathname === "/store/deferrals") {
+    return [
+      { label: "Planning" },
+      { label: "Deferrals", path: "/store/deferrals/unserved" },
+      { label: "Un served queue", isCurrent: true },
+    ];
+  }
+
+  if (pathname === "/store/deferrals/log") {
+    return [
+      { label: "Planning" },
+      { label: "Deferrals", path: "/store/deferrals/unserved" },
+      { label: "Deferral log", isCurrent: true },
+    ];
+  }
+
+  if (pathname === "/store/deferrals/carryover") {
+    return [
+      { label: "Planning" },
+      { label: "Deferrals", path: "/store/deferrals/unserved" },
+      { label: "Carryover", isCurrent: true },
+    ];
+  }
+
+  if (pathname === "/store/reports") {
+    return [{ label: "Reports", isCurrent: true }];
   }
 
   if (pathname === "/dispatcher/orders" || pathname === "/dispatcher/orders/") {

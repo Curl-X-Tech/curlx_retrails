@@ -86,6 +86,24 @@ const StoreCreateOrderPage = lazyWithDelay(() =>
   }))
 );
 
+const StoreDeferralsPage = lazyWithDelay(() =>
+  import("@/pages/store/store-deferrals-page").then((m) => ({
+    default: m.StoreDeferralsPage,
+  }))
+);
+
+const StoreDashboardPage = lazyWithDelay(() =>
+  import("@/pages/store/store-dashboard-page").then((m) => ({
+    default: m.StoreDashboardPage,
+  }))
+);
+
+const StoreReportsPage = lazyWithDelay(() =>
+  import("@/pages/store/store-reports-page").then((m) => ({
+    default: m.StoreReportsPage,
+  }))
+);
+
 export function App() {
   const activeDomainRole = getActiveDomainRole();
   const rootDefaultPath =
@@ -284,6 +302,21 @@ export function App() {
           </ProtectedRoute>
         }
       >
+        {/* Store Dashboard & Alerts */}
+        <Route
+          path="/store/dashboard"
+          element={
+            <React.Suspense fallback={<OrderQueuePageSkeleton />}>
+              <StoreDashboardPage />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/store/alerts"
+          element={<Navigate to="/store/dashboard" replace />}
+        />
+
+        {/* Store Orders Queue & Creation */}
         <Route
           path="/store/orders"
           element={
@@ -309,6 +342,47 @@ export function App() {
           path="/store/create"
           element={<Navigate to="/store/orders/new" replace />}
         />
+
+        {/* Store Deferrals Workflow */}
+        <Route
+          path="/store/deferrals"
+          element={<Navigate to="/store/deferrals/unserved" replace />}
+        />
+        <Route
+          path="/store/deferrals/unserved"
+          element={
+            <React.Suspense fallback={<DeferralsPageSkeleton isAuditLog={false} />}>
+              <StoreDeferralsPage viewMode="unserved" />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/store/deferrals/log"
+          element={
+            <React.Suspense fallback={<DeferralsPageSkeleton isAuditLog={true} />}>
+              <StoreDeferralsPage viewMode="log" />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/store/deferrals/carryover"
+          element={
+            <React.Suspense fallback={<DeferralsPageSkeleton isAuditLog={false} />}>
+              <StoreDeferralsPage viewMode="carryover" />
+            </React.Suspense>
+          }
+        />
+
+        {/* Store Reports */}
+        <Route
+          path="/store/reports"
+          element={
+            <React.Suspense fallback={<OrderQueuePageSkeleton />}>
+              <StoreReportsPage />
+            </React.Suspense>
+          }
+        />
+
         <Route path="/store/*" element={<Navigate to="/store/orders" replace />} />
       </Route>
 
