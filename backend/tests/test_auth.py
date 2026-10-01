@@ -9,56 +9,105 @@ from app.models import BaseEntity, RoleType, User, UserCreate, UserType
 
 
 @pytest.mark.asyncio
-async def test_register_user(client: AsyncClient):
+async def test_public_registration_is_disabled(client: AsyncClient):
     payload = {
         "email": "newuser@example.com",
         "password": "validpassword123",
         "name": "New User",
-        "user_type": RoleType.DISPATCHER.value,
     }
     response = await client.post("/api/v1/auth/register", json=payload)
+    assert response.status_code == 404
+
+
+@pytest.mark.asyncio
+async def test_admin_create_user_success(
+    client: AsyncClient, superuser_token_headers: dict[str, str], test_superuser: User
+):
+    payload = {
+        "email": "newdriver@example.com",
+        "password": "validpassword123",
+        "name": "New Driver",
+        "user_type": RoleType.DRIVER.value,
+    }
+    response = await client.post(
+        "/api/v1/users", json=payload, headers=superuser_token_headers
+    )
     assert response.status_code == 201
     data = response.json()
-    assert data["email"] == "newuser@example.com"
-    assert data["name"] == "New User"
-    assert data["is_active"] is False
-    assert data["user_type"] == RoleType.DISPATCHER.value
+    assert data["email"] == "newdriver@example.com"
+    assert data["name"] == "New Driver"
+    assert data["is_active"] is True
+    assert data["is_verified"] is True
+    assert data["user_type"] == RoleType.DRIVER.value
     assert "hashed_password" not in data
+    assert data["created_by"] == str(test_superuser.id)
+    assert data["updated_by"] == str(test_superuser.id)
 
 
 @pytest.mark.asyncio
-async def test_register_rejects_system_admin_payload(client: AsyncClient):
-    payload = {
-        "email": "hacker@example.com",
-        "password": "validpassword123",
-        "name": "Hacker",
-        "user_type": "SYSTEM_ADMIN",
-    }
-    response = await client.post("/api/v1/auth/register", json=payload)
-    assert response.status_code == 422
-
-
-@pytest.mark.asyncio
-async def test_register_rejects_short_password(client: AsyncClient):
-    payload = {
-        "email": "shortpass@example.com",
-        "password": "short",
-        "name": "Short Pass User",
-    }
-    response = await client.post("/api/v1/auth/register", json=payload)
-    assert response.status_code == 422
-
-
-@pytest.mark.asyncio
-async def test_register_duplicate_email(client: AsyncClient, test_user: User):
+async def test_admin_create_user_duplicate_email(
+    client: AsyncClient,
+    superuser_token_headers: dict[str, str],
+    test_user: User,
+):
     payload = {
         "email": test_user.email,
         "password": "someotherpassword123",
         "name": "Duplicate User",
+        "user_type": RoleType.DISPATCHER.value,
     }
-    response = await client.post("/api/v1/auth/register", json=payload)
+    response = await client.post(
+        "/api/v1/users", json=payload, headers=superuser_token_headers
+    )
     assert response.status_code == 400
     assert response.json()["detail"] == "REGISTER_USER_ALREADY_EXISTS"
+
+
+@pytest.mark.asyncio
+async def test_non_admin_cannot_create_user(
+    client: AsyncClient, driver_token_headers: dict[str, str]
+):
+    payload = {
+        "email": "unauthorized_create@example.com",
+        "password": "validpassword123",
+        "name": "Hacker",
+        "user_type": RoleType.DISPATCHER.value,
+    }
+    response = await client.post(
+        "/api/v1/users", json=payload, headers=driver_token_headers
+    )
+    assert response.status_code == 403
+
+
+@pytest.mark.asyncio
+async def test_unauthenticated_cannot_create_user(client: AsyncClient):
+    payload = {
+        "email": "unauth@example.com",
+        "password": "validpassword123",
+        "name": "Anonymous",
+        "user_type": RoleType.DISPATCHER.value,
+    }
+    response = await client.post("/api/v1/users", json=payload)
+    assert response.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_admin_list_users(
+    client: AsyncClient, superuser_token_headers: dict[str, str]
+):
+    response = await client.get("/api/v1/users", headers=superuser_token_headers)
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) >= 1
+
+
+@pytest.mark.asyncio
+async def test_non_admin_cannot_list_users(
+    client: AsyncClient, driver_token_headers: dict[str, str]
+):
+    response = await client.get("/api/v1/users", headers=driver_token_headers)
+    assert response.status_code == 403
 
 
 @pytest.mark.asyncio
@@ -84,54 +133,26 @@ async def test_login_invalid_password(client: AsyncClient, test_user: User):
 
 
 @pytest.mark.asyncio
-async def test_unverified_inactive_user_cannot_login(client: AsyncClient):
-    register_payload = {
-        "email": "pending@example.com",
-        "password": "validpassword123",
-        "name": "Pending User",
-    }
-    reg_resp = await client.post("/api/v1/auth/register", json=register_payload)
-    assert reg_resp.status_code == 201
-    assert reg_resp.json()["is_active"] is False
-
-    login_resp = await client.post(
-        "/api/v1/auth/jwt/login",
-        data={"username": "pending@example.com", "password": "validpassword123"},
-    )
-    assert login_resp.status_code == 400
-    assert login_resp.json()["detail"] == "LOGIN_BAD_CREDENTIALS"
-
-
-@pytest.mark.asyncio
-async def test_user_verification_activates_account(
+async def test_inactive_user_cannot_login(
     client: AsyncClient, session: AsyncSession
 ):
     user_db = SQLAlchemyUserDatabase(session, User)
     user_manager = UserManager(user_db)
-
     user = await user_manager.create(
         UserCreate(
-            email="to_verify@example.com",
-            password="verifypassword123",
-            name="To Verify",
-            is_active=False,
+            email="inactive@example.com",
+            password="validpassword123",
+            name="Inactive User",
         )
     )
-    assert user.is_active is False
-    assert user.is_verified is False
+    await user_db.update(user, {"is_active": False})
 
-    # Simulate verification: setting is_verified activates the user
-    await user_db.update(user, {"is_verified": True})
-    assert user.is_active is True
-    assert user.is_verified is True
-
-    # Now login succeeds
     login_resp = await client.post(
         "/api/v1/auth/jwt/login",
-        data={"username": "to_verify@example.com", "password": "verifypassword123"},
+        data={"username": "inactive@example.com", "password": "validpassword123"},
     )
-    assert login_resp.status_code == 200
-    assert "access_token" in login_resp.json()
+    assert login_resp.status_code == 400
+    assert login_resp.json()["detail"] == "LOGIN_BAD_CREDENTIALS"
 
 
 @pytest.mark.asyncio
@@ -164,19 +185,25 @@ async def test_update_current_user_name(
     assert response.status_code == 200
     data = response.json()
     assert data["name"] == "Updated Name"
+    assert data["created_by"] is not None
+    assert data["updated_by"] is not None
+
 
 
 @pytest.mark.asyncio
 async def test_self_update_cannot_escalate_to_system_admin(
     client: AsyncClient, driver_token_headers: dict[str, str]
 ):
-    # Attempting to send SYSTEM_ADMIN in payload is rejected by schema validator
+    # Self-update runs in safe mode which silently strips user_type modifications
     response = await client.patch(
         "/api/v1/users/me",
         headers=driver_token_headers,
-        json={"user_type": "SYSTEM_ADMIN"},
+        json={"user_type": "SYSTEM_ADMIN", "name": "Driver Trying Escalation"},
     )
-    assert response.status_code == 422
+    assert response.status_code == 200
+    data = response.json()
+    assert data["name"] == "Driver Trying Escalation"
+    assert data["user_type"] == RoleType.DRIVER.value
 
 
 @pytest.mark.asyncio
@@ -265,6 +292,11 @@ def test_base_entity_inheritance_and_user_types():
     assert user.name == "Entity Check"
     assert user.created_at is not None
     assert user.updated_at is not None
-    assert user.is_active is False
+    assert user.created_by == user.id
+    assert user.updated_by == user.id
+    assert user.is_active is True
+    assert user.is_verified is True
     assert user.is_superuser is False
     assert user.user_type == UserType.STORE_MANAGER
+
+

@@ -74,9 +74,24 @@ async def _create_tables() -> None:
     try:
         async with async_engine.begin() as conn:
             await conn.run_sync(SQLModel.metadata.create_all)
+            if "postgresql" in settings.ASYNC_DATABASE_URI:
+                from sqlalchemy import text
+
+                await conn.execute(
+                    text(
+                        "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE NOT NULL;"
+                    )
+                )
+                await conn.execute(
+                    text("ALTER TABLE users ADD COLUMN IF NOT EXISTS created_by UUID;")
+                )
+                await conn.execute(
+                    text("ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_by UUID;")
+                )
     except (SQLAlchemyError, OSError) as exc:
         logger.error("Failed to initialize database tables: %s", exc)
         raise
+
 
 
 async def _seed_initial_superuser(session: AsyncSession) -> None:

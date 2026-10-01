@@ -1,8 +1,9 @@
+import logging
 import uuid
 from collections.abc import AsyncGenerator
-from typing import Annotated
+from typing import Annotated, Any
 
-from fastapi import Depends
+from fastapi import Depends, Request
 from fastapi_users import (
     BaseUserManager,
     FastAPIUsers,
@@ -19,10 +20,14 @@ from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 
 from app.core.config import settings
 from app.core.db import get_user_db
+from app.entities.base import utc_now
 from app.models import User
+
+logger = logging.getLogger(__name__)
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
+
     reset_password_token_secret = settings.SECRET_KEY
     verification_token_secret = settings.SECRET_KEY
 
@@ -31,6 +36,44 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             raise exceptions.InvalidPasswordException(
                 reason="Password must be at least 8 characters long."
             )
+
+    async def _update(self, user: User, update_dict: dict[str, Any]) -> User:
+        update_dict["updated_at"] = utc_now()
+        if "updated_by" not in update_dict or update_dict["updated_by"] is None:
+            update_dict["updated_by"] = user.id
+        return await super()._update(user, update_dict)
+
+    async def on_after_register(
+        self, user: User, request: Request | None = None
+    ) -> None:
+        logger.info("User created: %s (%s, %s)", user.id, user.email, user.user_type)
+        print(
+            f"[USER_MGMT] User created: {user.email} (ID: {user.id}, Role: {user.user_type})",
+            flush=True,
+        )
+
+    async def on_after_forgot_password(
+        self, user: User, token: str, request: Request | None = None
+    ) -> None:
+        msg = (
+            f"\n================================================================\n"
+            f"  PASSWORD RESET TOKEN FOR {user.email}:\n"
+            f"  {token}\n"
+            f"================================================================\n"
+        )
+        print(msg, flush=True)
+        logger.info(
+            "Password reset requested for user %s (%s). Reset token: %s",
+            user.id,
+            user.email,
+            token,
+        )
+
+    async def on_after_reset_password(
+        self, user: User, request: Request | None = None
+    ) -> None:
+        logger.info("Password reset successfully for user: %s (%s)", user.id, user.email)
+        print(f"[AUTH] Password reset successfully for: {user.email}", flush=True)
 
 
 async def get_user_manager(
