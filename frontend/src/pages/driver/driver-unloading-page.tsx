@@ -7,7 +7,6 @@ import {
   MapPinIcon,
   SnowflakeIcon,
   XIcon,
-  PhoneCallIcon,
   CameraIcon,
   ArrowsClockwiseIcon,
   ArrowRightIcon,
@@ -118,10 +117,6 @@ export function DriverUnloadingPage() {
     }
     setIsFlagModalOpen(false);
     setFlaggedItemId(null);
-  };
-
-  const handleCallStore = () => {
-    window.location.href = `tel:${currentWp.storeManagerPhone}`;
   };
 
   // Triggered when bottom swipe is completed on unloading page
@@ -254,37 +249,13 @@ export function DriverUnloadingPage() {
 
       {/* 2. Scrollable Unloading Order Items Checklist */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
-        {/* Store Receiving Contact Banner */}
-        <div className="p-3 rounded-2xl bg-muted/40 border border-border flex items-center justify-between">
-          <div className="flex flex-col">
-            <span className="text-[11px] text-muted-foreground font-medium">
-              Receiving Manager
-            </span>
-            <strong className="font-heading font-bold text-xs text-foreground">
-              {currentWp.storeManagerName}
-            </strong>
-            <span className="text-[11px] font-semibold text-muted-foreground">
-              {currentWp.storeManagerPhone}
-            </span>
-          </div>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleCallStore}
-            className="h-8 px-2.5 rounded-xl text-xs font-bold gap-1 cursor-pointer"
-          >
-            <PhoneCallIcon className="size-3.5 text-primary" weight="bold" />
-            <span>Call Store</span>
-          </Button>
-        </div>
-
         {/* Checklist Header */}
-        <div className="flex items-center justify-between px-1 pt-1">
-          <span className="font-heading font-bold text-xs uppercase tracking-wider text-muted-foreground">
-            Unloading Items ({verifiedItems.size}/{currentWp.items.length})
+        <div className="flex items-center justify-between px-1">
+          <span className="font-heading font-black text-xs uppercase tracking-wider text-muted-foreground">
+            Unloading Crates ({verifiedItems.size}/{currentWp.items.length})
           </span>
           <span className="text-xs font-bold text-primary">
-            {currentWp.totalCrateCount} Crates Total
+            {currentWp.totalCrateCount} Crates · {currentWp.totalWeightKg} kg
           </span>
         </div>
 
@@ -364,9 +335,9 @@ export function DriverUnloadingPage() {
                 {/* Expanded Item Detail matching Reference */}
                 {isExpanded && (
                   <div className="px-4 pb-3.5 pt-1 border-t border-border/60 bg-muted/20 space-y-2 text-xs rounded-b-2xl">
-                    {/* SKU Item Title */}
+                    {/* Cargo Type / Category Title */}
                     <div className="font-heading font-black text-xs sm:text-sm text-foreground leading-snug">
-                      {item.itemTitle}
+                      {item.category || item.itemTitle}
                     </div>
 
                     {/* Metric Rows */}
@@ -377,6 +348,21 @@ export function DriverUnloadingPage() {
                         </span>
                         <strong className="font-heading font-bold text-foreground">
                           {item.weightKg} kg
+                        </strong>
+                      </div>
+
+                      <div className="py-1.5 flex items-center justify-between">
+                        <span className="text-muted-foreground font-medium">
+                          Handling Type
+                        </span>
+                        <strong className="font-heading font-bold text-foreground">
+                          {item.isReefer
+                            ? `Cold Chain (${item.temperature || "-18°C"})`
+                            : item.specialHandlingCode === "FRG"
+                              ? "Fragile Intake"
+                              : item.specialHandlingCode === "MAL"
+                                ? "Mall Bay"
+                                : "Ambient Cargo"}
                         </strong>
                       </div>
 
