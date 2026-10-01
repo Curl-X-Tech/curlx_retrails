@@ -236,7 +236,7 @@ export function DriverLayout() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">License:</span>
-                  <span className="font-mono text-[11px]">
+                  <span className="font-heading font-semibold text-[11px]">
                     {mockDriverTrip.driver.licenseId}
                   </span>
                 </div>

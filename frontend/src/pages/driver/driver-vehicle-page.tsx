@@ -44,7 +44,7 @@ export function DriverVehiclePage() {
           </div>
           <div className="p-2.5 rounded-xl bg-muted/30 border border-border/60">
             <span className="text-muted-foreground text-[10px]">Security Bolt Seal</span>
-            <div className="font-mono font-bold text-xs text-foreground mt-0.5">
+            <div className="font-heading font-bold text-xs text-foreground mt-0.5">
               {trip.sealNumber}
             </div>
           </div>

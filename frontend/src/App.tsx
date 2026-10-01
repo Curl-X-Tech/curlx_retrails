@@ -68,6 +68,11 @@ const DriverVehiclePage = lazyWithDelay(() =>
     default: m.DriverVehiclePage,
   }))
 );
+const DriverUnloadingPage = lazyWithDelay(() =>
+  import("@/pages/driver/driver-unloading-page").then((m) => ({
+    default: m.DriverUnloadingPage,
+  }))
+);
 
 export function App() {
   const activeDomainRole = getActiveDomainRole();
@@ -240,6 +245,14 @@ export function App() {
           element={
             <React.Suspense fallback={<LoaderPageSkeleton />}>
               <DriverVehiclePage />
+            </React.Suspense>
+          }
+        />
+        <Route
+          path="/driver/unload"
+          element={
+            <React.Suspense fallback={<LoaderPageSkeleton />}>
+              <DriverUnloadingPage />
             </React.Suspense>
           }
         />

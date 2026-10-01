@@ -108,15 +108,28 @@ export function DriverStopsPage() {
                   <span className="capitalize">{wp.dockType.replace("_", " ")}</span>
                 </div>
 
-                <Button
-                  size="sm"
-                  variant={isActive ? "default" : "outline"}
-                  onClick={() => navigate(`/driver/active?wp=${wp.seq}`)}
-                  className="h-7 px-2.5 rounded-lg text-[11px] font-bold gap-1 cursor-pointer"
-                >
-                  <NavigationArrowIcon className="size-3" weight="bold" />
-                  <span>Navigate</span>
-                </Button>
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigate(`/driver/active?wp=${wp.seq}`)}
+                    className="h-7 px-2 rounded-lg text-[11px] font-bold gap-1 cursor-pointer"
+                  >
+                    <NavigationArrowIcon className="size-3" weight="bold" />
+                    <span>Map</span>
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant={isActive ? "default" : "secondary"}
+                    onClick={() => navigate(`/driver/unload?wp=${wp.seq}`)}
+                    className={cn(
+                      "h-7 px-2.5 rounded-lg text-[11px] font-bold cursor-pointer",
+                      isActive && "bg-emerald-600 hover:bg-emerald-700 text-white"
+                    )}
+                  >
+                    <span>{isCompleted ? "Checklist" : "Unload"}</span>
+                  </Button>
+                </div>
               </div>
             </Card>
           );

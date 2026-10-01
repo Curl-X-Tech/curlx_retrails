@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import L from "leaflet";
 import {
   PlusIcon,
@@ -9,21 +9,10 @@ import {
   NavigationArrowIcon,
   CaretLeftIcon,
   CaretRightIcon,
-  PhoneCallIcon,
-  StorefrontIcon,
-  ShieldCheckIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { SwipeToConfirm } from "@/components/ui/swipe-to-confirm";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-} from "@/components/ui/sheet";
 import { mockDriverTrip, type DriverWaypoint } from "@/data/mock-driver-trips";
 import { buildTileUrl } from "@/data/mock-live-map";
 import { cn } from "@/lib/utils";
@@ -56,11 +45,12 @@ function createDriverWaypointPin(seq: number, status: DriverWaypoint["status"]) 
 
 export function DriverActiveTripPage() {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const mapContainerRef = React.useRef<HTMLDivElement>(null);
   const mapInstanceRef = React.useRef<L.Map | null>(null);
   const markersGroupRef = React.useRef<L.LayerGroup | null>(null);
 
-  const [trip, setTrip] = React.useState(mockDriverTrip);
+  const [trip] = React.useState(mockDriverTrip);
   const waypoints = trip.waypoints;
 
   // Active waypoint index controlled via carousel or search query
@@ -74,11 +64,6 @@ export function DriverActiveTripPage() {
     initialIndex >= 0 ? initialIndex : 0
   );
   const currentWp = waypoints[currentIndex] || waypoints[0];
-
-  // Store POD / Unloading Sheet State
-  const [isPodOpen, setIsPodOpen] = React.useState(false);
-  const [verifiedItems, setVerifiedItems] = React.useState<Set<string>>(new Set());
-  const [isArrivedAtStore, setIsArrivedAtStore] = React.useState(false);
 
   // Initialize Leaflet Map
   React.useEffect(() => {
@@ -177,30 +162,8 @@ export function DriverActiveTripPage() {
     window.open(url, "_blank");
   };
 
-  const handleCallStore = () => {
-    window.location.href = `tel:${currentWp.storeManagerPhone}`;
-  };
-
-  const handleCompleteDelivery = () => {
-    setTrip((prev) => ({
-      ...prev,
-      waypoints: prev.waypoints.map((w, idx) =>
-        idx === currentIndex ? { ...w, status: "completed" as const } : w
-      ),
-    }));
-    setIsPodOpen(false);
-    if (currentIndex < waypoints.length - 1) {
-      handleNext();
-    }
-  };
-
-  const toggleItemVerification = (itemId: string) => {
-    setVerifiedItems((prev) => {
-      const next = new Set(prev);
-      if (next.has(itemId)) next.delete(itemId);
-      else next.add(itemId);
-      return next;
-    });
+  const handleNavigateToUnload = () => {
+    navigate(`/driver/unload?wp=${currentWp.seq}`);
   };
 
   return (
@@ -210,7 +173,7 @@ export function DriverActiveTripPage() {
         <div ref={mapContainerRef} className="w-full h-full" />
       </div>
 
-      {/* 2. Top-Right Map Controls (Matching Reference Layout) */}
+      {/* 2. Top-Right Map Controls */}
       <div className="absolute right-3 top-3 z-10 flex flex-col gap-1.5 shadow-md">
         <button
           onClick={() => mapInstanceRef.current?.zoomIn()}
@@ -235,7 +198,7 @@ export function DriverActiveTripPage() {
         </button>
       </div>
 
-      {/* 3. Floating Active Waypoint Card & Bottom Swipe Controller (Matching Reference Image) */}
+      {/* 3. Floating Active Waypoint Card & Bottom Action Controller */}
       <div className="mt-auto z-10 p-3 flex flex-col gap-2.5 max-w-full">
         {/* Main Waypoint Info Card */}
         <Card className="rounded-3xl p-4 bg-background/95 backdrop-blur-xl border border-border/90 shadow-2xl space-y-3.5">
@@ -263,25 +226,22 @@ export function DriverActiveTripPage() {
             </div>
           </div>
 
-          {/* Quick Dual Action Buttons Matching Reference Image */}
+          {/* Quick Dual Action Buttons */}
           <div className="grid grid-cols-2 gap-2.5">
-            {/* Arrived Action Button */}
+            {/* Arrived / Unload Action Button */}
             <Button
-              onClick={() => {
-                setIsArrivedAtStore(true);
-                setIsPodOpen(true);
-              }}
+              onClick={handleNavigateToUnload}
               className={cn(
                 "h-10 rounded-2xl font-bold text-xs gap-2 shadow-xs transition-all cursor-pointer",
                 currentWp.status === "completed"
-                  ? "bg-muted text-muted-foreground"
-                  : isArrivedAtStore
-                    ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                    : "bg-emerald-600 text-white hover:bg-emerald-700"
+                  ? "bg-muted text-muted-foreground hover:bg-muted"
+                  : "bg-emerald-600 text-white hover:bg-emerald-700"
               )}
             >
               <CheckCircleIcon className="size-4" weight="fill" />
-              <span>{currentWp.status === "completed" ? "Completed" : "Arrived"}</span>
+              <span>
+                {currentWp.status === "completed" ? "View Checklist" : "Arrived"}
+              </span>
             </Button>
 
             {/* Get Direction Action Button */}
@@ -301,7 +261,7 @@ export function DriverActiveTripPage() {
             </p>
           </div>
 
-          {/* Structured Key Metrics List Matching Reference Image */}
+          {/* Structured Key Metrics List */}
           <div className="border-t border-border/70 divide-y divide-border/60 text-xs">
             <div className="py-2 flex items-center justify-between">
               <span className="text-muted-foreground font-medium">Total Weight</span>
@@ -325,7 +285,7 @@ export function DriverActiveTripPage() {
             </div>
           </div>
 
-          {/* Carousel Pagination Controls Matching Reference Layout */}
+          {/* Carousel Pagination Controls */}
           <div className="flex items-center justify-between pt-1 border-t border-border/70">
             {/* Left Carousel Arrow */}
             <button
@@ -375,125 +335,32 @@ export function DriverActiveTripPage() {
           </div>
         </Card>
 
-        {/* 4. Bottom Swipe Bar Matching Reference Image */}
+        {/* 4. Bottom Swipe Bar to Arrive / Open Checklist */}
         <div className="p-1 rounded-3xl bg-background/95 backdrop-blur-xl border border-border/80 shadow-lg">
-          <SwipeToConfirm
-            label={`Swipe to call ${currentWp.storeManagerName}`}
-            confirmedLabel={`Calling ${currentWp.storeManagerName}...`}
-            onConfirm={handleCallStore}
-            className="h-12 bg-primary/10 border-primary/20"
-          />
-        </div>
-      </div>
-
-      {/* 5. Store Delivery Verification & POD Sheet */}
-      <Sheet open={isPodOpen} onOpenChange={setIsPodOpen}>
-        <SheetContent
-          side="bottom"
-          className="rounded-t-3xl max-h-[85vh] p-0 flex flex-col bg-card"
-        >
-          <SheetHeader className="p-4 pb-3 border-b border-border text-left">
-            <div className="flex items-center justify-between">
-              <SheetTitle className="font-heading font-black text-base text-foreground flex items-center gap-2">
-                <StorefrontIcon className="size-5 text-primary" weight="bold" />
-                <span>Store Unloading Checklist</span>
-              </SheetTitle>
-              <Badge variant="secondary" className="font-bold text-xs">
-                Stop #{currentWp.seq}
-              </Badge>
-            </div>
-            <SheetDescription className="text-xs text-muted-foreground">
-              {currentWp.outletName} · {currentWp.address}
-            </SheetDescription>
-          </SheetHeader>
-
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {/* Store Manager Contact Card */}
-            <div className="p-3 rounded-2xl bg-muted/40 border border-border flex items-center justify-between">
-              <div className="flex flex-col">
-                <span className="text-[11px] text-muted-foreground">
-                  Receiving Manager
-                </span>
-                <strong className="font-heading font-bold text-xs text-foreground">
-                  {currentWp.storeManagerName}
-                </strong>
-                <span className="text-[11px] font-mono text-muted-foreground">
-                  {currentWp.storeManagerPhone}
-                </span>
-              </div>
+          {currentWp.status === "completed" ? (
+            <div className="h-12 flex items-center justify-between px-4 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl">
+              <span className="text-xs font-bold text-emerald-600">
+                Stop #{currentWp.seq} Completed
+              </span>
               <Button
                 size="sm"
-                variant="outline"
-                onClick={handleCallStore}
-                className="h-8 px-2.5 rounded-xl text-xs gap-1 cursor-pointer"
+                variant="ghost"
+                onClick={handleNavigateToUnload}
+                className="h-8 text-xs font-bold text-emerald-600 hover:bg-emerald-500/20 cursor-pointer"
               >
-                <PhoneCallIcon className="size-3.5 text-primary" weight="bold" />
-                <span>Call Store</span>
+                View Checklist
               </Button>
             </div>
-
-            {/* Crates Checklist per SKU */}
-            <div className="space-y-2">
-              <h4 className="font-heading font-bold text-xs uppercase tracking-wider text-muted-foreground px-1">
-                Verify Unloaded Crates ({verifiedItems.size}/{currentWp.items.length})
-              </h4>
-
-              {currentWp.items.map((item) => {
-                const isItemVerified = verifiedItems.has(item.id);
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => toggleItemVerification(item.id)}
-                    className={cn(
-                      "p-3 rounded-2xl border transition-all flex items-center justify-between gap-2.5 cursor-pointer",
-                      isItemVerified
-                        ? "bg-emerald-500/10 border-emerald-500/40 text-foreground"
-                        : "bg-background border-border hover:bg-accent/40 text-foreground"
-                    )}
-                  >
-                    <div className="flex flex-col min-w-0">
-                      <div className="flex items-center gap-1.5">
-                        <span className="font-mono text-[11px] font-bold text-primary">
-                          #{item.packageCode}
-                        </span>
-                        <span className="text-[10px] text-muted-foreground">·</span>
-                        <span className="text-[11px] font-semibold text-muted-foreground">
-                          {item.crateCount} Crates ({item.weightKg} kg)
-                        </span>
-                      </div>
-                      <span className="font-heading font-bold text-xs text-foreground truncate mt-0.5">
-                        {item.itemTitle}
-                      </span>
-                    </div>
-
-                    <div
-                      className={cn(
-                        "size-6 rounded-lg flex items-center justify-center border transition-all shrink-0",
-                        isItemVerified
-                          ? "bg-emerald-600 border-emerald-600 text-white"
-                          : "border-border bg-muted/40 text-transparent"
-                      )}
-                    >
-                      <CheckCircleIcon className="size-4" weight="bold" />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="p-4 border-t border-border bg-card flex flex-col gap-2">
-            <Button
-              onClick={handleCompleteDelivery}
-              disabled={verifiedItems.size === 0}
-              className="w-full h-11 rounded-2xl font-heading font-bold text-xs gap-2 bg-emerald-600 hover:bg-emerald-700 text-white shadow-md cursor-pointer disabled:opacity-50"
-            >
-              <ShieldCheckIcon className="size-4" weight="fill" />
-              <span>Complete Store Hand-off & Depart</span>
-            </Button>
-          </div>
-        </SheetContent>
-      </Sheet>
+          ) : (
+            <SwipeToConfirm
+              label="Swipe to confirm arrival & unload"
+              confirmedLabel="Arrived! Opening checklist..."
+              onConfirm={handleNavigateToUnload}
+              className="h-12 bg-emerald-500/10 border-emerald-500/20 font-bold text-emerald-700 dark:text-emerald-400"
+            />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
