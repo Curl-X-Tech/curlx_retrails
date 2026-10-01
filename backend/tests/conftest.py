@@ -6,11 +6,13 @@ from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlmodel import SQLModel
 
+from app.core.config import settings
 from app.core.db import get_async_session
 from app.core.users import UserManager
 from app.guards import auth_rate_limiter, register_rate_limiter
 from app.main import app
 from app.models import RoleType, User, UserCreate, UserType
+from app.services.email import email_service
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
@@ -30,9 +32,13 @@ test_session_maker = async_sessionmaker(
 async def prepare_test_db() -> AsyncGenerator[None, None]:
     auth_rate_limiter.reset()
     register_rate_limiter.reset()
+    email_service.clear_outbox()
+    orig_smtp_host = settings.SMTP_HOST
+    settings.SMTP_HOST = None
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
     yield
+    settings.SMTP_HOST = orig_smtp_host
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.drop_all)
 

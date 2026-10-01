@@ -22,6 +22,7 @@ from app.core.config import settings
 from app.core.db import get_user_db
 from app.entities.base import utc_now
 from app.models import User
+from app.services.email import email_service
 
 logger = logging.getLogger(__name__)
 
@@ -54,18 +55,15 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_forgot_password(
         self, user: User, token: str, request: Request | None = None
     ) -> None:
-        msg = (
-            f"\n================================================================\n"
-            f"  PASSWORD RESET TOKEN FOR {user.email}:\n"
-            f"  {token}\n"
-            f"================================================================\n"
-        )
-        print(msg, flush=True)
         logger.info(
-            "Password reset requested for user %s (%s). Reset token: %s",
+            "Password reset requested for user %s (%s). Dispatching reset email.",
             user.id,
             user.email,
-            token,
+        )
+        await email_service.send_reset_password_email(
+            email_to=user.email,
+            token=token,
+            user_name=user.name,
         )
 
     async def on_after_reset_password(
