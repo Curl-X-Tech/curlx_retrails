@@ -22,9 +22,6 @@ class RateLimitGuard:
     def _get_key(self, request: Request) -> str:
         if self.key_func:
             return self.key_func(request)
-        forwarded_for = request.headers.get("x-forwarded-for")
-        if forwarded_for:
-            return forwarded_for.split(",")[0].strip()
         if request.client and request.client.host:
             return request.client.host
         return "127.0.0.1"

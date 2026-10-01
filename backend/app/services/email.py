@@ -117,15 +117,14 @@ class EmailService:
         text_content: str | None = None,
     ) -> bool:
         """Sends an email asynchronously via SMTP or logs to outbox in dev/test mode."""
-        email_record = {
-            "to": email_to,
-            "subject": subject,
-            "html": html_content,
-            "text": text_content,
-        }
-        self.outbox.append(email_record)
-
         if not settings.SMTP_HOST:
+            email_record = {
+                "to": email_to,
+                "subject": subject,
+                "html": html_content,
+                "text": text_content,
+            }
+            self.outbox.append(email_record)
             banner = (
                 f"\n================================================================\n"
                 f"  EMAIL DISPATCH (DEV OUTBOX):\n"
@@ -170,14 +169,17 @@ class EmailService:
         html_content = self.render_template("reset_password.html", context)
         text_content = self.render_template("reset_password.txt", context)
 
-        banner = (
-            f"\n================================================================\n"
-            f"  PASSWORD RESET LINK FOR {email_to}:\n"
-            f"  {reset_link}\n"
-            f"  Token: {token}\n"
-            f"================================================================\n"
-        )
-        print(banner, flush=True)
+        if not settings.SMTP_HOST:
+            banner = (
+                f"\n================================================================\n"
+                f"  PASSWORD RESET LINK FOR {email_to}:\n"
+                f"  {reset_link}\n"
+                f"  Token: {token}\n"
+                f"================================================================\n"
+            )
+            print(banner, flush=True)
+        else:
+            logger.info("Password reset email dispatched to %s", email_to)
 
         return await self.send_email(
             email_to=email_to,

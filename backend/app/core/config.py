@@ -16,6 +16,7 @@ class Settings(BaseSettings):
 
     PROJECT_NAME: str = "ReTrails"
     API_V1_STR: str = "/api/v1"
+    ENVIRONMENT: str = "local"
     SECRET_KEY: str = Field(default_factory=lambda: secrets.token_urlsafe(32))
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
 

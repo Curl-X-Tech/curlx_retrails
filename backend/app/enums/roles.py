@@ -1,14 +1,16 @@
-from enum import StrEnum
+from enum import Enum
 
 
-class RoleType(StrEnum):
+class RoleType(str, Enum):
     STORE_MANAGER = "STORE_MANAGER"
     DRIVER = "DRIVER"
     LOADER = "LOADER"
     DISPATCHER = "DISPATCHER"
 
 
-UserType = StrEnum(
-    "UserType",
-    {m.name: m.value for m in RoleType} | {"SYSTEM_ADMIN": "SYSTEM_ADMIN"},
-)
+class UserType(str, Enum):
+    STORE_MANAGER = "STORE_MANAGER"
+    DRIVER = "DRIVER"
+    LOADER = "LOADER"
+    DISPATCHER = "DISPATCHER"
+    SYSTEM_ADMIN = "SYSTEM_ADMIN"
