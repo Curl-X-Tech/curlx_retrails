@@ -44,4 +44,3 @@ class UserUpdate(schemas.BaseUserUpdate):
         # In safe mode (self-update on /users/me), users cannot modify their role
         update_dict.pop("user_type", None)
         return update_dict
-

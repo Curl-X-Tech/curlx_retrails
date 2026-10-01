@@ -25,4 +25,3 @@ class BaseEntity(SQLModel):
             self.created_by = self.id
         if self.updated_by is None:
             self.updated_by = self.created_by or self.id
-

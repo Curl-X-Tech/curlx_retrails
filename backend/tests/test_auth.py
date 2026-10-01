@@ -133,9 +133,7 @@ async def test_login_invalid_password(client: AsyncClient, test_user: User):
 
 
 @pytest.mark.asyncio
-async def test_inactive_user_cannot_login(
-    client: AsyncClient, session: AsyncSession
-):
+async def test_inactive_user_cannot_login(client: AsyncClient, session: AsyncSession):
     user_db = SQLAlchemyUserDatabase(session, User)
     user_manager = UserManager(user_db)
     user = await user_manager.create(
@@ -187,7 +185,6 @@ async def test_update_current_user_name(
     assert data["name"] == "Updated Name"
     assert data["created_by"] is not None
     assert data["updated_by"] is not None
-
 
 
 @pytest.mark.asyncio
@@ -298,5 +295,3 @@ def test_base_entity_inheritance_and_user_types():
     assert user.is_verified is True
     assert user.is_superuser is False
     assert user.user_type == UserType.STORE_MANAGER
-
-

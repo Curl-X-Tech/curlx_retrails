@@ -93,7 +93,6 @@ async def _create_tables() -> None:
         raise
 
 
-
 async def _seed_initial_superuser(session: AsyncSession) -> None:
     if not (settings.FIRST_SUPERUSER and settings.FIRST_SUPERUSER_PASSWORD):
         return

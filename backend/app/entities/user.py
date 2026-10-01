@@ -38,4 +38,3 @@ class User(BaseEntity, table=True):
             self.user_type = UserType.SYSTEM_ADMIN
         elif self.user_type == UserType.SYSTEM_ADMIN:
             self.user_type = UserType.DISPATCHER
-

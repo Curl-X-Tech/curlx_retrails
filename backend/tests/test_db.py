@@ -32,4 +32,3 @@ def test_get_db_generator(monkeypatch: pytest.MonkeyPatch):
 def test_base_metadata():
     assert Base.metadata is not None
     assert engine is not None
-

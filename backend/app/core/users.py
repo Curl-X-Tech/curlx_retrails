@@ -27,7 +27,6 @@ logger = logging.getLogger(__name__)
 
 
 class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
-
     reset_password_token_secret = settings.SECRET_KEY
     verification_token_secret = settings.SECRET_KEY
 
@@ -72,7 +71,9 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_reset_password(
         self, user: User, request: Request | None = None
     ) -> None:
-        logger.info("Password reset successfully for user: %s (%s)", user.id, user.email)
+        logger.info(
+            "Password reset successfully for user: %s (%s)", user.id, user.email
+        )
         print(f"[AUTH] Password reset successfully for: {user.email}", flush=True)
 
 
