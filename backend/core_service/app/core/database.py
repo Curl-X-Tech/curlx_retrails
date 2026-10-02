@@ -72,8 +72,11 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
 
 async def init_db() -> None:
     import app.models  # noqa: F401
+    from app.entities.user import User  # noqa: F401
+    from sqlmodel import SQLModel
 
     async with engine.begin() as conn:
+        await conn.run_sync(SQLModel.metadata.create_all)
         await conn.run_sync(Base.metadata.create_all)
         # Idempotent DDL auto-migrations carried over from merged services
         migrations = [
@@ -87,6 +90,9 @@ async def init_db() -> None:
             "ALTER TABLE drivers ADD COLUMN IF NOT EXISTS checked_in BOOLEAN DEFAULT FALSE;",
             "ALTER TABLE drivers ADD COLUMN IF NOT EXISTS last_checkin_time VARCHAR(10);",
             "ALTER TABLE drivers ADD COLUMN IF NOT EXISTS checkin_depot VARCHAR(30);",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS is_verified BOOLEAN DEFAULT FALSE NOT NULL;",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS created_by UUID;",
+            "ALTER TABLE users ADD COLUMN IF NOT EXISTS updated_by UUID;",
         ]
         for stmt in migrations:
             try:

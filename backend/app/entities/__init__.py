@@ -1,4 +1,3 @@
-from app.entities.base import BaseEntity
-from app.entities.user import User
+from core_service.app.entities.user import User
 
-__all__ = ["BaseEntity", "User"]
+__all__ = ["User"]

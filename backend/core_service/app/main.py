@@ -19,7 +19,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.core.database import engine, init_db
+from app.core.database import AsyncSessionLocal, engine, init_db
+from app.api.main import api_router
 from app.routers import (
     drivers,
     orders,
@@ -46,6 +47,10 @@ from app.routers import (
 async def lifespan(app: FastAPI):
     try:
         await init_db()
+        async with AsyncSessionLocal() as session:
+            from app.core.seed import seed_initial_users
+
+            await seed_initial_users(session)
     except Exception as e:
         print(f"[core-service] Note: DB init deferred or connection pending: {e}")
     yield
@@ -73,6 +78,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# --- Auth & Users (/api/v1) ---
+app.include_router(api_router, prefix="/api/v1")
 
 # --- Orders ---
 for prefix in ("/orders/v1", "/orders"):

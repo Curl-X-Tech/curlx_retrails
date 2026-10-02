@@ -1,18 +1,26 @@
+import sys
 from collections.abc import AsyncGenerator
+from pathlib import Path
 
 import pytest
-from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
-from httpx import ASGITransport, AsyncClient
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
-from sqlmodel import SQLModel
 
-from app.core.config import settings
-from app.core.db import get_async_session
-from app.core.users import UserManager
-from app.guards import auth_rate_limiter, register_rate_limiter
-from app.main import app
-from app.models import RoleType, User, UserCreate, UserType
-from app.services.email import email_service
+CORE_SERVICE_DIR = Path(__file__).resolve().parent.parent / "core_service"
+if str(CORE_SERVICE_DIR) not in sys.path:
+    sys.path.insert(0, str(CORE_SERVICE_DIR))
+
+from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase  # noqa: E402
+from httpx import ASGITransport, AsyncClient  # noqa: E402
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine  # noqa: E402
+from sqlmodel import SQLModel  # noqa: E402
+
+from app.core.config import settings  # noqa: E402
+from app.core.db import get_async_session  # noqa: E402
+from app.core.users import UserManager  # noqa: E402
+from app.guards import auth_rate_limiter, register_rate_limiter  # noqa: E402
+from app.main import app  # noqa: E402
+from app.models import RoleType, User, UserCreate, UserType  # noqa: E402
+from app.services.email import email_service  # noqa: E402
+
 
 TEST_DATABASE_URL = "sqlite+aiosqlite:///:memory:"
 
