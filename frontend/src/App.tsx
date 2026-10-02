@@ -1,125 +1,48 @@
-import * as React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { AppLayout } from "@/components/layout/app-layout";
 import { LoaderLayout } from "@/components/layout/loader-layout";
 import { DriverLayout } from "@/components/layout/driver-layout";
 import { ProtectedRoute } from "@/components/auth/protected-route";
-import {
-  DeferralsPageSkeleton,
-  OrderQueuePageSkeleton,
-  AllocationSummaryPageSkeleton,
-  AllocationDetailPageSkeleton,
-  LiveMapPageSkeleton,
-  LoaderPageSkeleton,
-} from "@/components/skeletons";
+import { getActiveDomainRole, getRoleHomePath } from "@/lib/domain-routing";
+import { useAuth } from "@/context/auth-context";
 
-import { lazyWithDelay } from "@/lib/simulated-delay";
-import { getActiveDomainRole } from "@/lib/domain-routing";
+// Direct Page Imports (No dynamic lazy suspense delays)
+import { LoginPage } from "@/pages/auth/login-page";
+import { LiveMapPage } from "@/pages/dispatcher/live-map-page";
+import { AllocationSummaryPage } from "@/pages/dispatcher/allocation-summary-page";
+import { AllocationDetailPage } from "@/pages/dispatcher/allocation-detail-page";
+import { OrderQueuePage } from "@/pages/dispatcher/order-queue-page";
+import { DeferralsPage } from "@/pages/dispatcher/deferrals-page";
 
-const LiveMapPage = lazyWithDelay(() =>
-  import("@/pages/dispatcher/live-map-page").then((m) => ({
-    default: m.LiveMapPage,
-  }))
-);
-const AllocationSummaryPage = lazyWithDelay(() =>
-  import("@/pages/dispatcher/allocation-summary-page").then((m) => ({
-    default: m.AllocationSummaryPage,
-  }))
-);
-const AllocationDetailPage = lazyWithDelay(() =>
-  import("@/pages/dispatcher/allocation-detail-page").then((m) => ({
-    default: m.AllocationDetailPage,
-  }))
-);
-const OrderQueuePage = lazyWithDelay(() =>
-  import("@/pages/dispatcher/order-queue-page").then((m) => ({
-    default: m.OrderQueuePage,
-  }))
-);
-const DeferralsPage = lazyWithDelay(() =>
-  import("@/pages/dispatcher/deferrals-page").then((m) => ({
-    default: m.DeferralsPage,
-  }))
-);
+import { LoaderBaysPage } from "@/pages/loader/loader-bays-page";
+import { LoaderManifestsPage } from "@/pages/loader/loader-manifests-page";
 
-const LoaderBaysPage = lazyWithDelay(() =>
-  import("@/pages/loader/loader-bays-page").then((m) => ({
-    default: m.LoaderBaysPage,
-  }))
-);
-const LoaderManifestsPage = lazyWithDelay(() =>
-  import("@/pages/loader/loader-manifests-page").then((m) => ({
-    default: m.LoaderManifestsPage,
-  }))
-);
+import { DriverActiveTripPage } from "@/pages/driver/driver-active-trip-page";
+import { DriverStopsPage } from "@/pages/driver/driver-stops-page";
+import { DriverVehiclePage } from "@/pages/driver/driver-vehicle-page";
+import { DriverUnloadingPage } from "@/pages/driver/driver-unloading-page";
 
-const DriverActiveTripPage = lazyWithDelay(() =>
-  import("@/pages/driver/driver-active-trip-page").then((m) => ({
-    default: m.DriverActiveTripPage,
-  }))
-);
-const DriverStopsPage = lazyWithDelay(() =>
-  import("@/pages/driver/driver-stops-page").then((m) => ({
-    default: m.DriverStopsPage,
-  }))
-);
-const DriverVehiclePage = lazyWithDelay(() =>
-  import("@/pages/driver/driver-vehicle-page").then((m) => ({
-    default: m.DriverVehiclePage,
-  }))
-);
-const DriverUnloadingPage = lazyWithDelay(() =>
-  import("@/pages/driver/driver-unloading-page").then((m) => ({
-    default: m.DriverUnloadingPage,
-  }))
-);
+import { StoreOrdersPage } from "@/pages/store/store-orders-page";
+import { StoreCreateOrderPage } from "@/pages/store/store-create-order-page";
+import { StoreDeferralsPage } from "@/pages/store/store-deferrals-page";
+import { StoreDashboardPage } from "@/pages/store/store-dashboard-page";
+import { StoreReportsPage } from "@/pages/store/store-reports-page";
 
-const StoreOrdersPage = lazyWithDelay(() =>
-  import("@/pages/store/store-orders-page").then((m) => ({
-    default: m.StoreOrdersPage,
-  }))
-);
-
-const StoreCreateOrderPage = lazyWithDelay(() =>
-  import("@/pages/store/store-create-order-page").then((m) => ({
-    default: m.StoreCreateOrderPage,
-  }))
-);
-
-const StoreDeferralsPage = lazyWithDelay(() =>
-  import("@/pages/store/store-deferrals-page").then((m) => ({
-    default: m.StoreDeferralsPage,
-  }))
-);
-
-const StoreDashboardPage = lazyWithDelay(() =>
-  import("@/pages/store/store-dashboard-page").then((m) => ({
-    default: m.StoreDashboardPage,
-  }))
-);
-
-const StoreReportsPage = lazyWithDelay(() =>
-  import("@/pages/store/store-reports-page").then((m) => ({
-    default: m.StoreReportsPage,
-  }))
-);
-
-const LoginPage = lazyWithDelay(() =>
-  import("@/pages/auth/login-page").then((m) => ({
-    default: m.LoginPage,
-  }))
-);
+import { AdminDashboardPage } from "@/pages/admin/admin-dashboard-page";
+import { AdminOutletsPage } from "@/pages/admin/admin-outlets-page";
+import { AdminDepotsPage } from "@/pages/admin/admin-depots-page";
+import { AdminItemsPage } from "@/pages/admin/admin-items-page";
+import { AdminCalendarPage } from "@/pages/admin/admin-calendar-page";
 
 export function App() {
+  const { user, isAuthenticated } = useAuth();
   const activeDomainRole = getActiveDomainRole();
   const rootDefaultPath =
-    activeDomainRole === "loader"
-      ? "/loader/manifests"
-      : activeDomainRole === "driver"
-        ? "/driver/active"
-        : activeDomainRole === "store_manager"
-          ? "/store/orders"
-          : "/dispatcher/allocations";
+    isAuthenticated && user
+      ? getRoleHomePath(user.role)
+      : activeDomainRole
+        ? getRoleHomePath(activeDomainRole)
+        : "/login";
 
   return (
     <Routes>
@@ -127,11 +50,30 @@ export function App() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/reset-password" element={<LoginPage />} />
 
-      {/* Root redirect depending on active subdomain / app */}
+      {/* Root redirect to role-specific console or login */}
       <Route path="/" element={<Navigate to={rootDefaultPath} replace />} />
 
       {/* ----------------------------------------------------------- */}
-      {/* 1. Protected Dispatcher & Admin Route Tree (Desktop UI)      */}
+      {/* 0. Protected System Admin Route Tree                         */}
+      {/* ----------------------------------------------------------- */}
+      <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route
+        element={
+          <ProtectedRoute allowedRoles={["system_admin"]}>
+            <AppLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route path="/admin/outlets" element={<AdminOutletsPage />} />
+        <Route path="/admin/depots" element={<AdminDepotsPage />} />
+        <Route path="/admin/items" element={<AdminItemsPage />} />
+        <Route path="/admin/calendar" element={<AdminCalendarPage />} />
+        <Route path="/admin/*" element={<Navigate to="/admin/dashboard" replace />} />
+      </Route>
+
+      {/* ----------------------------------------------------------- */}
+      {/* 1. Protected Dispatcher Route Tree (Planning & Fleet Ops)    */}
       {/* ----------------------------------------------------------- */}
       <Route
         path="/dispatcher"
@@ -139,7 +81,7 @@ export function App() {
       />
       <Route
         element={
-          <ProtectedRoute allowedRoles={["dispatcher", "system_admin"]}>
+          <ProtectedRoute allowedRoles={["dispatcher"]}>
             <AppLayout />
           </ProtectedRoute>
         }
@@ -150,49 +92,20 @@ export function App() {
         />
 
         {/* Planning Routes */}
-        <Route
-          path="/dispatcher/orders"
-          element={
-            <React.Suspense fallback={<OrderQueuePageSkeleton />}>
-              <OrderQueuePage />
-            </React.Suspense>
-          }
-        />
-        <Route
-          path="/dispatcher/allocations"
-          element={
-            <React.Suspense fallback={<AllocationSummaryPageSkeleton />}>
-              <AllocationSummaryPage />
-            </React.Suspense>
-          }
-        />
-        <Route
-          path="/dispatcher/allocations/:id"
-          element={
-            <React.Suspense fallback={<AllocationDetailPageSkeleton />}>
-              <AllocationDetailPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/dispatcher/orders" element={<OrderQueuePage />} />
+        <Route path="/dispatcher/allocations" element={<AllocationSummaryPage />} />
+        <Route path="/dispatcher/allocations/:id" element={<AllocationDetailPage />} />
         <Route
           path="/dispatcher/deferrals"
           element={<Navigate to="/dispatcher/deferrals/carryover" replace />}
         />
         <Route
           path="/dispatcher/deferrals/carryover"
-          element={
-            <React.Suspense fallback={<DeferralsPageSkeleton isAuditLog={false} />}>
-              <DeferralsPage viewMode="carryover" />
-            </React.Suspense>
-          }
+          element={<DeferralsPage viewMode="carryover" />}
         />
         <Route
           path="/dispatcher/deferrals/audit-log"
-          element={
-            <React.Suspense fallback={<DeferralsPageSkeleton isAuditLog={true} />}>
-              <DeferralsPage viewMode="audit-log" />
-            </React.Suspense>
-          }
+          element={<DeferralsPage viewMode="audit-log" />}
         />
         <Route
           path="/dispatcher/deferrals/deferral-log"
@@ -200,14 +113,7 @@ export function App() {
         />
 
         {/* Operations Routes */}
-        <Route
-          path="/dispatcher/live-map"
-          element={
-            <React.Suspense fallback={<LiveMapPageSkeleton />}>
-              <LiveMapPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/dispatcher/live-map" element={<LiveMapPage />} />
         <Route
           path="/dispatcher/live-tracking"
           element={<Navigate to="/dispatcher/live-map" replace />}
@@ -226,31 +132,17 @@ export function App() {
       <Route path="/loader" element={<Navigate to="/loader/manifests" replace />} />
       <Route
         element={
-          <ProtectedRoute allowedRoles={["loader", "system_admin", "dispatcher"]}>
+          <ProtectedRoute allowedRoles={["loader"]}>
             <LoaderLayout />
           </ProtectedRoute>
         }
       >
-        <Route
-          path="/loader/manifests"
-          element={
-            <React.Suspense fallback={<LoaderPageSkeleton />}>
-              <LoaderManifestsPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/loader/manifests" element={<LoaderManifestsPage />} />
         <Route
           path="/loader/queue"
           element={<Navigate to="/loader/manifests" replace />}
         />
-        <Route
-          path="/loader/bays"
-          element={
-            <React.Suspense fallback={<LoaderPageSkeleton />}>
-              <LoaderBaysPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/loader/bays" element={<LoaderBaysPage />} />
         <Route path="/loader/*" element={<Navigate to="/loader/manifests" replace />} />
       </Route>
 
@@ -260,44 +152,16 @@ export function App() {
       <Route path="/driver" element={<Navigate to="/driver/active" replace />} />
       <Route
         element={
-          <ProtectedRoute allowedRoles={["driver", "system_admin", "dispatcher"]}>
+          <ProtectedRoute allowedRoles={["driver"]}>
             <DriverLayout />
           </ProtectedRoute>
         }
       >
-        <Route
-          path="/driver/active"
-          element={
-            <React.Suspense fallback={<LoaderPageSkeleton />}>
-              <DriverActiveTripPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/driver/active" element={<DriverActiveTripPage />} />
         <Route path="/driver/run" element={<Navigate to="/driver/active" replace />} />
-        <Route
-          path="/driver/stops"
-          element={
-            <React.Suspense fallback={<LoaderPageSkeleton />}>
-              <DriverStopsPage />
-            </React.Suspense>
-          }
-        />
-        <Route
-          path="/driver/vehicle"
-          element={
-            <React.Suspense fallback={<LoaderPageSkeleton />}>
-              <DriverVehiclePage />
-            </React.Suspense>
-          }
-        />
-        <Route
-          path="/driver/unload"
-          element={
-            <React.Suspense fallback={<LoaderPageSkeleton />}>
-              <DriverUnloadingPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/driver/stops" element={<DriverStopsPage />} />
+        <Route path="/driver/vehicle" element={<DriverVehiclePage />} />
+        <Route path="/driver/unload" element={<DriverUnloadingPage />} />
         <Route path="/driver/*" element={<Navigate to="/driver/active" replace />} />
       </Route>
 
@@ -307,43 +171,22 @@ export function App() {
       <Route path="/store" element={<Navigate to="/store/orders" replace />} />
       <Route
         element={
-          <ProtectedRoute allowedRoles={["store_manager", "system_admin", "dispatcher"]}>
+          <ProtectedRoute allowedRoles={["store_manager"]}>
             <AppLayout />
           </ProtectedRoute>
         }
       >
         {/* Store Dashboard & Alerts */}
-        <Route
-          path="/store/dashboard"
-          element={
-            <React.Suspense fallback={<OrderQueuePageSkeleton />}>
-              <StoreDashboardPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/store/dashboard" element={<StoreDashboardPage />} />
         <Route
           path="/store/alerts"
           element={<Navigate to="/store/dashboard" replace />}
         />
 
         {/* Store Orders Queue & Creation */}
-        <Route
-          path="/store/orders"
-          element={
-            <React.Suspense fallback={<OrderQueuePageSkeleton />}>
-              <StoreOrdersPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/store/orders" element={<StoreOrdersPage />} />
         <Route path="/store/queue" element={<Navigate to="/store/orders" replace />} />
-        <Route
-          path="/store/orders/new"
-          element={
-            <React.Suspense fallback={<OrderQueuePageSkeleton />}>
-              <StoreCreateOrderPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/store/orders/new" element={<StoreCreateOrderPage />} />
         <Route
           path="/store/create-order"
           element={<Navigate to="/store/orders/new" replace />}
@@ -360,38 +203,19 @@ export function App() {
         />
         <Route
           path="/store/deferrals/unserved"
-          element={
-            <React.Suspense fallback={<DeferralsPageSkeleton isAuditLog={false} />}>
-              <StoreDeferralsPage viewMode="unserved" />
-            </React.Suspense>
-          }
+          element={<StoreDeferralsPage viewMode="unserved" />}
         />
         <Route
           path="/store/deferrals/log"
-          element={
-            <React.Suspense fallback={<DeferralsPageSkeleton isAuditLog={true} />}>
-              <StoreDeferralsPage viewMode="log" />
-            </React.Suspense>
-          }
+          element={<StoreDeferralsPage viewMode="log" />}
         />
         <Route
           path="/store/deferrals/carryover"
-          element={
-            <React.Suspense fallback={<DeferralsPageSkeleton isAuditLog={false} />}>
-              <StoreDeferralsPage viewMode="carryover" />
-            </React.Suspense>
-          }
+          element={<StoreDeferralsPage viewMode="carryover" />}
         />
 
         {/* Store Reports */}
-        <Route
-          path="/store/reports"
-          element={
-            <React.Suspense fallback={<OrderQueuePageSkeleton />}>
-              <StoreReportsPage />
-            </React.Suspense>
-          }
-        />
+        <Route path="/store/reports" element={<StoreReportsPage />} />
 
         <Route path="/store/*" element={<Navigate to="/store/orders" replace />} />
       </Route>
