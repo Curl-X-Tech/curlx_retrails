@@ -3,7 +3,6 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/auth-context";
 import {
   Breadcrumb,
@@ -226,21 +225,6 @@ export function AppLayout() {
                 ))}
               </BreadcrumbList>
             </Breadcrumb>
-          </div>
-
-          {/* Right Role Indicator */}
-          <div className="flex items-center gap-2 shrink-0">
-            <Badge
-              variant="outline"
-              className="h-8 px-2.5 text-xs font-semibold uppercase rounded-lg border-border bg-background hidden md:flex items-center"
-            >
-              Role:{" "}
-              {user?.role
-                ? user.role.replace("_", " ")
-                : isStoreRole
-                  ? "Store Manager"
-                  : "Dispatcher"}
-            </Badge>
           </div>
         </header>
 
