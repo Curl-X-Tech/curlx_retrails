@@ -88,6 +88,7 @@ CREATE TABLE IF NOT EXISTS item (
     brand_id                UUID NOT NULL REFERENCES brand(id),
     name                    TEXT NOT NULL,
     category                TEXT NOT NULL,
+    unit                    TEXT NOT NULL DEFAULT 'Nos' CHECK (unit IN ('Crate', 'Box', 'Nos', 'Pack', 'Kg', 'Carton')),
     unit_weight_kg          NUMERIC(10,3) NOT NULL,
     unit_volume_m3          NUMERIC(10,4) NOT NULL,
     requires_cold_chain     BOOLEAN NOT NULL DEFAULT FALSE,
