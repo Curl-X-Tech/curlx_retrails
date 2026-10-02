@@ -7,9 +7,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.users import UserManager
+from app.entities.brand import Brand
 from app.entities.depot import Depot
 from app.entities.district import District
 from app.entities.user import User
+from app.enums.master import DeliveryWindowType
 from app.enums.roles import UserType
 
 logger = logging.getLogger(__name__)
@@ -73,6 +75,30 @@ DEFAULT_MASTER_DISTRICTS = [
     {"name": "Kandy", "province": "Central", "depot_code": "KDY"},
     {"name": "Matale", "province": "Central", "depot_code": "KDY"},
     {"name": "Nuwara Eliya", "province": "Central", "depot_code": "KDY"},
+]
+
+DEFAULT_MASTER_BRANDS = [
+    {
+        "code": "FRESH",
+        "name": "Waypoint Fresh",
+        "delivery_window_type": DeliveryWindowType.MORNING_STRICT,
+        "requires_cold_chain": True,
+        "daily_time_budget_min": 270,
+    },
+    {
+        "code": "STYLE",
+        "name": "Waypoint Style",
+        "delivery_window_type": DeliveryWindowType.STANDARD_RETAIL,
+        "requires_cold_chain": False,
+        "daily_time_budget_min": 480,
+    },
+    {
+        "code": "TECH",
+        "name": "Waypoint Tech",
+        "delivery_window_type": DeliveryWindowType.MALL_BAY_RESTRICTED,
+        "requires_cold_chain": False,
+        "daily_time_budget_min": 480,
+    },
 ]
 
 
@@ -173,4 +199,28 @@ async def seed_master_districts(session: AsyncSession) -> None:
                 dist_data["name"],
                 dist_data["province"],
                 dist_data["depot_code"],
+            )
+
+
+async def seed_master_brands(session: AsyncSession) -> None:
+    """Seeds retail brands with time budgets and cold chain rules."""
+    for brand_data in DEFAULT_MASTER_BRANDS:
+        result = await session.execute(
+            select(Brand).where(Brand.code == brand_data["code"])
+        )
+        existing_brand = result.scalar_one_or_none()
+        if not existing_brand:
+            brand = Brand(
+                code=brand_data["code"],
+                name=brand_data["name"],
+                delivery_window_type=brand_data["delivery_window_type"],
+                requires_cold_chain=brand_data["requires_cold_chain"],
+                daily_time_budget_min=brand_data["daily_time_budget_min"],
+            )
+            session.add(brand)
+            await session.commit()
+            logger.info(
+                "Seeded master brand: %s (%s)",
+                brand_data["name"],
+                brand_data["code"],
             )
