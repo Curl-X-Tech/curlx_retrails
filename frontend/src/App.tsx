@@ -104,6 +104,12 @@ const StoreReportsPage = lazyWithDelay(() =>
   }))
 );
 
+const LoginPage = lazyWithDelay(() =>
+  import("@/pages/auth/login-page").then((m) => ({
+    default: m.LoginPage,
+  }))
+);
+
 export function App() {
   const activeDomainRole = getActiveDomainRole();
   const rootDefaultPath =
@@ -117,6 +123,10 @@ export function App() {
 
   return (
     <Routes>
+      {/* Authentication & Password Reset */}
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/reset-password" element={<LoginPage />} />
+
       {/* Root redirect depending on active subdomain / app */}
       <Route path="/" element={<Navigate to={rootDefaultPath} replace />} />
 

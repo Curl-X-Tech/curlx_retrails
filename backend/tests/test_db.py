@@ -32,3 +32,22 @@ def test_get_db_generator(monkeypatch: pytest.MonkeyPatch):
 def test_base_metadata():
     assert Base.metadata is not None
     assert engine is not None
+
+
+@pytest.mark.asyncio
+async def test_seed_initial_users(session):
+    from sqlalchemy import select
+
+    from app.core.seed import seed_initial_users
+    from app.entities.user import User
+
+    await seed_initial_users(session)
+    result = await session.execute(select(User))
+    users = result.scalars().all()
+    emails = [u.email for u in users]
+
+    assert "admin@curlx.tech" in emails
+    assert "dispatcher@curlx.tech" in emails
+    assert "driver@curlx.tech" in emails
+    assert "loader@curlx.tech" in emails
+    assert "store@curlx.tech" in emails

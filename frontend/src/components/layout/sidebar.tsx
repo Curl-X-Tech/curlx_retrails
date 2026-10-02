@@ -767,7 +767,10 @@ export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={logout}
+                  onClick={() => {
+                    logout();
+                    navigate("/login");
+                  }}
                   className="text-xs p-2 gap-2.5 rounded-lg text-destructive focus:text-destructive cursor-pointer"
                 >
                   <SignOutIcon className="size-4" />

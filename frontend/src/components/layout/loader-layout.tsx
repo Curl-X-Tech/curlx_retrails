@@ -4,6 +4,7 @@ import {
   UserCircleIcon,
   SwapIcon,
   ListBulletsIcon,
+  SignOutIcon,
 } from "@phosphor-icons/react";
 import { useAuth } from "@/context/auth-context";
 import {
@@ -26,7 +27,7 @@ import { cn } from "@/lib/utils";
 export function LoaderLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, setRole } = useAuth();
+  const { user, setRole, logout } = useAuth();
 
   const isManifestsActive =
     location.pathname.startsWith("/loader/manifests") ||
@@ -116,6 +117,16 @@ export function LoaderLayout() {
               >
                 <SwapIcon className="size-4 mr-2" />
                 Switch to Dispatcher
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  logout();
+                  navigate("/login");
+                }}
+                className="text-destructive focus:text-destructive cursor-pointer"
+              >
+                <SignOutIcon className="size-4 mr-2" />
+                Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

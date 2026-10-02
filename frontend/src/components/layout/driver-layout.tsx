@@ -9,6 +9,7 @@ import {
   SwapIcon,
   CoffeeIcon,
   CheckCircleIcon,
+  SignOutIcon,
 } from "@phosphor-icons/react";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ import { cn } from "@/lib/utils";
 export function DriverLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, setRole } = useAuth();
+  const { user, setRole, logout } = useAuth();
   const [isOnBreak, setIsOnBreak] = React.useState(mockDriverTrip.onBreak);
   const [breakTimerSeconds, setBreakTimerSeconds] = React.useState(0);
   const [isBreakModalOpen, setIsBreakModalOpen] = React.useState(false);
@@ -205,6 +206,16 @@ export function DriverLayout() {
               >
                 <SwapIcon className="size-4 mr-2" />
                 Switch to Dispatcher
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => {
+                  logout();
+                  navigate("/login");
+                }}
+                className="text-destructive focus:text-destructive cursor-pointer"
+              >
+                <SignOutIcon className="size-4 mr-2" />
+                Log out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
