@@ -42,10 +42,10 @@
     "semantic_hash": "814de3bbb2c1d0c8d20dd9d7409d5e44"
   },
   "backend/app/core/db.py": {
-    "mtime": 1790928098.2530706,
-    "seen": 1790929113.1448722,
-    "ast_hash": "f5e6b50245e53cbe45d135023f70d389",
-    "semantic_hash": "f5e6b50245e53cbe45d135023f70d389"
+    "mtime": 1790929341.152742,
+    "seen": 1790931992.1899827,
+    "ast_hash": "f3faefc8dae0ff2b177f87d7fb171b8d",
+    "semantic_hash": "f3faefc8dae0ff2b177f87d7fb171b8d"
   },
   "backend/app/main.py": {
     "mtime": 1790924411.7421653,
@@ -54,10 +54,10 @@
     "semantic_hash": "e9572663c67d7f4f20ab28362a7e2e62"
   },
   "backend/app/models.py": {
-    "mtime": 1790929025.1634083,
-    "seen": 1790929113.145227,
-    "ast_hash": "ba293c01cb7f94964862874d800e7f37",
-    "semantic_hash": "ba293c01cb7f94964862874d800e7f37"
+    "mtime": 1790929302.8337069,
+    "seen": 1790931992.1904273,
+    "ast_hash": "7050d1a89aedcb2f188b585664ec31a1",
+    "semantic_hash": "7050d1a89aedcb2f188b585664ec31a1"
   },
   "backend/pyproject.toml": {
     "mtime": 1790924411.7460303,
@@ -666,10 +666,10 @@
     "semantic_hash": "4f711e082c9b4fbb1500b3b35e194e1c"
   },
   "backend/app/core/seed.py": {
-    "mtime": 1790929025.1634083,
-    "seen": 1790929113.144873,
-    "ast_hash": "1b8022b6aa040bc7631fc61197320f04",
-    "semantic_hash": "1b8022b6aa040bc7631fc61197320f04"
+    "mtime": 1790929330.0987132,
+    "seen": 1790931992.1899838,
+    "ast_hash": "85b90b84ca2f69b7272dbbcb07fceb18",
+    "semantic_hash": "85b90b84ca2f69b7272dbbcb07fceb18"
   },
   "backend/app/core/users.py": {
     "mtime": 1790928438.2516181,
@@ -678,10 +678,10 @@
     "semantic_hash": "eda8db21d4781af4e3b12fdf9e328866"
   },
   "backend/app/entities/__init__.py": {
-    "mtime": 1790929025.1634083,
-    "seen": 1790929113.1448753,
-    "ast_hash": "08a35ae057882258ea445c2cd42c2829",
-    "semantic_hash": "08a35ae057882258ea445c2cd42c2829"
+    "mtime": 1790929283.4299762,
+    "seen": 1790931992.1900308,
+    "ast_hash": "27297e00c3d0d6d73ebe8c3e4ff59067",
+    "semantic_hash": "27297e00c3d0d6d73ebe8c3e4ff59067"
   },
   "backend/app/entities/base.py": {
     "mtime": 1790924411.7421653,
@@ -726,10 +726,10 @@
     "semantic_hash": "55f7255e45360f4fc92e38b78bd9143c"
   },
   "backend/app/schemas/__init__.py": {
-    "mtime": 1790929025.1634083,
-    "seen": 1790929113.1452281,
-    "ast_hash": "c032ca905a58a232b212090341d60c87",
-    "semantic_hash": "c032ca905a58a232b212090341d60c87"
+    "mtime": 1790929296.405333,
+    "seen": 1790931992.1904285,
+    "ast_hash": "f238b4f97f1dcfd7de315f0246e9d701",
+    "semantic_hash": "f238b4f97f1dcfd7de315f0246e9d701"
   },
   "backend/app/schemas/user.py": {
     "mtime": 1790924411.7421653,
@@ -780,10 +780,10 @@
     "semantic_hash": "c2f365076b2bedd5d32e7a5f667c82a0"
   },
   "backend/app/api/v1/master.py": {
-    "mtime": 1790929025.1634083,
-    "seen": 1790929113.1447456,
-    "ast_hash": "f2696f0c17c7417cd278bea6203d8b33",
-    "semantic_hash": "f2696f0c17c7417cd278bea6203d8b33"
+    "mtime": 1790929314.5821753,
+    "seen": 1790931992.1898837,
+    "ast_hash": "5c478276b40ba19318339d7bba6a42ae",
+    "semantic_hash": "5c478276b40ba19318339d7bba6a42ae"
   },
   "backend/app/entities/depot.py": {
     "mtime": 1790927986.7669766,
@@ -802,5 +802,23 @@
     "seen": 1790929113.1456487,
     "ast_hash": "d90dace2af510a248552aa107df8ab9b",
     "semantic_hash": "d90dace2af510a248552aa107df8ab9b"
+  },
+  "backend/app/entities/district.py": {
+    "mtime": 1790929277.380991,
+    "seen": 1790931992.190125,
+    "ast_hash": "cde594acfe5cfcc1c8073a03f34a8e99",
+    "semantic_hash": "cde594acfe5cfcc1c8073a03f34a8e99"
+  },
+  "backend/app/schemas/district.py": {
+    "mtime": 1790929289.279558,
+    "seen": 1790931992.1904738,
+    "ast_hash": "145d8c2613566431ad431a3f81d3da36",
+    "semantic_hash": "145d8c2613566431ad431a3f81d3da36"
+  },
+  "backend/tests/test_master_districts.py": {
+    "mtime": 1790929349.9262497,
+    "seen": 1790931992.1909134,
+    "ast_hash": "d0b0505b942cc7b0f6d822eee8f2ece3",
+    "semantic_hash": "d0b0505b942cc7b0f6d822eee8f2ece3"
   }
 }
