@@ -42,10 +42,10 @@
     "semantic_hash": "814de3bbb2c1d0c8d20dd9d7409d5e44"
   },
   "backend/app/core/db.py": {
-    "mtime": 1790929341.152742,
-    "seen": 1790931992.1899827,
-    "ast_hash": "f3faefc8dae0ff2b177f87d7fb171b8d",
-    "semantic_hash": "f3faefc8dae0ff2b177f87d7fb171b8d"
+    "mtime": 1790932121.3885987,
+    "seen": 1790933849.7626326,
+    "ast_hash": "7fcb12a366f915ab5340ed89134f93fa",
+    "semantic_hash": "7fcb12a366f915ab5340ed89134f93fa"
   },
   "backend/app/main.py": {
     "mtime": 1790924411.7421653,
@@ -54,10 +54,10 @@
     "semantic_hash": "e9572663c67d7f4f20ab28362a7e2e62"
   },
   "backend/app/models.py": {
-    "mtime": 1790929302.8337069,
-    "seen": 1790931992.1904273,
-    "ast_hash": "7050d1a89aedcb2f188b585664ec31a1",
-    "semantic_hash": "7050d1a89aedcb2f188b585664ec31a1"
+    "mtime": 1790932768.5326035,
+    "seen": 1790933849.7630749,
+    "ast_hash": "44d2d8e7ce8097559b7bfc4406ae7c73",
+    "semantic_hash": "44d2d8e7ce8097559b7bfc4406ae7c73"
   },
   "backend/pyproject.toml": {
     "mtime": 1790924411.7460303,
@@ -666,10 +666,10 @@
     "semantic_hash": "4f711e082c9b4fbb1500b3b35e194e1c"
   },
   "backend/app/core/seed.py": {
-    "mtime": 1790929330.0987132,
-    "seen": 1790931992.1899838,
-    "ast_hash": "85b90b84ca2f69b7272dbbcb07fceb18",
-    "semantic_hash": "85b90b84ca2f69b7272dbbcb07fceb18"
+    "mtime": 1790932827.4326046,
+    "seen": 1790933849.7626338,
+    "ast_hash": "6bb4252b90b4f1adfe223ff05b8735bc",
+    "semantic_hash": "6bb4252b90b4f1adfe223ff05b8735bc"
   },
   "backend/app/core/users.py": {
     "mtime": 1790928438.2516181,
@@ -678,10 +678,10 @@
     "semantic_hash": "eda8db21d4781af4e3b12fdf9e328866"
   },
   "backend/app/entities/__init__.py": {
-    "mtime": 1790929283.4299762,
-    "seen": 1790931992.1900308,
-    "ast_hash": "27297e00c3d0d6d73ebe8c3e4ff59067",
-    "semantic_hash": "27297e00c3d0d6d73ebe8c3e4ff59067"
+    "mtime": 1790932046.184643,
+    "seen": 1790933849.7626822,
+    "ast_hash": "927efdf86b8c78fb4899e9f4a3a8f031",
+    "semantic_hash": "927efdf86b8c78fb4899e9f4a3a8f031"
   },
   "backend/app/entities/base.py": {
     "mtime": 1790924411.7421653,
@@ -696,10 +696,10 @@
     "semantic_hash": "ce115c16bdf1814260b813d270816f49"
   },
   "backend/app/enums/__init__.py": {
-    "mtime": 1790927908.795921,
-    "seen": 1790929113.1449957,
-    "ast_hash": "988fa5ad0ae8dcd7de5a4cb37ad962e3",
-    "semantic_hash": "988fa5ad0ae8dcd7de5a4cb37ad962e3"
+    "mtime": 1790932737.556603,
+    "seen": 1790933849.7628572,
+    "ast_hash": "24bd2314b34ce7ff59a37934c5d00be9",
+    "semantic_hash": "24bd2314b34ce7ff59a37934c5d00be9"
   },
   "backend/app/enums/roles.py": {
     "mtime": 1790924411.7421653,
@@ -726,10 +726,10 @@
     "semantic_hash": "55f7255e45360f4fc92e38b78bd9143c"
   },
   "backend/app/schemas/__init__.py": {
-    "mtime": 1790929296.405333,
-    "seen": 1790931992.1904285,
-    "ast_hash": "f238b4f97f1dcfd7de315f0246e9d701",
-    "semantic_hash": "f238b4f97f1dcfd7de315f0246e9d701"
+    "mtime": 1790932059.2646365,
+    "seen": 1790933849.7630756,
+    "ast_hash": "34d41b0881eab0a208496f29981b2f46",
+    "semantic_hash": "34d41b0881eab0a208496f29981b2f46"
   },
   "backend/app/schemas/user.py": {
     "mtime": 1790924411.7421653,
@@ -780,10 +780,10 @@
     "semantic_hash": "c2f365076b2bedd5d32e7a5f667c82a0"
   },
   "backend/app/api/v1/master.py": {
-    "mtime": 1790929314.5821753,
-    "seen": 1790931992.1898837,
-    "ast_hash": "5c478276b40ba19318339d7bba6a42ae",
-    "semantic_hash": "5c478276b40ba19318339d7bba6a42ae"
+    "mtime": 1790932779.6126044,
+    "seen": 1790933849.7625377,
+    "ast_hash": "b4d13e2538231c238a9861c345560483",
+    "semantic_hash": "b4d13e2538231c238a9861c345560483"
   },
   "backend/app/entities/depot.py": {
     "mtime": 1790927986.7669766,
@@ -820,5 +820,29 @@
     "seen": 1790931992.1909134,
     "ast_hash": "d0b0505b942cc7b0f6d822eee8f2ece3",
     "semantic_hash": "d0b0505b942cc7b0f6d822eee8f2ece3"
+  },
+  "backend/app/entities/brand.py": {
+    "mtime": 1790932747.5886025,
+    "seen": 1790933849.7627285,
+    "ast_hash": "0aeb000fb5e288c5e3d866757a471594",
+    "semantic_hash": "0aeb000fb5e288c5e3d866757a471594"
+  },
+  "backend/app/enums/master.py": {
+    "mtime": 1790932726.0446033,
+    "seen": 1790933849.7628582,
+    "ast_hash": "739c8f30315368f1a9b1f7e286843ea8",
+    "semantic_hash": "739c8f30315368f1a9b1f7e286843ea8"
+  },
+  "backend/app/schemas/brand.py": {
+    "mtime": 1790932757.3766026,
+    "seen": 1790933849.7630763,
+    "ast_hash": "ddc91240ee10cb6174e1d40a001c1963",
+    "semantic_hash": "ddc91240ee10cb6174e1d40a001c1963"
+  },
+  "backend/tests/test_master_brands.py": {
+    "mtime": 1790932840.0966043,
+    "seen": 1790933849.7635827,
+    "ast_hash": "90b8446c97df4f497ae0a58b978108e0",
+    "semantic_hash": "90b8446c97df4f497ae0a58b978108e0"
   }
 }
