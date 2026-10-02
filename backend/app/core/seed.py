@@ -2,10 +2,12 @@ import logging
 
 from fastapi_users import exceptions
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.users import UserManager
+from app.entities.depot import Depot
 from app.entities.user import User
 from app.enums.roles import UserType
 
@@ -41,6 +43,25 @@ DEFAULT_DEV_SEED_USERS = [
         "password": "Password123!",
         "name": "Anoma Wickramasinghe",
         "user_type": UserType.STORE_MANAGER,
+    },
+]
+
+DEFAULT_MASTER_DEPOTS = [
+    {
+        "code": "PEL",
+        "name": "Peliyagoda Central DC",
+        "latitude": 6.9649,
+        "longitude": 79.8872,
+        "address": "Peliyagoda Distribution Center, Western Province",
+        "is_active": True,
+    },
+    {
+        "code": "KDY",
+        "name": "Kandy Regional Hub",
+        "latitude": 7.2906,
+        "longitude": 80.6337,
+        "address": "Kandy Logistics Hub, Central Province",
+        "is_active": True,
     },
 ]
 
@@ -92,3 +113,28 @@ async def seed_initial_users(session: AsyncSession) -> None:
                     seed_data["email"],
                     seed_data["user_type"].value,
                 )
+
+
+async def seed_master_depots(session: AsyncSession) -> None:
+    """Seeds central distribution centers and regional hubs if they do not exist."""
+    for depot_data in DEFAULT_MASTER_DEPOTS:
+        result = await session.execute(
+            select(Depot).where(Depot.code == depot_data["code"])
+        )
+        existing_depot = result.scalar_one_or_none()
+        if not existing_depot:
+            depot = Depot(
+                code=depot_data["code"],
+                name=depot_data["name"],
+                latitude=depot_data["latitude"],
+                longitude=depot_data["longitude"],
+                address=depot_data["address"],
+                is_active=depot_data["is_active"],
+            )
+            session.add(depot)
+            await session.commit()
+            logger.info(
+                "Seeded master depot: %s (%s)",
+                depot_data["name"],
+                depot_data["code"],
+            )
