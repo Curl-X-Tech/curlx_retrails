@@ -182,10 +182,17 @@ export function AppLayout() {
               <BreadcrumbList>
                 <BreadcrumbItem>
                   <BreadcrumbLink
-                    onClick={() => navigate("/store/orders")}
-                    className="cursor-pointer hover:text-foreground transition-colors hidden sm:inline"
+                    onClick={() =>
+                      navigate(isStoreRole ? "/store/orders" : "/dispatcher/orders")
+                    }
+                    className="cursor-pointer hover:text-foreground transition-colors hidden sm:flex items-center gap-1.5"
                   >
-                    ReTrails
+                    <img
+                      src="/icon.png"
+                      alt="ReTrails Logo"
+                      className="size-4 object-contain rounded-xs"
+                    />
+                    <span>ReTrails</span>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 {crumbs.map((crumb, idx) => (

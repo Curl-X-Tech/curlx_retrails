@@ -19,11 +19,20 @@ export function ProtectedRoute({ allowedRoles, children }: ProtectedRouteProps) 
   if (isLoading) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div className="size-8 rounded-full border-2 border-primary border-t-transparent animate-spin" />
-          <p className="text-xs text-muted-foreground font-medium">
-            Verifying console authorization...
-          </p>
+        <div className="flex flex-col items-center gap-3 text-center">
+          <div className="size-12 rounded-2xl bg-card border border-border/80 p-2 shadow-sm overflow-hidden animate-pulse">
+            <img
+              src="/icon.png"
+              alt="ReTrails Logo"
+              className="size-full object-contain"
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="size-3.5 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+            <p className="text-xs text-muted-foreground font-medium">
+              Verifying console authorization...
+            </p>
+          </div>
         </div>
       </div>
     );

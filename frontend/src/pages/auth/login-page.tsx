@@ -185,8 +185,12 @@ export function LoginPage() {
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
         <div className="text-center space-y-2">
-          <div className="inline-flex size-12 items-center justify-center rounded-xl bg-foreground text-background font-bold text-lg tracking-tight mb-1 shadow-sm">
-            RX
+          <div className="inline-flex size-14 items-center justify-center rounded-2xl bg-card border border-border/80 p-2 mb-1 shadow-sm overflow-hidden">
+            <img
+              src="/icon.png"
+              alt="ReTrails Logo"
+              className="size-full object-contain"
+            />
           </div>
           <h1 className="text-2xl font-heading font-bold text-foreground tracking-tight">
             ReTrails

@@ -215,7 +215,24 @@ export function DriverLayout() {
         {/* 4. Left Menu / Trip Overview Drawer */}
         <Sheet open={isMenuDrawerOpen} onOpenChange={setIsMenuDrawerOpen}>
           <SheetContent side="left" className="w-80 p-0 flex flex-col bg-card">
-            <SheetHeader className="p-4 pb-3 border-b border-border/70">
+            <SheetHeader className="p-4 pb-3 border-b border-border/70 text-left">
+              <div className="flex items-center gap-2.5 mb-2.5">
+                <div className="size-8 rounded-lg bg-card border border-border/70 overflow-hidden p-1 shrink-0 flex items-center justify-center shadow-2xs">
+                  <img
+                    src="/icon.png"
+                    alt="ReTrails Logo"
+                    className="size-full object-contain"
+                  />
+                </div>
+                <div>
+                  <div className="font-heading font-black text-sm text-foreground leading-tight">
+                    ReTrails Driver
+                  </div>
+                  <div className="text-[10px] text-muted-foreground font-medium">
+                    Pilot Operating Console
+                  </div>
+                </div>
+              </div>
               <SheetTitle className="font-heading font-black text-base text-foreground flex items-center justify-between">
                 <span>Trip Manifest {mockDriverTrip.tripCode}</span>
                 <Badge variant="outline" className="font-bold text-xs">

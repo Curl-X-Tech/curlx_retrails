@@ -42,8 +42,12 @@ export function LoaderLayout() {
         {/* Top: Logo & Dual Navigation Actions */}
         <div className="flex flex-col items-center gap-3 w-full">
           {/* Logo Mark */}
-          <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary font-heading font-black text-sm tracking-wider">
-            CX
+          <div className="flex size-10 items-center justify-center rounded-xl bg-card border border-border/60 shadow-xs overflow-hidden p-1.5">
+            <img
+              src="/icon.png"
+              alt="ReTrails Logo"
+              className="size-full object-contain"
+            />
           </div>
 
           <Separator className="w-8 bg-border/60" />
@@ -134,9 +138,14 @@ export function LoaderLayout() {
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     onClick={() => navigate("/loader/manifests")}
-                    className="cursor-pointer hover:text-foreground transition-colors font-medium text-xs sm:text-sm"
+                    className="cursor-pointer hover:text-foreground transition-colors font-medium text-xs sm:text-sm flex items-center gap-1.5"
                   >
-                    ReTrails
+                    <img
+                      src="/icon.png"
+                      alt="ReTrails Logo"
+                      className="size-4 object-contain rounded-xs"
+                    />
+                    <span>ReTrails</span>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />

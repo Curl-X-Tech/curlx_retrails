@@ -15,7 +15,6 @@ import {
   SignOutIcon,
   WarehouseIcon,
   CheckIcon,
-  ShieldCheckIcon,
   UsersIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
@@ -456,8 +455,12 @@ export function AppSidebar({ activeId, onSelect, customNavGroups }: AppSidebarPr
           {!isCollapsed ? (
             isAdminRole ? (
               <div className="flex items-center gap-3 p-1.5 -ml-1 min-w-0 flex-1">
-                <div className="flex items-center justify-center size-10 rounded-xl bg-primary text-primary-foreground font-heading font-bold text-base shadow-xs shrink-0">
-                  <ShieldCheckIcon weight="bold" className="size-5" />
+                <div className="flex items-center justify-center size-10 rounded-xl bg-card border border-border/60 shadow-xs shrink-0 overflow-hidden p-1.5">
+                  <img
+                    src="/icon.png"
+                    alt="ReTrails Logo"
+                    className="size-full object-contain"
+                  />
                 </div>
                 <div className="flex flex-col min-w-0 leading-tight">
                   <span className="font-heading font-bold text-sm text-foreground tracking-tight truncate">
@@ -479,8 +482,12 @@ export function AppSidebar({ activeId, onSelect, customNavGroups }: AppSidebarPr
                     />
                   }
                 >
-                  <div className="flex items-center justify-center size-10 rounded-xl bg-primary text-primary-foreground font-heading font-bold text-base shadow-xs shrink-0">
-                    <WarehouseIcon weight="bold" className="size-5" />
+                  <div className="flex items-center justify-center size-10 rounded-xl bg-card border border-border/60 shadow-xs shrink-0 overflow-hidden p-1.5">
+                    <img
+                      src="/icon.png"
+                      alt="ReTrails Logo"
+                      className="size-full object-contain"
+                    />
                   </div>
                   <div className="flex flex-col min-w-0 leading-tight">
                     <span className="font-heading font-bold text-sm text-foreground tracking-tight truncate">
@@ -531,12 +538,12 @@ export function AppSidebar({ activeId, onSelect, customNavGroups }: AppSidebarPr
               </DropdownMenu>
             )
           ) : (
-            <div className="flex items-center justify-center size-10 rounded-xl bg-primary text-primary-foreground mx-auto shadow-xs">
-              {isAdminRole ? (
-                <ShieldCheckIcon weight="bold" className="size-5" />
-              ) : (
-                <WarehouseIcon weight="bold" className="size-5" />
-              )}
+            <div className="flex items-center justify-center size-10 rounded-xl bg-card border border-border/60 mx-auto shadow-xs overflow-hidden p-1.5">
+              <img
+                src="/icon.png"
+                alt="ReTrails Logo"
+                className="size-full object-contain"
+              />
             </div>
           )}
         </div>
