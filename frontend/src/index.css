@@ -6,6 +6,13 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --breakpoint-phone: 320px;
+  --breakpoint-tablet: 600px;
+  --breakpoint-desktop: 1024px;
+  --breakpoint-wide: 1440px;
+}
+
 :root {
   --background: oklch(1 0 0);
   --foreground: oklch(0.145 0 0);
@@ -66,9 +73,17 @@
   --shadow-xl:
     0px 4px 14px -1px hsl(0 0% 27.0588% / 0.08),
     0px 8px 10px -2px hsl(0 0% 27.0588% / 0.08);
-  --shadow-2xl: 0px 4px 14px -1px hsl(0 0% 27.0588% / 0.2);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
+
+  --status-skip: #e11d48;
+  --status-skip-bg: #fff1f2;
+  --status-skip-border: #fecdd3;
+  --status-urgent: #d97706;
+  --status-urgent-bg: #fffbeb;
+  --status-urgent-border: #fde68a;
+  --status-chilled: #0284c7;
+  --status-ambient: #b45309;
 }
 
 .dark {
@@ -132,6 +147,15 @@
     0px 4px 14px -1px hsl(0 0% 10.1961% / 0.08),
     0px 8px 10px -2px hsl(0 0% 10.1961% / 0.08);
   --shadow-2xl: 0px 4px 14px -1px hsl(0 0% 10.1961% / 0.2);
+
+  --status-skip: #fb7185;
+  --status-skip-bg: #88133725;
+  --status-skip-border: #be123c50;
+  --status-urgent: #fbbf24;
+  --status-urgent-bg: #78350f25;
+  --status-urgent-border: #b4530950;
+  --status-chilled: #38bdf8;
+  --status-ambient: #fbbf24;
 }
 
 @theme inline {
@@ -168,6 +192,15 @@
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
+  --color-status-skip: var(--status-skip);
+  --color-status-skip-bg: var(--status-skip-bg);
+  --color-status-skip-border: var(--status-skip-border);
+  --color-status-urgent: var(--status-urgent);
+  --color-status-urgent-bg: var(--status-urgent-bg);
+  --color-status-urgent-border: var(--status-urgent-border);
+  --color-status-chilled: var(--status-chilled);
+  --color-status-ambient: var(--status-ambient);
+
   --font-sans: "Manrope Variable", sans-serif;
   --font-mono: var(--font-mono);
   --font-serif: var(--font-serif);
@@ -200,5 +233,284 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+/* Leaflet clean light mode map styling */
+.leaflet-container {
+  font-family: inherit !important;
+  background-color: #f8fafc !important;
+}
+
+.leaflet-tile-pane {
+  filter: contrast(102%) brightness(101%);
+}
+
+.leaflet-control-zoom {
+  border: 1px solid var(--border) !important;
+  border-radius: 0.75rem !important;
+  overflow: hidden !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.leaflet-control-zoom-in,
+.leaflet-control-zoom-out {
+  background-color: #ffffff !important;
+  color: var(--foreground) !important;
+  border-bottom: 1px solid var(--border) !important;
+}
+
+.leaflet-popup-content-wrapper {
+  background: rgba(255, 255, 255, 0.98) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 0.875rem !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 0.25rem !important;
+}
+
+.leaflet-popup-content {
+  margin: 0.5rem !important;
+  line-height: 1.4 !important;
+}
+
+.leaflet-popup-tip {
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: none !important;
+}
+
+@keyframes lock-shake {
+  0%,
+  100% {
+    transform: translateX(0) rotate(0deg);
+  }
+  20% {
+    transform: translateX(-5px) rotate(-8deg);
+  }
+  40% {
+    transform: translateX(5px) rotate(8deg);
+  }
+  60% {
+    transform: translateX(-4px) rotate(-4deg);
+  }
+  80% {
+    transform: translateX(4px) rotate(4deg);
+  }
+}
+
+.animate-lock-shake {
+  animation: lock-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+/* ============================================================ */
+/* 4-Tier Enterprise Responsive Grid System Utilities           */
+/* Roles & Screen Tiers:                                        */
+/* 1. Phone (< 600px): Driver / Store Manager (4 Cols)          */
+/* 2. Tablet (600px - 1023px): Warehouse Loader (8 Cols)        */
+/* 3. Desktop (1024px - 1439px): Dispatcher Console (12 Cols)   */
+/* 4. Wide (>= 1440px): Live Command Center Wall (12/16 Cols)   */
+/* ============================================================ */
+
+/* Grid Patterns */
+.page-grid-padded {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .page-grid-padded {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 24px;
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-grid-padded {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 36px;
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .page-grid-padded {
+    padding-left: 64px;
+    padding-right: 64px;
+  }
+}
+
+.page-grid-flush {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+@media (min-width: 600px) {
+  .page-grid-flush {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-grid-flush {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: 36px;
+  }
+}
+
+/* Container Modes */
+.page-container-compact {
+  width: 100%;
+  max-width: 599px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+.page-container-tablet {
+  width: 100%;
+  max-width: 1023px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .page-container-tablet {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+.page-container-desktop {
+  width: 100%;
+  max-width: 1440px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .page-container-desktop {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container-desktop {
+    padding-left: 36px;
+    padding-right: 36px;
+  }
+}
+
+.page-container-fluid {
+  width: 100%;
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .page-container-fluid {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .page-container-fluid {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* Dual-Pane Split Workspace (Tablet Landscape & Desktop) */
+.split-workspace-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .split-workspace-grid {
+    grid-template-columns: 5fr 7fr;
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .split-workspace-grid {
+    gap: 36px;
+  }
+}
+
+/* 3-Pane Command Center Grid (Live Map & Fleet View) */
+.command-center-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .command-center-grid {
+    grid-template-columns: 3fr 6fr 3fr;
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .command-center-grid {
+    gap: 28px;
+  }
+}
+
+/* Responsive Gutter & Margin Utility */
+.gutter-responsive {
+  gap: 16px;
+}
+
+@media (min-width: 600px) {
+  .gutter-responsive {
+    gap: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .gutter-responsive {
+    gap: 36px;
+  }
+}
+
+.margin-responsive {
+  padding-left: 16px;
+  padding-right: 16px;
+}
+
+@media (min-width: 600px) {
+  .margin-responsive {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .margin-responsive {
+    padding-left: 48px;
+    padding-right: 48px;
   }
 }

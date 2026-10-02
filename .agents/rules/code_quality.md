@@ -19,3 +19,18 @@ Always use `./dev.sh` to run, test, lint, format, and check tasks across the rep
 Before committing any changes to the repository, all quality checks MUST pass cleanly:
 - Run `./dev.sh check` to execute lint, format checks, type checking, and tests in sequence.
 - Any failure blocks the commit.
+
+## 4. UI Components Protection
+- Never overwrite or clobber existing custom UI components in `frontend/src/components/ui/` with stock CLI presets or templates. Preserve bespoke refinements and design tokens.
+
+## 5. Data & Mock Separation
+- Do not bloat React component files or page layouts with large inline mock datasets, seed lists, or static coordinate arrays (>50 lines).
+- Store all mock data, seed arrays, and static records in dedicated files under `frontend/src/data/` (e.g., `frontend/src/data/mock-live-map.ts`, `frontend/src/data/mock-orders.ts`).
+- Export explicit TypeScript types alongside mock records to ensure strong typing across hooks, stores, and components.
+
+## 6. Comment Discipline & Minimalist Code
+- Do not clutter code with redundant, conversational, or self-evident comments (e.g., step numbers, section banners on obvious tags, or field-by-field annotations).
+- Rely on self-documenting code with clear variable and function names, strong TypeScript typings, and single-responsibility components.
+- Comments are only acceptable for non-obvious algorithms, mathematical calculations, coordinate scaling matrices, or critical domain invariants.
+
+
