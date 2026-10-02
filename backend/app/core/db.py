@@ -101,6 +101,7 @@ async def init_db() -> None:
         seed_master_districts,
         seed_master_items,
         seed_master_outlets,
+        seed_master_prices,
     )
 
     await _create_tables()
@@ -111,3 +112,4 @@ async def init_db() -> None:
         await seed_master_brands(session)
         await seed_master_outlets(session)
         await seed_master_items(session)
+        await seed_master_prices(session)

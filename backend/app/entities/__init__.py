@@ -4,6 +4,16 @@ from app.entities.depot import Depot
 from app.entities.district import District
 from app.entities.item import Item
 from app.entities.outlet import Outlet
+from app.entities.price_list import PriceList
 from app.entities.user import User
 
-__all__ = ["BaseEntity", "Brand", "Depot", "District", "Item", "Outlet", "User"]
+__all__ = [
+    "BaseEntity",
+    "Brand",
+    "Depot",
+    "District",
+    "Item",
+    "Outlet",
+    "PriceList",
+    "User",
+]

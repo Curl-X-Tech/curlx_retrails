@@ -1,12 +1,19 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import datetime
 from typing import Any
 
 from sqlmodel import Field, SQLModel
 
+from app.core.timezone import SRI_LANKA_TZ, sl_now, sl_today, utc_now, utc_today
 
-def utc_now() -> datetime:
-    return datetime.now(timezone.utc)
+__all__ = [
+    "SRI_LANKA_TZ",
+    "BaseEntity",
+    "sl_now",
+    "sl_today",
+    "utc_now",
+    "utc_today",
+]
 
 
 class BaseEntity(SQLModel):

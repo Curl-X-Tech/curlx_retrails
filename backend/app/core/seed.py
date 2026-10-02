@@ -15,6 +15,7 @@ from app.entities.depot import Depot
 from app.entities.district import District
 from app.entities.item import Item
 from app.entities.outlet import Outlet
+from app.entities.price_list import PriceList
 from app.entities.user import User
 from app.enums.master import DeliveryWindowType, DockType, ParkingConstraint
 from app.enums.roles import UserType
@@ -367,3 +368,50 @@ async def seed_master_items(session: AsyncSession) -> None:
     if seeded_count > 0:
         await session.commit()
         logger.info("Successfully seeded %d master catalog items.", seeded_count)
+
+
+async def seed_master_prices(session: AsyncSession) -> None:
+    """Seeds temporal pricing records for catalog items from data/prices.json."""
+    prices_file = Path(__file__).resolve().parent.parent / "data" / "prices.json"
+    if not prices_file.exists():
+        logger.warning("Prices seed file %s does not exist. Skipping.", prices_file)
+        return
+
+    item_res = await session.execute(select(Item))
+    items_by_sku = {i.sku: i.id for i in item_res.scalars().all()}
+
+    import anyio
+
+    file_content = await anyio.Path(prices_file).read_text(encoding="utf-8")
+    prices_data = json.loads(file_content)
+
+    seeded_count = 0
+    for row in prices_data:
+        sku = row["sku"].upper()
+        item_id = items_by_sku.get(sku)
+        if not item_id:
+            continue
+
+        check = await session.execute(
+            select(PriceList).where(
+                PriceList.item_id == item_id,
+                PriceList.is_active.is_(True),
+            )
+        )
+        if check.scalar_one_or_none():
+            continue
+
+        price = PriceList(
+            item_id=item_id,
+            cost_price=float(row["cost_price"]),
+            unit_price=float(row["unit_price"]),
+            currency=row.get("currency", "LKR"),
+            price_change_reason=row.get("price_change_reason", "standard_pricing"),
+            is_active=True,
+        )
+        session.add(price)
+        seeded_count += 1
+
+    if seeded_count > 0:
+        await session.commit()
+        logger.info("Successfully seeded %d master item price records.", seeded_count)
