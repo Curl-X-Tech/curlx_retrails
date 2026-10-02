@@ -91,5 +91,8 @@ data/raw/
 # Graphify output & cache
 graphify-out/
 
-
-
+# SSH Keys & TLS Certs
+*.key
+*.key.pub
+*.pem
+*.crt
