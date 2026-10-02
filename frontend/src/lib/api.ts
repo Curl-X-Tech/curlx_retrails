@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
+const API_URL = import.meta.env.VITE_API_URL || "/api/v1";
 const TOKEN_KEY = "curlx_retrails_auth_token";
 
 export function getStoredToken(): string | null {

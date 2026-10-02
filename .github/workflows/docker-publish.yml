@@ -4,7 +4,15 @@ on:
   push:
     branches: [main]
     tags: ["v*.*.*"]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".vscode/**"
   workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   REGISTRY: ghcr.io
@@ -47,7 +55,7 @@ jobs:
             type=ref,event=tag
             type=sha,prefix=sha-
 
-      # Build and push Backend image
+      # Build and push Backend image (multi-arch: amd64 + arm64)
       - name: Build and push Backend Image
         uses: docker/build-push-action@v6
         with:
@@ -72,13 +80,16 @@ jobs:
             type=ref,event=tag
             type=sha,prefix=sha-
 
-      # Build and push Frontend Image
+      # Build and push Frontend Image (multi-arch: amd64 + arm64)
       - name: Build and push Frontend Image
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            VITE_MAP_API_KEY=${{ secrets.VITE_MAP_API_KEY }}
+            VITE_MAP_TILE_URL=https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
