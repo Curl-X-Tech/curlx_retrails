@@ -17,6 +17,7 @@ import { DeferralsPage } from "@/pages/dispatcher/deferrals-page";
 import { LoaderBaysPage } from "@/pages/loader/loader-bays-page";
 import { LoaderManifestsPage } from "@/pages/loader/loader-manifests-page";
 
+import { DriverTripsListPage } from "@/pages/driver/driver-trips-list-page";
 import { DriverActiveTripPage } from "@/pages/driver/driver-active-trip-page";
 import { DriverStopsPage } from "@/pages/driver/driver-stops-page";
 import { DriverVehiclePage } from "@/pages/driver/driver-vehicle-page";
@@ -150,7 +151,7 @@ export function App() {
       {/* ----------------------------------------------------------- */}
       {/* 3. Protected Driver Route Tree (Mobile Field Driver UI)     */}
       {/* ----------------------------------------------------------- */}
-      <Route path="/driver" element={<Navigate to="/driver/active" replace />} />
+      <Route path="/driver" element={<Navigate to="/driver/trips" replace />} />
       <Route
         element={
           <ProtectedRoute allowedRoles={["driver"]}>
@@ -158,12 +159,13 @@ export function App() {
           </ProtectedRoute>
         }
       >
+        <Route path="/driver/trips" element={<DriverTripsListPage />} />
         <Route path="/driver/active" element={<DriverActiveTripPage />} />
         <Route path="/driver/run" element={<Navigate to="/driver/active" replace />} />
         <Route path="/driver/stops" element={<DriverStopsPage />} />
         <Route path="/driver/vehicle" element={<DriverVehiclePage />} />
         <Route path="/driver/unload" element={<DriverUnloadingPage />} />
-        <Route path="/driver/*" element={<Navigate to="/driver/active" replace />} />
+        <Route path="/driver/*" element={<Navigate to="/driver/trips" replace />} />
       </Route>
 
       {/* ----------------------------------------------------------- */}

@@ -1,6 +1,7 @@
 import * as React from "react";
 import type { StaffRole } from "@/types/domain";
 import {
+  ApiError,
   fetchCurrentUser,
   getStoredToken,
   loginWithCredentials,
@@ -85,27 +86,58 @@ const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<StaffUser | null>(() => getStoredUser());
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
+  // If stored user exists, don't block the screen with full-page spinner (0ms instant launch)
+  const [isLoading, setIsLoading] = React.useState<boolean>(
+    () => !getStoredUser() && !!getStoredToken()
+  );
 
   const refreshUser = React.useCallback(async () => {
     const token = getStoredToken();
+    const storedUser = getStoredUser();
+
     if (!token) {
-      // If no token exists, ensure unauthenticated state
-      persistUser(null);
-      setUser(null);
+      if (storedUser) {
+        setUser(storedUser);
+      } else {
+        persistUser(null);
+        setUser(null);
+      }
       setIsLoading(false);
       return;
     }
+
+    // If browser is currently offline, preserve local session immediately without network wait
+    if (typeof navigator !== "undefined" && !navigator.onLine) {
+      if (storedUser) {
+        setUser(storedUser);
+      }
+      setIsLoading(false);
+      return;
+    }
+
+    // Timeout network revalidation after 3.5s to prevent hanging on slow/spotty mobile connections
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), 3500);
+
     try {
-      const apiUser = await fetchCurrentUser(token);
+      const apiUser = await fetchCurrentUser(token, controller.signal);
+      window.clearTimeout(timeoutId);
       const mapped = mapApiUserToStaffUser(apiUser);
       setUser(mapped);
       persistUser(mapped);
-    } catch {
-      // Token invalid or expired — strictly log out
-      removeStoredToken();
-      persistUser(null);
-      setUser(null);
+    } catch (err: unknown) {
+      window.clearTimeout(timeoutId);
+      // If 401 or 403, token is strictly invalidated
+      if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+        removeStoredToken();
+        persistUser(null);
+        setUser(null);
+      } else {
+        // Slow network timeout, connection drop, or server downtime - preserve cached user immediately
+        if (storedUser) {
+          setUser(storedUser);
+        }
+      }
     } finally {
       setIsLoading(false);
     }
@@ -113,6 +145,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   React.useEffect(() => {
     refreshUser();
+
+    const handleOnline = () => {
+      refreshUser();
+    };
+
+    window.addEventListener("online", handleOnline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+    };
   }, [refreshUser]);
 
   const login = React.useCallback(

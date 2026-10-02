@@ -14,14 +14,16 @@ import {
   PencilSimpleLineIcon,
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import { SwipeToConfirm } from "@/components/ui/swipe-to-confirm";
 import { HoldToToggleCheckbox } from "@/components/ui/hold-to-toggle-checkbox";
+import { SwipeToConfirm } from "@/components/ui/swipe-to-confirm";
 import { mockDriverTrip, type DriverWaypoint } from "@/data/mock-driver-trips";
+import { useOfflineActiveTrip } from "@/hooks/use-offline-trip";
 import { cn } from "@/lib/utils";
 
 export function DriverUnloadingPage() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { completeStop, verifyPackage } = useOfflineActiveTrip();
 
   const [trip, setTrip] = React.useState(mockDriverTrip);
   const waypoints = trip.waypoints;
@@ -84,12 +86,17 @@ export function DriverUnloadingPage() {
   }, [targetWp]);
 
   const toggleItemVerification = (itemId: string) => {
+    const isNowVerified = !verifiedItems.has(itemId);
     setVerifiedItems((prev) => {
       const next = new Set(prev);
       if (next.has(itemId)) next.delete(itemId);
       else next.add(itemId);
       return next;
     });
+    // Record offline mutation in Dexie IndexedDB
+    const foundItem = currentWp.items.find((i) => i.id === itemId);
+    const code = foundItem?.packageCode || itemId;
+    void verifyPackage(code, isNowVerified ? "delivered" : "delivered");
   };
 
   const toggleExpandItem = (itemId: string) => {
@@ -114,6 +121,9 @@ export function DriverUnloadingPage() {
           i.id === flaggedItemId ? { ...i, status: "discrepancy" as const } : i
         ),
       }));
+      const foundItem = currentWp.items.find((i) => i.id === flaggedItemId);
+      const code = foundItem?.packageCode || flaggedItemId;
+      void verifyPackage(code, "discrepancy", flagReason);
     }
     setIsFlagModalOpen(false);
     setFlaggedItemId(null);
@@ -132,6 +142,9 @@ export function DriverUnloadingPage() {
         w.seq === currentWp.seq ? { ...w, status: "completed" as const } : w
       ),
     }));
+
+    // Record offline stop completion mutation in Dexie IndexedDB
+    void completeStop(currentWp.seq);
 
     setIsPodModalOpen(false);
 

@@ -2,6 +2,7 @@ import * as React from "react";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   ListIcon,
+  HouseIcon,
   NavigationArrowIcon,
   ListBulletsIcon,
   TruckIcon,
@@ -9,10 +10,12 @@ import {
   CoffeeIcon,
   CheckCircleIcon,
   SignOutIcon,
+  CloudSlashIcon,
+  ArrowsClockwiseIcon,
 } from "@phosphor-icons/react";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { useSyncState } from "@/hooks/use-offline-trip";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,6 +36,7 @@ export function DriverLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { isOnline, state: syncState, pendingCount } = useSyncState();
   const [isOnBreak, setIsOnBreak] = React.useState(mockDriverTrip.onBreak);
   const [breakTimerSeconds, setBreakTimerSeconds] = React.useState(0);
   const [isBreakModalOpen, setIsBreakModalOpen] = React.useState(false);
@@ -59,29 +63,35 @@ export function DriverLayout() {
     return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
   };
 
-  const isActiveRun =
+  const isHomeActive =
     location.pathname === "/driver" ||
+    location.pathname === "/driver/" ||
+    location.pathname.startsWith("/driver/trips");
+  const isActiveRun =
     location.pathname.startsWith("/driver/active") ||
     location.pathname.startsWith("/driver/run");
-  const isStopsActive = location.pathname.startsWith("/driver/stops");
-  const isVehicleActive = location.pathname.startsWith("/driver/vehicle");
+  const isStopsActive =
+    location.pathname.startsWith("/driver/stops") ||
+    location.pathname.startsWith("/driver/unload");
 
   return (
     <div className="h-dvh max-h-dvh w-screen overflow-hidden bg-muted/40 flex justify-center font-sans select-none">
       {/* Mobile Smartphone / Handheld Field Container (Tier 4 Responsive Shell) */}
       <div className="w-full max-w-md h-full bg-background flex flex-col shadow-2xl relative border-x border-border/60 overflow-hidden">
-        {/* 1. Header Matching Reference Image: Drawer Menu Icon & Add Break Action */}
+        {/* 1. Header (Clean, minimal, no noisy badges) */}
         <header className="h-14 shrink-0 bg-background/95 backdrop-blur-md border-b border-border/80 px-4 flex items-center justify-between z-30">
           {/* Left: Drawer Toggle */}
-          <button
-            onClick={() => setIsMenuDrawerOpen(true)}
-            className="size-9 flex items-center justify-center rounded-xl hover:bg-muted text-foreground transition-colors cursor-pointer"
-            aria-label="Open Navigation Menu"
-          >
-            <ListIcon className="size-5" weight="bold" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setIsMenuDrawerOpen(true)}
+              className="size-9 flex items-center justify-center rounded-xl hover:bg-muted text-foreground transition-colors cursor-pointer"
+              aria-label="Open Navigation Menu"
+            >
+              <ListIcon className="size-5" weight="bold" />
+            </button>
+          </div>
 
-          {/* Center: Trip Badge & Active Reg */}
+          {/* Center: Trip Manifest & Active Reg */}
           <div className="flex items-center gap-1.5">
             <span className="font-heading font-black text-sm text-foreground">
               {mockDriverTrip.tripCode}
@@ -92,7 +102,7 @@ export function DriverLayout() {
             </span>
           </div>
 
-          {/* Right: Add Break Action Button matching reference image */}
+          {/* Right: Add Break Action Button */}
           {isOnBreak ? (
             <Button
               size="sm"
@@ -114,6 +124,37 @@ export function DriverLayout() {
           )}
         </header>
 
+        {/* Solid Red Offline Banner Below Top Bar */}
+        {!isOnline && (
+          <div className="bg-red-600 text-white text-xs font-semibold px-3.5 py-2 flex items-center justify-between shadow-xs shrink-0 z-20">
+            <div className="flex items-center gap-2">
+              <CloudSlashIcon className="size-4 shrink-0" weight="bold" />
+              <span>Offline Mode — All actions saved locally</span>
+            </div>
+            {pendingCount > 0 && (
+              <span className="text-[11px] bg-red-800/90 text-white px-2 py-0.5 rounded-md font-bold">
+                {pendingCount} pending
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Sky Syncing Progress Banner Below Top Bar */}
+        {isOnline && (syncState === "syncing" || pendingCount > 0) && (
+          <div className="bg-sky-600 text-white text-xs font-semibold px-3.5 py-1.5 flex items-center justify-between shadow-xs shrink-0 z-20">
+            <div className="flex items-center gap-2">
+              <ArrowsClockwiseIcon
+                className="size-3.5 shrink-0 animate-spin"
+                weight="bold"
+              />
+              <span>Syncing offline actions with server...</span>
+            </div>
+            <span className="text-[11px] bg-sky-800/90 text-white px-2 py-0.5 rounded-md font-bold">
+              {pendingCount} remaining
+            </span>
+          </div>
+        )}
+
         {/* 2. Main Mobile Field Viewport */}
         <main className="flex-1 min-h-0 relative overflow-hidden flex flex-col">
           <Outlet />
@@ -121,7 +162,21 @@ export function DriverLayout() {
 
         {/* 3. Bottom Mobile Navigation Tabs */}
         <nav className="h-14 shrink-0 bg-background border-t border-border/80 grid grid-cols-4 px-2 z-30 shadow-lg">
-          {/* Tab 1: Active Run / Navigation */}
+          {/* Tab 1: Home (Assigned Trips) */}
+          <button
+            onClick={() => navigate("/driver/trips")}
+            className={cn(
+              "flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer",
+              isHomeActive
+                ? "text-primary font-bold"
+                : "text-muted-foreground hover:text-foreground font-medium"
+            )}
+          >
+            <HouseIcon className="size-4.5" weight={isHomeActive ? "fill" : "bold"} />
+            <span className="text-[10px]">Home</span>
+          </button>
+
+          {/* Tab 2: Active Run / Navigation */}
           <button
             onClick={() => navigate("/driver/active")}
             className={cn(
@@ -138,7 +193,7 @@ export function DriverLayout() {
             <span className="text-[10px]">Active Run</span>
           </button>
 
-          {/* Tab 2: Stops List */}
+          {/* Tab 3: Stops / Locations */}
           <button
             onClick={() => navigate("/driver/stops")}
             className={cn(
@@ -152,24 +207,7 @@ export function DriverLayout() {
               className="size-4.5"
               weight={isStopsActive ? "bold" : "regular"}
             />
-            <span className="text-[10px]">Stops (5)</span>
-          </button>
-
-          {/* Tab 3: Vehicle & Reefer */}
-          <button
-            onClick={() => navigate("/driver/vehicle")}
-            className={cn(
-              "flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer",
-              isVehicleActive
-                ? "text-primary font-bold"
-                : "text-muted-foreground hover:text-foreground font-medium"
-            )}
-          >
-            <TruckIcon
-              className="size-4.5"
-              weight={isVehicleActive ? "fill" : "regular"}
-            />
-            <span className="text-[10px]">Vehicle</span>
+            <span className="text-[10px]">Stops ({mockDriverTrip.waypoints.length})</span>
           </button>
 
           {/* Tab 4: Profile & Switcher */}
@@ -198,6 +236,13 @@ export function DriverLayout() {
                   Driver Console
                 </span>
               </div>
+              <DropdownMenuItem
+                onClick={() => navigate("/driver/trips")}
+                className="cursor-pointer text-xs font-semibold p-2 rounded-lg gap-2 text-foreground"
+              >
+                <TruckIcon className="size-4 text-primary" />
+                <span>Assigned Trips ({syncState})</span>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 onClick={() => {
                   logout();
@@ -233,11 +278,25 @@ export function DriverLayout() {
                   </div>
                 </div>
               </div>
+              <div className="flex items-center justify-between gap-2 pt-1">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    setIsMenuDrawerOpen(false);
+                    navigate("/driver/trips");
+                  }}
+                  className="w-full text-xs font-semibold gap-1.5 h-8 justify-center"
+                >
+                  <TruckIcon className="size-4 text-primary" />
+                  <span>Switch Assigned Trip</span>
+                </Button>
+              </div>
               <SheetTitle className="font-heading font-black text-base text-foreground flex items-center justify-between">
                 <span>Trip Manifest {mockDriverTrip.tripCode}</span>
-                <Badge variant="outline" className="font-bold text-xs">
+                <span className="text-xs font-bold text-muted-foreground px-2 py-0.5 rounded-md bg-muted">
                   {mockDriverTrip.waypoints.length} Stops
-                </Badge>
+                </span>
               </SheetTitle>
               <SheetDescription className="text-xs text-muted-foreground">
                 Vehicle #{mockDriverTrip.regNumber} · Seal #{mockDriverTrip.sealNumber}

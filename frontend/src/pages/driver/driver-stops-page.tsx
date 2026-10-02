@@ -1,17 +1,23 @@
 import { useNavigate } from "react-router-dom";
-import { NavigationArrowIcon } from "@phosphor-icons/react";
+import {
+  NavigationArrowIcon,
+  CheckCircleIcon,
+  DownloadSimpleIcon,
+} from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { mockDriverTrip } from "@/data/mock-driver-trips";
+import { useOfflineActiveTrip } from "@/hooks/use-offline-trip";
 import { cn } from "@/lib/utils";
 
 export function DriverStopsPage() {
   const navigate = useNavigate();
-  const trip = mockDriverTrip;
+  const { stops, isDownloaded, tripDetail } = useOfflineActiveTrip();
 
-  const totalStops = trip.waypoints.length;
-  const completedStops = trip.waypoints.filter((w) => w.status === "completed").length;
+  // If downloaded, use local Dexie stops; otherwise fallback to tripDetail waypoints
+  const waypoints = isDownloaded && stops.length > 0 ? stops : tripDetail.waypoints;
+
+  const totalStops = waypoints.length;
+  const completedStops = waypoints.filter((w) => w.status === "completed").length;
   const remainingStops = totalStops - completedStops;
 
   return (
@@ -20,23 +26,37 @@ export function DriverStopsPage() {
       <Card className="p-3.5 rounded-2xl bg-card border border-border shadow-xs flex items-center justify-between">
         <div>
           <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-            Run Progress
+            Run Progress (Trip {tripDetail.tripCode})
           </span>
           <h3 className="font-heading font-black text-sm text-foreground">
             {completedStops} of {totalStops} Completed
           </h3>
         </div>
-        <Badge
-          variant="secondary"
-          className="font-heading font-bold text-xs bg-primary/10 text-primary border border-primary/30 px-2.5 py-1 rounded-xl"
-        >
+        <span className="font-heading font-bold text-xs bg-primary/10 text-primary border border-primary/30 px-2.5 py-1 rounded-xl">
           {remainingStops} Stops Left
-        </Badge>
+        </span>
       </Card>
+
+      {!isDownloaded && (
+        <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between gap-3 text-xs">
+          <span className="text-amber-700 dark:text-amber-400 font-medium">
+            Trip not downloaded to offline cache.
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => navigate("/driver/trips")}
+            className="h-7 text-xs font-semibold gap-1 cursor-pointer"
+          >
+            <DownloadSimpleIcon className="size-3.5" />
+            Download
+          </Button>
+        </div>
+      )}
 
       {/* Stop Sequence List */}
       <div className="space-y-2.5">
-        {trip.waypoints.map((wp) => {
+        {waypoints.map((wp) => {
           const isCompleted = wp.status === "completed";
           const isActive = wp.status === "active";
 
@@ -78,19 +98,14 @@ export function DriverStopsPage() {
                 </div>
 
                 {isCompleted ? (
-                  <Badge
-                    variant="outline"
-                    className="bg-emerald-500/10 text-emerald-600 border-emerald-500/30 text-[10px] font-bold shrink-0"
-                  >
+                  <span className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 flex items-center gap-1">
+                    <CheckCircleIcon className="size-3" weight="fill" />
                     Delivered
-                  </Badge>
+                  </span>
                 ) : isActive ? (
-                  <Badge
-                    variant="default"
-                    className="bg-primary text-primary-foreground text-[10px] font-bold shrink-0 animate-pulse"
-                  >
+                  <span className="bg-primary text-primary-foreground text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0">
                     Active Stop
-                  </Badge>
+                  </span>
                 ) : (
                   <span className="text-[11px] font-semibold text-muted-foreground shrink-0">
                     {wp.deliveryWindow.split(" - ")[0]}
@@ -100,12 +115,12 @@ export function DriverStopsPage() {
 
               {/* Metrics & Actions */}
               <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
-                <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
+                <div className="flex items-center gap-2 text-muted-foreground text-[11px] font-medium">
                   <span>{wp.totalCrateCount} Crates</span>
                   <span>·</span>
                   <span>{wp.totalWeightKg} kg</span>
                   <span>·</span>
-                  <span className="capitalize">{wp.dockType.replace("_", " ")}</span>
+                  <span>{wp.deliveryWindow}</span>
                 </div>
 
                 <div className="flex items-center gap-1.5">
@@ -127,7 +142,7 @@ export function DriverStopsPage() {
                       isActive && "bg-emerald-600 hover:bg-emerald-700 text-white"
                     )}
                   >
-                    <span>{isCompleted ? "Checklist" : "Unload"}</span>
+                    <span>{isCompleted ? "Manifest" : "Unload"}</span>
                   </Button>
                 </div>
               </div>

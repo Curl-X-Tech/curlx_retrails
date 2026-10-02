@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SwipeToConfirm } from "@/components/ui/swipe-to-confirm";
 import { mockDriverTrip, type DriverWaypoint } from "@/data/mock-driver-trips";
+import { useOfflineActiveTrip, useSyncState } from "@/hooks/use-offline-trip";
 import { buildTileUrl } from "@/data/mock-live-map";
 import { cn } from "@/lib/utils";
 
@@ -50,7 +51,9 @@ export function DriverActiveTripPage() {
   const mapInstanceRef = React.useRef<L.Map | null>(null);
   const markersGroupRef = React.useRef<L.LayerGroup | null>(null);
 
-  const [trip] = React.useState(mockDriverTrip);
+  const { tripDetail, arriveAtStop } = useOfflineActiveTrip();
+  const { isOnline } = useSyncState();
+  const trip = tripDetail || mockDriverTrip;
   const waypoints = trip.waypoints;
 
   // Active waypoint index controlled via carousel or search query
@@ -168,10 +171,30 @@ export function DriverActiveTripPage() {
 
   return (
     <div className="relative w-full h-full flex flex-col min-h-0 overflow-hidden select-none bg-background">
-      {/* 1. Full Viewport Interactive Leaflet Map Background */}
-      <div className="absolute inset-0 z-0">
+      {/* 1. Full Viewport Interactive Leaflet Map Background (Faded when offline) */}
+      <div
+        className={cn(
+          "absolute inset-0 z-0 transition-opacity duration-300",
+          !isOnline ? "opacity-85 saturate-75" : "opacity-100"
+        )}
+      >
         <div ref={mapContainerRef} className="w-full h-full" />
       </div>
+
+      {/* Floating Offline Alert Banner */}
+      {!isOnline && (
+        <div className="absolute top-3 left-3 right-14 z-10 bg-background/95 backdrop-blur-md border border-red-500/40 rounded-2xl p-2.5 shadow-md flex items-center gap-2.5">
+          <div className="size-2.5 rounded-full bg-red-600 shrink-0" />
+          <div className="flex-1 min-w-0">
+            <span className="text-xs font-bold text-foreground block leading-tight">
+              Offline Map Active
+            </span>
+            <span className="text-[10px] text-muted-foreground block leading-tight truncate">
+              Progress & proof of deliveries are saved on-device.
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* 2. Top-Right Map Controls */}
       <div className="absolute right-3 top-3 z-10 flex flex-col gap-1.5 shadow-md">
@@ -355,7 +378,10 @@ export function DriverActiveTripPage() {
             <SwipeToConfirm
               label="Swipe to confirm arrival & unload"
               confirmedLabel="Arrived! Opening checklist..."
-              onConfirm={handleNavigateToUnload}
+              onConfirm={async () => {
+                await arriveAtStop(currentWp.seq);
+                handleNavigateToUnload();
+              }}
               className="h-12 bg-emerald-500/10 border-emerald-500/20 font-bold text-emerald-700 dark:text-emerald-400"
             />
           )}

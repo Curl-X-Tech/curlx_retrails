@@ -121,22 +121,38 @@ export async function loginWithCredentials(
   return data;
 }
 
-export async function fetchCurrentUser(token?: string): Promise<ApiUserResponse> {
+export class ApiError extends Error {
+  status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = "ApiError";
+  }
+}
+
+export async function fetchCurrentUser(
+  token?: string,
+  signal?: AbortSignal
+): Promise<ApiUserResponse> {
   const authToken = token || getStoredToken();
   if (!authToken) {
-    throw new Error("No authentication token available.");
+    throw new ApiError(401, "No authentication token available.");
   }
 
   const response = await fetch(`${API_URL}/users/me`, {
     method: "GET",
     headers: getAuthHeaders(authToken),
+    signal,
   });
 
   if (!response.ok) {
     if (response.status === 401) {
       removeStoredToken();
     }
-    throw new Error(`Failed to fetch user profile (${response.status})`);
+    throw new ApiError(
+      response.status,
+      `Failed to fetch user profile (${response.status})`
+    );
   }
 
   return response.json();
