@@ -2,9 +2,11 @@
 
 from app.entities.base import BaseEntity, utc_now
 from app.entities.depot import Depot
+from app.entities.district import District
 from app.entities.user import User
 from app.enums.roles import RoleType, UserType
 from app.schemas.depot import DepotCreate, DepotRead, DepotUpdate
+from app.schemas.district import DistrictCreate, DistrictRead, DistrictUpdate
 from app.schemas.user import UserCreate, UserRead, UserUpdate
 
 __all__ = [
@@ -13,6 +15,10 @@ __all__ = [
     "DepotCreate",
     "DepotRead",
     "DepotUpdate",
+    "District",
+    "DistrictCreate",
+    "DistrictRead",
+    "DistrictUpdate",
     "RoleType",
     "User",
     "UserCreate",

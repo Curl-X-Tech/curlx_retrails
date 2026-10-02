@@ -94,9 +94,14 @@ async def _create_tables() -> None:
 
 
 async def init_db() -> None:
-    from app.core.seed import seed_initial_users, seed_master_depots
+    from app.core.seed import (
+        seed_initial_users,
+        seed_master_depots,
+        seed_master_districts,
+    )
 
     await _create_tables()
     async with async_session_maker() as session:
         await seed_initial_users(session)
         await seed_master_depots(session)
+        await seed_master_districts(session)

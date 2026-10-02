@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.users import UserManager
 from app.entities.depot import Depot
+from app.entities.district import District
 from app.entities.user import User
 from app.enums.roles import UserType
 
@@ -63,6 +64,15 @@ DEFAULT_MASTER_DEPOTS = [
         "address": "Kandy Logistics Hub, Central Province",
         "is_active": True,
     },
+]
+
+DEFAULT_MASTER_DISTRICTS = [
+    {"name": "Colombo", "province": "Western", "depot_code": "PEL"},
+    {"name": "Gampaha", "province": "Western", "depot_code": "PEL"},
+    {"name": "Kalutara", "province": "Western", "depot_code": "PEL"},
+    {"name": "Kandy", "province": "Central", "depot_code": "KDY"},
+    {"name": "Matale", "province": "Central", "depot_code": "KDY"},
+    {"name": "Nuwara Eliya", "province": "Central", "depot_code": "KDY"},
 ]
 
 
@@ -137,4 +147,30 @@ async def seed_master_depots(session: AsyncSession) -> None:
                 "Seeded master depot: %s (%s)",
                 depot_data["name"],
                 depot_data["code"],
+            )
+
+
+async def seed_master_districts(session: AsyncSession) -> None:
+    """Seeds Western and Central province districts mapped to depots."""
+    depot_res = await session.execute(select(Depot))
+    depots_by_code = {d.code: d.id for d in depot_res.scalars().all()}
+
+    for dist_data in DEFAULT_MASTER_DISTRICTS:
+        result = await session.execute(
+            select(District).where(District.name == dist_data["name"])
+        )
+        existing_district = result.scalar_one_or_none()
+        if not existing_district and dist_data["depot_code"] in depots_by_code:
+            district = District(
+                name=dist_data["name"],
+                province=dist_data["province"],
+                assigned_depot_id=depots_by_code[dist_data["depot_code"]],
+            )
+            session.add(district)
+            await session.commit()
+            logger.info(
+                "Seeded master district: %s (%s Province -> %s)",
+                dist_data["name"],
+                dist_data["province"],
+                dist_data["depot_code"],
             )
