@@ -8,15 +8,30 @@ import pytest
 from fastapi.testclient import TestClient
 
 CORE_SERVICE_DIR = Path(__file__).resolve().parent.parent / "core_service"
-if str(CORE_SERVICE_DIR) not in sys.path:
-    sys.path.insert(0, str(CORE_SERVICE_DIR))
-
-from app.main import app  # noqa: E402
 
 
 @pytest.fixture
-def client():
-    return TestClient(app)
+def core_app():
+    saved_modules = {k: v for k, v in list(sys.modules.items()) if k == "app" or k.startswith("app.")}
+    for k in list(saved_modules.keys()):
+        del sys.modules[k]
+    sys.path.insert(0, str(CORE_SERVICE_DIR))
+    try:
+        from app.main import app as _app
+
+        yield _app
+    finally:
+        for k in list(sys.modules.keys()):
+            if k == "app" or k.startswith("app."):
+                del sys.modules[k]
+        if str(CORE_SERVICE_DIR) in sys.path:
+            sys.path.remove(str(CORE_SERVICE_DIR))
+        sys.modules.update(saved_modules)
+
+
+@pytest.fixture
+def client(core_app):
+    return TestClient(core_app)
 
 
 def test_core_service_health(client):
@@ -27,8 +42,8 @@ def test_core_service_health(client):
     assert data["status"] == "ok"
 
 
-def test_core_service_routes_registered():
-    openapi_paths = set(app.openapi()["paths"].keys())
+def test_core_service_routes_registered(core_app):
+    openapi_paths = set(core_app.openapi()["paths"].keys())
 
     # Verify orders endpoints
     assert "/orders/v1/orders" in openapi_paths
@@ -47,8 +62,8 @@ def test_core_service_routes_registered():
     assert "/dispatch/v1/drivers" in openapi_paths
 
 
-def test_core_service_openapi_schema():
-    openapi = app.openapi()
+def test_core_service_openapi_schema(core_app):
+    openapi = core_app.openapi()
     assert openapi["info"]["title"] == "Waypoint — Core Service"
     assert "/orders/v1/orders" in openapi["paths"]
     assert "/outlets/v1/outlets" in openapi["paths"]

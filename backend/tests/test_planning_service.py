@@ -10,22 +10,24 @@ from fastapi.testclient import TestClient
 PLANNING_SERVICE_DIR = Path(__file__).resolve().parent.parent / "planning_service"
 
 
-def _clean_app_modules():
-    for k in list(sys.modules.keys()):
-        if k == "app" or k.startswith("app."):
-            del sys.modules[k]
-
-
 @pytest.fixture
 def planning_client():
-    _clean_app_modules()
-    if str(PLANNING_SERVICE_DIR) not in sys.path:
-        sys.path.insert(0, str(PLANNING_SERVICE_DIR))
-    from app.main import app as planning_app
+    saved_modules = {k: v for k, v in list(sys.modules.items()) if k == "app" or k.startswith("app.")}
+    for k in list(saved_modules.keys()):
+        del sys.modules[k]
+    sys.path.insert(0, str(PLANNING_SERVICE_DIR))
+    try:
+        from app.main import app as planning_app
 
-    client = TestClient(planning_app)
-    yield client
-    _clean_app_modules()
+        client = TestClient(planning_app)
+        yield client
+    finally:
+        for k in list(sys.modules.keys()):
+            if k == "app" or k.startswith("app."):
+                del sys.modules[k]
+        if str(PLANNING_SERVICE_DIR) in sys.path:
+            sys.path.remove(str(PLANNING_SERVICE_DIR))
+        sys.modules.update(saved_modules)
 
 
 def test_planning_service_health(planning_client):
@@ -37,11 +39,19 @@ def test_planning_service_health(planning_client):
 
 
 def test_planning_service_config():
-    _clean_app_modules()
-    if str(PLANNING_SERVICE_DIR) not in sys.path:
-        sys.path.insert(0, str(PLANNING_SERVICE_DIR))
-    from app.core.config import get_settings
+    saved_modules = {k: v for k, v in list(sys.modules.items()) if k == "app" or k.startswith("app.")}
+    for k in list(saved_modules.keys()):
+        del sys.modules[k]
+    sys.path.insert(0, str(PLANNING_SERVICE_DIR))
+    try:
+        from app.core.config import get_settings
 
-    settings = get_settings()
-    assert settings.CORE_SERVICE_URL == "http://localhost:8000"
-    _clean_app_modules()
+        settings = get_settings()
+        assert settings.CORE_SERVICE_URL == "http://localhost:8000"
+    finally:
+        for k in list(sys.modules.keys()):
+            if k == "app" or k.startswith("app."):
+                del sys.modules[k]
+        if str(PLANNING_SERVICE_DIR) in sys.path:
+            sys.path.remove(str(PLANNING_SERVICE_DIR))
+        sys.modules.update(saved_modules)

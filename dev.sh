@@ -293,7 +293,24 @@ clean_all() {
     log_success "Clean completed."
 }
 
+# Generate / Update Graphify knowledge graph
+run_graphify() {
+    log_info "Rebuilding Graphify knowledge graph for codebase..."
+    if command -v graphify &> /dev/null; then
+        graphify . --code-only
+    elif command -v uvx &> /dev/null; then
+        log_info "'graphify' CLI not found in PATH, running via 'uvx graphifyy'..."
+        uvx graphifyy . --code-only
+    else
+        log_error "Graphify not found. Install it via: uv tool install graphifyy OR pip install graphifyy"
+        exit 1
+    fi
+    log_success "Graphify knowledge graph updated at graphify-out/graph.json"
+}
+
+
 # Help menu
+
 show_help() {
     echo -e "${BOLD}ReTrails Development Script (Team CurlX)${RESET}"
     echo ""
@@ -303,9 +320,9 @@ show_help() {
     echo "  dev                  Start backend, frontend, and emails concurrently (default)"
     echo "  services             Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
     echo "  services:down        Stop dev infrastructure"
-    echo "  microservices        Build and start the full Waypoint microservices stack"
-    echo "  microservices:down   Stop the Waypoint microservices stack"
-    echo "  down                 Stop all running Docker containers (dev + microservices)"
+    echo "  microservices        Build and start the full Waypoint services stack"
+    echo "  microservices:down   Stop the Waypoint services stack"
+    echo "  down                 Stop all running Docker containers (dev + services)"
     echo "  stop                 Alias for down"
     echo "  install              Install all dependencies for backend, frontend, and emails"
     echo "  backend              Start backend server only (FastAPI on port 8000)"
@@ -317,6 +334,7 @@ show_help() {
     echo "  typecheck            Run TypeScript compiler type checks"
     echo "  test                 Run backend test suite"
     echo "  check                Run all quality checks (lint + format + typecheck + test)"
+    echo "  graphify             Build/update Graphify knowledge graph (graphify-out/)"
     echo "  docker               Start dev infrastructure in background (alias for services)"
     echo "  docker:down          Stop all Docker Compose services"
     echo "  clean                Remove virtual environments and node_modules"
@@ -376,7 +394,11 @@ case "$COMMAND" in
     check|validate)
         run_check
         ;;
+    graphify)
+        run_graphify
+        ;;
     docker)
+
         run_docker_up
         ;;
     docker:down)

@@ -12,7 +12,7 @@ eggs/
 .eggs/
 lib/
 lib64/
-!frontend/lib/
+!frontend/src/lib/
 parts/
 sdist/
 var/
@@ -79,4 +79,16 @@ Thumbs.db
 *.db
 pgdata/
 
+# Competition Datasets & Raw Data
+*.csv
+*.parquet
+*.pdf
+datasets/
+data/raw/
+
 */figma-variables.json
+
+# Graphify Local Cache (keep graph.json tracked)
+graphify-out/cache/
+
+
