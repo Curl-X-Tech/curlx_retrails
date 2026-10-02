@@ -192,8 +192,7 @@ class OrderTree:
 
         if None in (depot, district, brand, parking, temp):
             raise ValueError(
-                f"Order {order.ID}: cannot resolve outlet attributes "
-                f"(outlet_id={order.outlet_id}). Check outlets list."
+                f"Order {order.ID}: cannot resolve outlet attributes (outlet_id={order.outlet_id}). Check outlets list."
             )
 
         depot_node = self._get_or_create(self._root, depot)
@@ -262,6 +261,7 @@ class OrderTree:
 
     def create_all_trips(self, outlets, routes, sys_user: str | None = None) -> list:
         from app.domain.Trip import Trip
+
         trips: list[Trip] = []
         self._collect_trips(self._root, trips, outlets, routes, sys_user, [])
         return trips
@@ -276,6 +276,7 @@ class OrderTree:
         path: list[str],
     ) -> None:
         from app.domain.Trip import Trip
+
         current_path = path + [node.get_name()]
 
         if node.get_orders() and not node.get_children():

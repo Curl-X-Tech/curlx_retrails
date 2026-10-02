@@ -11,9 +11,18 @@ class CalendarDate:
     """Represents a single date with all planning-relevant context."""
 
     __slots__ = (
-        "date", "dow", "dow_name", "is_weekend", "is_payday",
-        "is_holiday", "monsoon", "iso_year", "iso_week",
-        "festival", "festival_ramp", "is_operating",
+        "date",
+        "dow",
+        "dow_name",
+        "is_weekend",
+        "is_payday",
+        "is_holiday",
+        "monsoon",
+        "iso_year",
+        "iso_week",
+        "festival",
+        "festival_ramp",
+        "is_operating",
     )
 
     def __init__(
@@ -97,15 +106,13 @@ class Calendar:
         return entry.is_operating if entry is not None else False
 
     def get_operating_dates_in_week(self, iso_year: int, iso_week: int) -> list[CalendarDate]:
-        return [
-            d for d in self._dates.values()
-            if d.iso_year == iso_year and d.iso_week == iso_week and d.is_operating
-        ]
+        return [d for d in self._dates.values() if d.iso_year == iso_year and d.iso_week == iso_week and d.is_operating]
 
     def get_high_demand_dates(self) -> list[CalendarDate]:
         today = datetime.date.today()
         return [
-            d for d in sorted(self._dates.values(), key=lambda x: x.date)
+            d
+            for d in sorted(self._dates.values(), key=lambda x: x.date)
             if d.date >= today and d.is_high_demand and d.is_operating
         ]
 

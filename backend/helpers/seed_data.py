@@ -2,10 +2,10 @@
 Waypoint Group — Seed Existing Data into PostgreSQL.
 
 Seeds:
-- data/vehicles.csv          ──► vehicles_db (vehicles table)
-- data/outlets.csv           ──► outlets_db  (outlets table)
-- data/district_travel.csv   ──► routes_db   (routes table)
-- data/service_allowance.csv ──► routes_db   (service_allowances table)
+- data/vehicles.csv          ──► general_db (vehicles table)
+- data/outlets.csv           ──► general_db (outlets table)
+- data/district_travel.csv   ──► general_db (routes table)
+- data/service_allowance.csv ──► general_db (service_allowances table)
 """
 
 import asyncio
@@ -18,7 +18,7 @@ import asyncpg
 from sqlalchemy import text
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BACKEND_DIR = os.path.join(PROJECT_ROOT, "Backend_Services")
+BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 DB_USER = os.getenv("POSTGRES_USER", "waypoint")
@@ -34,9 +34,9 @@ def _clear_app_modules():
 
 
 async def ensure_databases():
-    """Ensure microservice databases exist on the PostgreSQL server."""
-    target_dbs = ["vehicles_db", "outlets_db", "routes_db", "orders_db", "planning_db", "dispatch_db"]
-    
+    """Ensure general_db and planning_db exist on the PostgreSQL server."""
+    target_dbs = ["general_db", "planning_db"]
+
     conn = None
     for default_db in ["waypoint", "postgres"]:
         try:
@@ -65,14 +65,14 @@ async def ensure_databases():
 
 
 async def seed_vehicles():
-    """Seed vehicles.csv into vehicles_db."""
+    """Seed vehicles.csv into general_db."""
     csv_file = os.path.join(DATA_DIR, "vehicles.csv")
     if not os.path.exists(csv_file):
         print(f"[Vehicles] File not found: {csv_file}")
         return
 
     _clear_app_modules()
-    svc_dir = os.path.join(BACKEND_DIR, "vehicle_service")
+    svc_dir = os.path.join(BACKEND_DIR, "core_service")
     sys.path.insert(0, svc_dir)
     from app.core.database import Base, engine
     import app.models.vehicle  # noqa: F401
@@ -85,39 +85,41 @@ async def seed_vehicles():
     with open(csv_file, mode="r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            records.append({
-                "ID": row["vehicle_id"],
-                "CreateTime": now,
-                "UpdateTime": now,
-                "CreatedBy": "SYSTEM_SEED",
-                "UpdatedBy": "SYSTEM_SEED",
-                "IsActive": True,
-                "type": row["type"],
-                "temp_condition": row["temp"],
-                "weight_cap_kg": float(row["weight_cap_kg"]),
-                "volume_cap_m3": float(row["volume_cap_m3"]),
-                "fuel_type": row["fuel_type"],
-                "km_per_l": float(row["km_per_l"]),
-                "weekly_fuel_quota": float(row["weekly_fuel_quota_l"]),
-                "depot": row["depot"],
-                "service_milage": 0.0,
-                "trip_count_today": 0,
-                "max_per_day_trip_count": 2,
-            })
+            records.append(
+                {
+                    "ID": row["vehicle_id"],
+                    "CreateTime": now,
+                    "UpdateTime": now,
+                    "CreatedBy": "SYSTEM_SEED",
+                    "UpdatedBy": "SYSTEM_SEED",
+                    "IsActive": True,
+                    "type": row["type"],
+                    "temp_condition": row["temp"],
+                    "weight_cap_kg": float(row["weight_cap_kg"]),
+                    "volume_cap_m3": float(row["volume_cap_m3"]),
+                    "fuel_type": row["fuel_type"],
+                    "km_per_l": float(row["km_per_l"]),
+                    "weekly_fuel_quota": float(row["weekly_fuel_quota"]),
+                    "depot": row["depot"],
+                    "service_milage": float(row.get("service_milage", 0.0) or 0.0),
+                    "trip_count_today": 0,
+                    "max_per_day_trip_count": int(row.get("max_per_day_trip_count", 2)),
+                }
+            )
 
     async with engine.begin() as conn:
         for r in records:
             stmt = text("""
                 INSERT INTO vehicles (
                     "ID", "CreateTime", "UpdateTime", "CreatedBy", "UpdatedBy", "IsActive",
-                    "type", "temp_condition", "weight_cap_kg", "volume_cap_m3", "fuel_type",
-                    "km_per_l", "weekly_fuel_quota", "depot", "service_milage",
-                    "trip_count_today", "max_per_day_trip_count"
+                    "type", "temp_condition", "weight_cap_kg", "volume_cap_m3",
+                    "fuel_type", "km_per_l", "weekly_fuel_quota", "depot",
+                    "service_milage", "trip_count_today", "max_per_day_trip_count"
                 ) VALUES (
                     :ID, :CreateTime, :UpdateTime, :CreatedBy, :UpdatedBy, :IsActive,
-                    :type, :temp_condition, :weight_cap_kg, :volume_cap_m3, :fuel_type,
-                    :km_per_l, :weekly_fuel_quota, :depot, :service_milage,
-                    :trip_count_today, :max_per_day_trip_count
+                    :type, :temp_condition, :weight_cap_kg, :volume_cap_m3,
+                    :fuel_type, :km_per_l, :weekly_fuel_quota, :depot,
+                    :service_milage, :trip_count_today, :max_per_day_trip_count
                 )
                 ON CONFLICT ("ID") DO UPDATE SET
                     "type" = EXCLUDED."type",
@@ -128,11 +130,12 @@ async def seed_vehicles():
                     "km_per_l" = EXCLUDED."km_per_l",
                     "weekly_fuel_quota" = EXCLUDED."weekly_fuel_quota",
                     "depot" = EXCLUDED."depot",
+                    "service_milage" = EXCLUDED."service_milage",
                     "UpdateTime" = EXCLUDED."UpdateTime";
             """)
             await conn.execute(stmt, r)
 
-    print(f"[Vehicles] Successfully seeded {len(records)} vehicles into vehicles_db.")
+    print(f"[Vehicles] Successfully seeded {len(records)} vehicles into general_db.")
     await engine.dispose()
     if svc_dir in sys.path:
         sys.path.remove(svc_dir)
@@ -140,14 +143,14 @@ async def seed_vehicles():
 
 
 async def seed_outlets():
-    """Seed outlets.csv into outlets_db."""
+    """Seed outlets.csv into general_db."""
     csv_file = os.path.join(DATA_DIR, "outlets.csv")
     if not os.path.exists(csv_file):
         print(f"[Outlets] File not found: {csv_file}")
         return
 
     _clear_app_modules()
-    svc_dir = os.path.join(BACKEND_DIR, "outlet_service")
+    svc_dir = os.path.join(BACKEND_DIR, "core_service")
     sys.path.insert(0, svc_dir)
     from app.core.database import Base, engine
     import app.models.outlet  # noqa: F401
@@ -164,22 +167,24 @@ async def seed_outlets():
             if not mall_window or mall_window.strip() == "":
                 mall_window = None
 
-            records.append({
-                "ID": row["outlet_id"],
-                "CreateTime": now,
-                "UpdateTime": now,
-                "CreatedBy": "SYSTEM_SEED",
-                "UpdatedBy": "SYSTEM_SEED",
-                "IsActive": True,
-                "brand": row["brand"],
-                "district": row["district"],
-                "depot": row["depot"],
-                "dock_type": row["dock_type"],
-                "parking_constraint": row["parking_constraint"],
-                "mall_window": mall_window,
-                "window_open_time": row["window_open_time"],
-                "window_close_time": row["window_close_time"],
-            })
+            records.append(
+                {
+                    "ID": row["outlet_id"],
+                    "CreateTime": now,
+                    "UpdateTime": now,
+                    "CreatedBy": "SYSTEM_SEED",
+                    "UpdatedBy": "SYSTEM_SEED",
+                    "IsActive": True,
+                    "brand": row["brand"],
+                    "district": row["district"],
+                    "depot": row["depot"],
+                    "dock_type": row["dock_type"],
+                    "parking_constraint": row["parking_constraint"],
+                    "mall_window": mall_window,
+                    "window_open_time": row["window_open_time"],
+                    "window_close_time": row["window_close_time"],
+                }
+            )
 
     async with engine.begin() as conn:
         for r in records:
@@ -206,7 +211,7 @@ async def seed_outlets():
             """)
             await conn.execute(stmt, r)
 
-    print(f"[Outlets] Successfully seeded {len(records)} outlets into outlets_db.")
+    print(f"[Outlets] Successfully seeded {len(records)} outlets into general_db.")
     await engine.dispose()
     if svc_dir in sys.path:
         sys.path.remove(svc_dir)
@@ -214,9 +219,9 @@ async def seed_outlets():
 
 
 async def seed_routes_and_allowances():
-    """Seed district_travel.csv and service_allowance.csv into routes_db."""
+    """Seed district_travel.csv and service_allowance.csv into general_db."""
     _clear_app_modules()
-    svc_dir = os.path.join(BACKEND_DIR, "route_service")
+    svc_dir = os.path.join(BACKEND_DIR, "core_service")
     sys.path.insert(0, svc_dir)
     from app.core.database import Base, engine
     import app.models.route  # noqa: F401
@@ -234,48 +239,50 @@ async def seed_routes_and_allowances():
         with open(routes_csv, mode="r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                route_records.append({
-                    "ID": f"{row['depot']}_{row['district']}",
-                    "CreateTime": now,
-                    "UpdateTime": now,
-                    "CreatedBy": "SYSTEM_SEED",
-                    "UpdatedBy": "SYSTEM_SEED",
-                    "IsActive": True,
-                    "district": row["district"],
-                    "depot": row["depot"],
-                    "road_class": row["road_class"],
-                    "free_flow_kmh": float(row["free_flow_kmh"]),
-                    "depot_to_district_km": float(row["depot_to_district_km"]),
-                    "depot_to_district_freeflow_min": float(row["depot_to_district_freeflow_min"]),
-                    "inter_stop_km": float(row["inter_stop_km"]),
-                    "inter_stop_freeflow_min": float(row["inter_stop_freeflow_min"]),
-                })
+                route_records.append(
+                    {
+                        "ID": f"{row['depot']}_{row['district']}",
+                        "CreateTime": now,
+                        "UpdateTime": now,
+                        "CreatedBy": "SYSTEM_SEED",
+                        "UpdatedBy": "SYSTEM_SEED",
+                        "IsActive": True,
+                        "district": row["district"],
+                        "depot": row["depot"],
+                        "road_class": row["road_class"],
+                        "free_flow_kmh": float(row["free_flow_kmh"]),
+                        "depot_to_district_km": float(row["depot_to_district_km"]),
+                        "depot_to_district_freeflow_min": float(row["depot_to_district_freeflow_min"]),
+                        "inter_stop_km": float(row["inter_stop_km"]),
+                        "inter_stop_freeflow_min": float(row["inter_stop_freeflow_min"]),
+                    }
+                )
 
-        async with engine.begin() as conn:
-            for r in route_records:
-                stmt = text("""
-                    INSERT INTO routes (
-                        "ID", "CreateTime", "UpdateTime", "CreatedBy", "UpdatedBy", "IsActive",
-                        "district", "depot", "road_class", "free_flow_kmh",
-                        "depot_to_district_km", "depot_to_district_freeflow_min",
-                        "inter_stop_km", "inter_stop_freeflow_min"
-                    ) VALUES (
-                        :ID, :CreateTime, :UpdateTime, :CreatedBy, :UpdatedBy, :IsActive,
-                        :district, :depot, :road_class, :free_flow_kmh,
-                        :depot_to_district_km, :depot_to_district_freeflow_min,
-                        :inter_stop_km, :inter_stop_freeflow_min
-                    )
-                    ON CONFLICT ("ID") DO UPDATE SET
-                        "road_class" = EXCLUDED."road_class",
-                        "free_flow_kmh" = EXCLUDED."free_flow_kmh",
-                        "depot_to_district_km" = EXCLUDED."depot_to_district_km",
-                        "depot_to_district_freeflow_min" = EXCLUDED."depot_to_district_freeflow_min",
-                        "inter_stop_km" = EXCLUDED."inter_stop_km",
-                        "inter_stop_freeflow_min" = EXCLUDED."inter_stop_freeflow_min",
-                        "UpdateTime" = EXCLUDED."UpdateTime";
-                """)
-                await conn.execute(stmt, r)
-        print(f"[Routes] Successfully seeded {len(route_records)} routes into routes_db.")
+    async with engine.begin() as conn:
+        for r in route_records:
+            stmt = text("""
+                INSERT INTO routes (
+                    "ID", "CreateTime", "UpdateTime", "CreatedBy", "UpdatedBy", "IsActive",
+                    "district", "depot", "road_class", "free_flow_kmh",
+                    "depot_to_district_km", "depot_to_district_freeflow_min",
+                    "inter_stop_km", "inter_stop_freeflow_min"
+                ) VALUES (
+                    :ID, :CreateTime, :UpdateTime, :CreatedBy, :UpdatedBy, :IsActive,
+                    :district, :depot, :road_class, :free_flow_kmh,
+                    :depot_to_district_km, :depot_to_district_freeflow_min,
+                    :inter_stop_km, :inter_stop_freeflow_min
+                )
+                ON CONFLICT ("ID") DO UPDATE SET
+                    "road_class" = EXCLUDED."road_class",
+                    "free_flow_kmh" = EXCLUDED."free_flow_kmh",
+                    "depot_to_district_km" = EXCLUDED."depot_to_district_km",
+                    "depot_to_district_freeflow_min" = EXCLUDED."depot_to_district_freeflow_min",
+                    "inter_stop_km" = EXCLUDED."inter_stop_km",
+                    "inter_stop_freeflow_min" = EXCLUDED."inter_stop_freeflow_min",
+                    "UpdateTime" = EXCLUDED."UpdateTime";
+            """)
+            await conn.execute(stmt, r)
+        print(f"[Routes] Successfully seeded {len(route_records)} routes into general_db.")
 
     # 2. Service Allowances
     sa_csv = os.path.join(DATA_DIR, "service_allowance.csv")
@@ -284,34 +291,36 @@ async def seed_routes_and_allowances():
         with open(sa_csv, mode="r", encoding="utf-8") as f:
             reader = csv.DictReader(f)
             for row in reader:
-                sa_records.append({
-                    "ID": f"SA_{row['brand']}_{row['dock_type']}",
-                    "CreateTime": now,
-                    "UpdateTime": now,
-                    "CreatedBy": "SYSTEM_SEED",
-                    "UpdatedBy": "SYSTEM_SEED",
-                    "IsActive": True,
-                    "brand": row["brand"],
-                    "dock_type": row["dock_type"],
-                    "service_allowance_min": float(row["service_allowance_min"]),
-                })
+                sa_records.append(
+                    {
+                        "ID": f"{row['brand']}_{row['dock_type']}",
+                        "CreateTime": now,
+                        "UpdateTime": now,
+                        "CreatedBy": "SYSTEM_SEED",
+                        "UpdatedBy": "SYSTEM_SEED",
+                        "IsActive": True,
+                        "brand": row["brand"],
+                        "dock_type": row["dock_type"],
+                        "service_allowance_min": float(row["service_allowance_min"]),
+                    }
+                )
 
-        async with engine.begin() as conn:
-            for r in sa_records:
-                stmt = text("""
-                    INSERT INTO service_allowances (
-                        "ID", "CreateTime", "UpdateTime", "CreatedBy", "UpdatedBy", "IsActive",
-                        "brand", "dock_type", "service_allowance_min"
-                    ) VALUES (
-                        :ID, :CreateTime, :UpdateTime, :CreatedBy, :UpdatedBy, :IsActive,
-                        :brand, :dock_type, :service_allowance_min
-                    )
-                    ON CONFLICT ("ID") DO UPDATE SET
-                        "service_allowance_min" = EXCLUDED."service_allowance_min",
-                        "UpdateTime" = EXCLUDED."UpdateTime";
-                """)
-                await conn.execute(stmt, r)
-        print(f"[ServiceAllowances] Successfully seeded {len(sa_records)} service allowances into routes_db.")
+    async with engine.begin() as conn:
+        for r in sa_records:
+            stmt = text("""
+                INSERT INTO service_allowances (
+                    "ID", "CreateTime", "UpdateTime", "CreatedBy", "UpdatedBy", "IsActive",
+                    "brand", "dock_type", "service_allowance_min"
+                ) VALUES (
+                    :ID, :CreateTime, :UpdateTime, :CreatedBy, :UpdatedBy, :IsActive,
+                    :brand, :dock_type, :service_allowance_min
+                )
+                ON CONFLICT ("ID") DO UPDATE SET
+                    "service_allowance_min" = EXCLUDED."service_allowance_min",
+                    "UpdateTime" = EXCLUDED."UpdateTime";
+            """)
+            await conn.execute(stmt, r)
+        print(f"[ServiceAllowances] Successfully seeded {len(sa_records)} service allowances into general_db.")
 
     await engine.dispose()
     if svc_dir in sys.path:

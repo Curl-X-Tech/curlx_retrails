@@ -17,13 +17,10 @@ import datetime
 from datetime import date, timezone
 import os
 from pathlib import Path
-import sys
 from typing import Any
 
 import asyncpg
 import httpx
-
-DATA_DIR = Path(os.getenv("DATA_DIR", "data"))
 
 from app.domain.Order import Order
 from app.domain.Outlet import Outlet
@@ -32,6 +29,7 @@ from app.domain.Vehicle import Vehicle
 from app.domain.Service_allowance import ServiceAllowance
 from app.core.config import get_settings
 
+DATA_DIR = Path(os.getenv("DATA_DIR", "data"))
 settings = get_settings()
 
 DB_USER = os.getenv("POSTGRES_USER", "waypoint")
@@ -46,9 +44,7 @@ def _now() -> datetime.datetime:
 
 async def _db_fetch(db_name: str, query: str, *args) -> list[dict[str, Any]]:
     try:
-        conn = await asyncpg.connect(
-            user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT, database=db_name
-        )
+        conn = await asyncpg.connect(user=DB_USER, password=DB_PASS, host=DB_HOST, port=DB_PORT, database=db_name)
         try:
             records = await conn.fetch(query, *args)
             return [dict(r) for r in records]
@@ -61,13 +57,14 @@ async def _db_fetch(db_name: str, query: str, *args) -> list[dict[str, Any]]:
 
 # ── Outlets ───────────────────────────────────────────────────────────────── #
 
+
 async def fetch_outlets() -> list[Outlet]:
     """Fetch all active outlets."""
     data = []
     # 1. Try HTTP
     try:
         async with httpx.AsyncClient(timeout=2.0) as client:
-            resp = await client.get(f"{settings.OUTLET_SERVICE_URL}/outlets/v1/outlets?limit=500")
+            resp = await client.get(f"{settings.CORE_SERVICE_URL}/outlets/v1/outlets?limit=500")
             if resp.status_code == 200:
                 data = resp.json().get("items", [])
     except Exception:
@@ -75,7 +72,7 @@ async def fetch_outlets() -> list[Outlet]:
 
     # 2. Fallback to DB
     if not data:
-        data = await _db_fetch("outlets_db", 'SELECT * FROM outlets WHERE "IsActive" = true;')
+        data = await _db_fetch("general_db", 'SELECT * FROM outlets WHERE "IsActive" = true;')
 
     # 3. Fallback to CSV
     if not data:
@@ -84,19 +81,24 @@ async def fetch_outlets() -> list[Outlet]:
             with open(csv_path, newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for r in reader:
-                    data.append({
-                        "ID": r["outlet_id"],
-                        "brand": r["brand"],
-                        "district": r["district"],
-                        "depot": r["depot"],
-                        "dock_type": r["dock_type"],
-                        "parking_constraint": r["parking_constraint"],
-                        "mall_window": r.get("mall_window"),
-                        "window_open_time": r.get("window_open_time", "07:00"),
-                        "window_close_time": r.get("window_close_time", "17:00"),
-                        "CreateTime": _now(), "UpdateTime": _now(),
-                        "CreatedBy": "SYSTEM", "UpdatedBy": "SYSTEM", "IsActive": True,
-                    })
+                    data.append(
+                        {
+                            "ID": r["outlet_id"],
+                            "brand": r["brand"],
+                            "district": r["district"],
+                            "depot": r["depot"],
+                            "dock_type": r["dock_type"],
+                            "parking_constraint": r["parking_constraint"],
+                            "mall_window": r.get("mall_window"),
+                            "window_open_time": r.get("window_open_time", "07:00"),
+                            "window_close_time": r.get("window_close_time", "17:00"),
+                            "CreateTime": _now(),
+                            "UpdateTime": _now(),
+                            "CreatedBy": "SYSTEM",
+                            "UpdatedBy": "SYSTEM",
+                            "IsActive": True,
+                        }
+                    )
 
     outlets = []
     for r in data:
@@ -123,13 +125,14 @@ async def fetch_outlets() -> list[Outlet]:
 
 # ── Routes ────────────────────────────────────────────────────────────────── #
 
+
 async def fetch_routes() -> list[Route]:
     """Fetch all active routes."""
     data = []
     # 1. Try HTTP
     try:
         async with httpx.AsyncClient(timeout=2.0) as client:
-            resp = await client.get(f"{settings.ROUTE_SERVICE_URL}/routes/v1/routes?limit=500")
+            resp = await client.get(f"{settings.CORE_SERVICE_URL}/routes/v1/routes?limit=500")
             if resp.status_code == 200:
                 data = resp.json().get("items", [])
     except Exception:
@@ -137,7 +140,7 @@ async def fetch_routes() -> list[Route]:
 
     # 2. Fallback to DB
     if not data:
-        data = await _db_fetch("routes_db", 'SELECT * FROM routes WHERE "IsActive" = true;')
+        data = await _db_fetch("general_db", 'SELECT * FROM routes WHERE "IsActive" = true;')
 
     # 3. Fallback to CSV
     if not data:
@@ -149,19 +152,24 @@ async def fetch_routes() -> list[Route]:
                     depot_km = float(r["depot_to_district_km"])
                     speed = float(r["free_flow_kmh"])
                     depot_min = (depot_km / speed) * 60.0
-                    data.append({
-                        "ID": f"{r['depot']}_{r['district']}",
-                        "district": r["district"],
-                        "depot": r["depot"],
-                        "road_class": r["road_class"],
-                        "free_flow_kmh": speed,
-                        "depot_to_district_km": depot_km,
-                        "depot_to_district_freeflow_min": depot_min,
-                        "inter_stop_km": float(r.get("inter_stop_km", 5.0)),
-                        "inter_stop_freeflow_min": float(r.get("inter_stop_freeflow_min", 15.0)),
-                        "CreateTime": _now(), "UpdateTime": _now(),
-                        "CreatedBy": "SYSTEM", "UpdatedBy": "SYSTEM", "IsActive": True,
-                    })
+                    data.append(
+                        {
+                            "ID": f"{r['depot']}_{r['district']}",
+                            "district": r["district"],
+                            "depot": r["depot"],
+                            "road_class": r["road_class"],
+                            "free_flow_kmh": speed,
+                            "depot_to_district_km": depot_km,
+                            "depot_to_district_freeflow_min": depot_min,
+                            "inter_stop_km": float(r.get("inter_stop_km", 5.0)),
+                            "inter_stop_freeflow_min": float(r.get("inter_stop_freeflow_min", 15.0)),
+                            "CreateTime": _now(),
+                            "UpdateTime": _now(),
+                            "CreatedBy": "SYSTEM",
+                            "UpdatedBy": "SYSTEM",
+                            "IsActive": True,
+                        }
+                    )
 
     routes = []
     for r in data:
@@ -194,19 +202,20 @@ async def fetch_routes() -> list[Route]:
 
 # ── Service Allowances ────────────────────────────────────────────────────── #
 
+
 async def fetch_service_allowances() -> list[ServiceAllowance]:
     """Fetch all active service allowances."""
     data = []
     try:
         async with httpx.AsyncClient(timeout=2.0) as client:
-            resp = await client.get(f"{settings.ROUTE_SERVICE_URL}/routes/v1/service-allowances?limit=500")
+            resp = await client.get(f"{settings.CORE_SERVICE_URL}/routes/v1/service-allowances?limit=500")
             if resp.status_code == 200:
                 data = resp.json().get("items", [])
     except Exception:
         pass
 
     if not data:
-        data = await _db_fetch("routes_db", 'SELECT * FROM service_allowances WHERE "IsActive" = true;')
+        data = await _db_fetch("general_db", 'SELECT * FROM service_allowances WHERE "IsActive" = true;')
 
     if not data:
         csv_path = DATA_DIR / "service_allowance.csv"
@@ -214,14 +223,19 @@ async def fetch_service_allowances() -> list[ServiceAllowance]:
             with open(csv_path, newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for r in reader:
-                    data.append({
-                        "ID": f"{r['brand']}_{r['dock_type']}",
-                        "brand": r["brand"],
-                        "dock_type": r["dock_type"],
-                        "service_allowance_min": float(r["service_allowance_min"]),
-                        "CreateTime": _now(), "UpdateTime": _now(),
-                        "CreatedBy": "SYSTEM", "UpdatedBy": "SYSTEM", "IsActive": True,
-                    })
+                    data.append(
+                        {
+                            "ID": f"{r['brand']}_{r['dock_type']}",
+                            "brand": r["brand"],
+                            "dock_type": r["dock_type"],
+                            "service_allowance_min": float(r["service_allowance_min"]),
+                            "CreateTime": _now(),
+                            "UpdateTime": _now(),
+                            "CreatedBy": "SYSTEM",
+                            "UpdatedBy": "SYSTEM",
+                            "IsActive": True,
+                        }
+                    )
 
     return [
         ServiceAllowance(
@@ -241,19 +255,20 @@ async def fetch_service_allowances() -> list[ServiceAllowance]:
 
 # ── Vehicles ──────────────────────────────────────────────────────────────── #
 
+
 async def fetch_vehicles() -> list[Vehicle]:
     """Fetch all active vehicles."""
     data = []
     try:
         async with httpx.AsyncClient(timeout=2.0) as client:
-            resp = await client.get(f"{settings.VEHICLE_SERVICE_URL}/vehicles/v1/vehicles?limit=500")
+            resp = await client.get(f"{settings.CORE_SERVICE_URL}/vehicles/v1/vehicles?limit=500")
             if resp.status_code == 200:
                 data = resp.json().get("items", [])
     except Exception:
         pass
 
     if not data:
-        data = await _db_fetch("vehicles_db", 'SELECT * FROM vehicles WHERE "IsActive" = true;')
+        data = await _db_fetch("general_db", 'SELECT * FROM vehicles WHERE "IsActive" = true;')
 
     if not data:
         csv_path = DATA_DIR / "vehicles.csv"
@@ -261,20 +276,25 @@ async def fetch_vehicles() -> list[Vehicle]:
             with open(csv_path, newline="", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
                 for r in reader:
-                    data.append({
-                        "ID": r["vehicle_id"],
-                        "type": r["vehicle_type"],
-                        "temp_condition": r["temp_condition"],
-                        "weight_cap_kg": float(r["weight_capacity"]),
-                        "volume_cap_m3": float(r["volume_cap_m3"]),
-                        "fuel_type": r.get("fuel_type", "diesel"),
-                        "km_per_l": float(r["km_per_l"]),
-                        "weekly_fuel_quota": float(r["weekly_fuel_quota"]),
-                        "depot": r["depot"],
-                        "service_milage": float(r.get("service_milage", 0.0) or 0.0),
-                        "CreateTime": _now(), "UpdateTime": _now(),
-                        "CreatedBy": "SYSTEM", "UpdatedBy": "SYSTEM", "IsActive": True,
-                    })
+                    data.append(
+                        {
+                            "ID": r["vehicle_id"],
+                            "type": r["vehicle_type"],
+                            "temp_condition": r["temp_condition"],
+                            "weight_cap_kg": float(r["weight_capacity"]),
+                            "volume_cap_m3": float(r["volume_cap_m3"]),
+                            "fuel_type": r.get("fuel_type", "diesel"),
+                            "km_per_l": float(r["km_per_l"]),
+                            "weekly_fuel_quota": float(r["weekly_fuel_quota"]),
+                            "depot": r["depot"],
+                            "service_milage": float(r.get("service_milage", 0.0) or 0.0),
+                            "CreateTime": _now(),
+                            "UpdateTime": _now(),
+                            "CreatedBy": "SYSTEM",
+                            "UpdatedBy": "SYSTEM",
+                            "IsActive": True,
+                        }
+                    )
 
     vehicles = []
     for r in data:
@@ -302,6 +322,7 @@ async def fetch_vehicles() -> list[Vehicle]:
 
 # ── Orders ────────────────────────────────────────────────────────────────── #
 
+
 async def fetch_orders(
     order_ids: list[str] | None = None,
     planning_date: date | None = None,
@@ -311,13 +332,13 @@ async def fetch_orders(
     # 1. Try DB first for specific order_ids
     if order_ids:
         query = 'SELECT * FROM orders WHERE "ID" = ANY($1) AND "IsActive" = true;'
-        data = await _db_fetch("orders_db", query, order_ids)
+        data = await _db_fetch("general_db", query, order_ids)
     elif planning_date:
         query = 'SELECT * FROM orders WHERE order_date = $1 AND "IsActive" = true;'
-        data = await _db_fetch("orders_db", query, planning_date)
+        data = await _db_fetch("general_db", query, planning_date)
     else:
         query = 'SELECT * FROM orders WHERE "IsActive" = true LIMIT 150;'
-        data = await _db_fetch("orders_db", query)
+        data = await _db_fetch("general_db", query)
 
     # 2. Try HTTP if DB returned none
     if not data:
@@ -326,7 +347,7 @@ async def fetch_orders(
                 params = {"limit": 500}
                 if planning_date:
                     params["order_date"] = planning_date.isoformat()
-                resp = await client.get(f"{settings.ORDER_SERVICE_URL}/orders/v1/orders", params=params)
+                resp = await client.get(f"{settings.CORE_SERVICE_URL}/orders/v1/orders", params=params)
                 if resp.status_code == 200:
                     items = resp.json().get("items", [])
                     if order_ids:

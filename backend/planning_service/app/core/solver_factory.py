@@ -48,7 +48,7 @@ class SolverFactory:
 
     ESTIMATED_MS: dict[SolverType, int] = {
         SolverType.HEURISTIC: 250,
-        SolverType.ORTOOLS:   1800,
+        SolverType.ORTOOLS: 1800,
     }
 
     @staticmethod

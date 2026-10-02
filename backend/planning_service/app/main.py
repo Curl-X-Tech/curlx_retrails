@@ -61,16 +61,17 @@ app.add_middleware(
 # ── Routers ───────────────────────────────────────────────────────────────── #
 # Documented primary routes (only v1 appears in Swagger / OpenAPI schema)
 app.include_router(plans_validate.router, prefix="/planning/v1")
-app.include_router(plans_trips.router,    prefix="/planning/v1")
-app.include_router(plans.router,          prefix="/planning/v1")
+app.include_router(plans_trips.router, prefix="/planning/v1")
+app.include_router(plans.router, prefix="/planning/v1")
 
 # Hidden fallback routes (hidden from Swagger / OpenAPI documentation)
 app.include_router(plans_validate.router, prefix="/planning", include_in_schema=False)
-app.include_router(plans_trips.router,    prefix="/planning", include_in_schema=False)
-app.include_router(plans.router,          prefix="/planning", include_in_schema=False)
+app.include_router(plans_trips.router, prefix="/planning", include_in_schema=False)
+app.include_router(plans.router, prefix="/planning", include_in_schema=False)
 
 
 # ── Health check ──────────────────────────────────────────────────────────── #
+
 
 @app.get("/planning/v1/health", tags=["Health"])
 @app.get("/health", tags=["Health"], include_in_schema=False)

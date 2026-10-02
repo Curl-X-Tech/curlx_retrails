@@ -1,99 +1,71 @@
 # ReTrails Backend
 
-The backend services are containerized with Docker. The repository-level
-Compose file is the deployment entry point and must be run from the repository
-root, not from this directory.
+The backend follows a service-based architecture consisting of 2 core services:
 
-## Docker Engine deployment
+1. **`core_service`** (Port `8000`, Database `general_db`):
+   Unified FastAPI application consolidating orders, outlets, routes, vehicles, and dispatch management.
+2. **`planning_service`** (Port `8005`, Database `planning_db`):
+   Algorithmic solution finder and optimization engine running heuristic and OR-Tools CP-SAT solvers backed by Celery and Redis.
+
+## Docker Engine Deployment
+
+The root Compose file `docker-compose.yml` runs the complete stack.
 
 ### Prerequisites
 
-- Docker Desktop or Docker Engine with the Compose v2 plugin installed.
-- The Docker daemon must be running.
+- Docker Desktop or Docker Engine with Compose plugin installed and daemon running.
 - A shell that can run `docker compose` from the repository root.
 
-Check the installation before starting:
+### Start the Stack
 
-```bash
-docker version
-docker compose version
-```
-
-### Start the stack
-
-From `d:\projects\curlx_retrails` (or the equivalent repository root):
+From repository root:
 
 ```bash
 docker compose -f docker-compose.yml up -d --build
 ```
 
-The command builds the application images, starts PostgreSQL, Redis, Mailpit,
-the FastAPI backend, and the frontend, and runs the containers in the
-background. Inspect startup logs with:
+Endpoints after startup:
 
-```bash
-docker compose -f docker-compose.yml logs -f
-```
+- Core Service API & Docs: http://localhost:8000/docs
+- Planning Engine API & Docs: http://localhost:8005/docs
+- PostgreSQL: `localhost:5432` (`general_db`, `planning_db`)
+- Redis: `localhost:6379`
+- RabbitMQ Management UI: http://localhost:15672 (`waypoint`/`waypoint`)
+- pgAdmin 4 Web UI: http://localhost:5050
 
-Useful endpoints after startup:
-
-- Frontend: http://localhost:5173
-- Backend API: http://localhost:8000
-- Swagger UI: http://localhost:8000/docs
-- Mailpit: http://localhost:8025
-
-Check container health and status with:
+Check container status and logs:
 
 ```bash
 docker compose -f docker-compose.yml ps
+docker compose -f docker-compose.yml logs -f
 ```
 
-### Stop the stack
-
-Stop and remove the containers and network while keeping database data:
+### Stop the Stack
 
 ```bash
 docker compose -f docker-compose.yml down
 ```
 
-To stop the stack and remove its named database and Redis volumes as well:
+To also remove persistent volumes:
 
 ```bash
 docker compose -f docker-compose.yml down -v
 ```
 
-## Required warnings
+## Local Backend Development
 
-- **Current repository layout:** Before running the deployment command, verify
-  that `backend/Dockerfile` and the application files expected by the Compose
-  build context exist. The current checkout contains service-specific
-  Dockerfiles under `backend/*_service/`, but no root `backend/Dockerfile`, so
-  the root Compose deployment will fail during the backend image build until
-  that mismatch is resolved.
-- **Development defaults are not production credentials.** The Compose file
-  supplies fallback PostgreSQL credentials and a fallback `SECRET_KEY`. Set
-  `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`, and a strong unique
-  `SECRET_KEY` in a root `.env` file before deployment. Do not commit `.env`.
-- **Ports are published to the host.** The Compose file exposes PostgreSQL
-  (`5432`), Redis (`6379`), Mailpit SMTP (`1025`), Mailpit UI (`8025`), the
-  backend (`8000`), and the frontend (`5173`). Restrict or remove database,
-  Redis, and Mailpit port mappings before exposing a host to an untrusted
-  network.
-- **Persistent data is stored in named volumes.** Do not use `down -v` unless
-  deleting PostgreSQL and Redis data is intentional. Back up production data
-  before upgrades or teardown.
-- **This Compose file is not a complete production hardening configuration.**
-  Add TLS, a reverse proxy, secret management, backups, monitoring, resource
-  limits, and a production migration process before using it on a public host.
-- **Mailpit is a development mail server.** It captures mail locally and must
-  not be used as a production SMTP delivery service.
-
-## Local backend development
-
-For local development, use the Python environment configured for the backend
-service and run its FastAPI application directly:
+Install dependencies and start `core_service` locally:
 
 ```bash
-uv sync
-uv run uvicorn app.main:app --reload --port 8000
+cd backend/core_service
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
+
+Start `planning_service` locally:
+
+```bash
+cd backend/planning_service
+uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
+```
+
+Or run dev orchestration via `./dev.sh backend` or `./dev.ps1 backend`.

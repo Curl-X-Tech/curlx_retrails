@@ -21,16 +21,15 @@ from __future__ import annotations
 import datetime
 from enum import Enum
 from dataclasses import dataclass, field
-from typing import Any
 
 from app.domain.Trip import Trip
 from app.domain.Vehicle import Vehicle, VehicleTree
 
 
 class PlanStatus(str, Enum):
-    DRAFT = "DRAFT"                          # Generated in queue, pending review & confirmation
-    CONFIRMED = "CONFIRMED"                  # Approved by authorized personnel; run sheets active
-    SUPERSEDED = "SUPERSEDED"                # Replaced by a newer plan version
+    DRAFT = "DRAFT"  # Generated in queue, pending review & confirmation
+    CONFIRMED = "CONFIRMED"  # Approved by authorized personnel; run sheets active
+    SUPERSEDED = "SUPERSEDED"  # Replaced by a newer plan version
 
 
 @dataclass
@@ -90,8 +89,7 @@ class PlanValidator:
         temp = trip.get_temp_condition() or "ambient"
         if not vehicle.can_carry_temp(temp):
             errors.append(
-                f"Temperature violation: trip requires '{temp}' transport, "
-                f"but vehicle {vehicle.ID} is ambient-only."
+                f"Temperature violation: trip requires '{temp}' transport, but vehicle {vehicle.ID} is ambient-only."
             )
 
         # ── 4. Capacity (Weight and Volume) ───────────────────────────── #
@@ -109,16 +107,10 @@ class PlanValidator:
             )
 
         # Filter other trips committed to this vehicle
-        other_trips_for_v = [
-            t for t in existing_trips
-            if t.vehicle and t.vehicle.ID == vehicle.ID and t.ID != trip.ID
-        ]
+        other_trips_for_v = [t for t in existing_trips if t.vehicle and t.vehicle.ID == vehicle.ID and t.ID != trip.ID]
 
         # ── 5. Daily Trip Limit (<= 2 trips per day) ──────────────────── #
-        other_trips_same_day = [
-            t for t in other_trips_for_v
-            if getattr(t, "allocation_day", 1) == allocation_day
-        ]
+        other_trips_same_day = [t for t in other_trips_for_v if getattr(t, "allocation_day", 1) == allocation_day]
         if len(other_trips_same_day) >= vehicle.max_per_day_trip_count:
             errors.append(
                 f"Daily trip limit exceeded: vehicle {vehicle.ID} already has "
@@ -127,10 +119,7 @@ class PlanValidator:
 
         # ── 6. Weekly Fuel Quota ──────────────────────────────────────── #
         trip_km = trip.route.round_trip_km() if trip.route else 0.0
-        used_km = sum(
-            (t.route.round_trip_km() if t.route else 0.0)
-            for t in other_trips_for_v
-        )
+        used_km = sum((t.route.round_trip_km() if t.route else 0.0) for t in other_trips_for_v)
         max_km = vehicle.weekly_fuel_quota * vehicle.km_per_l
         if used_km + trip_km > max_km:
             errors.append(
@@ -143,8 +132,7 @@ class PlanValidator:
         duration = trip.calculate_total_trip_minutes(outlets, service_allowances)
         if duration > budget:
             errors.append(
-                f"Brand daily time budget exceeded: trip duration {duration:.1f} min > "
-                f"budget of {budget:.1f} min."
+                f"Brand daily time budget exceeded: trip duration {duration:.1f} min > budget of {budget:.1f} min."
             )
 
         # ── 8 & 9. Schedule Collision & Delivery Window Deadlines ─────── #
@@ -171,9 +159,7 @@ class PlanValidator:
                 r1 = trip._hhmm_to_minutes(prev_sched["return_to_depot_hhmm"])
 
                 # Try Option A: depart after previous trip returns
-                sched_after = trip.plan_stop_sequence(
-                    outlets, service_allowances, earliest_departure_min=r1
-                )
+                sched_after = trip.plan_stop_sequence(outlets, service_allowances, earliest_departure_min=r1)
                 if sched_after and not sched_after["has_violations"]:
                     schedule = sched_after
                 else:
@@ -224,12 +210,14 @@ class DispatchPlan:
         self.audit_log: list[dict] = []
 
     def log_action(self, action: str, user_id: str, details: dict) -> None:
-        self.audit_log.append({
-            "timestamp": datetime.datetime.now().isoformat(),
-            "action": action,
-            "user_id": user_id,
-            "details": details,
-        })
+        self.audit_log.append(
+            {
+                "timestamp": datetime.datetime.now().isoformat(),
+                "action": action,
+                "user_id": user_id,
+                "details": details,
+            }
+        )
         self.updated_at = datetime.datetime.now().isoformat()
 
     def get_trip(self, trip_id: str) -> Trip | None:
@@ -261,8 +249,7 @@ class DispatchPlan:
         """
         if self.status == PlanStatus.CONFIRMED:
             return ValidationResult(
-                is_valid=False,
-                errors=["Cannot modify a CONFIRMED plan. Must duplicate or reopen to DRAFT first."]
+                is_valid=False, errors=["Cannot modify a CONFIRMED plan. Must duplicate or reopen to DRAFT first."]
             )
 
         trip = self.get_trip(trip_id)
@@ -284,12 +271,16 @@ class DispatchPlan:
         )
 
         if not validation.is_valid:
-            self.log_action("MANUAL_ASSIGN_REJECTED", user_id, {
-                "trip_id": trip_id,
-                "vehicle_id": vehicle_id,
-                "allocation_day": allocation_day,
-                "errors": validation.errors,
-            })
+            self.log_action(
+                "MANUAL_ASSIGN_REJECTED",
+                user_id,
+                {
+                    "trip_id": trip_id,
+                    "vehicle_id": vehicle_id,
+                    "allocation_day": allocation_day,
+                    "errors": validation.errors,
+                },
+            )
             return validation
 
         # Commit manual assignment & lock it against solver override
@@ -314,14 +305,18 @@ class DispatchPlan:
                 if stop["order_id"] in order_by_id
             ]
 
-        self.log_action("MANUAL_ASSIGN_COMMITTED", user_id, {
-            "trip_id": trip_id,
-            "vehicle_id": vehicle_id,
-            "allocation_day": allocation_day,
-            "prev_vehicle": prev_vehicle,
-            "prev_day": prev_day,
-            "reason": trip.override_reason,
-        })
+        self.log_action(
+            "MANUAL_ASSIGN_COMMITTED",
+            user_id,
+            {
+                "trip_id": trip_id,
+                "vehicle_id": vehicle_id,
+                "allocation_day": allocation_day,
+                "prev_vehicle": prev_vehicle,
+                "prev_day": prev_day,
+                "reason": trip.override_reason,
+            },
+        )
 
         return validation
 
@@ -357,10 +352,14 @@ class DispatchPlan:
         self.status = PlanStatus.CONFIRMED
         self.confirmed_by = authorized_user
         self.confirmed_at = datetime.datetime.now().isoformat()
-        self.log_action("PLAN_CONFIRMED", authorized_user, {
-            "confirmed_trips": len([t for t in self.trips if t.vehicle]),
-            "unassigned_trips": len([t for t in self.trips if not t.vehicle]),
-        })
+        self.log_action(
+            "PLAN_CONFIRMED",
+            authorized_user,
+            {
+                "confirmed_trips": len([t for t in self.trips if t.vehicle]),
+                "unassigned_trips": len([t for t in self.trips if not t.vehicle]),
+            },
+        )
         return True, []
 
     def to_dict(self, outlets: list, service_allowances: list) -> dict:
@@ -448,9 +447,7 @@ class HeuristicAllocationSolver:
         )
 
     def _trip_budget_ok(self, trip: Trip, candidate_orders: list) -> bool:
-        return self._make_temp_trip(trip, candidate_orders).within_daily_budget(
-            self.outlets, self.service_allowances
-        )
+        return self._make_temp_trip(trip, candidate_orders).within_daily_budget(self.outlets, self.service_allowances)
 
     def _find_feasible_schedule(
         self,
@@ -471,9 +468,7 @@ class HeuristicAllocationSolver:
 
         # Vehicle already has 1 trip assigned today -> verify sequential turnaround
         prev_trip = vehicle_day_trips[vehicle.ID][0]
-        prev_sched = prev_trip.stop_schedule or prev_trip.plan_stop_sequence(
-            self.outlets, self.service_allowances
-        )
+        prev_sched = prev_trip.stop_schedule or prev_trip.plan_stop_sequence(self.outlets, self.service_allowances)
         if not prev_sched:
             return None
 
@@ -481,9 +476,7 @@ class HeuristicAllocationSolver:
         r1 = temp_trip._hhmm_to_minutes(prev_sched["return_to_depot_hhmm"])
 
         # Option 1: Run AFTER existing trip (departure >= return of trip 1)
-        sched_after = temp_trip.plan_stop_sequence(
-            self.outlets, self.service_allowances, earliest_departure_min=r1
-        )
+        sched_after = temp_trip.plan_stop_sequence(self.outlets, self.service_allowances, earliest_departure_min=r1)
         if sched_after and not sched_after["has_violations"]:
             return sched_after
 
@@ -516,10 +509,9 @@ class HeuristicAllocationSolver:
             pool = self.all_vehicles
 
         return [
-            v for v in pool
-            if v.serves_depot(depot or v.get_depot())
-            and v.can_access_outlet_type(parking)
-            and v.can_carry_temp(temp)
+            v
+            for v in pool
+            if v.serves_depot(depot or v.get_depot()) and v.can_access_outlet_type(parking) and v.can_carry_temp(temp)
         ]
 
     def _candidate_vehicles(self, trip: Trip) -> list[Vehicle]:
@@ -621,9 +613,7 @@ class HeuristicAllocationSolver:
             if schedule:
                 order_by_id = {o.get_id(): o for o in t.order_queue}
                 t.order_queue = [
-                    order_by_id[stop["order_id"]]
-                    for stop in schedule["stops"]
-                    if stop["order_id"] in order_by_id
+                    order_by_id[stop["order_id"]] for stop in schedule["stops"] if stop["order_id"] in order_by_id
                 ]
                 t.stop_schedule = schedule
             t.assign_vehicle(v)
@@ -633,10 +623,7 @@ class HeuristicAllocationSolver:
             vehicle_day_trips[v.ID].append(t)
 
         # ── Phase 0: Pre-commit locked manual trips (immovable anchors) ── #
-        locked_trips = [
-            t for t in self.trips
-            if getattr(t, "is_locked", False) and t.vehicle is not None
-        ]
+        locked_trips = [t for t in self.trips if getattr(t, "is_locked", False) and t.vehicle is not None]
         unlocked_trips = [t for t in self.trips if t not in locked_trips]
 
         for t in locked_trips:
@@ -702,7 +689,9 @@ class HeuristicAllocationSolver:
                     partial_options,
                     key=lambda pair: (
                         len(pair[1]),
-                        -self._best_vehicle_score(pair[0], trip, pair[1])[0] if False else -self._best_vehicle_score(trip, pair[0], pair[1])[0],
+                        -self._best_vehicle_score(pair[0], trip, pair[1])[0]
+                        if False
+                        else -self._best_vehicle_score(trip, pair[0], pair[1])[0],
                         -self._best_vehicle_score(trip, pair[0], pair[1])[1],
                         -self._best_vehicle_score(trip, pair[0], pair[1])[2],
                     ),

@@ -16,13 +16,13 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 if PROJECT_ROOT not in sys.path:
     sys.path.insert(0, PROJECT_ROOT)
 
-from create_fake_orders import get_orders
+from create_fake_orders import get_orders  # noqa: E402
 
 DB_USER = os.getenv("POSTGRES_USER", "waypoint")
 DB_PASS = os.getenv("POSTGRES_PASSWORD", "waypoint")
 DB_HOST = os.getenv("POSTGRES_HOST", "127.0.0.1")
 DB_PORT = os.getenv("POSTGRES_PORT", "5432")
-DB_NAME = os.getenv("ORDERS_DB_NAME", "orders_db")
+DB_NAME = os.getenv("ORDERS_DB_NAME", "general_db")
 
 
 async def seed_orders(count: int = 150):
@@ -70,9 +70,7 @@ async def seed_orders(count: int = 150):
 
         for o in orders:
             order_time_str = (
-                o.order_time.strftime("%H:%M")
-                if hasattr(o.order_time, "strftime")
-                else str(o.order_time)[:5]
+                o.order_time.strftime("%H:%M") if hasattr(o.order_time, "strftime") else str(o.order_time)[:5]
             )
 
             await conn.execute(
@@ -118,12 +116,10 @@ async def seed_orders(count: int = 150):
         # 4. Verification queries
         total_count = await conn.fetchval('SELECT count(*) FROM orders WHERE "IsActive" = true;')
         by_temp = await conn.fetch(
-            'SELECT temp_condition, count(*) as count, round(sum(weight_kg)::numeric, 1) as total_weight '
+            "SELECT temp_condition, count(*) as count, round(sum(weight_kg)::numeric, 1) as total_weight "
             'FROM orders WHERE "IsActive" = true GROUP BY temp_condition ORDER BY count DESC;'
         )
-        by_date = await conn.fetchval(
-            'SELECT order_date FROM orders WHERE "IsActive" = true LIMIT 1;'
-        )
+        by_date = await conn.fetchval('SELECT order_date FROM orders WHERE "IsActive" = true LIMIT 1;')
 
         print("\n--- DB Verification ---")
         print(f"Total Active Orders in DB: {total_count}")

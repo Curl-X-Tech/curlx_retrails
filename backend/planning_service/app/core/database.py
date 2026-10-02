@@ -43,6 +43,7 @@ AsyncSessionLocal = async_sessionmaker(
 
 class Base(DeclarativeBase):
     """Base declarative model with standard Waypoint audit tracking columns."""
+
     ID: Mapped[str] = mapped_column(
         String(64),
         primary_key=True,
@@ -74,11 +75,22 @@ async def init_db() -> None:
     """Create all tables registered with Base metadata and ensure all columns exist."""
     from sqlalchemy import text
     import app.models  # noqa: F401
+
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-        await conn.execute(text("ALTER TABLE planned_trips ADD COLUMN IF NOT EXISTS order_count INTEGER NOT NULL DEFAULT 0;"))
-        await conn.execute(text("ALTER TABLE planned_trips ADD COLUMN IF NOT EXISTS total_weight_kg DOUBLE PRECISION NOT NULL DEFAULT 0.0;"))
-        await conn.execute(text("ALTER TABLE planned_trips ADD COLUMN IF NOT EXISTS total_volume_m3 DOUBLE PRECISION NOT NULL DEFAULT 0.0;"))
+        await conn.execute(
+            text("ALTER TABLE planned_trips ADD COLUMN IF NOT EXISTS order_count INTEGER NOT NULL DEFAULT 0;")
+        )
+        await conn.execute(
+            text(
+                "ALTER TABLE planned_trips ADD COLUMN IF NOT EXISTS total_weight_kg DOUBLE PRECISION NOT NULL DEFAULT 0.0;"
+            )
+        )
+        await conn.execute(
+            text(
+                "ALTER TABLE planned_trips ADD COLUMN IF NOT EXISTS total_volume_m3 DOUBLE PRECISION NOT NULL DEFAULT 0.0;"
+            )
+        )
         await conn.execute(text("ALTER TABLE planned_trips ADD COLUMN IF NOT EXISTS trip_id VARCHAR(64);"))
         await conn.execute(text('UPDATE planned_trips SET trip_id = "ID" WHERE trip_id IS NULL;'))
         await conn.execute(text("ALTER TABLE audit_logs ADD COLUMN IF NOT EXISTS plan_id VARCHAR(64);"))

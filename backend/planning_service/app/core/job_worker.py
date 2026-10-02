@@ -25,7 +25,6 @@ import datetime
 from celery import Celery
 
 from app.core.config import get_settings
-from app.core.solver_factory import SolverFactory
 from app.schemas.planning_schemas import SolverType
 
 settings = get_settings()
@@ -51,14 +50,15 @@ celery_app.conf.update(
 
 # ── Main allocation task ──────────────────────────────────────────────────── #
 
+
 @celery_app.task(bind=True, name="planning.run_allocation_job")
 def run_allocation_job(
     self,
-    order_ids:     list[str],
+    order_ids: list[str],
     planning_date: str,
-    solver_type:   str = SolverType.HEURISTIC,
-    max_days:      int = 4,
-    created_by:    str | None = None,
+    solver_type: str = SolverType.HEURISTIC,
+    max_days: int = 4,
+    created_by: str | None = None,
 ) -> dict:
     import asyncio
     import time
@@ -82,8 +82,8 @@ def run_allocation_job(
     elapsed_ms = int((time.perf_counter() - start) * 1000)
 
     return {
-        "plan_id":    plan_id,
-        "status":     "done",
+        "plan_id": plan_id,
+        "status": "done",
         "solver_used": solver_type,
         "elapsed_ms": elapsed_ms,
     }

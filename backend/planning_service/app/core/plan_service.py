@@ -10,13 +10,9 @@ from __future__ import annotations
 import asyncio
 import datetime
 from datetime import timezone
-import os
-import sys
 from typing import Any
 import uuid
 
-from sqlalchemy import desc, select
-from sqlalchemy.orm import selectinload
 
 from app.core.database import AsyncSessionLocal
 from app.core.data_provider import (
@@ -27,11 +23,9 @@ from app.core.data_provider import (
     fetch_service_allowances,
 )
 from app.core.solver_factory import SolverFactory
-from app.models.plan import DispatchPlanModel, PlannedTripModel, AuditLogModel
-from app.schemas.planning_schemas import JobStatus, SolverType
+from app.models.plan import DispatchPlanModel, PlannedTripModel
+from app.schemas.planning_schemas import JobStatus
 from app.domain.Order import OrderTree
-from app.domain.Planner import PlanValidator, ValidationResult
-from app.domain.Trip import Trip
 
 
 def _now() -> datetime.datetime:
@@ -77,7 +71,9 @@ async def execute_planning_run(
         # 1. Fetch live data
         orders = await fetch_orders(order_ids=order_ids, planning_date=planning_date)
         if not orders:
-            raise ValueError(f"No orders found for the given criteria (order_ids={len(order_ids)}, date={planning_date}).")
+            raise ValueError(
+                f"No orders found for the given criteria (order_ids={len(order_ids)}, date={planning_date})."
+            )
 
         outlets = await fetch_outlets()
         routes = await fetch_routes()

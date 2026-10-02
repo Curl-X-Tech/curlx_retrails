@@ -22,16 +22,11 @@ This module provides two complementary OR-Tools solvers:
 
 from __future__ import annotations
 
-import datetime
-from typing import Sequence
 
 from ortools.sat.python import cp_model
-from ortools.constraint_solver import routing_enums_pb2
-from ortools.constraint_solver import pywrapcp
 
 from app.domain.Trip import Trip
 from app.domain.Vehicle import Vehicle
-from app.domain.Planner import DispatchPlan, PlanStatus
 
 
 class ORToolsAllocationSolver:
@@ -106,11 +101,7 @@ class ORToolsAllocationSolver:
         # ── Constraint 2: Daily Trip Limit (<= 2 trips per vehicle/day) ── #
         for v_idx in range(V):
             for d in range(1, D + 1):
-                v_d_trips = [
-                    assign[(t_idx, v_idx, d)]
-                    for t_idx in range(T)
-                    if (t_idx, v_idx, d) in assign
-                ]
+                v_d_trips = [assign[(t_idx, v_idx, d)] for t_idx in range(T) if (t_idx, v_idx, d) in assign]
                 if v_d_trips:
                     model.Add(sum(v_d_trips) <= self.vehicles[v_idx].max_per_day_trip_count)
 
@@ -127,12 +118,11 @@ class ORToolsAllocationSolver:
                 model.Add(sum(fuel_usages) <= max_km)
 
         # ── Pre-compute Pairwise Temporal Coexistence ─────────────────── #
-        base_schedules = [
-            t.plan_stop_sequence(self.outlets, self.service_allowances)
-            for t in effective_trips
-        ]
+        base_schedules = [t.plan_stop_sequence(self.outlets, self.service_allowances) for t in effective_trips]
         base_returns = [
-            effective_trips[i]._hhmm_to_minutes(base_schedules[i]["return_to_depot_hhmm"]) if base_schedules[i] else 9999
+            effective_trips[i]._hhmm_to_minutes(base_schedules[i]["return_to_depot_hhmm"])
+            if base_schedules[i]
+            else 9999
             for i in range(T)
         ]
 
@@ -148,11 +138,11 @@ class ORToolsAllocationSolver:
 
                 # Check Option A: t1 then t2
                 sched_1_then_2 = t2.plan_stop_sequence(self.outlets, self.service_allowances, earliest_departure_min=r1)
-                ok_1_2 = (sched_1_then_2 is not None and not sched_1_then_2["has_violations"])
+                ok_1_2 = sched_1_then_2 is not None and not sched_1_then_2["has_violations"]
 
                 # Check Option B: t2 then t1
                 sched_2_then_1 = t1.plan_stop_sequence(self.outlets, self.service_allowances, earliest_departure_min=r2)
-                ok_2_1 = (sched_2_then_1 is not None and not sched_2_then_1["has_violations"])
+                ok_2_1 = sched_2_then_1 is not None and not sched_2_then_1["has_violations"]
 
                 if ok_1_2 and ok_2_1:
                     ret_1_2 = t2._hhmm_to_minutes(sched_1_then_2["return_to_depot_hhmm"])
@@ -209,7 +199,8 @@ class ORToolsAllocationSolver:
             for v_idx, v in enumerate(self.vehicles):
                 for d in range(1, D + 1):
                     v_d_trip_indices = [
-                        t_idx for t_idx in range(T)
+                        t_idx
+                        for t_idx in range(T)
                         if (t_idx, v_idx, d) in assign and solver.Value(assign[(t_idx, v_idx, d)]) == 1
                     ]
 
@@ -301,16 +292,22 @@ class ORToolsAllocationSolver:
             max_vol = max(v.volume_cap_m3 for v in compatible_v)
 
             test_sched = trip.plan_stop_sequence(self.outlets, self.service_allowances)
-            if (trip.total_weight_in_queue() <= max_w and
-                trip.total_volume_in_queue() <= max_vol and
-                test_sched is not None and not test_sched["has_violations"]):
+            if (
+                trip.total_weight_in_queue() <= max_w
+                and trip.total_volume_in_queue() <= max_vol
+                and test_sched is not None
+                and not test_sched["has_violations"]
+            ):
                 prepared.append(trip)
                 continue
 
             # Split greedily by EDF with both capacity AND time-window feasibility
             edf_sorted = sorted(
                 trip.order_queue,
-                key=lambda o: (o.get_window_close_time(self.outlets) or "99:99", o.get_window_open_time(self.outlets) or "99:99")
+                key=lambda o: (
+                    o.get_window_close_time(self.outlets) or "99:99",
+                    o.get_window_open_time(self.outlets) or "99:99",
+                ),
             )
             curr_orders = []
             curr_w = 0.0
@@ -321,7 +318,7 @@ class ORToolsAllocationSolver:
                 ov = o.get_volume()
 
                 # Check 1: physical capacity
-                capacity_ok = (curr_w + ow <= max_w and curr_v + ov <= max_vol)
+                capacity_ok = curr_w + ow <= max_w and curr_v + ov <= max_vol
 
                 # Check 2: time-window feasibility
                 window_ok = False
@@ -337,11 +334,13 @@ class ORToolsAllocationSolver:
                         order_queue=curr_orders + [o],
                     )
                     sched = test_trip.plan_stop_sequence(self.outlets, self.service_allowances)
-                    window_ok = (sched is not None and not sched["has_violations"])
+                    window_ok = sched is not None and not sched["has_violations"]
 
                 if curr_orders and (not capacity_ok or not window_ok):
                     fork_idx += 1
-                    fork_trip = trip.fork_trip_by_transferring_orders(curr_orders, fork_id=f"{trip.ID}_ortools_fork_{fork_idx}")
+                    fork_trip = trip.fork_trip_by_transferring_orders(
+                        curr_orders, fork_id=f"{trip.ID}_ortools_fork_{fork_idx}"
+                    )
                     prepared.append(fork_trip)
                     curr_orders = [o]
                     curr_w = ow
@@ -353,7 +352,9 @@ class ORToolsAllocationSolver:
 
             if curr_orders:
                 fork_idx += 1
-                fork_trip = trip.fork_trip_by_transferring_orders(curr_orders, fork_id=f"{trip.ID}_ortools_fork_{fork_idx}")
+                fork_trip = trip.fork_trip_by_transferring_orders(
+                    curr_orders, fork_id=f"{trip.ID}_ortools_fork_{fork_idx}"
+                )
                 prepared.append(fork_trip)
 
         return prepared

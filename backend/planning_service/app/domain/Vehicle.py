@@ -16,26 +16,26 @@ class Vehicle(BaseModel):
         CreatedBy: str,
         UpdatedBy: str,
         IsActive: bool,
-        type: str,              # truck | van
-        temp_condition: str,    # reefer | ambient
+        type: str,  # truck | van
+        temp_condition: str,  # reefer | ambient
         weight_cap_kg: float,
         volume_cap_m3: float,
         fuel_type: str,
         km_per_l: float,
-        weekly_fuel_quota: float,   # in litres
+        weekly_fuel_quota: float,  # in litres
         depot: str,
         service_milage: float = 0.0,
     ) -> None:
         super().__init__(ID, CreateTime, UpdateTime, CreatedBy, UpdatedBy, IsActive)
-        self.type = type                        # truck | van
-        self.temp_condition = temp_condition    # reefer | ambient
+        self.type = type  # truck | van
+        self.temp_condition = temp_condition  # reefer | ambient
         self.weight_cap_kg = float(weight_cap_kg)
         self.volume_cap_m3 = float(volume_cap_m3)
         self.fuel_type = fuel_type
         self.km_per_l = float(km_per_l)
-        self.weekly_fuel_quota = float(weekly_fuel_quota)   # litres
+        self.weekly_fuel_quota = float(weekly_fuel_quota)  # litres
         self.depot = depot
-        self.service_milage = float(service_milage)         # km used this week
+        self.service_milage = float(service_milage)  # km used this week
         self.trip_count_today: int = 0
         self.max_per_day_trip_count: int = 2
         self.driver = None
@@ -120,7 +120,10 @@ class Vehicle(BaseModel):
         if not self.has_trips_remaining():
             return False, "daily trip limit reached"
         if not self.has_fuel_for(round_trip_km):
-            return False, f"fuel exhausted ({self.service_milage:.1f}+{round_trip_km:.1f} > {self.max_weekly_range_km():.1f} km)"
+            return (
+                False,
+                f"fuel exhausted ({self.service_milage:.1f}+{round_trip_km:.1f} > {self.max_weekly_range_km():.1f} km)",
+            )
         return True, "ok"
 
     def to_dict(self) -> dict:

@@ -51,7 +51,7 @@ def _format_schedule_for_response(sched: dict | None) -> TripSchedule | None:
 )
 async def validate_trip_assignment(
     payload: ValidateTripAssignmentRequest,
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = select(PlannedTripModel).where(
         PlannedTripModel.plan_id == payload.plan_id,
@@ -80,9 +80,7 @@ async def validate_trip_assignment(
             schedule=None,
         )
 
-    matching_route = next(
-        (r for r in routes if r.district == trip.district and r.depot == trip.depot), None
-    )
+    matching_route = next((r for r in routes if r.district == trip.district and r.depot == trip.depot), None)
 
     domain_trip = Trip(
         ID=trip.trip_id,
@@ -208,7 +206,7 @@ async def validate_vehicle_capacity(
 )
 async def validate_time_window(
     payload: ValidateTimeWindowRequest,
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = select(PlannedTripModel).where(
         PlannedTripModel.plan_id == payload.plan_id,
@@ -227,9 +225,7 @@ async def validate_time_window(
     service_allowances = await fetch_service_allowances()
     orders = await fetch_orders(order_ids=trip.order_ids)
 
-    matching_route = next(
-        (r for r in routes if r.district == trip.district and r.depot == trip.depot), None
-    )
+    matching_route = next((r for r in routes if r.district == trip.district and r.depot == trip.depot), None)
 
     domain_trip = Trip(
         ID=trip.trip_id,

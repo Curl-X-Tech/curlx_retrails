@@ -1,4 +1,4 @@
-﻿<# ReTrails Development Script (Team CurlX) - Windows PowerShell edition #>
+<# ReTrails Development Script (Team CurlX) - Windows PowerShell edition #>
 param(
     [Parameter(Position = 0)]
     [string]$Command = "dev"
@@ -54,14 +54,10 @@ function Print-Banner {
 function Print-MicroservicesBanner {
     Write-Host ""
     Write-Host "================================================================" -ForegroundColor White
-    Write-Host "  Waypoint Microservices Stack (Team CurlX)" -ForegroundColor White
+    Write-Host "  Waypoint Services Stack (Team CurlX)" -ForegroundColor White
     Write-Host "================================================================" -ForegroundColor White
-    Write-Host "  Order Service:             " -NoNewline; Write-Host "http://localhost:8001" -ForegroundColor Cyan
-    Write-Host "  Outlet Manager Service:    " -NoNewline; Write-Host "http://localhost:8002" -ForegroundColor Cyan
-    Write-Host "  Route Management Service:  " -NoNewline; Write-Host "http://localhost:8003" -ForegroundColor Cyan
-    Write-Host "  Vehicle Manager Service:   " -NoNewline; Write-Host "http://localhost:8004" -ForegroundColor Cyan
+    Write-Host "  Core Service (Orders/Outlets/Routes/Vehicles/Dispatch): " -NoNewline; Write-Host "http://localhost:8000" -ForegroundColor Cyan
     Write-Host "  Planning Engine Service:   " -NoNewline; Write-Host "http://localhost:8005" -ForegroundColor Cyan
-    Write-Host "  Dispatcher Service:        " -NoNewline; Write-Host "http://localhost:8006" -ForegroundColor Cyan
     Write-Host "  PostgreSQL Database:       " -NoNewline; Write-Host "localhost:5432" -ForegroundColor Cyan
     Write-Host "  Redis Cache / Broker:      " -NoNewline; Write-Host "localhost:6379" -ForegroundColor Cyan
     Write-Host "  RabbitMQ AMQP:            " -NoNewline; Write-Host "localhost:5672" -ForegroundColor Cyan
@@ -128,7 +124,7 @@ function Invoke-Backend {
     Assert-Prerequisites
     Ensure-Env
     Write-Info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
-    Push-Location (Join-Path $ROOT_DIR "backend")
+    Push-Location (Join-Path $ROOT_DIR "backend\core_service")
     uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     Pop-Location
 }
@@ -205,7 +201,7 @@ function Invoke-Dev {
 
     # Launch all three processes in separate windows so each gets its own console
     $backendJob = Start-Process -FilePath "powershell.exe" `
-        -ArgumentList "-NoExit", "-Command", "Push-Location '$ROOT_DIR\backend'; uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" `
+        -ArgumentList "-NoExit", "-Command", "Push-Location '$ROOT_DIR\backend\core_service'; uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" `
         -PassThru
 
     $frontendJob = Start-Process -FilePath "powershell.exe" `

@@ -51,14 +51,10 @@ print_banner() {
 print_microservices_banner() {
     echo ""
     echo -e "${BOLD}================================================================${RESET}"
-    echo -e "  ${BOLD}Waypoint Microservices Stack (Team CurlX)${RESET}"
+    echo -e "  ${BOLD}Waypoint Services Stack (Team CurlX)${RESET}"
     echo -e "${BOLD}================================================================${RESET}"
-    echo -e "  ${GREEN}Order Service:${RESET}             ${CYAN}http://localhost:8001${RESET}"
-    echo -e "  ${GREEN}Outlet Manager Service:${RESET}    ${CYAN}http://localhost:8002${RESET}"
-    echo -e "  ${GREEN}Route Management Service:${RESET}  ${CYAN}http://localhost:8003${RESET}"
-    echo -e "  ${GREEN}Vehicle Manager Service:${RESET}   ${CYAN}http://localhost:8004${RESET}"
+    echo -e "  ${GREEN}Core Service (Orders/Outlets/Routes/Vehicles/Dispatch):${RESET} ${CYAN}http://localhost:8000${RESET}"
     echo -e "  ${GREEN}Planning Engine Service:${RESET}   ${CYAN}http://localhost:8005${RESET}"
-    echo -e "  ${GREEN}Dispatcher Service:${RESET}        ${CYAN}http://localhost:8006${RESET}"
     echo -e "  ${GREEN}PostgreSQL Database:${RESET}       ${CYAN}localhost:5432${RESET}"
     echo -e "  ${GREEN}Redis Cache / Broker:${RESET}      ${CYAN}localhost:6379${RESET}"
     echo -e "  ${GREEN}RabbitMQ AMQP:${RESET}            ${CYAN}localhost:5672${RESET}"
@@ -114,7 +110,7 @@ run_backend() {
     check_prerequisites
     ensure_env
     log_info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
-    cd "$ROOT_DIR/backend"
+    cd "$ROOT_DIR/backend/core_service"
     exec uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 }
 
@@ -184,7 +180,7 @@ run_dev() {
     # Handle graceful exit on SIGINT/SIGTERM
     trap 'echo ""; log_info "Shutting down development processes..."; kill $(jobs -p) 2>/dev/null || true; exit 0' SIGINT SIGTERM EXIT
 
-    (cd "$ROOT_DIR/backend" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
+    (cd "$ROOT_DIR/backend/core_service" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
     BACKEND_PID=$!
 
     (cd "$ROOT_DIR/frontend" && bun run dev) &

@@ -112,13 +112,17 @@ async def get_active_plan(
 )
 async def list_plans(
     status_filter: PlanStatus | None = Query(default=None, alias="status"),
-    solver_used:   SolverType | None = Query(default=None),
-    planning_date: date       | None = Query(default=None),
-    page:          int               = Query(default=1, ge=1),
-    limit:         int               = Query(default=20, ge=1, le=100),
-    db:            AsyncSession      = Depends(get_db),
+    solver_used: SolverType | None = Query(default=None),
+    planning_date: date | None = Query(default=None),
+    page: int = Query(default=1, ge=1),
+    limit: int = Query(default=20, ge=1, le=100),
+    db: AsyncSession = Depends(get_db),
 ):
-    query = select(DispatchPlanModel).options(selectinload(DispatchPlanModel.trips)).where(DispatchPlanModel.IsActive.is_(True))
+    query = (
+        select(DispatchPlanModel)
+        .options(selectinload(DispatchPlanModel.trips))
+        .where(DispatchPlanModel.IsActive.is_(True))
+    )
 
     if status_filter:
         query = query.where(DispatchPlanModel.status == status_filter.value)
@@ -131,7 +135,11 @@ async def list_plans(
     total = (await db.execute(count_stmt)).scalar_one()
 
     offset = (page - 1) * limit
-    items = list((await db.execute(query.order_by(DispatchPlanModel.CreateTime.desc()).offset(offset).limit(limit))).scalars().all())
+    items = list(
+        (await db.execute(query.order_by(DispatchPlanModel.CreateTime.desc()).offset(offset).limit(limit)))
+        .scalars()
+        .all()
+    )
 
     return PlanListResponse(
         items=items,
@@ -150,7 +158,7 @@ async def list_plans(
 )
 async def get_plan(
     plan_id: str = Path(...),
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(DispatchPlanModel)
@@ -174,7 +182,7 @@ async def get_plan(
 )
 async def get_plan_summary(
     plan_id: str = Path(...),
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     plan = await db.get(DispatchPlanModel, plan_id)
     if not plan or not plan.IsActive:
@@ -217,7 +225,7 @@ async def get_plan_summary(
 async def confirm_plan(
     plan_id: str = Path(...),
     payload: PlanConfirmRequest = ...,
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(DispatchPlanModel)
@@ -269,7 +277,7 @@ async def confirm_plan(
 async def supersede_plan(
     plan_id: str = Path(...),
     payload: SupersedeRequest = ...,
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(DispatchPlanModel)
@@ -314,12 +322,8 @@ async def supersede_plan(
 )
 async def get_audit_log(
     plan_id: str = Path(...),
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    stmt = (
-        select(AuditLogModel)
-        .where(AuditLogModel.plan_id == plan_id)
-        .order_by(AuditLogModel.timestamp.desc())
-    )
+    stmt = select(AuditLogModel).where(AuditLogModel.plan_id == plan_id).order_by(AuditLogModel.timestamp.desc())
     logs = list((await db.execute(stmt)).scalars().all())
     return logs

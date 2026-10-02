@@ -14,7 +14,7 @@ from app.core.data_provider import (
     fetch_service_allowances,
     fetch_vehicles,
 )
-from app.models.plan import AuditLogModel, DispatchPlanModel, PlannedTripModel
+from app.models.plan import AuditLogModel, PlannedTripModel
 from app.schemas.planning_schemas import (
     AllocationSource,
     TripAssignRequest,
@@ -54,9 +54,13 @@ def _format_schedule_for_response(sched: dict | None) -> TripSchedule | None:
 )
 async def list_plan_trips(
     plan_id: str = Path(...),
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
-    stmt = select(PlannedTripModel).where(PlannedTripModel.plan_id == plan_id, PlannedTripModel.IsActive.is_(True)).order_by(PlannedTripModel.trip_id)
+    stmt = (
+        select(PlannedTripModel)
+        .where(PlannedTripModel.plan_id == plan_id, PlannedTripModel.IsActive.is_(True))
+        .order_by(PlannedTripModel.trip_id)
+    )
     trips = list((await db.execute(stmt)).scalars().all())
     return trips
 
@@ -69,7 +73,7 @@ async def list_plan_trips(
 )
 async def list_deferred_trips(
     plan_id: str = Path(...),
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(PlannedTripModel)
@@ -92,8 +96,8 @@ async def list_deferred_trips(
 )
 async def trips_by_depot(
     plan_id: str = Path(...),
-    depot:   str = Path(...),
-    db:      AsyncSession = Depends(get_db),
+    depot: str = Path(...),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(PlannedTripModel)
@@ -115,9 +119,9 @@ async def trips_by_depot(
     description="Returns trips destined for the given district. Role: DISPATCHER+",
 )
 async def trips_by_district(
-    plan_id:  str = Path(...),
+    plan_id: str = Path(...),
     district: str = Path(...),
-    db:       AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = (
         select(PlannedTripModel)
@@ -141,7 +145,7 @@ async def trips_by_district(
 async def get_trip_detail(
     plan_id: str = Path(...),
     trip_id: str = Path(...),
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = select(PlannedTripModel).where(
         PlannedTripModel.plan_id == plan_id,
@@ -189,7 +193,7 @@ async def assign_trip(
     plan_id: str = Path(...),
     trip_id: str = Path(...),
     payload: TripAssignRequest = ...,
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = select(PlannedTripModel).where(
         PlannedTripModel.plan_id == plan_id,
@@ -219,9 +223,7 @@ async def assign_trip(
         )
 
     # Find route
-    matching_route = next(
-        (r for r in routes if r.district == trip.district and r.depot == trip.depot), None
-    )
+    matching_route = next((r for r in routes if r.district == trip.district and r.depot == trip.depot), None)
 
     # Construct domain Trip
     domain_trip = Trip(
@@ -346,7 +348,7 @@ async def assign_trip(
 async def unlock_trip(
     plan_id: str = Path(...),
     trip_id: str = Path(...),
-    db:      AsyncSession = Depends(get_db),
+    db: AsyncSession = Depends(get_db),
 ):
     stmt = select(PlannedTripModel).where(
         PlannedTripModel.plan_id == plan_id,

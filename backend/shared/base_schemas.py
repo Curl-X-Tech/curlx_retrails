@@ -8,7 +8,7 @@ fields (ID, CreateTime, UpdateTime, CreatedBy, UpdatedBy, IsActive).
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any, Generic, TypeVar
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel, Field
 
@@ -19,8 +19,10 @@ T = TypeVar("T")
 # Audit base — mirrors models/Base.py fields                                   #
 # ──────────────────────────────────────────────────────────────────────────── #
 
+
 class BaseAuditResponse(BaseModel):
     """Audit fields present on every entity response."""
+
     ID: str
     CreateTime: datetime
     UpdateTime: datetime
@@ -36,6 +38,7 @@ class BaseAuditResponse(BaseModel):
 # Pagination                                                                   #
 # ──────────────────────────────────────────────────────────────────────────── #
 
+
 class PaginationParams(BaseModel):
     page: int = Field(default=1, ge=1, description="Page number (1-indexed)")
     limit: int = Field(default=50, ge=1, le=500, description="Items per page")
@@ -43,6 +46,7 @@ class PaginationParams(BaseModel):
 
 class PaginatedResponse(BaseModel, Generic[T]):
     """Generic paginated list wrapper."""
+
     items: list[T]
     total: int
     page: int
@@ -54,8 +58,10 @@ class PaginatedResponse(BaseModel, Generic[T]):
 # Error response                                                               #
 # ──────────────────────────────────────────────────────────────────────────── #
 
+
 class ErrorResponse(BaseModel):
     """Standard error envelope returned on 4xx / 5xx."""
+
     error: str
     details: list[str] = Field(default_factory=list)
 
@@ -63,6 +69,7 @@ class ErrorResponse(BaseModel):
 # ──────────────────────────────────────────────────────────────────────────── #
 # Soft-delete response                                                         #
 # ──────────────────────────────────────────────────────────────────────────── #
+
 
 class DeleteResponse(BaseModel):
     id: str

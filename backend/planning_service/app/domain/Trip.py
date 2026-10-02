@@ -9,8 +9,8 @@ import datetime
 from app.domain.Base import BaseModel
 from app.domain.Service_allowance import ServiceAllowance
 
-FRESH_BUDGET_MINUTES = 270          # 03:30–08:00
-STYLE_TECH_BUDGET_MINUTES = 480     # full trading day
+FRESH_BUDGET_MINUTES = 270  # 03:30–08:00
+STYLE_TECH_BUDGET_MINUTES = 480  # full trading day
 
 FRESH_WINDOW_START = "03:30"
 FRESH_WINDOW_END = "08:00"
@@ -121,10 +121,7 @@ class Trip(BaseModel):
         return any(o.requires_reefer() for o in self.order_queue)
 
     def requires_van(self, outlets) -> bool:
-        return any(
-            o.get_parking_constraint(outlets) == "van_only"
-            for o in self.order_queue
-        )
+        return any(o.get_parking_constraint(outlets) == "van_only" for o in self.order_queue)
 
     @staticmethod
     def _hhmm_to_minutes(hhmm: str) -> int:
@@ -140,25 +137,19 @@ class Trip(BaseModel):
 
     def get_earliest_open_time(self, outlets) -> str | None:
         times = [
-            o.get_window_open_time(outlets)
-            for o in self.order_queue
-            if o.get_window_open_time(outlets) is not None
+            o.get_window_open_time(outlets) for o in self.order_queue if o.get_window_open_time(outlets) is not None
         ]
         return min(times) if times else None
 
     def get_latest_close_time(self, outlets) -> str | None:
         times = [
-            o.get_window_close_time(outlets)
-            for o in self.order_queue
-            if o.get_window_close_time(outlets) is not None
+            o.get_window_close_time(outlets) for o in self.order_queue if o.get_window_close_time(outlets) is not None
         ]
         return max(times) if times else None
 
     def get_earliest_close_time(self, outlets) -> str | None:
         times = [
-            o.get_window_close_time(outlets)
-            for o in self.order_queue
-            if o.get_window_close_time(outlets) is not None
+            o.get_window_close_time(outlets) for o in self.order_queue if o.get_window_close_time(outlets) is not None
         ]
         return min(times) if times else None
 
@@ -215,7 +206,7 @@ class Trip(BaseModel):
     _DEPARTURE_FLOOR: dict[str, str] = {
         "Fresh": "03:30",
         "Style": "07:00",
-        "Tech":  "07:00",
+        "Tech": "07:00",
     }
 
     def plan_stop_sequence(
@@ -227,10 +218,10 @@ class Trip(BaseModel):
         if not self.order_queue or not self.route:
             return None
 
-        outbound_min   = self.route.get_depot_to_district_freeflow_min()
+        outbound_min = self.route.get_depot_to_district_freeflow_min()
         inter_stop_min = self.route.get_inter_stop_freeflow_min()
-        brand          = self.get_brand(outlets) or "Fresh"
-        floor_hhmm     = self._DEPARTURE_FLOOR.get(brand, "03:30")
+        brand = self.get_brand(outlets) or "Fresh"
+        floor_hhmm = self._DEPARTURE_FLOOR.get(brand, "03:30")
 
         def _edf_key(order):
             close = order.get_window_close_time(outlets)
@@ -239,80 +230,72 @@ class Trip(BaseModel):
 
         ordered = sorted(self.order_queue, key=_edf_key)
 
-        open_times = [
-            o.get_window_open_time(outlets)
-            for o in ordered
-            if o.get_window_open_time(outlets)
-        ]
-        earliest_open_min = (
-            self._hhmm_to_minutes(min(open_times))
-            if open_times else self._hhmm_to_minutes(floor_hhmm)
-        )
+        open_times = [o.get_window_open_time(outlets) for o in ordered if o.get_window_open_time(outlets)]
+        earliest_open_min = self._hhmm_to_minutes(min(open_times)) if open_times else self._hhmm_to_minutes(floor_hhmm)
         depart_min = earliest_open_min - outbound_min
         depart_min = max(depart_min, self._hhmm_to_minutes(floor_hhmm))
         if earliest_departure_min is not None:
             depart_min = max(depart_min, int(earliest_departure_min))
 
-        current_min  = depart_min + outbound_min
-        stops        = []
-        total_wait   = 0.0
-        violations   = 0
+        current_min = depart_min + outbound_min
+        stops = []
+        total_wait = 0.0
+        violations = 0
 
         for i, order in enumerate(ordered):
             if i > 0:
                 current_min += inter_stop_min
 
-            open_t  = order.get_window_open_time(outlets)
+            open_t = order.get_window_open_time(outlets)
             close_t = order.get_window_close_time(outlets)
-            open_min  = self._hhmm_to_minutes(open_t)  if open_t  else 0
+            open_min = self._hhmm_to_minutes(open_t) if open_t else 0
             close_min = self._hhmm_to_minutes(close_t) if close_t else 1439
 
-            arrive_min     = current_min
-            early_by       = max(0.0, open_min  - arrive_min)
-            svc_start_min  = arrive_min + early_by
-            total_wait    += early_by
+            arrive_min = current_min
+            early_by = max(0.0, open_min - arrive_min)
+            svc_start_min = arrive_min + early_by
+            total_wait += early_by
 
             svc_brand = order.get_brand(outlets)
-            dock      = order.get_dock_type(outlets)
-            allowance = (
-                ServiceAllowance.get_service_allowance(svc_brand, dock, service_allowances)
-                or 0.0
-            )
+            dock = order.get_dock_type(outlets)
+            allowance = ServiceAllowance.get_service_allowance(svc_brand, dock, service_allowances) or 0.0
 
-            leave_min      = svc_start_min + allowance
-            current_min    = leave_min
+            leave_min = svc_start_min + allowance
+            current_min = leave_min
 
-            late_by        = max(0.0, leave_min - close_min)
-            on_time        = late_by == 0
+            late_by = max(0.0, leave_min - close_min)
+            on_time = late_by == 0
             if not on_time:
                 violations += 1
 
-            stops.append({
-                "seq":                  i + 1,
-                "order_id":             order.get_id(),
-                "outlet_id":            order.outlet_id,
-                "weight_kg":            order.get_weight(),
-                "volume_m3":            order.get_volume(),
-                "window_open":          open_t,
-                "window_close":         close_t,
-                "arrive_hhmm":          self._minutes_to_hhmm(arrive_min),
-                "early_by_min":         round(early_by),
-                "service_start_hhmm":   self._minutes_to_hhmm(svc_start_min),
-                "service_allowance_min": allowance,
-                "depart_hhmm":          self._minutes_to_hhmm(leave_min),
-                "on_time":              on_time,
-                "late_by_min":          round(late_by),
-            })
+            stops.append(
+                {
+                    "seq": i + 1,
+                    "order_id": order.get_id(),
+                    "outlet_id": order.outlet_id,
+                    "weight_kg": order.get_weight(),
+                    "volume_m3": order.get_volume(),
+                    "window_open": open_t,
+                    "window_close": close_t,
+                    "arrive_hhmm": self._minutes_to_hhmm(arrive_min),
+                    "early_by_min": round(early_by),
+                    "service_start_hhmm": self._minutes_to_hhmm(svc_start_min),
+                    "service_allowance_min": allowance,
+                    "depart_hhmm": self._minutes_to_hhmm(leave_min),
+                    "on_time": on_time,
+                    "late_by_min": round(late_by),
+                }
+            )
 
         return {
-            "sequence_method":          "EDF",
-            "departure_hhmm":           self._minutes_to_hhmm(depart_min),
+            "sequence_method": "EDF",
+            "departure_hhmm": self._minutes_to_hhmm(depart_min),
             "arrival_at_district_hhmm": self._minutes_to_hhmm(depart_min + outbound_min),
-            "return_to_depot_hhmm":     self._minutes_to_hhmm(current_min + outbound_min),
-            "stops":                    stops,
-            "has_violations":           violations > 0,
-            "violation_count":          violations,
-            "total_wait_min":           round(total_wait),
+            "return_to_depot_hhmm": self._minutes_to_hhmm(current_min + outbound_min),
+            "stops": stops,
+            "has_violations": violations > 0,
+            "violation_count": violations,
+            "total_wait_min": round(total_wait),
         }
 
     def apply_optimal_sequence(
@@ -321,22 +304,17 @@ class Trip(BaseModel):
         service_allowances,
         earliest_departure_min: float | None = None,
     ) -> dict | None:
-        schedule = self.plan_stop_sequence(
-            outlets, service_allowances, earliest_departure_min=earliest_departure_min
-        )
+        schedule = self.plan_stop_sequence(outlets, service_allowances, earliest_departure_min=earliest_departure_min)
         if schedule is None:
             return None
         order_by_id = {o.get_id(): o for o in self.order_queue}
         self.order_queue = [
-            order_by_id[stop["order_id"]]
-            for stop in schedule["stops"]
-            if stop["order_id"] in order_by_id
+            order_by_id[stop["order_id"]] for stop in schedule["stops"] if stop["order_id"] in order_by_id
         ]
         self.stop_schedule = schedule
         return schedule
 
     def fork_trip_by_transferring_orders(self, orders_to_transfer: list, fork_id: str | None = None) -> "Trip":
-        import datetime
 
         new_trip = Trip(
             ID=fork_id or f"{self.ID}_fork",
