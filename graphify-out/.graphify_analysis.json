@@ -1114,11 +1114,6 @@
       "degree": 19
     },
     {
-      "id": "frontend_tsconfig_compileroptions",
-      "label": "compilerOptions",
-      "degree": 18
-    },
-    {
       "id": "backend_app_core_users_usermanager",
       "label": "UserManager",
       "degree": 18
@@ -1127,42 +1122,14 @@
       "id": "backend_app_enums_roles_usertype",
       "label": "UserType",
       "degree": 18
+    },
+    {
+      "id": "frontend_tsconfig_compileroptions",
+      "label": "compilerOptions",
+      "degree": 18
     }
   ],
   "surprises": [
-    {
-      "source": "AllocationDetailPageProps",
-      "target": "VehicleAllocation",
-      "source_files": [
-        "frontend/src/pages/dispatcher/allocation-detail-page.tsx",
-        "frontend/src/types/allocation.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "references",
-      "why": "bridges separate communities; peripheral node `AllocationDetailPageProps` unexpectedly reaches hub `VehicleAllocation`"
-    },
-    {
-      "source": "TabsContent",
-      "target": "cn()",
-      "source_files": [
-        "frontend/src/components/ui/tabs.tsx",
-        "frontend/src/lib/utils.ts"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "calls",
-      "why": "bridges separate communities; peripheral node `TabsContent` unexpectedly reaches hub `cn()`"
-    },
-    {
-      "source": "lib",
-      "target": "DOM.Iterable",
-      "source_files": [
-        "packages/emails/tsconfig.json",
-        "frontend/tsconfig.json"
-      ],
-      "confidence": "EXTRACTED",
-      "relation": "extends",
-      "why": "connects across different repos/directories"
-    },
     {
       "source": "create_user_by_admin()",
       "target": "UserManager",
@@ -1175,14 +1142,47 @@
       "why": "inferred connection - not explicitly stated in source; bridges separate communities"
     },
     {
-      "source": "init_db()",
-      "target": "session()",
+      "source": "test_driver()",
+      "target": "UserManager",
       "source_files": [
-        "backend/app/core/db.py",
-        "backend/tests/conftest.py"
+        "backend/tests/conftest.py",
+        "backend/app/core/users.py"
       ],
       "confidence": "INFERRED",
-      "relation": "indirect_call",
+      "relation": "uses",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": "test_superuser()",
+      "target": "UserManager",
+      "source_files": [
+        "backend/tests/conftest.py",
+        "backend/app/core/users.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "uses",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": "test_user()",
+      "target": "UserManager",
+      "source_files": [
+        "backend/tests/conftest.py",
+        "backend/app/core/users.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "uses",
+      "why": "inferred connection - not explicitly stated in source; bridges separate communities"
+    },
+    {
+      "source": "test_inactive_user_cannot_login()",
+      "target": "UserManager",
+      "source_files": [
+        "backend/tests/test_auth.py",
+        "backend/app/core/users.py"
+      ],
+      "confidence": "INFERRED",
+      "relation": "uses",
       "why": "inferred connection - not explicitly stated in source; bridges separate communities"
     }
   ],
