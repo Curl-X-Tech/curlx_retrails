@@ -1,0 +1,62 @@
+[
+  {
+    "date": "2026-01-14",
+    "name": "Tamil Thai Pongal Day",
+    "festival_ramp": 0.5,
+    "is_holiday": true
+  },
+  {
+    "date": "2026-02-04",
+    "name": "National Day",
+    "festival_ramp": 0.3,
+    "is_holiday": true
+  },
+  {
+    "date": "2026-04-12",
+    "name": "Sinhala & Tamil New Year Eve",
+    "festival_ramp": 0.9,
+    "is_holiday": false
+  },
+  {
+    "date": "2026-04-13",
+    "name": "Sinhala & Tamil New Year Day",
+    "festival_ramp": 1.0,
+    "is_holiday": true
+  },
+  {
+    "date": "2026-04-14",
+    "name": "Sinhala & Tamil New Year Holiday",
+    "festival_ramp": 0.7,
+    "is_holiday": true
+  },
+  {
+    "date": "2026-05-01",
+    "name": "May Day / Vesak Full Moon Poya",
+    "festival_ramp": 0.8,
+    "is_holiday": true
+  },
+  {
+    "date": "2026-05-02",
+    "name": "Day following Vesak Full Moon Poya",
+    "festival_ramp": 0.9,
+    "is_holiday": true
+  },
+  {
+    "date": "2026-05-30",
+    "name": "Poson Full Moon Poya Day",
+    "festival_ramp": 0.6,
+    "is_holiday": true
+  },
+  {
+    "date": "2026-12-24",
+    "name": "Christmas Eve",
+    "festival_ramp": 0.9,
+    "is_holiday": false
+  },
+  {
+    "date": "2026-12-25",
+    "name": "Christmas Day",
+    "festival_ramp": 1.0,
+    "is_holiday": true
+  }
+]

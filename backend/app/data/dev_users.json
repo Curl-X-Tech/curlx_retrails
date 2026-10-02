@@ -1,0 +1,32 @@
+[
+  {
+    "email": "admin@curlx.tech",
+    "password": "Password123!",
+    "name": "System Administrator",
+    "user_type": "system_admin"
+  },
+  {
+    "email": "dispatcher@curlx.tech",
+    "password": "Password123!",
+    "name": "K. Jayawardena",
+    "user_type": "dispatcher"
+  },
+  {
+    "email": "driver@curlx.tech",
+    "password": "Password123!",
+    "name": "Sunil Shantha",
+    "user_type": "driver"
+  },
+  {
+    "email": "loader@curlx.tech",
+    "password": "Password123!",
+    "name": "Nuwan Pradeep",
+    "user_type": "loader"
+  },
+  {
+    "email": "store@curlx.tech",
+    "password": "Password123!",
+    "name": "Anoma Wickramasinghe",
+    "user_type": "store_manager"
+  }
+]

@@ -1,8 +1,10 @@
 import json
 import logging
-from datetime import time
+from datetime import date, time, timedelta
 from pathlib import Path
+from typing import Any
 
+import anyio
 from fastapi_users import exceptions
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy import select
@@ -23,96 +25,17 @@ from app.enums.roles import UserType
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_DEV_SEED_USERS = [
-    {
-        "email": "admin@curlx.tech",
-        "password": "Password123!",
-        "name": "System Administrator",
-        "user_type": UserType.SYSTEM_ADMIN,
-    },
-    {
-        "email": "dispatcher@curlx.tech",
-        "password": "Password123!",
-        "name": "K. Jayawardena",
-        "user_type": UserType.DISPATCHER,
-    },
-    {
-        "email": "driver@curlx.tech",
-        "password": "Password123!",
-        "name": "Sunil Shantha",
-        "user_type": UserType.DRIVER,
-    },
-    {
-        "email": "loader@curlx.tech",
-        "password": "Password123!",
-        "name": "Nuwan Pradeep",
-        "user_type": UserType.LOADER,
-    },
-    {
-        "email": "store@curlx.tech",
-        "password": "Password123!",
-        "name": "Anoma Wickramasinghe",
-        "user_type": UserType.STORE_MANAGER,
-    },
-]
+DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 
-DEFAULT_MASTER_DEPOTS = [
-    {
-        "code": "PEL",
-        "name": "Peliyagoda Central DC",
-        "latitude": 6.9649,
-        "longitude": 79.8872,
-        "address": "Peliyagoda Distribution Center, Western Province",
-        "is_active": True,
-    },
-    {
-        "code": "KDY",
-        "name": "Kandy Regional Hub",
-        "latitude": 7.2906,
-        "longitude": 80.6337,
-        "address": "Kandy Logistics Hub, Central Province",
-        "is_active": True,
-    },
-]
 
-DEFAULT_MASTER_DISTRICTS = [
-    {"name": "Colombo", "province": "Western", "depot_code": "PEL"},
-    {"name": "Gampaha", "province": "Western", "depot_code": "PEL"},
-    {"name": "Kalutara", "province": "Western", "depot_code": "PEL"},
-    {"name": "Galle", "province": "Southern", "depot_code": "PEL"},
-    {"name": "Matara", "province": "Southern", "depot_code": "PEL"},
-    {"name": "Kurunegala", "province": "North Western", "depot_code": "PEL"},
-    {"name": "Puttalam", "province": "North Western", "depot_code": "PEL"},
-    {"name": "Kandy", "province": "Central", "depot_code": "KDY"},
-    {"name": "Matale", "province": "Central", "depot_code": "KDY"},
-    {"name": "Nuwara Eliya", "province": "Central", "depot_code": "KDY"},
-    {"name": "Badulla", "province": "Uva", "depot_code": "KDY"},
-    {"name": "Kegalle", "province": "Sabaragamuwa", "depot_code": "KDY"},
-]
-
-DEFAULT_MASTER_BRANDS = [
-    {
-        "code": "FRESH",
-        "name": "Waypoint Fresh",
-        "delivery_window_type": DeliveryWindowType.MORNING_STRICT,
-        "requires_cold_chain": True,
-        "daily_time_budget_min": 270,
-    },
-    {
-        "code": "STYLE",
-        "name": "Waypoint Style",
-        "delivery_window_type": DeliveryWindowType.STANDARD_RETAIL,
-        "requires_cold_chain": False,
-        "daily_time_budget_min": 480,
-    },
-    {
-        "code": "TECH",
-        "name": "Waypoint Tech",
-        "delivery_window_type": DeliveryWindowType.MALL_BAY_RESTRICTED,
-        "requires_cold_chain": False,
-        "daily_time_budget_min": 480,
-    },
-]
+async def _load_json_dataset(filename: str) -> list[dict[str, Any]]:
+    """Loads a JSON dataset file from the backend/app/data directory."""
+    file_path = DATA_DIR / filename
+    if not file_path.exists():
+        logger.warning("Dataset file %s does not exist.", file_path)
+        return []
+    content = await anyio.Path(file_path).read_text(encoding="utf-8")
+    return json.loads(content)
 
 
 async def seed_initial_users(session: AsyncSession) -> None:
@@ -142,7 +65,8 @@ async def seed_initial_users(session: AsyncSession) -> None:
 
     # 2. Seed 5 standard enterprise dev accounts if in local/dev mode
     if settings.ENVIRONMENT in ("local", "dev", "development", "test"):
-        for seed_data in DEFAULT_DEV_SEED_USERS:
+        users_data = await _load_json_dataset("dev_users.json")
+        for seed_data in users_data:
             try:
                 await user_manager.get_by_email(seed_data["email"])
             except exceptions.UserNotExists:
@@ -151,7 +75,7 @@ async def seed_initial_users(session: AsyncSession) -> None:
                     email=seed_data["email"],
                     hashed_password=hashed_pw,
                     name=seed_data["name"],
-                    user_type=seed_data["user_type"],
+                    user_type=UserType(seed_data["user_type"]),
                     is_active=True,
                     is_verified=True,
                 )
@@ -160,13 +84,14 @@ async def seed_initial_users(session: AsyncSession) -> None:
                 logger.info(
                     "Seeded dev account: %s (%s)",
                     seed_data["email"],
-                    seed_data["user_type"].value,
+                    seed_data["user_type"],
                 )
 
 
 async def seed_master_depots(session: AsyncSession) -> None:
-    """Seeds central distribution centers and regional hubs if they do not exist."""
-    for depot_data in DEFAULT_MASTER_DEPOTS:
+    """Seeds central distribution centers and regional hubs from data/depots.json."""
+    depots_data = await _load_json_dataset("depots.json")
+    for depot_data in depots_data:
         result = await session.execute(
             select(Depot).where(Depot.code == depot_data["code"])
         )
@@ -194,7 +119,8 @@ async def seed_master_districts(session: AsyncSession) -> None:
     depot_res = await session.execute(select(Depot))
     depots_by_code = {d.code: d.id for d in depot_res.scalars().all()}
 
-    for dist_data in DEFAULT_MASTER_DISTRICTS:
+    districts_data = await _load_json_dataset("districts.json")
+    for dist_data in districts_data:
         result = await session.execute(
             select(District).where(District.name == dist_data["name"])
         )
@@ -216,8 +142,9 @@ async def seed_master_districts(session: AsyncSession) -> None:
 
 
 async def seed_master_brands(session: AsyncSession) -> None:
-    """Seeds retail brands with time budgets and cold chain rules."""
-    for brand_data in DEFAULT_MASTER_BRANDS:
+    """Seeds retail brands from data/brands.json."""
+    brands_data = await _load_json_dataset("brands.json")
+    for brand_data in brands_data:
         result = await session.execute(
             select(Brand).where(Brand.code == brand_data["code"])
         )
@@ -226,7 +153,9 @@ async def seed_master_brands(session: AsyncSession) -> None:
             brand = Brand(
                 code=brand_data["code"],
                 name=brand_data["name"],
-                delivery_window_type=brand_data["delivery_window_type"],
+                delivery_window_type=DeliveryWindowType(
+                    brand_data["delivery_window_type"]
+                ),
                 requires_cold_chain=brand_data["requires_cold_chain"],
                 daily_time_budget_min=brand_data["daily_time_budget_min"],
             )
@@ -241,11 +170,8 @@ async def seed_master_brands(session: AsyncSession) -> None:
 
 async def seed_master_outlets(session: AsyncSession) -> None:
     """Seeds canonical 120 retail outlets with delivery windows and dock constraints."""
-    outlets_file = Path(__file__).resolve().parent.parent / "data" / "outlets.json"
-    if not outlets_file.exists():
-        logger.warning(
-            "Outlets data file not found at %s. Skipping outlet seed.", outlets_file
-        )
+    outlets_data = await _load_json_dataset("outlets.json")
+    if not outlets_data:
         return
 
     # Check if outlets are already seeded
@@ -253,7 +179,6 @@ async def seed_master_outlets(session: AsyncSession) -> None:
     if len(existing_count.scalars().all()) >= 120:
         return
 
-    # Load lookup caches
     depot_res = await session.execute(select(Depot))
     depots_by_code = {d.code: d.id for d in depot_res.scalars().all()}
 
@@ -262,11 +187,6 @@ async def seed_master_outlets(session: AsyncSession) -> None:
 
     brand_res = await session.execute(select(Brand))
     brands_by_code = {b.code: b.id for b in brand_res.scalars().all()}
-
-    import anyio
-
-    file_content = await anyio.Path(outlets_file).read_text(encoding="utf-8")
-    outlets_data = json.loads(file_content)
 
     seeded_count = 0
     for row in outlets_data:
@@ -327,18 +247,12 @@ async def seed_master_outlets(session: AsyncSession) -> None:
 
 async def seed_master_items(session: AsyncSession) -> None:
     """Seeds catalog product items and SKUs across retail brands from data/items.json."""
-    items_file = Path(__file__).resolve().parent.parent / "data" / "items.json"
-    if not items_file.exists():
-        logger.warning("Items seed file %s does not exist. Skipping.", items_file)
+    items_data = await _load_json_dataset("items.json")
+    if not items_data:
         return
 
     brand_res = await session.execute(select(Brand))
     brands_by_code = {b.code: b.id for b in brand_res.scalars().all()}
-
-    import anyio
-
-    file_content = await anyio.Path(items_file).read_text(encoding="utf-8")
-    items_data = json.loads(file_content)
 
     seeded_count = 0
     for row in items_data:
@@ -373,18 +287,12 @@ async def seed_master_items(session: AsyncSession) -> None:
 
 async def seed_master_prices(session: AsyncSession) -> None:
     """Seeds temporal pricing records for catalog items from data/prices.json."""
-    prices_file = Path(__file__).resolve().parent.parent / "data" / "prices.json"
-    if not prices_file.exists():
-        logger.warning("Prices seed file %s does not exist. Skipping.", prices_file)
+    prices_data = await _load_json_dataset("prices.json")
+    if not prices_data:
         return
 
     item_res = await session.execute(select(Item))
     items_by_sku = {i.sku: i.id for i in item_res.scalars().all()}
-
-    import anyio
-
-    file_content = await anyio.Path(prices_file).read_text(encoding="utf-8")
-    prices_data = json.loads(file_content)
 
     seeded_count = 0
     for row in prices_data:
@@ -424,24 +332,19 @@ async def seed_master_calendar(session: AsyncSession) -> None:
     if len(count_res.scalars().all()) >= 10:
         return
 
-    from datetime import date, timedelta
+    holidays_data = await _load_json_dataset("holidays_2026.json")
+    festivals_by_date = {
+        date.fromisoformat(h["date"]): (
+            h["name"],
+            float(h["festival_ramp"]),
+            bool(h["is_holiday"]),
+        )
+        for h in holidays_data
+    }
 
     start_date = date(2026, 1, 1)
     end_date = date(2026, 12, 31)
     current = start_date
-
-    festivals: dict[date, tuple[str, float, bool]] = {
-        date(2026, 1, 14): ("Tamil Thai Pongal Day", 0.5, True),
-        date(2026, 2, 4): ("National Day", 0.3, True),
-        date(2026, 4, 12): ("Sinhala & Tamil New Year Eve", 0.9, False),
-        date(2026, 4, 13): ("Sinhala & Tamil New Year Day", 1.0, True),
-        date(2026, 4, 14): ("Sinhala & Tamil New Year Holiday", 0.7, True),
-        date(2026, 5, 1): ("May Day / Vesak Full Moon Poya", 0.8, True),
-        date(2026, 5, 2): ("Day following Vesak Full Moon Poya", 0.9, True),
-        date(2026, 5, 30): ("Poson Full Moon Poya Day", 0.6, True),
-        date(2026, 12, 24): ("Christmas Eve", 0.9, False),
-        date(2026, 12, 25): ("Christmas Day", 1.0, True),
-    }
 
     days_to_add: list[CalendarDay] = []
     while current <= end_date:
@@ -452,7 +355,7 @@ async def seed_master_calendar(session: AsyncSession) -> None:
         is_payday = 25 <= current.day <= 28
         monsoon = current.month in (5, 6, 7, 8, 9, 10, 11, 12)
 
-        festival_info = festivals.get(current)
+        festival_info = festivals_by_date.get(current)
         festival = festival_info[0] if festival_info else None
         festival_ramp = festival_info[1] if festival_info else 0.0
         is_holiday = festival_info[2] if festival_info else False
