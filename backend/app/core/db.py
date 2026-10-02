@@ -97,6 +97,7 @@ async def init_db() -> None:
     from app.core.seed import (
         seed_initial_users,
         seed_master_brands,
+        seed_master_calendar,
         seed_master_depots,
         seed_master_districts,
         seed_master_items,
@@ -113,3 +114,4 @@ async def init_db() -> None:
         await seed_master_outlets(session)
         await seed_master_items(session)
         await seed_master_prices(session)
+        await seed_master_calendar(session)

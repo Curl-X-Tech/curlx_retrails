@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.users import UserManager
 from app.entities.brand import Brand
+from app.entities.calendar_day import CalendarDay
 from app.entities.depot import Depot
 from app.entities.district import District
 from app.entities.item import Item
@@ -415,3 +416,66 @@ async def seed_master_prices(session: AsyncSession) -> None:
     if seeded_count > 0:
         await session.commit()
         logger.info("Successfully seeded %d master item price records.", seeded_count)
+
+
+async def seed_master_calendar(session: AsyncSession) -> None:
+    """Seeds operational calendar days for 2026 including SL holidays, paydays, and monsoon seasons."""
+    count_res = await session.execute(select(CalendarDay.date).limit(10))
+    if len(count_res.scalars().all()) >= 10:
+        return
+
+    from datetime import date, timedelta
+
+    start_date = date(2026, 1, 1)
+    end_date = date(2026, 12, 31)
+    current = start_date
+
+    festivals: dict[date, tuple[str, float, bool]] = {
+        date(2026, 1, 14): ("Tamil Thai Pongal Day", 0.5, True),
+        date(2026, 2, 4): ("National Day", 0.3, True),
+        date(2026, 4, 12): ("Sinhala & Tamil New Year Eve", 0.9, False),
+        date(2026, 4, 13): ("Sinhala & Tamil New Year Day", 1.0, True),
+        date(2026, 4, 14): ("Sinhala & Tamil New Year Holiday", 0.7, True),
+        date(2026, 5, 1): ("May Day / Vesak Full Moon Poya", 0.8, True),
+        date(2026, 5, 2): ("Day following Vesak Full Moon Poya", 0.9, True),
+        date(2026, 5, 30): ("Poson Full Moon Poya Day", 0.6, True),
+        date(2026, 12, 24): ("Christmas Eve", 0.9, False),
+        date(2026, 12, 25): ("Christmas Day", 1.0, True),
+    }
+
+    days_to_add: list[CalendarDay] = []
+    while current <= end_date:
+        dow = current.weekday()
+        dow_name = current.strftime("%a")
+        iso_year, iso_week, _ = current.isocalendar()
+        is_weekend = dow == 6
+        is_payday = 25 <= current.day <= 28
+        monsoon = current.month in (5, 6, 7, 8, 9, 10, 11, 12)
+
+        festival_info = festivals.get(current)
+        festival = festival_info[0] if festival_info else None
+        festival_ramp = festival_info[1] if festival_info else 0.0
+        is_holiday = festival_info[2] if festival_info else False
+
+        is_operating = not is_weekend and not is_holiday
+
+        calendar_day = CalendarDay(
+            date=current,
+            dow=dow,
+            dow_name=dow_name,
+            is_weekend=is_weekend,
+            iso_year=iso_year,
+            iso_week=iso_week,
+            is_payday=is_payday,
+            festival=festival,
+            festival_ramp=festival_ramp,
+            is_holiday=is_holiday,
+            monsoon=monsoon,
+            is_operating=is_operating,
+        )
+        days_to_add.append(calendar_day)
+        current += timedelta(days=1)
+
+    session.add_all(days_to_add)
+    await session.commit()
+    logger.info("Successfully seeded %d calendar days for year 2026.", len(days_to_add))

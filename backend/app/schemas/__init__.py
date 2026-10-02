@@ -1,4 +1,10 @@
 from app.schemas.brand import BrandCreate, BrandRead, BrandUpdate
+from app.schemas.calendar_day import (
+    CalendarDayCreate,
+    CalendarDayRead,
+    CalendarDayUpdate,
+    DemandSurgeRead,
+)
 from app.schemas.depot import DepotCreate, DepotRead, DepotUpdate
 from app.schemas.district import DistrictCreate, DistrictRead, DistrictUpdate
 from app.schemas.item import ItemCreate, ItemRead, ItemUpdate
@@ -16,6 +22,10 @@ __all__ = [
     "BrandCreate",
     "BrandRead",
     "BrandUpdate",
+    "CalendarDayCreate",
+    "CalendarDayRead",
+    "CalendarDayUpdate",
+    "DemandSurgeRead",
     "DepotCreate",
     "DepotRead",
     "DepotUpdate",
