@@ -13,6 +13,7 @@ from app.core.users import UserManager
 from app.entities.brand import Brand
 from app.entities.depot import Depot
 from app.entities.district import District
+from app.entities.item import Item
 from app.entities.outlet import Outlet
 from app.entities.user import User
 from app.enums.master import DeliveryWindowType, DockType, ParkingConstraint
@@ -320,3 +321,49 @@ async def seed_master_outlets(session: AsyncSession) -> None:
     if seeded_count > 0:
         await session.commit()
         logger.info("Successfully seeded %d master retail outlets.", seeded_count)
+
+
+async def seed_master_items(session: AsyncSession) -> None:
+    """Seeds catalog product items and SKUs across retail brands from data/items.json."""
+    items_file = Path(__file__).resolve().parent.parent / "data" / "items.json"
+    if not items_file.exists():
+        logger.warning("Items seed file %s does not exist. Skipping.", items_file)
+        return
+
+    brand_res = await session.execute(select(Brand))
+    brands_by_code = {b.code: b.id for b in brand_res.scalars().all()}
+
+    import anyio
+
+    file_content = await anyio.Path(items_file).read_text(encoding="utf-8")
+    items_data = json.loads(file_content)
+
+    seeded_count = 0
+    for row in items_data:
+        sku = row["sku"].upper()
+        check = await session.execute(select(Item).where(Item.sku == sku))
+        if check.scalar_one_or_none():
+            continue
+
+        brand_code = row["brand_code"].upper()
+        brand_id = brands_by_code.get(brand_code)
+        if not brand_id:
+            continue
+
+        item = Item(
+            sku=sku,
+            brand_id=brand_id,
+            name=row["name"],
+            category=row["category"],
+            unit=row.get("unit", "Nos"),
+            unit_weight_kg=float(row["unit_weight_kg"]),
+            unit_volume_m3=float(row["unit_volume_m3"]),
+            requires_cold_chain=row.get("requires_cold_chain", False),
+            special_handling_code=row.get("special_handling_code"),
+        )
+        session.add(item)
+        seeded_count += 1
+
+    if seeded_count > 0:
+        await session.commit()
+        logger.info("Successfully seeded %d master catalog items.", seeded_count)
