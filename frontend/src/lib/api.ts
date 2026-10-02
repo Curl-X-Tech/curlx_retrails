@@ -44,6 +44,48 @@ export interface ApiUserResponse {
   updated_by?: string | null;
 }
 
+export interface UserCreatePayload {
+  email: string;
+  name: string;
+  user_type: string;
+  password: string;
+  is_active?: boolean;
+  is_verified?: boolean;
+}
+
+export interface UserUpdatePayload {
+  email?: string;
+  name?: string;
+  user_type?: string;
+  password?: string;
+  is_active?: boolean;
+  is_verified?: boolean;
+}
+
+export interface GuardCheckResponse {
+  message: string;
+  user_id: string;
+}
+
+export interface HealthCheckResponse {
+  status: string;
+}
+
+export interface RootResponse {
+  message: string;
+}
+
+function getAuthHeaders(token?: string): Record<string, string> {
+  const authToken = token || getStoredToken();
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (authToken) {
+    headers["Authorization"] = `Bearer ${authToken}`;
+  }
+  return headers;
+}
+
 export async function loginWithCredentials(
   email: string,
   password: string
@@ -87,10 +129,7 @@ export async function fetchCurrentUser(token?: string): Promise<ApiUserResponse>
 
   const response = await fetch(`${API_URL}/users/me`, {
     method: "GET",
-    headers: {
-      Authorization: `Bearer ${authToken}`,
-      "Content-Type": "application/json",
-    },
+    headers: getAuthHeaders(authToken),
   });
 
   if (!response.ok) {
@@ -98,6 +137,202 @@ export async function fetchCurrentUser(token?: string): Promise<ApiUserResponse>
       removeStoredToken();
     }
     throw new Error(`Failed to fetch user profile (${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function updateCurrentUser(
+  payload: UserUpdatePayload,
+  token?: string
+): Promise<ApiUserResponse> {
+  const response = await fetch(`${API_URL}/users/me`, {
+    method: "PATCH",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to update profile.";
+    try {
+      const err = await response.json();
+      if (err?.detail) {
+        errorDetail =
+          typeof err.detail === "string" ? err.detail : JSON.stringify(err.detail);
+      }
+    } catch {
+      // Fallback
+    }
+    throw new Error(errorDetail);
+  }
+
+  return response.json();
+}
+
+export async function listUsersByAdmin(token?: string): Promise<ApiUserResponse[]> {
+  const response = await fetch(`${API_URL}/users`, {
+    method: "GET",
+    headers: getAuthHeaders(token),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to list users (${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function createUserByAdmin(
+  payload: UserCreatePayload,
+  token?: string
+): Promise<ApiUserResponse> {
+  const response = await fetch(`${API_URL}/users`, {
+    method: "POST",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to create user.";
+    try {
+      const err = await response.json();
+      if (err?.detail) {
+        errorDetail =
+          typeof err.detail === "string" ? err.detail : JSON.stringify(err.detail);
+      }
+    } catch {
+      // Fallback
+    }
+    throw new Error(errorDetail);
+  }
+
+  return response.json();
+}
+
+export async function getUserById(id: string, token?: string): Promise<ApiUserResponse> {
+  const response = await fetch(`${API_URL}/users/${id}`, {
+    method: "GET",
+    headers: getAuthHeaders(token),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user (${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function updateUserById(
+  id: string,
+  payload: UserUpdatePayload,
+  token?: string
+): Promise<ApiUserResponse> {
+  const response = await fetch(`${API_URL}/users/${id}`, {
+    method: "PATCH",
+    headers: getAuthHeaders(token),
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    let errorDetail = "Failed to update user.";
+    try {
+      const err = await response.json();
+      if (err?.detail) {
+        errorDetail =
+          typeof err.detail === "string" ? err.detail : JSON.stringify(err.detail);
+      }
+    } catch {
+      // Fallback
+    }
+    throw new Error(errorDetail);
+  }
+
+  return response.json();
+}
+
+export async function deleteUserById(id: string, token?: string): Promise<void> {
+  const response = await fetch(`${API_URL}/users/${id}`, {
+    method: "DELETE",
+    headers: getAuthHeaders(token),
+  });
+
+  if (!response.ok && response.status !== 204) {
+    let errorDetail = "Failed to delete user.";
+    try {
+      const err = await response.json();
+      if (err?.detail) {
+        errorDetail =
+          typeof err.detail === "string" ? err.detail : JSON.stringify(err.detail);
+      }
+    } catch {
+      // Fallback
+    }
+    throw new Error(errorDetail);
+  }
+}
+
+export async function checkAdminOnlyGuard(token?: string): Promise<GuardCheckResponse> {
+  const response = await fetch(`${API_URL}/guards/admin-only`, {
+    method: "GET",
+    headers: getAuthHeaders(token),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Admin guard check failed (${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function checkStoreManagerGuard(
+  token?: string
+): Promise<GuardCheckResponse> {
+  const response = await fetch(`${API_URL}/guards/store-manager`, {
+    method: "GET",
+    headers: getAuthHeaders(token),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Store manager guard check failed (${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function checkDriverGuard(token?: string): Promise<GuardCheckResponse> {
+  const response = await fetch(`${API_URL}/guards/driver`, {
+    method: "GET",
+    headers: getAuthHeaders(token),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Driver guard check failed (${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function checkHealth(): Promise<HealthCheckResponse> {
+  const rootBase = API_URL.replace(/\/api\/v1\/?$/, "");
+  const response = await fetch(`${rootBase}/health`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Health check failed (${response.status})`);
+  }
+
+  return response.json();
+}
+
+export async function checkRoot(): Promise<RootResponse> {
+  const rootBase = API_URL.replace(/\/api\/v1\/?$/, "");
+  const response = await fetch(`${rootBase}/`, {
+    method: "GET",
+  });
+
+  if (!response.ok) {
+    throw new Error(`Root check failed (${response.status})`);
   }
 
   return response.json();

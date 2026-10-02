@@ -33,6 +33,7 @@ import { AdminOutletsPage } from "@/pages/admin/admin-outlets-page";
 import { AdminDepotsPage } from "@/pages/admin/admin-depots-page";
 import { AdminItemsPage } from "@/pages/admin/admin-items-page";
 import { AdminCalendarPage } from "@/pages/admin/admin-calendar-page";
+import { AdminUsersPage } from "@/pages/admin/admin-users-page";
 
 export function App() {
   const { user, isAuthenticated } = useAuth();
@@ -65,6 +66,7 @@ export function App() {
         }
       >
         <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/outlets" element={<AdminOutletsPage />} />
         <Route path="/admin/depots" element={<AdminDepotsPage />} />
         <Route path="/admin/items" element={<AdminItemsPage />} />

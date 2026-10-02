@@ -16,6 +16,7 @@ import {
   WarehouseIcon,
   CheckIcon,
   ShieldCheckIcon,
+  UsersIcon,
 } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
 import {
@@ -117,6 +118,17 @@ export const adminNavGroups: NavGroup[] = [
         id: "admin-calendar",
         path: "/admin/calendar",
         icon: <TrendUpIcon weight="duotone" className="size-5" />,
+      },
+    ],
+  },
+  {
+    label: "Personnel & Access",
+    items: [
+      {
+        title: "Staff & Users",
+        id: "admin-users",
+        path: "/admin/users",
+        icon: <UsersIcon weight="duotone" className="size-5" />,
       },
     ],
   },
