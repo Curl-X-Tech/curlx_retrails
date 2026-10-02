@@ -1,4 +1,7 @@
+import json
 import logging
+from datetime import time
+from pathlib import Path
 
 from fastapi_users import exceptions
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
@@ -10,8 +13,9 @@ from app.core.users import UserManager
 from app.entities.brand import Brand
 from app.entities.depot import Depot
 from app.entities.district import District
+from app.entities.outlet import Outlet
 from app.entities.user import User
-from app.enums.master import DeliveryWindowType
+from app.enums.master import DeliveryWindowType, DockType, ParkingConstraint
 from app.enums.roles import UserType
 
 logger = logging.getLogger(__name__)
@@ -72,9 +76,15 @@ DEFAULT_MASTER_DISTRICTS = [
     {"name": "Colombo", "province": "Western", "depot_code": "PEL"},
     {"name": "Gampaha", "province": "Western", "depot_code": "PEL"},
     {"name": "Kalutara", "province": "Western", "depot_code": "PEL"},
+    {"name": "Galle", "province": "Southern", "depot_code": "PEL"},
+    {"name": "Matara", "province": "Southern", "depot_code": "PEL"},
+    {"name": "Kurunegala", "province": "North Western", "depot_code": "PEL"},
+    {"name": "Puttalam", "province": "North Western", "depot_code": "PEL"},
     {"name": "Kandy", "province": "Central", "depot_code": "KDY"},
     {"name": "Matale", "province": "Central", "depot_code": "KDY"},
     {"name": "Nuwara Eliya", "province": "Central", "depot_code": "KDY"},
+    {"name": "Badulla", "province": "Uva", "depot_code": "KDY"},
+    {"name": "Kegalle", "province": "Sabaragamuwa", "depot_code": "KDY"},
 ]
 
 DEFAULT_MASTER_BRANDS = [
@@ -177,7 +187,7 @@ async def seed_master_depots(session: AsyncSession) -> None:
 
 
 async def seed_master_districts(session: AsyncSession) -> None:
-    """Seeds Western and Central province districts mapped to depots."""
+    """Seeds Western, Central, Southern, North Western, Uva, and Sabaragamuwa province districts."""
     depot_res = await session.execute(select(Depot))
     depots_by_code = {d.code: d.id for d in depot_res.scalars().all()}
 
@@ -224,3 +234,89 @@ async def seed_master_brands(session: AsyncSession) -> None:
                 brand_data["name"],
                 brand_data["code"],
             )
+
+
+async def seed_master_outlets(session: AsyncSession) -> None:
+    """Seeds canonical 120 retail outlets with delivery windows and dock constraints."""
+    outlets_file = Path(__file__).resolve().parent.parent / "data" / "outlets.json"
+    if not outlets_file.exists():
+        logger.warning(
+            "Outlets data file not found at %s. Skipping outlet seed.", outlets_file
+        )
+        return
+
+    # Check if outlets are already seeded
+    existing_count = await session.execute(select(Outlet.id))
+    if len(existing_count.scalars().all()) >= 120:
+        return
+
+    # Load lookup caches
+    depot_res = await session.execute(select(Depot))
+    depots_by_code = {d.code: d.id for d in depot_res.scalars().all()}
+
+    district_res = await session.execute(select(District))
+    districts_by_name = {d.name: d.id for d in district_res.scalars().all()}
+
+    brand_res = await session.execute(select(Brand))
+    brands_by_code = {b.code: b.id for b in brand_res.scalars().all()}
+
+    import anyio
+
+    file_content = await anyio.Path(outlets_file).read_text(encoding="utf-8")
+    outlets_data = json.loads(file_content)
+
+    seeded_count = 0
+    for row in outlets_data:
+        outlet_code = row["outlet_id"]
+        check = await session.execute(
+            select(Outlet).where(Outlet.outlet_id == outlet_code)
+        )
+        if check.scalar_one_or_none():
+            continue
+
+        brand_code = row["brand"].upper()
+        district_name = row["district"]
+        depot_code = row["depot"].upper()
+
+        brand_id = brands_by_code.get(brand_code)
+        district_id = districts_by_name.get(district_name)
+        depot_id = depots_by_code.get(depot_code)
+
+        if not (brand_id and district_id and depot_id):
+            continue
+
+        open_parts = [int(p) for p in row["window_open_time"].split(":")]
+        close_parts = [int(p) for p in row["window_close_time"].split(":")]
+
+        brand_name_display = (
+            "Fresh"
+            if brand_code == "FRESH"
+            else ("Style" if brand_code == "STYLE" else "Tech")
+        )
+        outlet = Outlet(
+            outlet_id=outlet_code,
+            name=f"Waypoint {brand_name_display} - {district_name} ({outlet_code})",
+            brand_id=brand_id,
+            district_id=district_id,
+            depot_id=depot_id,
+            dock_type=DockType(row["dock_type"]),
+            parking_constraint=ParkingConstraint(row["parking_constraint"]),
+            mall_window=row["mall_window"],
+            window_open_time=time(
+                open_parts[0],
+                open_parts[1],
+                open_parts[2] if len(open_parts) > 2 else 0,
+            ),
+            window_close_time=time(
+                close_parts[0],
+                close_parts[1],
+                close_parts[2] if len(close_parts) > 2 else 0,
+            ),
+            is_active=True,
+        )
+        session.add(outlet)
+        seeded_count += 1
+
+    if seeded_count > 0:
+        await session.commit()
+        logger.info("Successfully seeded %d master retail outlets.", seeded_count)

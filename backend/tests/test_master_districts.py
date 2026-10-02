@@ -132,3 +132,53 @@ async def test_get_nonexistent_district(
     response = await client.get(f"/api/v1/master/districts/{random_id}")
     assert response.status_code == 404
     assert response.json()["detail"] == "DISTRICT_NOT_FOUND"
+
+
+@pytest.mark.anyio
+async def test_update_and_delete_district(
+    client: AsyncClient,
+    session: AsyncSession,
+    superuser_token_headers: dict[str, str],
+) -> None:
+    depot = Depot(
+        code="DEP_DIST",
+        name="Depot for District",
+        latitude=6.9,
+        longitude=79.9,
+    )
+    session.add(depot)
+    await session.commit()
+    await session.refresh(depot)
+
+    # 1. Create district
+    create_res = await client.post(
+        "/api/v1/master/districts",
+        json={
+            "name": "Temp District",
+            "province": "Western",
+            "assigned_depot_id": str(depot.id),
+        },
+        headers=superuser_token_headers,
+    )
+    assert create_res.status_code == 201
+    dist_id = create_res.json()["id"]
+
+    # 2. Update district
+    patch_res = await client.patch(
+        f"/api/v1/master/districts/{dist_id}",
+        json={"name": "Updated District Name"},
+        headers=superuser_token_headers,
+    )
+    assert patch_res.status_code == 200
+    assert patch_res.json()["name"] == "Updated District Name"
+
+    # 3. Delete district
+    del_res = await client.delete(
+        f"/api/v1/master/districts/{dist_id}",
+        headers=superuser_token_headers,
+    )
+    assert del_res.status_code == 204
+
+    # 4. Verify 404
+    get_res = await client.get(f"/api/v1/master/districts/{dist_id}")
+    assert get_res.status_code == 404

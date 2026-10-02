@@ -143,3 +143,39 @@ async def test_list_depots_filter_active(
     inactive_codes = [d["code"] for d in res_inactive.json()]
     assert "INACT" in inactive_codes
     assert "ACT" not in inactive_codes
+
+
+@pytest.mark.anyio
+async def test_update_and_delete_depot(
+    client: AsyncClient,
+    superuser_token_headers: dict[str, str],
+) -> None:
+    # 1. Create a depot
+    create_res = await client.post(
+        "/api/v1/master/depots",
+        json={"code": "UPD", "name": "To Update", "latitude": 6.5, "longitude": 79.5},
+        headers=superuser_token_headers,
+    )
+    assert create_res.status_code == 201
+    depot_id = create_res.json()["id"]
+
+    # 2. Update depot
+    patch_res = await client.patch(
+        f"/api/v1/master/depots/{depot_id}",
+        json={"name": "Updated Depot Name", "is_active": False},
+        headers=superuser_token_headers,
+    )
+    assert patch_res.status_code == 200
+    assert patch_res.json()["name"] == "Updated Depot Name"
+    assert patch_res.json()["is_active"] is False
+
+    # 3. Delete depot
+    del_res = await client.delete(
+        f"/api/v1/master/depots/{depot_id}",
+        headers=superuser_token_headers,
+    )
+    assert del_res.status_code == 204
+
+    # 4. Verify deleted
+    get_res = await client.get(f"/api/v1/master/depots/{depot_id}")
+    assert get_res.status_code == 404

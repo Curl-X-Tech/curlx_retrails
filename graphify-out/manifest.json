@@ -42,10 +42,10 @@
     "semantic_hash": "814de3bbb2c1d0c8d20dd9d7409d5e44"
   },
   "backend/app/core/db.py": {
-    "mtime": 1790932121.3885987,
-    "seen": 1790933849.7626326,
-    "ast_hash": "7fcb12a366f915ab5340ed89134f93fa",
-    "semantic_hash": "7fcb12a366f915ab5340ed89134f93fa"
+    "mtime": 1790936007.75063,
+    "seen": 1790936507.5913887,
+    "ast_hash": "52fdbe13bff4658ec004d6b64516d55b",
+    "semantic_hash": "52fdbe13bff4658ec004d6b64516d55b"
   },
   "backend/app/main.py": {
     "mtime": 1790924411.7421653,
@@ -54,10 +54,10 @@
     "semantic_hash": "e9572663c67d7f4f20ab28362a7e2e62"
   },
   "backend/app/models.py": {
-    "mtime": 1790932768.5326035,
-    "seen": 1790933849.7630749,
-    "ast_hash": "44d2d8e7ce8097559b7bfc4406ae7c73",
-    "semantic_hash": "44d2d8e7ce8097559b7bfc4406ae7c73"
+    "mtime": 1790934388.6114435,
+    "seen": 1790936507.5924513,
+    "ast_hash": "fdef97ed7bc4ac9654b9873226cb4b12",
+    "semantic_hash": "fdef97ed7bc4ac9654b9873226cb4b12"
   },
   "backend/pyproject.toml": {
     "mtime": 1790924411.7460303,
@@ -666,10 +666,10 @@
     "semantic_hash": "4f711e082c9b4fbb1500b3b35e194e1c"
   },
   "backend/app/core/seed.py": {
-    "mtime": 1790932827.4326046,
-    "seen": 1790933849.7626338,
-    "ast_hash": "6bb4252b90b4f1adfe223ff05b8735bc",
-    "semantic_hash": "6bb4252b90b4f1adfe223ff05b8735bc"
+    "mtime": 1790936044.556305,
+    "seen": 1790936507.5913913,
+    "ast_hash": "8bc74d0c848713abb3fecf1bb9e75841",
+    "semantic_hash": "8bc74d0c848713abb3fecf1bb9e75841"
   },
   "backend/app/core/users.py": {
     "mtime": 1790928438.2516181,
@@ -678,10 +678,10 @@
     "semantic_hash": "eda8db21d4781af4e3b12fdf9e328866"
   },
   "backend/app/entities/__init__.py": {
-    "mtime": 1790932046.184643,
-    "seen": 1790933849.7626822,
-    "ast_hash": "927efdf86b8c78fb4899e9f4a3a8f031",
-    "semantic_hash": "927efdf86b8c78fb4899e9f4a3a8f031"
+    "mtime": 1790934342.440596,
+    "seen": 1790936507.591477,
+    "ast_hash": "493f982f8cd40373a533f3e82a527ed1",
+    "semantic_hash": "493f982f8cd40373a533f3e82a527ed1"
   },
   "backend/app/entities/base.py": {
     "mtime": 1790924411.7421653,
@@ -726,10 +726,10 @@
     "semantic_hash": "55f7255e45360f4fc92e38b78bd9143c"
   },
   "backend/app/schemas/__init__.py": {
-    "mtime": 1790932059.2646365,
-    "seen": 1790933849.7630756,
-    "ast_hash": "34d41b0881eab0a208496f29981b2f46",
-    "semantic_hash": "34d41b0881eab0a208496f29981b2f46"
+    "mtime": 1790934375.9043913,
+    "seen": 1790936507.5924535,
+    "ast_hash": "3084d453d57efba866b724f42326a065",
+    "semantic_hash": "3084d453d57efba866b724f42326a065"
   },
   "backend/app/schemas/user.py": {
     "mtime": 1790924411.7421653,
@@ -779,12 +779,6 @@
     "ast_hash": "c2f365076b2bedd5d32e7a5f667c82a0",
     "semantic_hash": "c2f365076b2bedd5d32e7a5f667c82a0"
   },
-  "backend/app/api/v1/master.py": {
-    "mtime": 1790932779.6126044,
-    "seen": 1790933849.7625377,
-    "ast_hash": "b4d13e2538231c238a9861c345560483",
-    "semantic_hash": "b4d13e2538231c238a9861c345560483"
-  },
   "backend/app/entities/depot.py": {
     "mtime": 1790927986.7669766,
     "seen": 1790929113.1449282,
@@ -798,10 +792,10 @@
     "semantic_hash": "d7a120ec52e63df16092bbaa15d88f1d"
   },
   "backend/tests/test_master_depots.py": {
-    "mtime": 1790928118.62368,
-    "seen": 1790929113.1456487,
-    "ast_hash": "d90dace2af510a248552aa107df8ab9b",
-    "semantic_hash": "d90dace2af510a248552aa107df8ab9b"
+    "mtime": 1790936643.2524564,
+    "seen": 1790936816.7872164,
+    "ast_hash": "746b4584a0720414f324318ef02e83b5",
+    "semantic_hash": "746b4584a0720414f324318ef02e83b5"
   },
   "backend/app/entities/district.py": {
     "mtime": 1790929277.380991,
@@ -816,10 +810,10 @@
     "semantic_hash": "145d8c2613566431ad431a3f81d3da36"
   },
   "backend/tests/test_master_districts.py": {
-    "mtime": 1790929349.9262497,
-    "seen": 1790931992.1909134,
-    "ast_hash": "d0b0505b942cc7b0f6d822eee8f2ece3",
-    "semantic_hash": "d0b0505b942cc7b0f6d822eee8f2ece3"
+    "mtime": 1790936762.3015823,
+    "seen": 1790936816.787218,
+    "ast_hash": "42c4acf6712992537532f9150b2d8db1",
+    "semantic_hash": "42c4acf6712992537532f9150b2d8db1"
   },
   "backend/app/entities/brand.py": {
     "mtime": 1790932747.5886025,
@@ -840,9 +834,63 @@
     "semantic_hash": "ddc91240ee10cb6174e1d40a001c1963"
   },
   "backend/tests/test_master_brands.py": {
-    "mtime": 1790932840.0966043,
-    "seen": 1790933849.7635827,
-    "ast_hash": "90b8446c97df4f497ae0a58b978108e0",
-    "semantic_hash": "90b8446c97df4f497ae0a58b978108e0"
+    "mtime": 1790936664.932429,
+    "seen": 1790936816.787214,
+    "ast_hash": "a111ecbcce15e926cda9b0949aeaa712",
+    "semantic_hash": "a111ecbcce15e926cda9b0949aeaa712"
+  },
+  "backend/app/api/v1/master/__init__.py": {
+    "mtime": 1790936309.335772,
+    "seen": 1790936507.591206,
+    "ast_hash": "dc4f82296ff04c83f615e43420f203f0",
+    "semantic_hash": "dc4f82296ff04c83f615e43420f203f0"
+  },
+  "backend/app/api/v1/master/brands.py": {
+    "mtime": 1790936705.1431413,
+    "seen": 1790936816.7841148,
+    "ast_hash": "af72ff944ffdb81bf47bbdb7fd05939f",
+    "semantic_hash": "af72ff944ffdb81bf47bbdb7fd05939f"
+  },
+  "backend/app/api/v1/master/depots.py": {
+    "mtime": 1790936718.9810896,
+    "seen": 1790936816.784117,
+    "ast_hash": "e5a824e7e6450d4550260a9f0321454f",
+    "semantic_hash": "e5a824e7e6450d4550260a9f0321454f"
+  },
+  "backend/app/api/v1/master/districts.py": {
+    "mtime": 1790936762.3015823,
+    "seen": 1790936816.7841182,
+    "ast_hash": "5f8f5bf990d0df114a744c191f791c8d",
+    "semantic_hash": "5f8f5bf990d0df114a744c191f791c8d"
+  },
+  "backend/app/api/v1/master/outlets.py": {
+    "mtime": 1790936755.4502285,
+    "seen": 1790936816.78412,
+    "ast_hash": "396754a3685262c412b6091526e5f49d",
+    "semantic_hash": "396754a3685262c412b6091526e5f49d"
+  },
+  "backend/app/data/outlets.json": {
+    "mtime": 1790935967.4431846,
+    "seen": 1790936507.5914748,
+    "ast_hash": "0f87dd7fb30b896c7da4b6ec08f3e654",
+    "semantic_hash": "0f87dd7fb30b896c7da4b6ec08f3e654"
+  },
+  "backend/app/entities/outlet.py": {
+    "mtime": 1790934442.890938,
+    "seen": 1790936507.5918102,
+    "ast_hash": "af0a5022e04a45235e1833167200072b",
+    "semantic_hash": "af0a5022e04a45235e1833167200072b"
+  },
+  "backend/app/schemas/outlet.py": {
+    "mtime": 1790934364.2325647,
+    "seen": 1790936507.5928159,
+    "ast_hash": "4733f52f12f0cb8d518a69b851261699",
+    "semantic_hash": "4733f52f12f0cb8d518a69b851261699"
+  },
+  "backend/tests/test_master_outlets.py": {
+    "mtime": 1790936675.3091092,
+    "seen": 1790936816.7872198,
+    "ast_hash": "7729dab2fad3fbc87b5d98c67566bb3e",
+    "semantic_hash": "7729dab2fad3fbc87b5d98c67566bb3e"
   }
 }

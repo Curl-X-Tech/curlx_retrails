@@ -121,3 +121,45 @@ async def test_get_nonexistent_brand(
     response = await client.get(f"/api/v1/master/brands/{random_id}")
     assert response.status_code == 404
     assert response.json()["detail"] == "BRAND_NOT_FOUND"
+
+
+@pytest.mark.anyio
+async def test_update_and_delete_brand(
+    client: AsyncClient,
+    superuser_token_headers: dict[str, str],
+) -> None:
+    # 1. Create brand
+    create_res = await client.post(
+        "/api/v1/master/brands",
+        json={
+            "code": "TO_UPD",
+            "name": "To Update Brand",
+            "delivery_window_type": "standard_retail",
+            "requires_cold_chain": False,
+            "daily_time_budget_min": 300,
+        },
+        headers=superuser_token_headers,
+    )
+    assert create_res.status_code == 201
+    brand_id = create_res.json()["id"]
+
+    # 2. Update brand
+    patch_res = await client.patch(
+        f"/api/v1/master/brands/{brand_id}",
+        json={"name": "Updated Brand Name", "daily_time_budget_min": 360},
+        headers=superuser_token_headers,
+    )
+    assert patch_res.status_code == 200
+    assert patch_res.json()["name"] == "Updated Brand Name"
+    assert patch_res.json()["daily_time_budget_min"] == 360
+
+    # 3. Delete brand
+    del_res = await client.delete(
+        f"/api/v1/master/brands/{brand_id}",
+        headers=superuser_token_headers,
+    )
+    assert del_res.status_code == 204
+
+    # 4. Verify 404
+    get_res = await client.get(f"/api/v1/master/brands/{brand_id}")
+    assert get_res.status_code == 404
