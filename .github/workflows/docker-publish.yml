@@ -87,6 +87,9 @@ jobs:
           context: ./frontend
           file: ./frontend/Dockerfile
           platforms: linux/amd64,linux/arm64
+          build-args: |
+            VITE_MAP_API_KEY=${{ secrets.VITE_MAP_API_KEY }}
+            VITE_MAP_TILE_URL=https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
