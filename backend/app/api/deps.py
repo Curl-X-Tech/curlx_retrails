@@ -1,10 +1,3 @@
-from collections.abc import Generator
+from app.core.db import get_db
 
-from sqlalchemy.orm import Session
-
-from app.core.db import SessionLocal
-
-
-def get_db() -> Generator[Session, None, None]:
-    with SessionLocal() as session:
-        yield session
+__all__ = ["get_db"]

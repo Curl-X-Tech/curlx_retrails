@@ -1,41 +1,88 @@
-from typing import Literal
+import logging
+import secrets
 
-from pydantic import computed_field
+from pydantic import EmailStr, Field, computed_field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+logger = logging.getLogger(__name__)
 
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=(".env", "../.env"),
         env_ignore_empty=True,
         extra="ignore",
     )
 
     PROJECT_NAME: str = "ReTrails"
     API_V1_STR: str = "/api/v1"
-    ENVIRONMENT: Literal["local", "staging", "production"] = "local"
+    ENVIRONMENT: str = "local"
+    SECRET_KEY: str = Field(default_factory=lambda: secrets.token_urlsafe(32))
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8  # 8 days
 
-    # Database
+    FIRST_SUPERUSER: EmailStr | None = None
+    FIRST_SUPERUSER_PASSWORD: str | None = None
+
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432
-    POSTGRES_USER: str = "retrails"
-    POSTGRES_PASSWORD: str = "retrails_secret"
-    POSTGRES_DB: str = "retrails"
-    USE_SQLITE: bool = True
+    POSTGRES_DB: str = "app"
+    POSTGRES_USER: str = "postgres"
+    POSTGRES_PASSWORD: str | None = None
 
-    # CORS
+    USE_SQLITE: bool = False
+    SQLITE_DB_PATH: str = "./app.db"
+
     BACKEND_CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
-        "http://127.0.0.1:5173",
-        "http://127.0.0.1:3000",
+        "http://localhost:8000",
+        "https://localhost",
     ]
 
+    # Email & SMTP Configuration
+    SMTP_TLS: bool = False
+    SMTP_SSL: bool = False
+    SMTP_PORT: int = 1025
+    SMTP_HOST: str | None = None
+    SMTP_USER: str | None = None
+    SMTP_PASSWORD: str | None = None
+    EMAILS_FROM_EMAIL: EmailStr | None = "info@example.com"
+    EMAILS_FROM_NAME: str | None = "ReTrails"
+    FRONTEND_HOST: str = "http://localhost:5173"
+    EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 24
+    # Rate Limiting Configuration
+    RATE_LIMIT_AUTH_PER_MINUTE: int = 20
+    RATE_LIMIT_API_PER_MINUTE: int = 100
+
     @computed_field
-    def SQLALCHEMY_DATABASE_URI(self) -> str:
+    @property
+    def ASYNC_DATABASE_URI(self) -> str:
         if self.USE_SQLITE:
-            return "sqlite:///./retrails.db"
-        return f"postgresql+psycopg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+            return f"sqlite+aiosqlite:///{self.SQLITE_DB_PATH}"
+        password = f":{self.POSTGRES_PASSWORD}" if self.POSTGRES_PASSWORD else ""
+        return (
+            f"postgresql+asyncpg://{self.POSTGRES_USER}{password}@"
+            f"{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        )
+
+    @computed_field
+    @property
+    def SYNC_DATABASE_URI(self) -> str:
+        if self.USE_SQLITE:
+            return f"sqlite:///{self.SQLITE_DB_PATH}"
+        password = f":{self.POSTGRES_PASSWORD}" if self.POSTGRES_PASSWORD else ""
+        return (
+            f"postgresql+psycopg://{self.POSTGRES_USER}{password}@"
+            f"{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
+        )
+
+    @model_validator(mode="after")
+    def check_secret_key(self) -> "Settings":
+        if self.SECRET_KEY.startswith("changethis"):
+            logger.warning(
+                "SECRET_KEY is using a default placeholder value. Set a secure SECRET_KEY in production."
+            )
+        return self
 
 
 settings = Settings()
