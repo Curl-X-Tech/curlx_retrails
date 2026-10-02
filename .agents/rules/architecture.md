@@ -22,3 +22,8 @@
 ## 5. Design and Aesthetics
 - Use Tailwind CSS with dark-mode first design tokens.
 - Maintain clean typography, responsive navigation, and clear text-based status indicators (e.g. "Online", "Syncing", "Offline").
+
+## 6. Knowledge Graph & AI Agent Navigation
+- `graphify-out/graph.json` contains the pre-indexed code dependency and symbol graph.
+- All AI assistants must prioritize Graphify MCP tools or CLI queries (`./dev.sh graphify`, `graphify query`) to navigate architecture and relations before running broad filesystem scans.
+

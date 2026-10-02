@@ -1,0 +1,787 @@
+import * as React from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import {
+  SquaresFourIcon,
+  TrayIcon,
+  ChartBarIcon,
+  WarningOctagonIcon,
+  NavigationArrowIcon,
+  TruckIcon,
+  StorefrontIcon,
+  TrendUpIcon,
+  FileTextIcon,
+  CaretRightIcon,
+  CaretUpDownIcon,
+  BellIcon,
+  SignOutIcon,
+  UserIcon,
+  GearSixIcon,
+  WarehouseIcon,
+  CheckIcon,
+} from "@phosphor-icons/react";
+import { cn } from "@/lib/utils";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuBadge,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
+  SidebarRail,
+  useSidebar,
+} from "@/components/ui/sidebar";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/context/auth-context";
+import { MOCK_HUBS, type HubInfo } from "@/data/mock-hubs";
+
+export interface SubNavItem {
+  title: string;
+  id: string;
+  path: string;
+  badge?: string | number;
+}
+
+export interface NavItem {
+  title: string;
+  id: string;
+  path?: string;
+  icon: React.ReactNode;
+  badge?: string | number;
+  badgeVariant?: "default" | "warning" | "destructive" | "info";
+  items?: SubNavItem[];
+}
+
+export const navGroups: { label?: string; items: NavItem[] }[] = [
+  {
+    items: [
+      {
+        title: "Dashboard",
+        id: "dashboard",
+        path: "/dispatcher/dashboard",
+        icon: <SquaresFourIcon weight="duotone" className="size-5" />,
+      },
+    ],
+  },
+  {
+    label: "Planning",
+    items: [
+      {
+        title: "Order queue",
+        id: "order-queue",
+        path: "/dispatcher/orders",
+        icon: <TrayIcon weight="duotone" className="size-5" />,
+        badge: 14,
+      },
+      {
+        title: "Allocation",
+        id: "allocation",
+        path: "/dispatcher/allocations",
+        icon: <ChartBarIcon weight="duotone" className="size-5" />,
+        items: [
+          {
+            title: "Summary",
+            id: "allocation-summary",
+            path: "/dispatcher/allocations",
+          },
+          {
+            title: "Detail",
+            id: "allocation-detail",
+            path: "/dispatcher/allocations/alloc-01",
+          },
+        ],
+      },
+      {
+        title: "Deferrals",
+        id: "deferrals",
+        path: "/dispatcher/deferrals/carryover",
+        icon: <WarningOctagonIcon weight="duotone" className="size-5" />,
+        badge: 4,
+        badgeVariant: "warning",
+        items: [
+          {
+            title: "Carryover",
+            id: "carryover",
+            path: "/dispatcher/deferrals/carryover",
+            badge: 4,
+          },
+          {
+            title: "Deferral log",
+            id: "deferral-log",
+            path: "/dispatcher/deferrals/audit-log",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Operations",
+    items: [
+      {
+        title: "Live Tracking",
+        id: "live-tracking",
+        path: "/dispatcher/live-map",
+        icon: <NavigationArrowIcon weight="duotone" className="size-5" />,
+        badge: "Live",
+        badgeVariant: "info",
+      },
+      {
+        title: "Fleet",
+        id: "fleet",
+        path: "/dispatcher/fleet/vehicles",
+        icon: <TruckIcon weight="duotone" className="size-5" />,
+        items: [
+          {
+            title: "Vehicles",
+            id: "vehicles",
+            path: "/dispatcher/fleet/vehicles",
+          },
+          {
+            title: "Workshop log",
+            id: "workshop-log",
+            path: "/dispatcher/fleet/workshop-log",
+          },
+          {
+            title: "Fuel quotas",
+            id: "fuel-quotas",
+            path: "/dispatcher/fleet/fuel-quotas",
+          },
+        ],
+      },
+      {
+        title: "Outlets",
+        id: "outlets",
+        path: "/dispatcher/outlets",
+        icon: <StorefrontIcon weight="duotone" className="size-5" />,
+      },
+    ],
+  },
+  {
+    label: "Analytics",
+    items: [
+      {
+        title: "Forecasts",
+        id: "forecasts",
+        path: "/dispatcher/forecasts",
+        icon: <TrendUpIcon weight="duotone" className="size-5" />,
+      },
+      {
+        title: "Reports",
+        id: "reports",
+        path: "/dispatcher/reports",
+        icon: <FileTextIcon weight="duotone" className="size-5" />,
+      },
+    ],
+  },
+];
+
+export const storeNavGroups: { label?: string; items: NavItem[] }[] = [
+  {
+    items: [
+      {
+        title: "Dashboard",
+        id: "store-dashboard",
+        path: "/store/dashboard",
+        icon: <SquaresFourIcon weight="duotone" className="size-5" />,
+        items: [
+          {
+            title: "System alerts",
+            id: "system-alerts",
+            path: "/store/dashboard",
+            badge: "2",
+          },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Planning",
+    items: [
+      {
+        title: "Order queue",
+        id: "order-queue",
+        path: "/store/orders",
+        icon: <TrayIcon weight="duotone" className="size-5" />,
+        badge: 6,
+      },
+    ],
+  },
+  {
+    label: "Deferrals",
+    items: [
+      {
+        title: "Deferrals",
+        id: "deferrals",
+        path: "/store/deferrals/unserved",
+        icon: <WarningOctagonIcon weight="duotone" className="size-5" />,
+        badge: 3,
+        badgeVariant: "warning",
+        items: [
+          {
+            title: "Un served queue",
+            id: "unserved-queue",
+            path: "/store/deferrals/unserved",
+            badge: 1,
+          },
+          {
+            title: "Deferral log",
+            id: "deferral-log",
+            path: "/store/deferrals/log",
+          },
+          {
+            title: "Carryover",
+            id: "carryover",
+            path: "/store/deferrals/carryover",
+            badge: 2,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    items: [
+      {
+        title: "Reports",
+        id: "reports",
+        path: "/store/reports",
+        icon: <FileTextIcon weight="duotone" className="size-5" />,
+      },
+    ],
+  },
+];
+
+interface AppSidebarProps {
+  activeId?: string;
+  onSelect?: (id: string) => void;
+}
+
+export function AppSidebar({ activeId, onSelect }: AppSidebarProps) {
+  const { state } = useSidebar();
+  const isCollapsed = state === "collapsed";
+  const [activeHub, setActiveHub] = React.useState<HubInfo>(MOCK_HUBS[0]);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, logout, setRole } = useAuth();
+
+  const isStoreRole =
+    user?.role === "store_manager" || location.pathname.startsWith("/store");
+  const currentNavGroups = isStoreRole ? storeNavGroups : navGroups;
+
+  const isSubItemActive = (sub: SubNavItem) => {
+    if (activeId) return activeId === sub.id;
+    if (sub.id === "system-alerts") {
+      return (
+        location.pathname === "/store/dashboard" || location.pathname === "/store/alerts"
+      );
+    }
+    if (sub.id === "unserved-queue") {
+      return (
+        location.pathname === "/store/deferrals/unserved" ||
+        (location.pathname === "/store/deferrals" && location.search.includes("unserved"))
+      );
+    }
+    if (sub.id === "deferral-log") {
+      return (
+        location.pathname === "/store/deferrals/log" ||
+        location.pathname === "/dispatcher/deferrals/audit-log" ||
+        location.pathname === "/dispatcher/deferrals/deferral-log"
+      );
+    }
+    if (sub.id === "carryover") {
+      return (
+        location.pathname === "/store/deferrals/carryover" ||
+        location.pathname === "/dispatcher/deferrals/carryover" ||
+        location.pathname === "/dispatcher/deferrals"
+      );
+    }
+    if (sub.id === "order-queue") {
+      return (
+        location.pathname === "/dispatcher/orders" ||
+        location.pathname === "/dispatcher/orders/" ||
+        location.pathname === "/store/orders" ||
+        location.pathname === "/store/orders/" ||
+        location.pathname === "/store/queue"
+      );
+    }
+    if (sub.id === "allocation-summary") {
+      return (
+        location.pathname === "/dispatcher/allocations" ||
+        location.pathname === "/dispatcher/allocations/"
+      );
+    }
+    if (sub.id === "allocation-detail") {
+      return (
+        location.pathname.startsWith("/dispatcher/allocations/") &&
+        location.pathname !== "/dispatcher/allocations" &&
+        location.pathname !== "/dispatcher/allocations/"
+      );
+    }
+    return location.pathname === sub.path;
+  };
+
+  const isItemActive = (item: NavItem) => {
+    if (activeId) {
+      if (activeId === item.id) return true;
+      if (item.items?.some((sub) => sub.id === activeId)) return true;
+    }
+    if (item.items && item.items.length > 0) {
+      return item.items.some((sub) => isSubItemActive(sub));
+    }
+    if (item.path) {
+      if (item.id === "live-tracking") {
+        return (
+          location.pathname === "/dispatcher/live-map" ||
+          location.pathname === "/dispatcher/live-tracking"
+        );
+      }
+      return location.pathname === item.path;
+    }
+    return false;
+  };
+
+  const handleNavigate = (path?: string, id?: string) => {
+    if (id) {
+      onSelect?.(id);
+    }
+    if (path) {
+      navigate(path);
+    }
+  };
+
+  return (
+    <Sidebar
+      collapsible="icon"
+      className="border-r border-sidebar-border font-sans bg-sidebar select-none"
+    >
+      <SidebarHeader className="border-b border-sidebar-border h-16 justify-center px-3.5">
+        <div className="flex items-center justify-between w-full">
+          {!isCollapsed ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <button
+                    type="button"
+                    className="flex items-center gap-3 p-1.5 -ml-1 rounded-xl hover:bg-sidebar-accent/80 transition-colors text-left min-w-0 flex-1 cursor-pointer outline-none"
+                  />
+                }
+              >
+                <div className="flex items-center justify-center size-10 rounded-xl bg-primary text-primary-foreground font-heading font-bold text-base shadow-xs shrink-0">
+                  <WarehouseIcon weight="bold" className="size-5" />
+                </div>
+                <div className="flex flex-col min-w-0 leading-tight">
+                  <span className="font-heading font-bold text-sm text-foreground tracking-tight truncate">
+                    ReTrails Logistics
+                  </span>
+                  <span className="text-[11px] text-muted-foreground font-medium truncate flex items-center gap-1 mt-0.5">
+                    {activeHub.name}
+                    <CaretUpDownIcon className="size-3 shrink-0" />
+                  </span>
+                </div>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-64 rounded-xl p-1.5 shadow-lg"
+                align="start"
+                sideOffset={6}
+              >
+                <DropdownMenuLabel className="text-xs text-muted-foreground font-medium px-2 py-1">
+                  Active Distribution Hubs
+                </DropdownMenuLabel>
+                <DropdownMenuGroup>
+                  {MOCK_HUBS.map((hub) => (
+                    <DropdownMenuItem
+                      key={hub.id}
+                      onClick={() => setActiveHub(hub)}
+                      className="text-xs p-2 rounded-lg flex items-center justify-between cursor-pointer"
+                    >
+                      <div>
+                        <p className="font-semibold text-foreground">{hub.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{hub.sector}</p>
+                      </div>
+                      {hub.id === activeHub.id && (
+                        <CheckIcon className="size-4 text-primary" />
+                      )}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex items-center justify-center size-10 rounded-xl bg-primary text-primary-foreground font-heading font-bold text-base shadow-xs mx-auto">
+              RX
+            </div>
+          )}
+        </div>
+      </SidebarHeader>
+
+      <SidebarContent className="px-2.5 py-3 space-y-3">
+        {currentNavGroups.map((group, idx) => (
+          <SidebarGroup key={idx} className="py-0.5">
+            {group.label && !isCollapsed && (
+              <SidebarGroupLabel className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 px-3 mb-1">
+                {group.label}
+              </SidebarGroupLabel>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-1">
+                {group.items.map((item) => {
+                  const hasSubItems = item.items && item.items.length > 0;
+                  const isCurrentActive = isItemActive(item);
+
+                  if (hasSubItems) {
+                    if (isCollapsed) {
+                      return (
+                        <SidebarMenuItem key={item.id}>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger
+                              render={
+                                <SidebarMenuButton
+                                  isActive={isCurrentActive}
+                                  className="h-10 text-[13.5px] font-medium justify-center w-full px-0 rounded-xl cursor-pointer"
+                                />
+                              }
+                            >
+                              <span
+                                className={cn(
+                                  isCurrentActive
+                                    ? "text-primary"
+                                    : "text-muted-foreground"
+                                )}
+                              >
+                                {item.icon}
+                              </span>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent
+                              side="right"
+                              align="start"
+                              sideOffset={8}
+                              className="w-52 rounded-xl p-1.5 shadow-lg"
+                            >
+                              <DropdownMenuLabel className="text-xs font-semibold text-foreground px-2 py-1 flex items-center justify-between">
+                                <span>{item.title}</span>
+                                {item.badge && (
+                                  <Badge
+                                    variant={item.badgeVariant || "secondary"}
+                                    className="h-4 px-1.5 text-[10px] font-semibold"
+                                  >
+                                    {item.badge}
+                                  </Badge>
+                                )}
+                              </DropdownMenuLabel>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuGroup>
+                                {item.items?.map((sub) => {
+                                  const isSubActive = isSubItemActive(sub);
+                                  return (
+                                    <DropdownMenuItem
+                                      key={sub.id}
+                                      onClick={() => handleNavigate(sub.path, sub.id)}
+                                      className={cn(
+                                        "text-xs p-2 rounded-lg flex items-center justify-between cursor-pointer",
+                                        isSubActive &&
+                                          "bg-primary/10 text-primary font-semibold"
+                                      )}
+                                    >
+                                      <div className="flex items-center gap-2 truncate">
+                                        <span
+                                          className={cn(
+                                            "size-1.5 rounded-full shrink-0",
+                                            isSubActive
+                                              ? "bg-primary"
+                                              : "bg-muted-foreground/60"
+                                          )}
+                                        />
+                                        <span className="truncate">{sub.title}</span>
+                                      </div>
+                                      {sub.badge && (
+                                        <Badge
+                                          variant="destructive"
+                                          className="h-4 px-1.5 text-[10px] font-semibold shrink-0"
+                                        >
+                                          {sub.badge}
+                                        </Badge>
+                                      )}
+                                    </DropdownMenuItem>
+                                  );
+                                })}
+                              </DropdownMenuGroup>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </SidebarMenuItem>
+                      );
+                    }
+
+                    return (
+                      <Collapsible
+                        key={item.id}
+                        defaultOpen={
+                          item.id === "deferrals" ||
+                          item.id === "allocation" ||
+                          isCurrentActive
+                        }
+                        className="group/collapsible"
+                      >
+                        <SidebarMenuItem>
+                          <CollapsibleTrigger
+                            render={
+                              <SidebarMenuButton
+                                isActive={isCurrentActive}
+                                className="h-10 text-[13.5px] font-medium justify-between w-full px-3 rounded-xl cursor-pointer group/trigger"
+                              />
+                            }
+                          >
+                            <div className="flex items-center gap-3 min-w-0">
+                              <span
+                                className={cn(
+                                  isCurrentActive
+                                    ? "text-primary"
+                                    : "text-muted-foreground"
+                                )}
+                              >
+                                {item.icon}
+                              </span>
+                              <span className="truncate">{item.title}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5 shrink-0">
+                              {item.badge && (
+                                <Badge
+                                  variant={item.badgeVariant || "secondary"}
+                                  className="h-5 px-2 text-[11px] font-semibold"
+                                >
+                                  {item.badge}
+                                </Badge>
+                              )}
+                              <CaretRightIcon className="size-3.5 text-muted-foreground transition-transform duration-200 ease-in-out group-data-[panel-open]/collapsible:rotate-90 group-data-[open]/collapsible:rotate-90 group-aria-expanded/collapsible:rotate-90 group-data-[panel-open]/trigger:rotate-90 group-aria-expanded/trigger:rotate-90" />
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <SidebarMenuSub className="my-1.5 pl-6 ml-3.5 !border-l-0 !border-transparent relative space-y-1">
+                              {item.items?.map((sub) => {
+                                const isSubActive = isSubItemActive(sub);
+                                return (
+                                  <SidebarMenuSubItem
+                                    key={sub.id}
+                                    className="relative flex items-center"
+                                  >
+                                    <div className="absolute -left-3.5 top-0 h-1/2 w-3.5 border-l-2 border-b-2 border-dashed border-neutral-400 rounded-bl-[4px] pointer-events-none" />
+
+                                    <SidebarMenuSubButton
+                                      isActive={isSubActive}
+                                      onClick={() => handleNavigate(sub.path, sub.id)}
+                                      className={cn(
+                                        "h-9 text-[13px] rounded-lg px-2.5 cursor-pointer justify-between transition-colors w-full",
+                                        isSubActive
+                                          ? "bg-primary/10 text-primary font-semibold"
+                                          : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
+                                      )}
+                                    >
+                                      <div className="flex items-center gap-2 truncate">
+                                        <span
+                                          className={cn(
+                                            "size-1.5 rounded-full shrink-0",
+                                            isSubActive
+                                              ? "bg-primary"
+                                              : "bg-muted-foreground/60"
+                                          )}
+                                        />
+                                        <span className="truncate">{sub.title}</span>
+                                      </div>
+                                      {sub.badge && (
+                                        <Badge
+                                          variant="destructive"
+                                          className="h-4 px-1.5 text-[10px] font-semibold shrink-0"
+                                        >
+                                          {sub.badge}
+                                        </Badge>
+                                      )}
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                );
+                              })}
+                            </SidebarMenuSub>
+                          </CollapsibleContent>
+                        </SidebarMenuItem>
+                      </Collapsible>
+                    );
+                  }
+
+                  return (
+                    <SidebarMenuItem key={item.id}>
+                      <SidebarMenuButton
+                        tooltip={item.title}
+                        isActive={isCurrentActive}
+                        onClick={() => handleNavigate(item.path, item.id)}
+                        className={cn(
+                          "h-10 text-[13.5px] font-medium cursor-pointer px-3 rounded-xl transition-colors",
+                          isCurrentActive &&
+                            "bg-primary/10 text-primary font-bold shadow-xs"
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            isCurrentActive ? "text-primary" : "text-muted-foreground"
+                          )}
+                        >
+                          {item.icon}
+                        </span>
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                      {item.badge && (
+                        <SidebarMenuBadge className="right-2">
+                          <Badge
+                            variant={
+                              item.badgeVariant ||
+                              (isCurrentActive ? "outline" : "secondary")
+                            }
+                            className="h-5 px-2 text-[11px] font-semibold"
+                          >
+                            {item.badge}
+                          </Badge>
+                        </SidebarMenuBadge>
+                      )}
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+
+        <div className="pt-2 px-1 pb-1">
+          <button
+            type="button"
+            onClick={() => navigate("/store/orders/new")}
+            className={cn(
+              "w-full bg-[#0080FF] hover:bg-[#0070E0] text-white font-semibold shadow-xs flex items-center justify-start gap-2.5 h-11 px-3 rounded-xl transition-all cursor-pointer",
+              isCollapsed && "justify-center px-0 h-10 w-10 mx-auto"
+            )}
+            title="Create Order"
+          >
+            <SquaresFourIcon weight="bold" className="size-5 shrink-0" />
+            {!isCollapsed && <span className="text-[13.5px]">Create Order</span>}
+          </button>
+        </div>
+      </SidebarContent>
+
+      <SidebarFooter className="border-t border-sidebar-border p-2.5">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                render={
+                  <SidebarMenuButton
+                    size="lg"
+                    className="h-13 rounded-xl px-2.5 data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground w-full hover:bg-sidebar-accent transition-colors cursor-pointer"
+                  />
+                }
+              >
+                <div className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary font-heading font-bold text-xs shrink-0 border border-primary/20">
+                  KJ
+                </div>
+                <div className="grid flex-1 text-left text-xs leading-tight min-w-0 ml-1">
+                  <span className="truncate font-semibold text-foreground text-[13px]">
+                    {user?.name || "K. Jayawardena"}
+                  </span>
+                  <span className="truncate text-[11px] text-muted-foreground mt-0.5 capitalize">
+                    {user?.role?.replace("_", " ") || "Lead Dispatcher"}
+                  </span>
+                </div>
+                <CaretRightIcon className="ml-auto size-3.5 text-muted-foreground rotate-90" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                className="w-60 rounded-xl p-1.5 shadow-lg"
+                side="top"
+                align="start"
+                sideOffset={8}
+              >
+                <DropdownMenuLabel className="text-xs text-muted-foreground font-normal p-2">
+                  Signed in as{" "}
+                  <span className="font-semibold text-foreground block truncate">
+                    {user?.email || "k.jayawardena@curlx.lk"}
+                  </span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setRole("store_manager");
+                      navigate("/store/orders");
+                    }}
+                    className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer font-semibold"
+                  >
+                    <StorefrontIcon className="size-4 text-primary" />
+                    Switch to Store Manager
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setRole("loader");
+                      navigate("/loader/manifests");
+                    }}
+                    className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer font-semibold"
+                  >
+                    <WarehouseIcon className="size-4 text-primary" />
+                    Switch to Loader Station
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    onClick={() => {
+                      setRole("driver");
+                      navigate("/driver/active");
+                    }}
+                    className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer font-semibold"
+                  >
+                    <TruckIcon className="size-4 text-primary" />
+                    Switch to Driver Console
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer">
+                    <UserIcon className="size-4 text-muted-foreground" />
+                    Profile & Role Details
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer">
+                    <BellIcon className="size-4 text-muted-foreground" />
+                    Notification Preferences
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-xs p-2 gap-2.5 rounded-lg cursor-pointer">
+                    <GearSixIcon className="size-4 text-muted-foreground" />
+                    Dispatch Settings
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() => {
+                    logout();
+                    navigate("/login");
+                  }}
+                  className="text-xs p-2 gap-2.5 rounded-lg text-destructive focus:text-destructive cursor-pointer"
+                >
+                  <SignOutIcon className="size-4" />
+                  Log out of Console
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
+      <SidebarRail />
+    </Sidebar>
+  );
+}

@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from sqlmodel import SQLModel
 
 from app.core.config import settings
-from app.models import User, UserType
+from app.models import User
 
 logger = logging.getLogger(__name__)
 
@@ -93,34 +93,9 @@ async def _create_tables() -> None:
         raise
 
 
-async def _seed_initial_superuser(session: AsyncSession) -> None:
-    if not (settings.FIRST_SUPERUSER and settings.FIRST_SUPERUSER_PASSWORD):
-        return
-
-    from fastapi_users import exceptions
-
-    from app.core.users import UserManager
-
-    user_db = SQLAlchemyUserDatabase(session, User)
-    user_manager = UserManager(user_db)
-    try:
-        await user_manager.get_by_email(settings.FIRST_SUPERUSER)
-    except exceptions.UserNotExists:
-        hashed_pw = user_manager.password_helper.hash(settings.FIRST_SUPERUSER_PASSWORD)
-        superuser = User(
-            email=settings.FIRST_SUPERUSER,
-            hashed_password=hashed_pw,
-            name="Administrator",
-            user_type=UserType.SYSTEM_ADMIN,
-            is_active=True,
-        )
-        session.add(superuser)
-        await session.commit()
-        await session.refresh(superuser)
-        logger.info("Created initial superuser: %s", settings.FIRST_SUPERUSER)
-
-
 async def init_db() -> None:
+    from app.core.seed import seed_initial_users
+
     await _create_tables()
     async with async_session_maker() as session:
-        await _seed_initial_superuser(session)
+        await seed_initial_users(session)
