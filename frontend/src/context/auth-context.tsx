@@ -8,6 +8,8 @@ import {
   type ApiUserResponse,
 } from "@/lib/api";
 
+const USER_STORAGE_KEY = "retrails_user";
+
 export interface StaffUser {
   id: string;
   name: string;
@@ -29,18 +31,8 @@ interface AuthContextType {
   isLoading: boolean;
   login: (param?: StaffRole | LoginCredentials) => Promise<void> | void;
   logout: () => void;
-  setRole: (role: StaffRole) => void;
   refreshUser: () => Promise<void>;
 }
-
-const defaultUser: StaffUser = {
-  id: "usr-01",
-  name: "K. Jayawardena",
-  email: "k.jayawardena@curlx.lk",
-  role: "dispatcher",
-  depotId: "depot-peliyagoda",
-  depotName: "Peliyagoda Hub",
-};
 
 function normalizeRole(roleStr: string): StaffRole {
   const lower = roleStr.toLowerCase();
@@ -67,23 +59,53 @@ function mapApiUserToStaffUser(apiUser: ApiUserResponse): StaffUser {
   };
 }
 
+function getStoredUser(): StaffUser | null {
+  try {
+    const raw = localStorage.getItem(USER_STORAGE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw) as StaffUser;
+  } catch {
+    return null;
+  }
+}
+
+function persistUser(user: StaffUser | null) {
+  try {
+    if (user) {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    } else {
+      localStorage.removeItem(USER_STORAGE_KEY);
+    }
+  } catch {
+    // LocalStorage write error fallback
+  }
+}
+
 const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = React.useState<StaffUser | null>(defaultUser);
+  const [user, setUser] = React.useState<StaffUser | null>(() => getStoredUser());
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
 
   const refreshUser = React.useCallback(async () => {
     const token = getStoredToken();
     if (!token) {
+      // If no token exists, ensure unauthenticated state
+      persistUser(null);
+      setUser(null);
       setIsLoading(false);
       return;
     }
     try {
       const apiUser = await fetchCurrentUser(token);
-      setUser(mapApiUserToStaffUser(apiUser));
+      const mapped = mapApiUserToStaffUser(apiUser);
+      setUser(mapped);
+      persistUser(mapped);
     } catch {
-      // Fall back to default local user if offline or development mode
+      // Token invalid or expired — strictly log out
+      removeStoredToken();
+      persistUser(null);
+      setUser(null);
     } finally {
       setIsLoading(false);
     }
@@ -100,16 +122,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         try {
           await loginWithCredentials(param.email, param.password);
           const apiUser = await fetchCurrentUser();
-          setUser(mapApiUserToStaffUser(apiUser));
+          const mapped = mapApiUserToStaffUser(apiUser);
+          setUser(mapped);
+          persistUser(mapped);
         } finally {
           setIsLoading(false);
         }
       } else {
         const role = typeof param === "string" ? param : "dispatcher";
-        setUser({
-          ...defaultUser,
+        const roleUser: StaffUser = {
+          id: `usr-${role}`,
+          name:
+            role === "system_admin"
+              ? "System Administrator"
+              : role === "dispatcher"
+                ? "K. Jayawardena"
+                : role === "store_manager"
+                  ? "Store Manager"
+                  : role === "loader"
+                    ? "Station Loader"
+                    : "Delivery Driver",
+          email: `${role.replace("_", ".")}@curlx.tech`,
           role,
-        });
+          depotId: "depot-peliyagoda",
+          depotName: "Peliyagoda Hub",
+        };
+        setUser(roleUser);
+        persistUser(roleUser);
       }
     },
     []
@@ -117,11 +156,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = React.useCallback(() => {
     removeStoredToken();
+    persistUser(null);
+    try {
+      sessionStorage.clear();
+    } catch {
+      // SessionStorage error fallback
+    }
     setUser(null);
-  }, []);
-
-  const setRole = React.useCallback((role: StaffRole) => {
-    setUser((prev) => (prev ? { ...prev, role } : null));
   }, []);
 
   const value = React.useMemo<AuthContextType>(
@@ -132,10 +173,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       isLoading,
       login,
       logout,
-      setRole,
       refreshUser,
     }),
-    [user, isLoading, login, logout, setRole, refreshUser]
+    [user, isLoading, login, logout, refreshUser]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

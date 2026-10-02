@@ -53,15 +53,15 @@ export function getRoleHomePath(role: StaffRole): string {
     case "dispatcher":
       return "/dispatcher/allocations";
     case "loader":
-      return "/loader/bays";
+      return "/loader/manifests";
     case "driver":
-      return "/driver/trips";
+      return "/driver/active";
     case "system_admin":
       return "/admin/dashboard";
     case "store_manager":
       return "/store/orders";
     default:
-      return "/";
+      return "/login";
   }
 }
 

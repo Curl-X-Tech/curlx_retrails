@@ -6,7 +6,6 @@ import {
   ListBulletsIcon,
   TruckIcon,
   UserCircleIcon,
-  SwapIcon,
   CoffeeIcon,
   CheckCircleIcon,
   SignOutIcon,
@@ -33,7 +32,7 @@ import { cn } from "@/lib/utils";
 export function DriverLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, setRole, logout } = useAuth();
+  const { user, logout } = useAuth();
   const [isOnBreak, setIsOnBreak] = React.useState(mockDriverTrip.onBreak);
   const [breakTimerSeconds, setBreakTimerSeconds] = React.useState(0);
   const [isBreakModalOpen, setIsBreakModalOpen] = React.useState(false);
@@ -179,43 +178,35 @@ export function DriverLayout() {
               <UserCircleIcon className="size-5" />
               <span className="text-[10px] font-medium">Profile</span>
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="end" className="w-56 mb-2">
+            <DropdownMenuContent
+              side="top"
+              align="end"
+              className="w-56 mb-2 p-1.5 shadow-lg rounded-xl"
+            >
               <div className="px-2 py-1.5 text-xs text-muted-foreground">
                 Driver:{" "}
-                <span className="font-semibold text-foreground">
+                <span className="font-semibold text-foreground block truncate">
                   {user?.name || mockDriverTrip.driver.name}
                 </span>
+                <span className="text-[10px] text-muted-foreground block truncate">
+                  {user?.email || "driver@curlx.tech"}
+                </span>
               </div>
-              <DropdownMenuItem onClick={() => setRole("driver")}>
-                <span className="text-xs font-semibold">Role: Driver (Active)</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setRole("loader");
-                  navigate("/loader/manifests");
-                }}
-              >
-                <SwapIcon className="size-4 mr-2" />
-                Switch to Loader
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setRole("dispatcher");
-                  navigate("/dispatcher/allocations");
-                }}
-              >
-                <SwapIcon className="size-4 mr-2" />
-                Switch to Dispatcher
-              </DropdownMenuItem>
+              <div className="px-2 py-1 flex items-center justify-between text-xs border-t border-border/50 my-1">
+                <span className="text-muted-foreground">Console</span>
+                <span className="font-bold text-foreground capitalize px-1.5 py-0.5 rounded bg-muted text-[10px]">
+                  Driver Console
+                </span>
+              </div>
               <DropdownMenuItem
                 onClick={() => {
                   logout();
-                  navigate("/login");
+                  navigate("/login", { replace: true });
                 }}
-                className="text-destructive focus:text-destructive cursor-pointer"
+                className="text-destructive focus:text-destructive cursor-pointer text-xs font-semibold p-2 rounded-lg gap-2"
               >
-                <SignOutIcon className="size-4 mr-2" />
-                Log out
+                <SignOutIcon className="size-4" />
+                <span>Log out of Pilot Console</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

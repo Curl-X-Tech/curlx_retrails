@@ -7,3 +7,4 @@ export * from "./mock-deferrals";
 export * from "./mock-loader-bays";
 export * from "./mock-driver-trips";
 export * from "./mock-store-orders";
+export * from "./mock-users";

@@ -43,4 +43,30 @@ export default defineConfig({
     port: 5173,
     host: true,
   },
+  build: {
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          "vendor-maps": ["maplibre-gl", "leaflet"],
+          "vendor-icons": ["@phosphor-icons/react", "lucide-react"],
+          "vendor-ui": [
+            "@base-ui/react",
+            "clsx",
+            "tailwind-merge",
+            "class-variance-authority",
+          ],
+          "vendor-core": [
+            "react",
+            "react-dom",
+            "react-router-dom",
+            "@tanstack/react-query",
+            "zustand",
+            "dexie",
+            "dexie-react-hooks",
+          ],
+        },
+      },
+    },
+  },
 });
