@@ -46,10 +46,11 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
     async def on_after_register(
         self, user: User, request: Request | None = None
     ) -> None:
-        logger.info("User created: %s (%s, %s)", user.id, user.email, user.user_type)
-        print(
-            f"[USER_MGMT] User created: {user.email} (ID: {user.id}, Role: {user.user_type})",
-            flush=True,
+        logger.info(
+            "User registered: %s (Email: %s, Role: %s)",
+            user.id,
+            user.email,
+            user.user_type,
         )
 
     async def on_after_forgot_password(
@@ -72,7 +73,6 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
         logger.info(
             "Password reset successfully for user: %s (%s)", user.id, user.email
         )
-        print(f"[AUTH] Password reset successfully for: {user.email}", flush=True)
 
 
 async def get_user_manager(

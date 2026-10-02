@@ -125,14 +125,7 @@ class EmailService:
                 "text": text_content,
             }
             self.outbox.append(email_record)
-            banner = (
-                f"\n================================================================\n"
-                f"  EMAIL DISPATCH (DEV OUTBOX):\n"
-                f"  To:      {email_to}\n"
-                f"  Subject: {subject}\n"
-                f"================================================================\n"
-            )
-            print(banner, flush=True)
+            logger.info("Email recorded in dev outbox for %s: %s", email_to, subject)
             return True
 
         try:
@@ -170,14 +163,11 @@ class EmailService:
         text_content = self.render_template("reset_password.txt", context)
 
         if not settings.SMTP_HOST:
-            banner = (
-                f"\n================================================================\n"
-                f"  PASSWORD RESET LINK FOR {email_to}:\n"
-                f"  {reset_link}\n"
-                f"  Token: {token}\n"
-                f"================================================================\n"
+            logger.info(
+                "Password reset link generated for %s (dev mode): %s",
+                email_to,
+                reset_link,
             )
-            print(banner, flush=True)
         else:
             logger.info("Password reset email dispatched to %s", email_to)
 

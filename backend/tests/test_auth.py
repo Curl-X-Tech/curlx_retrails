@@ -272,12 +272,15 @@ async def test_rate_limit_guard_triggers(client: AsyncClient):
 
 def test_base_entity_inheritance_and_user_types():
     assert issubclass(User, BaseEntity)
-    assert RoleType.STORE_MANAGER.value == "STORE_MANAGER"
-    assert RoleType.DRIVER.value == "DRIVER"
-    assert RoleType.LOADER.value == "LOADER"
-    assert RoleType.DISPATCHER.value == "DISPATCHER"
-    assert UserType.SYSTEM_ADMIN.value == "SYSTEM_ADMIN"
-    assert UserType.STORE_MANAGER.value == "STORE_MANAGER"
+    assert RoleType.STORE_MANAGER.value == "store_manager"
+    assert RoleType.DRIVER.value == "driver"
+    assert RoleType.LOADER.value == "loader"
+    assert RoleType.DISPATCHER.value == "dispatcher"
+    assert UserType.SYSTEM_ADMIN.value == "system_admin"
+    assert UserType.STORE_MANAGER.value == "store_manager"
+    # Case-insensitive resolution check
+    assert RoleType("STORE_MANAGER") == RoleType.STORE_MANAGER
+    assert UserType("SYSTEM_ADMIN") == UserType.SYSTEM_ADMIN
 
     user = User(
         email="entity_check@example.com",

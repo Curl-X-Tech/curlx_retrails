@@ -50,6 +50,9 @@ class Settings(BaseSettings):
     EMAILS_FROM_NAME: str | None = "ReTrails"
     FRONTEND_HOST: str = "http://localhost:5173"
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 24
+    # Rate Limiting Configuration
+    RATE_LIMIT_AUTH_PER_MINUTE: int = 20
+    RATE_LIMIT_API_PER_MINUTE: int = 100
 
     @computed_field
     @property
