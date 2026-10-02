@@ -6,6 +6,7 @@ from fastapi_users import exceptions
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.api.v1.master import master_router
 from app.core.db import get_async_session
 from app.core.users import (
     UserManager,
@@ -23,6 +24,8 @@ from app.guards import (
 from app.schemas import UserCreate, UserRead, UserUpdate
 
 api_router = APIRouter()
+
+api_router.include_router(master_router)
 
 api_router.include_router(
     fastapi_users.get_auth_router(auth_backend),

@@ -1,0 +1,156 @@
+[
+  {
+    "sku": "SKU-MLK-01",
+    "cost_price": 9200.00,
+    "unit_price": 11500.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-BTR-02",
+    "cost_price": 11500.00,
+    "unit_price": 14200.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-YGT-03",
+    "cost_price": 3800.00,
+    "unit_price": 4800.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-STR-04",
+    "cost_price": 5000.00,
+    "unit_price": 6300.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-TOM-05",
+    "cost_price": 4100.00,
+    "unit_price": 5200.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-APP-06",
+    "cost_price": 15000.00,
+    "unit_price": 18400.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-CHK-07",
+    "cost_price": 18500.00,
+    "unit_price": 22600.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-SAL-08",
+    "cost_price": 31000.00,
+    "unit_price": 38500.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-BRD-09",
+    "cost_price": 5100.00,
+    "unit_price": 6400.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-OIL-10",
+    "cost_price": 10200.00,
+    "unit_price": 12800.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-TEA-11",
+    "cost_price": 13000.00,
+    "unit_price": 16200.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-WTR-12",
+    "cost_price": 1900.00,
+    "unit_price": 2400.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-STY-01",
+    "cost_price": 18000.00,
+    "unit_price": 24500.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-STY-02",
+    "cost_price": 16500.00,
+    "unit_price": 22000.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-STY-03",
+    "cost_price": 12000.00,
+    "unit_price": 17500.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-STY-04",
+    "cost_price": 38000.00,
+    "unit_price": 52000.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-STY-05",
+    "cost_price": 28000.00,
+    "unit_price": 36000.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-TCH-01",
+    "cost_price": 95000.00,
+    "unit_price": 125000.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-TCH-02",
+    "cost_price": 42000.00,
+    "unit_price": 58000.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-TCH-03",
+    "cost_price": 26000.00,
+    "unit_price": 35000.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-TCH-04",
+    "cost_price": 34000.00,
+    "unit_price": 46000.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  },
+  {
+    "sku": "SKU-TCH-05",
+    "cost_price": 48000.00,
+    "unit_price": 64000.00,
+    "currency": "LKR",
+    "price_change_reason": "standard_pricing"
+  }
+]

@@ -61,3 +61,8 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
    - `graphify-out/graph.json` is the canonical knowledge graph for the entire repository.
    - Before performing wide repository file scans or dumping entire directories into context, the AI assistant MUST query the Graphify graph (via MCP tools `query_graph`, `get_node`, `get_neighbors`, `god_nodes`, or the CLI `graphify query "<feature>"`) to locate affected symbols, relationships, and dependencies.
    - Keep the graph synced whenever structural changes or major modules are added via `./dev.sh graphify`.
+16. **Timezone & DateTime Integrity (UTC vs. Local Wall-Clock)**:
+   - **Absolute Event Timestamps (`TIMESTAMPTZ`)**: All audit timestamps, status transitions, GPS pings, and event logs (`created_at`, `updated_at`, `dispatched_at`, `delivered_at`, etc.) MUST always be created and stored in universal UTC (`timezone.utc`) in backend and transmitted as ISO-8601 UTC strings (`.toISOString()`). Frontend renders them in the client's local timezone.
+   - **Schedule Constraints & Operating Windows (`TIME` / `DATE`)**: Store opening/closing hours, delivery windows (`window_open_time`, `window_close_time`), and price effective dates (`effective_from`, `effective_to`) are timezone-naive wall-clock schedule rules. They MUST be stored and transmitted as plain `TIME` (`"09:00:00"`) or `DATE` (`"2026-10-02"`) values without timezone offsets to prevent double-offset shifts.
+   - **Business Day & Operating Calendar Rollover**: Operational day cutoffs, demand surge evaluations, and calendar resolutions MUST evaluate against Sri Lanka Standard Time (`Asia/Colombo`, UTC+05:30) so midnight rollover aligns with Sri Lanka local time regardless of server host location.
+
