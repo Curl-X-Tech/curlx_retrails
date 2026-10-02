@@ -28,7 +28,6 @@ import { StoreDeferralsPage } from "@/pages/store/store-deferrals-page";
 import { StoreDashboardPage } from "@/pages/store/store-dashboard-page";
 import { StoreReportsPage } from "@/pages/store/store-reports-page";
 
-import { AdminDashboardPage } from "@/pages/admin/admin-dashboard-page";
 import { AdminOutletsPage } from "@/pages/admin/admin-outlets-page";
 import { AdminDepotsPage } from "@/pages/admin/admin-depots-page";
 import { AdminItemsPage } from "@/pages/admin/admin-items-page";
@@ -57,7 +56,7 @@ export function App() {
       {/* ----------------------------------------------------------- */}
       {/* 0. Protected System Admin Route Tree                         */}
       {/* ----------------------------------------------------------- */}
-      <Route path="/admin" element={<Navigate to="/admin/dashboard" replace />} />
+      <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
       <Route
         element={
           <ProtectedRoute allowedRoles={["system_admin"]}>
@@ -65,13 +64,13 @@ export function App() {
           </ProtectedRoute>
         }
       >
-        <Route path="/admin/dashboard" element={<AdminDashboardPage />} />
+        <Route path="/admin/dashboard" element={<Navigate to="/admin/users" replace />} />
         <Route path="/admin/users" element={<AdminUsersPage />} />
         <Route path="/admin/outlets" element={<AdminOutletsPage />} />
         <Route path="/admin/depots" element={<AdminDepotsPage />} />
         <Route path="/admin/items" element={<AdminItemsPage />} />
         <Route path="/admin/calendar" element={<AdminCalendarPage />} />
-        <Route path="/admin/*" element={<Navigate to="/admin/dashboard" replace />} />
+        <Route path="/admin/*" element={<Navigate to="/admin/users" replace />} />
       </Route>
 
       {/* ----------------------------------------------------------- */}

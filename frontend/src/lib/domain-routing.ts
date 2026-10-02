@@ -57,7 +57,7 @@ export function getRoleHomePath(role: StaffRole): string {
     case "driver":
       return "/driver/active";
     case "system_admin":
-      return "/admin/dashboard";
+      return "/admin/users";
     case "store_manager":
       return "/store/orders";
     default:

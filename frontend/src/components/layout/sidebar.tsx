@@ -80,12 +80,13 @@ export interface NavGroup {
 
 export const adminNavGroups: NavGroup[] = [
   {
+    label: "Personnel & Access",
     items: [
       {
-        title: "Dashboard",
-        id: "admin-dashboard",
-        path: "/admin/dashboard",
-        icon: <SquaresFourIcon weight="duotone" className="size-5" />,
+        title: "Staff & Users",
+        id: "admin-users",
+        path: "/admin/users",
+        icon: <UsersIcon weight="duotone" className="size-5" />,
       },
     ],
   },
@@ -97,14 +98,12 @@ export const adminNavGroups: NavGroup[] = [
         id: "admin-outlets",
         path: "/admin/outlets",
         icon: <StorefrontIcon weight="duotone" className="size-5" />,
-        badge: 120,
       },
       {
         title: "Distribution Hubs",
         id: "admin-depots",
         path: "/admin/depots",
         icon: <WarehouseIcon weight="duotone" className="size-5" />,
-        badge: 2,
       },
       {
         title: "Catalog & SKUs",
@@ -117,17 +116,6 @@ export const adminNavGroups: NavGroup[] = [
         id: "admin-calendar",
         path: "/admin/calendar",
         icon: <TrendUpIcon weight="duotone" className="size-5" />,
-      },
-    ],
-  },
-  {
-    label: "Personnel & Access",
-    items: [
-      {
-        title: "Staff & Users",
-        id: "admin-users",
-        path: "/admin/users",
-        icon: <UsersIcon weight="duotone" className="size-5" />,
       },
     ],
   },

@@ -36,12 +36,11 @@ function getBreadcrumbs(pathname: string): CrumbItem[] {
   if (pathname === "/admin/calendar" || pathname.startsWith("/admin/calendar")) {
     return [{ label: "Master Domain" }, { label: "Logistics Calendar", isCurrent: true }];
   }
-  if (
-    pathname === "/admin/dashboard" ||
-    pathname === "/admin" ||
-    pathname.startsWith("/admin")
-  ) {
-    return [{ label: "Overview" }, { label: "Dashboard", isCurrent: true }];
+  if (pathname === "/admin/users" || pathname.startsWith("/admin/users")) {
+    return [{ label: "Personnel & Access" }, { label: "Staff & Users", isCurrent: true }];
+  }
+  if (pathname.startsWith("/admin")) {
+    return [{ label: "Master Domain" }, { label: "Administration", isCurrent: true }];
   }
 
   // Dispatcher Routes
