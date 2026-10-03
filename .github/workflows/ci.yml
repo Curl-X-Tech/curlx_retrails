@@ -3,9 +3,22 @@ name: CI Quality & Tests
 on:
   push:
     branches: [main, dev]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".vscode/**"
   pull_request:
     branches: [main, dev]
+    paths-ignore:
+      - "**.md"
+      - "docs/**"
+      - ".vscode/**"
   workflow_dispatch:
+
+# Cancel in-progress runs on new commits to avoid duplicate/redundant runs
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend-quality:

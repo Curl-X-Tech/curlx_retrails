@@ -1,6 +1,6 @@
 {
   "name": "@retrails/emails",
-  "version": "1.0.0",
+  "version": "0.1.0-beta.1",
   "private": true,
   "description": "Transactional React Email templates for ReTrails by Team CurlX",
   "scripts": {

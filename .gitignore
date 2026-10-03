@@ -88,7 +88,11 @@ data/raw/
 
 */figma-variables.json
 
-# Graphify Local Cache (keep graph.json tracked)
-graphify-out/cache/
+# Graphify output & cache
+graphify-out/
 
-
+# SSH Keys & TLS Certs
+*.key
+*.key.pub
+*.pem
+*.crt

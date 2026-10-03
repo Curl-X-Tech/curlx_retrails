@@ -386,10 +386,15 @@ export function buildTileUrl(rawUrl: string, apiKey?: string): string {
       const separator = url.includes("?") ? "&" : "?";
       url = `${url}${separator}key=${trimmedKey}`;
     }
-  } else {
-    url = url.replace(/[?&]key=\{apiKey\}/g, "").replace(/\{apiKey\}/g, "");
-    url = url.replace(/[?&]key=\{key\}/g, "").replace(/\{key\}/g, "");
+    return url;
   }
+
+  if (url.includes("maptiler.com") || url.includes("stadiamaps.com")) {
+    return "https://basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}.png";
+  }
+
+  url = url.replace(/[?&]key=\{apiKey\}/g, "").replace(/\{apiKey\}/g, "");
+  url = url.replace(/[?&]key=\{key\}/g, "").replace(/\{key\}/g, "");
 
   return url;
 }

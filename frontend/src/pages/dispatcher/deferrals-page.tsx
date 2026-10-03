@@ -1085,7 +1085,7 @@ export function DeferralsPage({
                                           </span>
                                         )}
                                       </div>
-                                      <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground font-mono">
+                                      <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground">
                                         <span>
                                           {group.totalWeightKg.toLocaleString()} kg
                                         </span>
@@ -1702,7 +1702,7 @@ export function DeferralsPage({
                                       </span>
                                     )}
                                   </div>
-                                  <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground font-mono">
+                                  <div className="flex items-center gap-2.5 text-[11px] text-muted-foreground">
                                     <span>{group.totalWeightKg.toLocaleString()} kg</span>
                                     <span>•</span>
                                     <span>{group.totalVolumeM3} m³</span>

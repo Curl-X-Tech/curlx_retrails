@@ -3,7 +3,8 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/sidebar";
 import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/context/auth-context";
 import {
   Breadcrumb,
   BreadcrumbList,
@@ -23,6 +24,28 @@ interface CrumbItem {
 }
 
 function getBreadcrumbs(pathname: string): CrumbItem[] {
+  // Admin Routes
+  if (pathname === "/admin/outlets" || pathname.startsWith("/admin/outlets")) {
+    return [{ label: "Master Domain" }, { label: "Retail Outlets", isCurrent: true }];
+  }
+  if (pathname === "/admin/depots" || pathname.startsWith("/admin/depots")) {
+    return [{ label: "Master Domain" }, { label: "Distribution Hubs", isCurrent: true }];
+  }
+  if (pathname === "/admin/items" || pathname.startsWith("/admin/items")) {
+    return [{ label: "Master Domain" }, { label: "Catalog & SKUs", isCurrent: true }];
+  }
+  if (pathname === "/admin/calendar" || pathname.startsWith("/admin/calendar")) {
+    return [{ label: "Master Domain" }, { label: "Logistics Calendar", isCurrent: true }];
+  }
+  if (
+    pathname === "/admin/dashboard" ||
+    pathname === "/admin" ||
+    pathname.startsWith("/admin")
+  ) {
+    return [{ label: "Overview" }, { label: "Dashboard", isCurrent: true }];
+  }
+
+  // Dispatcher Routes
   if (pathname.startsWith("/dispatcher/allocations/")) {
     const allocId = pathname.replace("/dispatcher/allocations/", "");
     const activeAlloc =
@@ -141,6 +164,9 @@ function getBreadcrumbs(pathname: string): CrumbItem[] {
 export function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const isStoreRole =
+    user?.role === "store_manager" || location.pathname.startsWith("/store");
   const crumbs = getBreadcrumbs(location.pathname);
 
   return (
@@ -195,16 +221,19 @@ export function AppLayout() {
             </Breadcrumb>
           </div>
 
-          {/* Right Role Indicator matching Reference 1 & 2 */}
+          {/* Right Role Indicator */}
           <div className="flex items-center gap-2 shrink-0">
-            <Button
+            <Badge
               variant="outline"
-              size="sm"
-              onClick={() => navigate("/store/orders/new")}
-              className="h-8 px-2.5 text-xs font-semibold gap-1.5 rounded-lg border-border hover:bg-muted/50 cursor-pointer hidden md:flex"
+              className="h-8 px-2.5 text-xs font-semibold uppercase rounded-lg border-border bg-background hidden md:flex items-center"
             >
-              Role: Store Manager
-            </Button>
+              Role:{" "}
+              {user?.role
+                ? user.role.replace("_", " ")
+                : isStoreRole
+                  ? "Store Manager"
+                  : "Dispatcher"}
+            </Badge>
           </div>
         </header>
 

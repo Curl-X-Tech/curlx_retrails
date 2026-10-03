@@ -1,41 +1,52 @@
 from typing import Any
 
-from sqlmodel import Field
+from sqlmodel import Field, SQLModel
 
 from app.entities.base import BaseEntity
 from app.enums.roles import UserType
 
+if "users" in SQLModel.metadata.tables:
+    try:
+        from app.entities.user import User as _ExistingUser
 
-class User(BaseEntity, table=True):
-    """User database entity."""
+        User = _ExistingUser
+    except ImportError:
+        User = None
+else:
+    User = None
 
-    __tablename__ = "users"
-    __table_args__ = {"extend_existing": True}
+if User is None:
 
-    email: str = Field(unique=True, index=True, nullable=False)
-    hashed_password: str = Field(nullable=False)
-    is_active: bool = Field(default=True, nullable=False)
-    is_verified: bool = Field(default=True, nullable=False)
-    user_type: UserType = Field(default=UserType.DISPATCHER, nullable=False)
+    class User(BaseEntity, table=True):
+        """User database entity."""
 
-    def __init__(self, **data: Any):
-        if "is_superuser" in data:
-            is_superuser = data.pop("is_superuser")
-            if is_superuser and "user_type" not in data:
-                data["user_type"] = UserType.SYSTEM_ADMIN
-        super().__init__(**data)
-        if self.created_by is None:
-            self.created_by = self.id
-        if self.updated_by is None:
-            self.updated_by = self.created_by or self.id
+        __tablename__ = "users"
+        __table_args__ = {"extend_existing": True}
 
-    @property
-    def is_superuser(self) -> bool:
-        return self.user_type == UserType.SYSTEM_ADMIN
+        email: str = Field(unique=True, index=True, nullable=False)
+        hashed_password: str = Field(nullable=False)
+        is_active: bool = Field(default=True, nullable=False)
+        is_verified: bool = Field(default=True, nullable=False)
+        user_type: UserType = Field(default=UserType.DISPATCHER, nullable=False)
 
-    @is_superuser.setter
-    def is_superuser(self, value: bool) -> None:
-        if value:
-            self.user_type = UserType.SYSTEM_ADMIN
-        elif self.user_type == UserType.SYSTEM_ADMIN:
-            self.user_type = UserType.DISPATCHER
+        def __init__(self, **data: Any):
+            if "is_superuser" in data:
+                is_superuser = data.pop("is_superuser")
+                if is_superuser and "user_type" not in data:
+                    data["user_type"] = UserType.SYSTEM_ADMIN
+            super().__init__(**data)
+            if self.created_by is None:
+                self.created_by = self.id
+            if self.updated_by is None:
+                self.updated_by = self.created_by or self.id
+
+        @property
+        def is_superuser(self) -> bool:
+            return self.user_type == UserType.SYSTEM_ADMIN
+
+        @is_superuser.setter
+        def is_superuser(self, value: bool) -> None:
+            if value:
+                self.user_type = UserType.SYSTEM_ADMIN
+            elif self.user_type == UserType.SYSTEM_ADMIN:
+                self.user_type = UserType.DISPATCHER

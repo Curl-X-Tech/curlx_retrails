@@ -2,24 +2,41 @@
 Tests for core_service.
 """
 
+import sys
+from pathlib import Path
+
 import pytest
 from fastapi.testclient import TestClient
 
-from core_service.app.main import app as _core_app
+CORE_SERVICE_DIR = Path(__file__).resolve().parent.parent / "core_service"
 
 
 @pytest.fixture
 def core_app():
-    return _core_app
+    saved_modules = {k: v for k, v in list(sys.modules.items()) if k == "app" or k.startswith("app.")}
+    for k in list(saved_modules.keys()):
+        del sys.modules[k]
+    sys.path.insert(0, str(CORE_SERVICE_DIR))
+    try:
+        from app.main import app as _app
+
+        yield _app
+    finally:
+        for k in list(sys.modules.keys()):
+            if k == "app" or k.startswith("app."):
+                del sys.modules[k]
+        if str(CORE_SERVICE_DIR) in sys.path:
+            sys.path.remove(str(CORE_SERVICE_DIR))
+        sys.modules.update(saved_modules)
 
 
 @pytest.fixture
-def client(core_app):
+def core_client(core_app):
     return TestClient(core_app)
 
 
-def test_core_service_health(client):
-    response = client.get("/health")
+def test_core_service_health(core_client):
+    response = core_client.get("/health")
     assert response.status_code == 200
     data = response.json()
     assert data["service"] == "core-service"

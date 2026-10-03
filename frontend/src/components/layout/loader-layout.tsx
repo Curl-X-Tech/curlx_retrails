@@ -2,7 +2,6 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   TruckIcon,
   UserCircleIcon,
-  SwapIcon,
   ListBulletsIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
@@ -27,7 +26,7 @@ import { cn } from "@/lib/utils";
 export function LoaderLayout() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, setRole, logout } = useAuth();
+  const { user, logout } = useAuth();
 
   const isManifestsActive =
     location.pathname.startsWith("/loader/manifests") ||
@@ -81,52 +80,44 @@ export function LoaderLayout() {
           </nav>
         </div>
 
-        {/* Bottom Profile & Role Switcher */}
+        {/* Bottom Profile & Role Actions */}
         <div className="flex flex-col items-center gap-2 w-full px-2">
           <DropdownMenu>
             <DropdownMenuTrigger
               className="flex size-11 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground hover:bg-accent transition-colors cursor-pointer"
-              title="Switch Role or Account"
+              title="User Account"
             >
               <UserCircleIcon className="size-7" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent side="right" align="end" className="w-56">
+            <DropdownMenuContent
+              side="right"
+              align="end"
+              className="w-56 p-1.5 shadow-lg rounded-xl"
+            >
               <div className="px-2 py-1.5 text-xs text-muted-foreground">
-                Logged in as{" "}
-                <span className="font-semibold text-foreground">
+                Signed in as{" "}
+                <span className="font-semibold text-foreground block truncate">
                   {user?.name || "Loader Staff"}
                 </span>
+                <span className="text-[10px] text-muted-foreground block truncate">
+                  {user?.email || "loader@curlx.tech"}
+                </span>
               </div>
-              <DropdownMenuItem onClick={() => setRole("loader")}>
-                <span className="text-xs font-semibold">Active Role: Loader</span>
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setRole("driver");
-                  navigate("/driver/active");
-                }}
-              >
-                <SwapIcon className="size-4 mr-2" />
-                Switch to Driver
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  setRole("dispatcher");
-                  navigate("/dispatcher/allocations");
-                }}
-              >
-                <SwapIcon className="size-4 mr-2" />
-                Switch to Dispatcher
-              </DropdownMenuItem>
+              <div className="px-2 py-1 flex items-center justify-between text-xs border-t border-border/50 my-1">
+                <span className="text-muted-foreground">Station</span>
+                <span className="font-bold text-foreground capitalize px-1.5 py-0.5 rounded bg-muted text-[10px]">
+                  Bay Loader
+                </span>
+              </div>
               <DropdownMenuItem
                 onClick={() => {
                   logout();
-                  navigate("/login");
+                  navigate("/login", { replace: true });
                 }}
-                className="text-destructive focus:text-destructive cursor-pointer"
+                className="text-destructive focus:text-destructive cursor-pointer text-xs font-semibold p-2 rounded-lg gap-2"
               >
-                <SignOutIcon className="size-4 mr-2" />
-                Log out
+                <SignOutIcon className="size-4" />
+                <span>Log out of Station</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -159,37 +150,29 @@ export function LoaderLayout() {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbPage className="font-bold tracking-tight text-foreground text-xs sm:text-sm">
-                    {isManifestsActive ? "Manifests & Queue" : "Bay Station Work area"}
+                  <BreadcrumbPage className="font-semibold text-foreground text-xs sm:text-sm">
+                    {isBaysActive ? "Bay Station Allocator" : "Loading Manifests Queue"}
                   </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground">
-              <span>Depot:</span>
-              <strong className="text-foreground font-semibold">
-                {user?.depotName || "Peliyagoda Depot"}
-              </strong>
-            </div>
-            <Separator
-              orientation="vertical"
-              className="hidden sm:block h-4 bg-border/80"
-            />
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-secondary text-[11px] font-semibold text-secondary-foreground">
-              <span>Role:</span>
-              <strong className="text-foreground">loader</strong>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-primary/10 text-primary border border-primary/20 text-xs font-semibold">
+              <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Station: Bay 04</span>
             </div>
           </div>
         </header>
 
-        {/* Page Content Viewport */}
-        <main className="flex-1 overflow-hidden bg-muted/20 px-3.5 sm:px-5 py-3 flex flex-col min-h-0">
+        {/* Viewport Content */}
+        <main className="flex-1 min-h-0 overflow-y-auto bg-background p-4 sm:p-5">
           <Outlet />
         </main>
       </div>
     </div>
   );
 }
+
+export default LoaderLayout;
