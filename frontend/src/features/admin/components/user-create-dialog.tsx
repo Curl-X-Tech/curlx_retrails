@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { Role } from "@/api/users";
+import { formatErrorMessage } from "@/api/client";
 import { WarningCircleIcon } from "@phosphor-icons/react";
 import { FormDialog } from "@/components/shared";
 import { UserFormFields } from "./user-form-fields";
@@ -70,8 +71,8 @@ export function UserCreateDialog({
         is_active: true,
       });
       onClose();
-    } catch (err: any) {
-      setFormError(err.message || "Failed to create user.");
+    } catch (err: unknown) {
+      setFormError(formatErrorMessage(err, "Failed to create user account."));
     }
   };
 

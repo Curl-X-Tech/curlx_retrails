@@ -2,6 +2,7 @@ import * as React from "react";
 import { LockKeyIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatErrorMessage } from "@/api/client";
 import { useResetPassword } from "@/api/auth";
 
 interface ResetPasswordFormProps {
@@ -47,7 +48,10 @@ export function ResetPasswordForm({
         onSuccess(null);
       }, 2000);
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Password reset failed.";
+      const message = formatErrorMessage(
+        err,
+        "Password reset failed. The link may be invalid or expired."
+      );
       onError(message);
     }
   };

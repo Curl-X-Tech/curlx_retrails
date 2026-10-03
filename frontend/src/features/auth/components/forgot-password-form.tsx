@@ -2,6 +2,7 @@ import * as React from "react";
 import { EnvelopeSimpleIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatErrorMessage } from "@/api/client";
 import { useForgotPassword } from "@/api/auth";
 
 interface ForgotPasswordFormProps {
@@ -30,8 +31,13 @@ export function ForgotPasswordForm({
       onSuccess(
         "Password reset instructions have been generated. Check your inbox or dev outbox."
       );
-    } catch {
-      onError("Unable to dispatch password reset request.");
+    } catch (err: unknown) {
+      onError(
+        formatErrorMessage(
+          err,
+          "Unable to dispatch password reset request. Please try again."
+        )
+      );
     }
   };
 
