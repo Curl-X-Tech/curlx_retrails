@@ -5,7 +5,7 @@ import {
   useAllocationKpis,
   useAllocations as useAllocationTrips,
 } from "@/api/allocations";
-import { toKpis, toManifest, toVehicleAllocation } from "../lib/allocation-adapters";
+import { toKpis, toManifest, toVehicleAllocation } from "../adapters/allocation-adapters";
 import type { AllocationSortKey, AllocationViewMode } from "../types";
 
 export function useAllocationManifest(id: string) {
