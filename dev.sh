@@ -96,6 +96,12 @@ install_deps() {
     log_info "Installing backend dependencies (uv)..."
     (cd "$ROOT_DIR/backend" && uv sync)
 
+    log_info "Installing core service dependencies (uv)..."
+    (cd "$ROOT_DIR/backend/core_service" && uv sync)
+
+    log_info "Installing planning service dependencies (uv)..."
+    (cd "$ROOT_DIR/backend/planning_service" && uv venv --python 3.11 --allow-existing && uv pip install -r requirements.txt)
+
     log_info "Installing frontend dependencies (bun)..."
     (cd "$ROOT_DIR/frontend" && bun install)
 
@@ -112,6 +118,24 @@ run_backend() {
     log_info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
     cd "$ROOT_DIR/backend/core_service"
     exec uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+}
+
+# Run planning service
+run_planning() {
+    check_prerequisites
+    ensure_env
+    log_info "Starting planning service on http://localhost:8005 (Docs: http://localhost:8005/docs)..."
+    cd "$ROOT_DIR/backend/planning_service"
+    exec .venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
+}
+
+# Run planning Celery worker
+run_planning_worker() {
+    check_prerequisites
+    ensure_env
+    log_info "Starting planning Celery worker..."
+    cd "$ROOT_DIR/backend/planning_service"
+    exec .venv/bin/celery -A app.core.job_worker worker --loglevel=info --concurrency=4
 }
 
 # Run frontend service
@@ -287,7 +311,7 @@ run_docker_down() {
 # Clean build artifacts and virtualenvs
 clean_all() {
     log_info "Cleaning caches, virtualenvs, and node_modules..."
-    rm -rf "$ROOT_DIR/backend/.venv" "$ROOT_DIR/backend/.pytest_cache" "$ROOT_DIR/backend/.ruff_cache" "$ROOT_DIR/backend/.mypy_cache" "$ROOT_DIR/backend/__pycache__"
+    rm -rf "$ROOT_DIR/backend/core_service/.venv" "$ROOT_DIR/backend/planning_service/.venv" "$ROOT_DIR/backend/.venv" "$ROOT_DIR/backend/.pytest_cache" "$ROOT_DIR/backend/.ruff_cache" "$ROOT_DIR/backend/.mypy_cache" "$ROOT_DIR/backend/__pycache__"
     rm -rf "$ROOT_DIR/frontend/node_modules" "$ROOT_DIR/frontend/dist"
     rm -rf "$ROOT_DIR/packages/emails/node_modules" "$ROOT_DIR/packages/emails/.react-email"
     log_success "Clean completed."
@@ -326,6 +350,8 @@ show_help() {
     echo "  stop                 Alias for down"
     echo "  install              Install all dependencies for backend, frontend, and emails"
     echo "  backend              Start backend server only (FastAPI on port 8000)"
+    echo "  planning             Start planning service only (FastAPI on port 8005)"
+    echo "  planning:worker      Start planning Celery worker (requires Redis)"
     echo "  frontend             Start frontend server only (Vite on port 5173)"
     echo "  emails               Start React Email preview server on port 3001"
     echo "  lint                 Run linter on backend and frontend"
@@ -369,6 +395,12 @@ case "$COMMAND" in
         ;;
     backend)
         run_backend
+        ;;
+    planning)
+        run_planning
+        ;;
+    planning:worker)
+        run_planning_worker
         ;;
     frontend)
         run_frontend

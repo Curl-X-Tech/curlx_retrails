@@ -107,6 +107,17 @@ function Invoke-InstallDeps {
     uv sync
     Pop-Location
 
+    Write-Info "Installing core service dependencies (uv)..."
+    Push-Location (Join-Path $ROOT_DIR "backend\core_service")
+    uv sync
+    Pop-Location
+
+    Write-Info "Installing planning service dependencies (uv)..."
+    Push-Location (Join-Path $ROOT_DIR "backend\planning_service")
+    uv venv --python 3.11 --allow-existing
+    uv pip install -r requirements.txt
+    Pop-Location
+
     Write-Info "Installing frontend dependencies (bun)..."
     Push-Location (Join-Path $ROOT_DIR "frontend")
     bun install
@@ -126,6 +137,24 @@ function Invoke-Backend {
     Write-Info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
     Push-Location (Join-Path $ROOT_DIR "backend/core_service")
     uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    Pop-Location
+}
+
+function Invoke-Planning {
+    Assert-Prerequisites
+    Ensure-Env
+    Write-Info "Starting planning service on http://localhost:8005 (Docs: http://localhost:8005/docs)..."
+    Push-Location (Join-Path $ROOT_DIR "backend\planning_service")
+    & ".venv\Scripts\python.exe" -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
+    Pop-Location
+}
+
+function Invoke-PlanningWorker {
+    Assert-Prerequisites
+    Ensure-Env
+    Write-Info "Starting planning Celery worker..."
+    Push-Location (Join-Path $ROOT_DIR "backend\planning_service")
+    & ".venv\Scripts\celery.exe" -A app.core.job_worker worker --loglevel=info --pool=solo
     Pop-Location
 }
 
@@ -352,6 +381,8 @@ function Show-Help {
     Write-Host "  stop                 Alias for down"
     Write-Host "  install              Install all dependencies for backend, frontend, and emails"
     Write-Host "  backend              Start backend server only (FastAPI on port 8000)"
+    Write-Host "  planning             Start planning service only (FastAPI on port 8005)"
+    Write-Host "  planning:worker      Start planning Celery worker (requires Redis)"
     Write-Host "  frontend             Start frontend server only (Vite on port 5173)"
     Write-Host "  emails               Start React Email preview server on port 3001"
     Write-Host "  lint                 Run linter on backend and frontend"
@@ -383,6 +414,8 @@ switch ($Command) {
     "stop"              { Invoke-AllDown }
     "install"           { Invoke-InstallDeps }
     "backend"           { Invoke-Backend }
+    "planning"          { Invoke-Planning }
+    "planning:worker"   { Invoke-PlanningWorker }
     "frontend"          { Invoke-Frontend }
     "emails"            { Invoke-Emails }
     "lint"              { Invoke-Lint }

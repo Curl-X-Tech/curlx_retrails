@@ -1,3 +1,10 @@
+name: retrails
+
+x-planning-env: &planning-env
+  DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/planning_db
+  REDIS_URL: redis://redis:6379/0
+  CORE_SERVICE_URL: http://core-service:8000
+
 services:
   db:
     image: postgres:16-alpine
@@ -5,56 +12,112 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_DB: general_db
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./backend/helpers/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-app}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d general_db"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   redis:
     image: redis:7-alpine
     restart: always
+    command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redisdata:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
-  backend:
-    image: ghcr.io/${DOCKER_IMAGE_REPO:-curl-x-tech/curlx_retrails}-backend:${IMAGE_TAG:-latest}
+  core-service:
+    image: ghcr.io/${DOCKER_IMAGE_REPO:-curl-x-tech/curlx_retrails}-core:${IMAGE_TAG:-latest}
     restart: always
     environment:
-      POSTGRES_SERVER: db
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/general_db
       SECRET_KEY: ${SECRET_KEY:?Set a secure SECRET_KEY in .env}
-      SMTP_HOST: ${SMTP_HOST:-mailpit}
-      SMTP_PORT: ${SMTP_PORT:-1025}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-["https://curlx.tech","https://www.curlx.tech"]}
+      FRONTEND_HOST: ${FRONTEND_HOST:-https://curlx.tech}
+      FIRST_SUPERUSER: ${FIRST_SUPERUSER:-}
+      FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_TLS: ${SMTP_TLS:-true}
       SMTP_USER: ${SMTP_USER:-}
       SMTP_PASSWORD: ${SMTP_PASSWORD:-}
       EMAILS_FROM_EMAIL: ${EMAILS_FROM_EMAIL:-noreply@curlx.tech}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      default:
+        aliases:
+          - backend
+    depends_on:
+      db:
+        condition: service_healthy
+
+  planning-service:
+    image: ghcr.io/${DOCKER_IMAGE_REPO:-curl-x-tech/curlx_retrails}-planning:${IMAGE_TAG:-latest}
+    restart: always
+    environment: *planning-env
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     depends_on:
       db:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      core-service:
+        condition: service_healthy
+
+  planning-worker:
+    image: ghcr.io/${DOCKER_IMAGE_REPO:-curl-x-tech/curlx_retrails}-planning:${IMAGE_TAG:-latest}
+    restart: always
+    command: ["celery", "-A", "app.core.job_worker", "worker", "--loglevel=info", "--concurrency=4"]
+    environment: *planning-env
+    healthcheck:
+      test: ["CMD-SHELL", "celery -A app.core.job_worker inspect ping -d celery@$$HOSTNAME"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      core-service:
         condition: service_healthy
 
   frontend:
     image: ghcr.io/${DOCKER_IMAGE_REPO:-curl-x-tech/curlx_retrails}-frontend:${IMAGE_TAG:-latest}
     restart: always
     ports:
-      - "${PORT:-80}:80"
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN_NAMES: ${DOMAIN_NAMES:-curlx.tech www.curlx.tech}
+      CERT_NAME: ${CERT_NAME:-curlx.tech}
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
     depends_on:
-      - backend
+      core-service:
+        condition: service_healthy
 
 volumes:
   pgdata:
