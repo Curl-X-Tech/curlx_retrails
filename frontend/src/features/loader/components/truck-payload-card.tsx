@@ -12,6 +12,7 @@ import {
   VehicleCargoVisualizer,
   type VehicleVisualizerData,
   SwipeToConfirm,
+  HoldToConfirmButton,
 } from "@/components/shared";
 import { TruckCountdownBar } from "./truck-countdown-bar";
 import { useTruckCountdown } from "../hooks/use-truck-countdown";
@@ -138,6 +139,12 @@ export function TruckPayloadCard({
           onConfirm={() => onConfirm?.()}
           label="Slide to Confirm Loading"
           confirmedLabel="Loading Confirmed"
+        />
+        <HoldToConfirmButton
+          label="Hold to Confirm Bay Departure"
+          onConfirmed={() => onConfirm?.()}
+          durationMs={700}
+          className="w-full text-xs font-bold"
         />
       </div>
     </div>

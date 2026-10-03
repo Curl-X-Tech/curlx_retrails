@@ -1,4 +1,9 @@
-import { SnowflakeIcon, WarningCircleIcon, FlagIcon } from "@phosphor-icons/react";
+import {
+  SnowflakeIcon,
+  WarningCircleIcon,
+  FlagIcon,
+  ClockIcon,
+} from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { HoldToVerifyButton } from "./hold-to-verify-button";
 import { getHandlingLabel } from "../utils";
@@ -42,7 +47,7 @@ export function BayChecklistItem({
       )}
     >
       <div className="flex flex-col min-w-0 flex-1 gap-1.5">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <span
             className={cn(
               "font-heading font-bold text-sm sm:text-base text-foreground leading-snug truncate",
@@ -52,6 +57,12 @@ export function BayChecklistItem({
           >
             {item.itemTitle}
           </span>
+          {isVerified && (
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+              <ClockIcon className="size-3" weight="bold" />
+              Queued for Sync
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2 text-xs text-muted-foreground flex-wrap">

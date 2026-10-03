@@ -1,26 +1,21 @@
 import * as React from "react";
+import { useBays } from "@/api/loader";
 import { useAuth } from "@/context/auth-context";
-import { mockLoaderTrips } from "@/data/mock-loader-bays";
-import { useSimulatedLoading } from "@/lib/simulated-delay";
 import type {
   LoaderVehicleTrip,
   ManifestStatusFilter,
-  VehicleTypeFilter,
-  TempFilter,
   ManifestViewMode,
+  TempFilter,
+  VehicleTypeFilter,
 } from "../types";
 
 export function useLoaderManifests() {
   const { user } = useAuth();
-  const userDepotBase = (user?.depotName || "Peliyagoda").split(" ")[0].toLowerCase();
+  const userDepotId = user?.depotId || "depot-pel";
 
-  const depotTrips = React.useMemo(() => {
-    return mockLoaderTrips.filter((trip) =>
-      trip.depotName.toLowerCase().includes(userDepotBase)
-    );
-  }, [userDepotBase]);
+  const { data: bays = [], isLoading } = useBays(userDepotId);
 
-  const [statusFilter, setStatusFilter] = React.useState<ManifestStatusFilter>("loading");
+  const [statusFilter, setStatusFilter] = React.useState<ManifestStatusFilter>("all");
   const [searchQuery, setSearchQuery] = React.useState("");
   const [vehicleTypeFilter, setVehicleTypeFilter] =
     React.useState<VehicleTypeFilter>("all");
@@ -30,7 +25,53 @@ export function useLoaderManifests() {
     null
   );
 
-  const isLoading = useSimulatedLoading([statusFilter, vehicleTypeFilter, tempFilter]);
+  const depotTrips: LoaderVehicleTrip[] = React.useMemo(() => {
+    return bays.map((b) => ({
+      id: b.trip.id,
+      tripCode: b.trip.trip_code,
+      tripSequence: 1,
+      sealNumber: "SL-90821-B",
+      vehicleId: b.vehicle.vehicle_id,
+      regNumber: b.vehicle.reg_number,
+      modelName: b.vehicle.model_name,
+      type: b.vehicle.type,
+      temp: b.vehicle.temp,
+      weightCapKg: b.vehicle.weight_cap_kg,
+      volumeCapM3: b.vehicle.volume_cap_m3,
+      imagePath:
+        b.vehicle.temp === "reefer"
+          ? "/vehicle-images/freeze.png"
+          : "/vehicle-images/dry.png",
+      depotName: b.bay.depot_id === "depot-kandy" ? "Kandy Depot" : "Peliyagoda Depot",
+      stopsCount: b.trip.stops_count,
+      nextStopName: b.trip.next_stop_name,
+      plannedDepartureTime: b.trip.planned_departure_time,
+      departureCountdownMinutes: 45,
+      status: (b.trip.status as any) || "loading",
+      dockBay: b.bay.bay_number,
+      verifiedItemsCount: b.progress.verified_items_count,
+      totalItemsCount: b.progress.total_items_count,
+      driver: {
+        name: b.driver.name,
+        designation: "Fleet Pilot",
+        licenseId: b.driver.license_number || "DL-90821-WP-89",
+        phone: b.driver.phone,
+        avatarInitials: b.driver.name
+          .split(" ")
+          .map((n) => n[0])
+          .join(""),
+      },
+      payload: {
+        currentKg: b.progress.payload_kg,
+        maxKg: b.progress.max_payload_kg,
+        percentage: b.progress.payload_percentage,
+        secondaryMetric: "Payload",
+        currentVolumeM3: b.progress.volume_m3,
+        maxVolumeM3: b.progress.max_volume_m3,
+      },
+      waypoints: [],
+    }));
+  }, [bays]);
 
   const filteredTrips = React.useMemo(() => {
     return depotTrips.filter((trip) => {
@@ -44,14 +85,7 @@ export function useLoaderManifests() {
         const matchesTrip = trip.tripCode.toLowerCase().includes(q);
         const matchesDriver = trip.driver.name.toLowerCase().includes(q);
         const matchesBay = trip.dockBay.toLowerCase().includes(q);
-        const matchesSeal = trip.sealNumber.toLowerCase().includes(q);
-        if (
-          !matchesReg &&
-          !matchesTrip &&
-          !matchesDriver &&
-          !matchesBay &&
-          !matchesSeal
-        ) {
+        if (!matchesReg && !matchesTrip && !matchesDriver && !matchesBay) {
           return false;
         }
       }

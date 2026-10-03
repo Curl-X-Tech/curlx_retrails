@@ -114,6 +114,18 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 | Fairness Priority Ordering | `DeferredOrder` (`days_since_last_served`, `deferred_yesterday`) | `deferral_audit_log` joined with `customer_order` | Default query ordering prioritizes highest `days_since_last_served` and `deferred_yesterday = 1` for consecutive skip protection. |
 | Deferral State Machine | `useDeferOrder` (`POST /orders/{id}/defer`), `useRequeueDeferral` (`POST /deferrals/{id}/re-queue`) | Transitions order between `pending` and `deferred` lifecycle states | Mutations update in-memory orders store, insert/preserve `deferral_audit_log` records, and trigger cache invalidation for deferrals, orders, and allocations query keys. |
 
+---
+
+## 8. Type Mismatches & Domain Alignments (M7 - Loader Bay Operations)
+
+| Field / Concept | Frontend Type (`@/api/loader`) | Backend / Database Schema (`schema.sql`, `app/models/loader.py`) | Alignment Strategy |
+| :--- | :--- | :--- | :--- |
+| 3D Staging Bay Coordinates | `BayCoordinates` (`bayX`, `bayY`, `bayZ`) | Backend `loading_checklist_item` schema provides `staging_bay` text code (e.g., `"Bay 4C"`) | Visual 3D grid offsets maintained as client-side presentation mapping derived from `staging_bay` string codes. |
+| Waypoint LIFO Sequencing | `TripChecklist.waypoints` | `route_leg.seq` position | Checklist endpoint returns waypoints pre-sorted in reverse delivery sequence (LIFO) so warehouse loaders pack first-to-unload crates last. |
+| Offline Mutation Queueing | `useVerifyItem`, `useSealWaypoint`, `useConfirmDeparture` | `sync_mutation_audit_log` (`entity_name = 'loading_checklist'`) | Writes UUID v4 idempotency keys to Dexie `mutationQueue` for silent background batch sync (M9) while applying immediate optimistic checklist updates. |
+| Departure Seal Validation | `useConfirmDeparture` (`POST /loader/trips/{trip_id}/confirm-departure`) | `trip.seal_number` & `cargo_bay_allocation.dock_status` | Departure mutation verifies all waypoints are sealed, updates trip status to `dispatched`, sets bay status to `departed`, and invalidates driver active route queries. |
+
+
 
 
 
