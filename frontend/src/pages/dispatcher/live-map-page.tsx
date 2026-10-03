@@ -1,19 +1,16 @@
 import * as React from "react";
-import {
-  type StoreLocation,
-  type VehicleTrackingData,
-  MOCK_STORES,
-  MOCK_VEHICLES,
-} from "@/data/mock-live-map";
+import { type VehicleTrackingData, MOCK_VEHICLES } from "@/data/mock-live-map";
 import { LiveVehicleCard } from "@/components/dispatcher/live-vehicle-card";
 import { LiveMapControls } from "@/features/dispatcher/components/live-map-controls";
 import { useLiveMap } from "@/features/dispatcher/hooks/use-live-map";
+import { useLiveMapStores } from "@/features/dispatcher/hooks/use-live-map-stores";
 
 export function LiveMapPage() {
   const mapContainerRef = React.useRef<HTMLDivElement>(null);
 
   const [vehicles] = React.useState<VehicleTrackingData[]>(MOCK_VEHICLES);
-  const [stores] = React.useState<StoreLocation[]>(MOCK_STORES);
+  const { stores } = useLiveMapStores();
+
   const [selectedVehicle, setSelectedVehicle] =
     React.useState<VehicleTrackingData | null>(MOCK_VEHICLES[0]);
   const [showVehicleCard, setShowVehicleCard] = React.useState<boolean>(true);

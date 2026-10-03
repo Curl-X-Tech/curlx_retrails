@@ -2,7 +2,7 @@ import * as React from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Sidebar, SidebarRail } from "@/components/ui/sidebar";
 import { useAuth } from "@/context/auth-context";
-import { MOCK_HUBS, type HubInfo } from "@/data/mock-hubs";
+import { useHubOptions, type HubInfo } from "./use-hub-options";
 import {
   adminNavGroups,
   dispatcherNavGroups,
@@ -27,7 +27,9 @@ export interface AppSidebarProps {
 }
 
 export function AppSidebar({ activeId, onSelect, customNavGroups }: AppSidebarProps) {
-  const [activeHub, setActiveHub] = React.useState<HubInfo>(MOCK_HUBS[0]);
+  const { hubs } = useHubOptions();
+  const [selectedHub, setActiveHub] = React.useState<HubInfo | null>(null);
+  const activeHub = selectedHub ?? hubs[0] ?? null;
   const location = useLocation();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -134,6 +136,7 @@ export function AppSidebar({ activeId, onSelect, customNavGroups }: AppSidebarPr
     >
       <SidebarHeaderComponent
         isAdminRole={isAdminRole}
+        hubs={hubs}
         activeHub={activeHub}
         onSelectHub={setActiveHub}
       />

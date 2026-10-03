@@ -2,10 +2,8 @@ import * as React from "react";
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { AdminCrudShell, DataTable } from "@/components/shared";
+import { useItems, useBrands, useActivePrices } from "@/api/master";
 import {
-  useAdminItems,
-  useAdminBrands,
-  useAdminActivePrices,
   useAdminStore,
   ItemKpiStrip,
   ItemFilterControls,
@@ -27,10 +25,12 @@ export function AdminItemsPage() {
   const {
     data: items = [],
     isLoading: isItemsLoading,
+    error: itemsError,
     refetch: refetchItems,
-  } = useAdminItems();
-  const { data: brands = [], isLoading: isBrandsLoading } = useAdminBrands();
-  const { data: activePrices = [], isLoading: isPricesLoading } = useAdminActivePrices();
+  } = useItems();
+  const { data: brands = [], isLoading: isBrandsLoading } = useBrands();
+  const { data: activePrices = [], isLoading: isPricesLoading } = useActivePrices();
+
   const isLoading = isItemsLoading || isBrandsLoading || isPricesLoading;
 
   const { getBrandCode, getActivePrice, categories, paginatedItems, totalPages } =
@@ -123,7 +123,11 @@ export function AdminItemsPage() {
           }
         }}
         pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
-        emptyMessage="No product SKUs match your filter criteria."
+        emptyMessage={
+          itemsError
+            ? `Failed to load items: ${itemsError.message}`
+            : "No product SKUs match your filter criteria."
+        }
         keyExtractor={(i) => i.id}
       />
     </AdminCrudShell>

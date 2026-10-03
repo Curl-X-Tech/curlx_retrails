@@ -63,3 +63,18 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 | Token Refresh | `POST /auth/refresh` (`useRefreshToken`) | Planned endpoint (Issue #6) | Mock adapter handles token rotation in client until live backend endpoint is delivered. |
 | Offline Session Cache | `UserSessionRecord` in Dexie IndexedDB | Server-side JWT validation | Client caches active profile upon successful auth/fetch for uninterrupted offline startup. |
 
+---
+
+## 4. Type Mismatches & Domain Alignments (M2 - Master Data)
+
+| Field / Concept | Frontend Type (`@/api/master`) | Backend / Database Schema (`schema.sql`, `app/schemas/master.py`) | Alignment Strategy |
+| :--- | :--- | :--- | :--- |
+| Wall-Clock Schedule Times | `window_open_time`, `window_close_time` (`TIME` string `"05:00:00"`) | PostgreSQL `TIME NOT NULL` | Maintained as plain 24h `HH:MM:SS` strings without converting through `new Date()` to avoid timezone shifts. |
+| Effective Schedule Dates | `effective_from`, `effective_to` (`DATE` string `"YYYY-MM-DD"`) | PostgreSQL `DATE NOT NULL` / `DATE` | Maintained as plain ISO `YYYY-MM-DD` strings. |
+| Unit & Cost Prices | `unit_price`, `cost_price` (`number` in `LKR`) | PostgreSQL `NUMERIC(10,2)` / Pydantic `float` | Retained as numerical values from backend; currency formatting strictly applied at UI presentation. |
+| Item Price Lookup Path | `GET /master/prices/item/{item_id}` (`ENDPOINTS.masterPricesGetByItem`) | Backend router `GET /master/prices/items/{item_identifier}/active` | Path contract in `ENDPOINTS.masterPricesGetByItem` normalized to `/master/prices/item/{item_id}`. |
+| Calendar Demand Multipliers | `surge_multiplier` (`DemandSurge`) | `DemandSurgeRead` computed via festival ramp (+40%), payday (+15%), monsoon (-5%) | Frontend consumes `useDemandSurge` and falls back to Dexie cache for offline planning. |
+| Master Entity Cache | `masterCache` table in Dexie IndexedDB | Server-side master relational tables | Dexie cache with `staleTime: 1 hour` and `networkMode: "offlineFirst"` ensures seamless offline operation for store order pickers, drivers, and loaders. |
+| Pending Master Mutations | `useCreateOutlet`, `useUpdateOutlet`, `useDeleteOutlet`, `useCreateItem`, `useUpdateItem`, `useDeleteItem`, `useUpdatePrice`, `useUpdateDepot`, `useUpdateCalendarDay` | Planned backend mutation endpoints | In-memory overlay store in `mock.ts` provides immediate optimistic updates for admin UI. |
+
+

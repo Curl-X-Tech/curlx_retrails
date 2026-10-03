@@ -1,10 +1,7 @@
 import * as React from "react";
-import {
-  CATALOG_PRODUCTS,
-  STORE_OUTLETS,
-  createStoreOrder,
-} from "@/data/mock-store-orders";
+import { createStoreOrder } from "@/data/mock-store-orders";
 import type { CatalogProduct, StoreOrderItemRow, StoreOutletOption } from "../types";
+import type { OrderCatalog } from "./use-order-catalog";
 import {
   DRAFT_STORAGE_KEY,
   loadSavedDraftRows,
@@ -15,12 +12,18 @@ import {
   calculateOrderMetrics,
 } from "./order-builder-utils";
 
-export function useOrderBuilder() {
+const matches = (query: string, ...fields: string[]) =>
+  fields.some((f) => f.toLowerCase().includes(query.toLowerCase()));
+
+export function useOrderBuilder({
+  outlets,
+  products,
+}: Pick<OrderCatalog, "outlets" | "products">) {
   const [orderRef] = React.useState(
     () => `ORD-2026-${Math.floor(100 + Math.random() * 900)}`
   );
   const [selectedOutlet, setSelectedOutlet] = React.useState<StoreOutletOption>(
-    STORE_OUTLETS[0]
+    outlets[0]
   );
   const [selectedDate, setSelectedDate] = React.useState<string>("2026-10-02");
   const [isUrgent, setIsUrgent] = React.useState<boolean>(false);
@@ -37,13 +40,16 @@ export function useOrderBuilder() {
     saveDraftRows(rows);
   }, [rows]);
 
+  const handleUpdateQuantity = (rowId: string, qty: number) => {
+    setRows((prev) =>
+      prev.map((r) => (r.id === rowId ? updateRowQuantityVal(r, qty) : r))
+    );
+  };
+
   const handleAddProduct = (product: CatalogProduct, qty: number = 10) => {
     const idx = rows.findIndex((r) => r.productId === product.id);
-    if (idx >= 0) {
-      handleUpdateQuantity(rows[idx].id, rows[idx].quantity + qty);
-    } else {
-      setRows((prev) => [...prev, createNewOrderRow(product, qty)]);
-    }
+    if (idx >= 0) handleUpdateQuantity(rows[idx].id, rows[idx].quantity + qty);
+    else setRows((prev) => [...prev, createNewOrderRow(product, qty)]);
     setCatalogSearch("");
     setIsSearchingCatalog(false);
   };
@@ -51,12 +57,6 @@ export function useOrderBuilder() {
   const handleUpdateProduct = (rowId: string, product: CatalogProduct) => {
     setRows((prev) =>
       prev.map((r) => (r.id === rowId ? updateRowWithProduct(r, product) : r))
-    );
-  };
-
-  const handleUpdateQuantity = (rowId: string, qty: number) => {
-    setRows((prev) =>
-      prev.map((r) => (r.id === rowId ? updateRowQuantityVal(r, qty) : r))
     );
   };
 
@@ -108,20 +108,6 @@ export function useOrderBuilder() {
     }, 400);
   };
 
-  const filteredOutlets = STORE_OUTLETS.filter(
-    (o) =>
-      o.name.toLowerCase().includes(outletSearch.toLowerCase()) ||
-      o.district.toLowerCase().includes(outletSearch.toLowerCase()) ||
-      o.code.toLowerCase().includes(outletSearch.toLowerCase())
-  );
-
-  const searchResults = CATALOG_PRODUCTS.filter(
-    (p) =>
-      p.name.toLowerCase().includes(catalogSearch.toLowerCase()) ||
-      p.sku.toLowerCase().includes(catalogSearch.toLowerCase()) ||
-      p.category.toLowerCase().includes(catalogSearch.toLowerCase())
-  );
-
   return {
     orderRef,
     selectedOutlet,
@@ -132,13 +118,17 @@ export function useOrderBuilder() {
     setIsUrgent,
     outletSearch,
     setOutletSearch,
-    filteredOutlets,
+    filteredOutlets: outlets.filter((o) =>
+      matches(outletSearch, o.name, o.district, o.code)
+    ),
     catalogSearch,
     setCatalogSearch,
     isSearchingCatalog,
     setIsSearchingCatalog,
-    searchResults,
-    catalogProducts: CATALOG_PRODUCTS,
+    searchResults: products.filter((p) =>
+      matches(catalogSearch, p.name, p.sku, p.category)
+    ),
+    catalogProducts: products,
     rows,
     setRows,
     selectedRowIds,

@@ -104,6 +104,12 @@ export interface UserSessionRecord {
   cachedAt: string;
 }
 
+export interface MasterCacheEntry {
+  key: string;
+  data: unknown;
+  cachedAt: string;
+}
+
 export class RetrailsDriverDatabase extends Dexie {
   trips!: Table<LocalTripSummary, string>;
   tripDetails!: Table<LocalTripDetail, string>;
@@ -112,6 +118,7 @@ export class RetrailsDriverDatabase extends Dexie {
   mutationQueue!: Table<MutationRecord, number>;
   driverTelemetry!: Table<LocalTelemetryRecord, number>;
   userSessions!: Table<UserSessionRecord, string>;
+  masterCache!: Table<MasterCacheEntry, string>;
 
   constructor() {
     super("curlx_retrails_driver_db");
@@ -127,6 +134,10 @@ export class RetrailsDriverDatabase extends Dexie {
 
     this.version(2).stores({
       userSessions: "id, email, role",
+    });
+
+    this.version(3).stores({
+      masterCache: "key, cachedAt",
     });
   }
 }

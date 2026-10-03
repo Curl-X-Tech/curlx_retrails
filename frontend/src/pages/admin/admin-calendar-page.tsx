@@ -2,9 +2,8 @@ import * as React from "react";
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { AdminCrudShell, DataTable } from "@/components/shared";
+import { useOperatingDays, useDemandSurge } from "@/api/master";
 import {
-  useAdminOperatingDays,
-  useAdminDemandSurge,
   CalendarKpiStrip,
   CalendarFilterControls,
   getCalendarColumns,
@@ -25,13 +24,15 @@ export function AdminCalendarPage() {
   const {
     data: operatingDays = [],
     isLoading: isCalLoading,
+    error: calendarError,
     refetch: refetchCal,
-  } = useAdminOperatingDays(daysCount);
+  } = useOperatingDays({ days: daysCount });
   const {
     data: surgeData = [],
     isLoading: isSurgeLoading,
     refetch: refetchSurge,
-  } = useAdminDemandSurge();
+  } = useDemandSurge();
+
   const isLoading = isCalLoading || isSurgeLoading;
 
   const handleRefresh = () => {
@@ -123,7 +124,11 @@ export function AdminCalendarPage() {
           }
         }}
         pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
-        emptyMessage="No calendar records found."
+        emptyMessage={
+          calendarError
+            ? `Failed to load calendar: ${calendarError.message}`
+            : "No calendar records found."
+        }
         keyExtractor={(d) => d.date}
       />
     </AdminCrudShell>

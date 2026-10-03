@@ -6,7 +6,7 @@ export interface CatalogProduct {
   name: string;
   category: string;
   brand: "Fresh" | "Style" | "Tech";
-  unit: "Crate" | "Box" | "Nos" | "Pack" | "Kg";
+  unit: "Crate" | "Box" | "Nos" | "Pack" | "Kg" | "Carton";
   unitWeightKg: number;
   unitVolumeM3: number;
   unitPriceLkr: number;

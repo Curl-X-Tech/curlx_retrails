@@ -2,11 +2,8 @@ import * as React from "react";
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { AdminCrudShell, DataTable } from "@/components/shared";
+import { useOutlets, useBrands, useDepots, useDistricts } from "@/api/master";
 import {
-  useAdminOutlets,
-  useAdminBrands,
-  useAdminDepots,
-  useAdminDistricts,
   useAdminStore,
   OutletKpiStrip,
   OutletFilterControls,
@@ -29,11 +26,13 @@ export function AdminOutletsPage() {
   const {
     data: outlets = [],
     isLoading: isOutletsLoading,
+    error: outletsError,
     refetch: refetchOutlets,
-  } = useAdminOutlets();
-  const { data: brands = [], isLoading: isBrandsLoading } = useAdminBrands();
-  const { data: depots = [], isLoading: isDepotsLoading } = useAdminDepots();
-  const { data: districts = [], isLoading: isDistrictsLoading } = useAdminDistricts();
+  } = useOutlets();
+  const { data: brands = [], isLoading: isBrandsLoading } = useBrands();
+  const { data: depots = [], isLoading: isDepotsLoading } = useDepots();
+  const { data: districts = [], isLoading: isDistrictsLoading } = useDistricts();
+
   const isLoading =
     isOutletsLoading || isBrandsLoading || isDepotsLoading || isDistrictsLoading;
 
@@ -135,7 +134,11 @@ export function AdminOutletsPage() {
           }
         }}
         pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
-        emptyMessage="No matching retail outlets found."
+        emptyMessage={
+          outletsError
+            ? `Failed to load outlets: ${outletsError.message}`
+            : "No matching retail outlets found."
+        }
         keyExtractor={(o) => o.id}
       />
     </AdminCrudShell>

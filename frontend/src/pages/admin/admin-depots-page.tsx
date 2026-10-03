@@ -1,26 +1,20 @@
 import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AdminCrudShell } from "@/components/shared";
-import {
-  useAdminDepots,
-  useAdminDistricts,
-  useAdminOutlets,
-  DepotKpiStrip,
-  DepotCard,
-  type MasterDepot,
-} from "@/features/admin";
+import { AdminCrudShell, QueryState } from "@/components/shared";
+import { useDepots, useDistricts, useOutlets } from "@/api/master";
+import { DepotKpiStrip, DepotCard } from "@/features/admin";
 
 export function AdminDepotsPage() {
-  const {
-    data: depots = [],
-    isLoading: isDepotsLoading,
-    refetch: refetchDepots,
-  } = useAdminDepots();
-  const { data: districts = [], isLoading: isDistrictsLoading } = useAdminDistricts();
-  const { data: outlets = [], isLoading: isOutletsLoading } = useAdminOutlets();
+  const depotsQuery = useDepots();
+  const districtsQuery = useDistricts();
+  const outletsQuery = useOutlets();
+  const depots = depotsQuery.data ?? [];
+  const districts = districtsQuery.data ?? [];
+  const outlets = outletsQuery.data ?? [];
 
-  const isLoading = isDepotsLoading || isDistrictsLoading || isOutletsLoading;
+  const isLoading =
+    depotsQuery.isLoading || districtsQuery.isLoading || outletsQuery.isLoading;
 
   return (
     <AdminCrudShell
@@ -31,7 +25,7 @@ export function AdminDepotsPage() {
           variant="outline"
           size="xs"
           className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg"
-          onClick={() => refetchDepots()}
+          onClick={() => depotsQuery.refetch()}
         >
           <ArrowsClockwiseIcon className="size-3 text-muted-foreground" />
           <span>Refresh</span>
@@ -46,23 +40,30 @@ export function AdminDepotsPage() {
       }
       contentClassName="overflow-y-auto space-y-6"
     >
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto">
-        {isLoading ? (
-          <>
+      <QueryState
+        isLoading={isLoading}
+        error={depotsQuery.error}
+        isEmpty={depots.length === 0}
+        onRetry={() => depotsQuery.refetch()}
+        emptyMessage="No distribution depots found."
+        loading={
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto w-full">
             <Skeleton className="h-64 w-full" />
             <Skeleton className="h-64 w-full" />
-          </>
-        ) : (
-          depots.map((depot: MasterDepot) => (
+          </div>
+        }
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-7xl mx-auto">
+          {depots.map((depot) => (
             <DepotCard
               key={depot.id}
               depot={depot}
               districts={districts}
               outlets={outlets}
             />
-          ))
-        )}
-      </div>
+          ))}
+        </div>
+      </QueryState>
     </AdminCrudShell>
   );
 }

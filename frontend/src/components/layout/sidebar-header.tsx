@@ -8,17 +8,19 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { MOCK_HUBS, type HubInfo } from "@/data/mock-hubs";
+import type { HubInfo } from "./use-hub-options";
 import { cn } from "@/lib/utils";
 
 export interface SidebarHeaderComponentProps {
   isAdminRole: boolean;
-  activeHub: HubInfo;
+  hubs: HubInfo[];
+  activeHub: HubInfo | null;
   onSelectHub: (hub: HubInfo) => void;
 }
 
 export function SidebarHeaderComponent({
   isAdminRole,
+  hubs,
   activeHub,
   onSelectHub,
 }: SidebarHeaderComponentProps) {
@@ -70,7 +72,7 @@ export function SidebarHeaderComponent({
                     ReTrails Logistics
                   </span>
                   <span className="text-[11px] text-muted-foreground font-medium truncate flex items-center gap-1 mt-0.5">
-                    {activeHub.name}
+                    {activeHub?.name ?? "No depot available"}
                     <CaretUpDownIcon className="size-3 shrink-0" />
                   </span>
                 </div>
@@ -84,8 +86,8 @@ export function SidebarHeaderComponent({
                   Select Operating Hub
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {MOCK_HUBS.map((hub) => {
-                  const isSelected = activeHub.id === hub.id;
+                {hubs.map((hub) => {
+                  const isSelected = activeHub?.id === hub.id;
                   return (
                     <DropdownMenuItem
                       key={hub.id}

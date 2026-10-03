@@ -9,6 +9,7 @@ export * from "./order-form-summary-strip";
 export * from "./order-form-action-bar";
 export * from "./order-form-print-modal";
 export * from "./order-form-success-modal";
+export * from "./order-form-view";
 export * from "./order-list-filter-dropdowns";
 export * from "./order-list-filter-bar";
 export * from "./order-list-table";
