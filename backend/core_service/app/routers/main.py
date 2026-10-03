@@ -6,7 +6,10 @@ from fastapi_users import exceptions
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.routers.deferrals import router as deferrals_router
+from app.routers.fleet import router as fleet_router
 from app.routers.master import master_router
+from app.routers.store_orders import router as store_orders_router
 from app.core.db import get_async_session
 from app.core.users import (
     UserManager,
@@ -26,6 +29,9 @@ from app.schemas import UserCreate, UserRead, UserUpdate
 api_router = APIRouter()
 
 api_router.include_router(master_router)
+api_router.include_router(fleet_router)
+api_router.include_router(store_orders_router)
+api_router.include_router(deferrals_router)
 
 api_router.include_router(
     fastapi_users.get_auth_router(auth_backend),

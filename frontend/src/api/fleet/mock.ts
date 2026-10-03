@@ -138,7 +138,7 @@ function buildVehicles(): Vehicle[] {
           i === 1
             ? "in_transit"
             : i === 2
-              ? "docked_loading"
+              ? "loading"
               : i === 12
                 ? "in_workshop"
                 : "available",
@@ -162,7 +162,7 @@ function buildVehicles(): Vehicle[] {
         consumed_fuel_l: 85.0,
         assigned_depot_id: depot,
         assigned_driver_id: INITIAL_DRIVERS[(i - 1) % INITIAL_DRIVERS.length].id,
-        status: i === 13 ? "in_transit" : i === 14 ? "docked_loading" : "available",
+        status: i === 13 ? "in_transit" : i === 14 ? "loading" : "available",
         is_active: true,
         created_at: ts,
         updated_at: ts,

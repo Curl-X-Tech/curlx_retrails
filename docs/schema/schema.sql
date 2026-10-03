@@ -137,6 +137,7 @@ ORDER BY item_id, effective_from DESC, created_at DESC;
 -- Unified Staff Profile: system_admin, dispatcher, loader, driver, store_manager
 CREATE TABLE IF NOT EXISTS staff_profile (
     id                      UUID PRIMARY KEY DEFAULT GEN_RANDOM_UUID(),
+    user_id                 UUID UNIQUE REFERENCES users(id), -- Login account
     employee_code           TEXT NOT NULL UNIQUE,          -- 'EMP-001', 'DRV-104', 'MGR-022'
     first_name              TEXT NOT NULL,
     last_name               TEXT NOT NULL,
@@ -195,7 +196,8 @@ CREATE TABLE IF NOT EXISTS customer_order (
     order_date              DATE NOT NULL REFERENCES calendar_day(date), -- Target delivery date
     required_date           DATE NOT NULL REFERENCES calendar_day(date),
     temp_requirement        TEXT NOT NULL CHECK (temp_requirement IN ('chilled', 'ambient')),
-    status                  TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'served', 'deferred', 'cancelled')),
+    status                  TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'allocated', 'in_transit', 'delivered', 'deferred', 'cancelled')),
+    idempotency_key         TEXT UNIQUE,                   -- Offline sync dedupe key
     is_urgent               BOOLEAN NOT NULL DEFAULT FALSE,
     deferred_yesterday      INT NOT NULL DEFAULT 0 CHECK (deferred_yesterday IN (0, 1)),
     days_since_last_served  INT NOT NULL DEFAULT 0,

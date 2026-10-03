@@ -1,5 +1,5 @@
 export type OrderLifecycleStatus =
-  "pending" | "allocated" | "in_transit" | "delivered" | "deferred";
+  "pending" | "allocated" | "in_transit" | "delivered" | "deferred" | "cancelled";
 
 export type SpecialHandlingCode = "COL" | "FRG" | "MAL" | "HAZ" | "GEN";
 

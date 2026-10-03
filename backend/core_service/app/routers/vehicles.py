@@ -18,10 +18,8 @@ from app.schemas.vehicle_schemas import (
 )
 
 router = APIRouter(prefix="/vehicles", tags=["Vehicles"])
-endpoint_router = APIRouter(prefix="/fleet/vehicles", tags=["Vehicles"])
 
 
-@endpoint_router.post("")
 @router.post(
     "",
     response_model=VehicleResponse,
@@ -62,7 +60,6 @@ async def create_vehicle(
     return vehicle
 
 
-@endpoint_router.get("")
 @router.get(
     "",
     response_model=VehicleListResponse,
@@ -106,7 +103,6 @@ async def list_vehicles(
     )
 
 
-@endpoint_router.get("/{id}")
 @router.get(
     "/{id}",
     response_model=VehicleResponse,
@@ -125,7 +121,6 @@ async def get_vehicle(
     return vehicle
 
 
-@endpoint_router.patch("/{id}")
 @router.patch(
     "/{id}",
     response_model=VehicleResponse,

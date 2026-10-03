@@ -2,7 +2,8 @@ export type VehicleType = "truck" | "van";
 
 export type VehicleTemp = "reefer" | "ambient";
 
-export type VehicleStatus = "available" | "docked_loading" | "in_transit" | "in_workshop";
+export type VehicleStatus =
+  "available" | "loading" | "in_transit" | "in_workshop" | "breakdown";
 
 export interface Vehicle {
   id: string;

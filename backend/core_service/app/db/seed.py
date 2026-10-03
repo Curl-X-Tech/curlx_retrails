@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
 from app.core.timezone import utc_now, utc_today
 from app.core.users import UserManager
+from app.db.seed_store import seed_store
 from app.db.seed_json import SeedData, load_seed_data, resolve_depot
 from app.entities.brand import Brand
 from app.entities.calendar_day import CalendarDay
@@ -128,7 +129,7 @@ async def seed_database(session: AsyncSession) -> dict[str, int]:
             district_id=lambda r: districts[r["district"]].id,
             depot_id=lambda r: depot_id(r["depot"]),
         )
-        await _upsert(session, Outlet, "outlet_id", outlet_rows, counts)
+        outlets = await _upsert(session, Outlet, "outlet_id", outlet_rows, counts)
         await _upsert(session, CalendarDay, "date", data.calendar, counts)
         await _upsert(session, VehicleModel, "ID", data.vehicles, counts)
         await _upsert(session, RouteModel, "ID", data.routes, counts)
@@ -137,6 +138,7 @@ async def seed_database(session: AsyncSession) -> dict[str, int]:
 
         await _seed_prices(session, data, items, counts)
         await _seed_drivers(session, data, users, counts)
+        await seed_store(session, data, users, depots, outlets, items, counts, _upsert)
         await _seed_operations(session, data, users, counts)
         await session.commit()
     except Exception:

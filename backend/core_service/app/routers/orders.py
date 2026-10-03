@@ -22,7 +22,6 @@ from app.schemas.order_schemas import (
 )
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
-endpoint_router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
 DEPOT_CODES = {"Peliyagoda": "PEL", "Kandy": "KDY"}
@@ -38,7 +37,6 @@ async def _get_outlets_for_depot(db: AsyncSession, depot: str) -> list[str]:
     return list(result.scalars().all())
 
 
-@endpoint_router.post("")
 @router.post(
     "",
     response_model=OrderResponse,
@@ -117,7 +115,6 @@ async def bulk_create_orders(
     return created_orders
 
 
-@endpoint_router.get("")
 @router.get(
     "",
     response_model=OrderListResponse,
@@ -175,7 +172,6 @@ async def list_orders(
     )
 
 
-@endpoint_router.get("/{id}")
 @router.get(
     "/{id}",
     response_model=OrderResponse,

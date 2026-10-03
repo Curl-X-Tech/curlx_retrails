@@ -78,9 +78,6 @@ for prefix in ("/orders/v1", "/orders"):
     app.include_router(orders_status.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
     app.include_router(orders_analytics.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
     app.include_router(orders.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
-app.include_router(orders.endpoint_router)
-app.include_router(orders_status.endpoint_router)
-app.include_router(orders_status.deferrals_router)
 
 # --- Routes ---
 for prefix in ("/routes/v1", "/routes"):
@@ -94,7 +91,6 @@ for prefix in ("/vehicles/v1", "/vehicles"):
     app.include_router(vehicles_quota.router, prefix=prefix, include_in_schema=(prefix == "/vehicles/v1"))
     app.include_router(vehicles_status.router, prefix=prefix, include_in_schema=(prefix == "/vehicles/v1"))
     app.include_router(vehicles.router, prefix=prefix, include_in_schema=(prefix == "/vehicles/v1"))
-app.include_router(vehicles.endpoint_router)
 
 # --- Dispatch ---
 for prefix in ("/dispatch/v1", "/dispatch"):
@@ -103,7 +99,6 @@ for prefix in ("/dispatch/v1", "/dispatch"):
     app.include_router(trips.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
     app.include_router(drivers.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
     app.include_router(plan_ingest.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
-app.include_router(drivers.endpoint_router)
 
 # --- Sync ---
 app.include_router(sync.router, prefix=settings.API_V1_STR)

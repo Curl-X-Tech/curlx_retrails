@@ -15,8 +15,6 @@ from app.schemas.order_schemas import (
 )
 
 router = APIRouter(prefix="/orders", tags=["Order Status"])
-endpoint_router = APIRouter(prefix="/orders", tags=["Order Status"])
-deferrals_router = APIRouter(prefix="/deferrals", tags=["Order Status"])
 
 
 @router.get(
@@ -115,7 +113,6 @@ async def list_delivered_orders(
     )
 
 
-@deferrals_router.get("")
 @router.get(
     "/status/deferred",
     response_model=OrderListResponse,
@@ -152,7 +149,6 @@ async def list_deferred_orders(
     )
 
 
-@endpoint_router.patch("/{id}/status")
 @router.patch(
     "/{id}/status",
     response_model=OrderResponse,
