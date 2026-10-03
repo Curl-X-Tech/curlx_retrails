@@ -50,7 +50,10 @@ async function handleUnauthorized(): Promise<boolean> {
     try {
       const res = await fetch(`${API_URL}${ENDPOINTS.authRefresh.path}`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(getStoredToken() ? { Authorization: `Bearer ${getStoredToken()}` } : {}),
+        },
       });
       const data = res.ok ? await res.json() : null;
       if (data?.access_token) {

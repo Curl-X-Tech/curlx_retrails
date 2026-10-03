@@ -9,6 +9,7 @@ import { AllocationPayloadCard } from "@/components/dispatcher/allocation-payloa
 import { AllocationCargoList } from "@/components/dispatcher/allocation-cargo-list";
 import {
   useAllocations,
+  useAllocationManifest,
   AllocationSidebarList,
   type AllocationStatusTab,
   type VehicleAllocation,
@@ -25,10 +26,10 @@ export function AllocationDetailPage({
 }: AllocationDetailPageProps = {}) {
   const { id: paramAllocId } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { allocations, getManifest } = useAllocations();
+  const { allocations } = useAllocations();
 
   const selectedAllocationId =
-    paramAllocId || initialAllocationId || allocations[0]?.id || "alloc-01";
+    paramAllocId || initialAllocationId || allocations[0]?.id || "";
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [statusFilter, setStatusFilter] = React.useState<AllocationStatusTab>("active");
   const [isCargoListOpen, setIsCargoListOpen] = React.useState<boolean>(false);
@@ -36,9 +37,7 @@ export function AllocationDetailPage({
   const selectedAllocation =
     allocations.find((a) => a.id === selectedAllocationId) || allocations[0];
 
-  const currentManifest = React.useMemo(() => {
-    return getManifest(selectedAllocation);
-  }, [selectedAllocation, getManifest]);
+  const currentManifest = useAllocationManifest(selectedAllocation?.id ?? "");
 
   const filteredAllocations = React.useMemo(() => {
     return allocations.filter((item) => {
@@ -68,6 +67,14 @@ export function AllocationDetailPage({
     onSelectAllocation?.(alloc);
     navigate(`/dispatcher/allocations/${alloc.id}`);
   };
+
+  if (!selectedAllocation || !currentManifest) {
+    return (
+      <div className="flex-1 flex items-center justify-center text-sm text-muted-foreground">
+        Loading allocation
+      </div>
+    );
+  }
 
   return (
     <div className="flex-1 flex flex-col min-h-0 overflow-hidden bg-muted/20 font-sans">

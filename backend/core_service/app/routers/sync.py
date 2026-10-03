@@ -4,12 +4,27 @@ from datetime import datetime
 import time
 import uuid
 from typing import Any, Literal
-from fastapi import APIRouter, Depends, status
-from pydantic import BaseModel, Field
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel, Field, ValidationError
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.database import get_db
-from app.models.order import OrderModel
+from app.core.db import get_async_session
+from app.core.users import current_active_user
+from app.entities.trip import VehicleTelemetry
+from app.routers.deliveries import (
+    ArriveRequest,
+    DiscrepancyRequest,
+    PodRequest,
+    arrive,
+    log_discrepancy,
+    submit_pod,
+)
+from app.routers.telemetry import TelemetryReport, build_telemetry
+from app.entities.customer_order import CustomerOrder
+from app.entities.user import User
+from app.schemas.customer_order import OrderCreate
+from app.services.orders import create_order
 
 router = APIRouter(prefix="/sync", tags=["Sync"])
 
@@ -43,6 +58,50 @@ class SyncBatchResponse(BaseModel):
     server_timestamp: int
 
 
+async def _apply_telemetry(db: AsyncSession, m: QueuedMutationSchema) -> MutationResult:
+    try:
+        pings = [TelemetryReport.model_validate(p) for p in m.payload.get("pings", [])]
+    except ValidationError:
+        return MutationResult(idempotency_key=m.idempotency_key, status="conflict_resolved")
+    known = (
+        await db.execute(
+            select(VehicleTelemetry.id).where(VehicleTelemetry.idempotency_key == f"{m.idempotency_key}:0")
+        )
+    ).first()
+    if known is None:
+        for index, ping in enumerate(pings):
+            row = build_telemetry(ping)
+            row.idempotency_key = f"{m.idempotency_key}:{index}"
+            db.add(row)
+    return MutationResult(
+        idempotency_key=m.idempotency_key, status="duplicate_ignored" if known else "applied", entity_id=None
+    )
+
+
+async def _apply_delivery(
+    db: AsyncSession, user: User, m: QueuedMutationSchema, entity_id: str | None
+) -> MutationResult:
+    waypoint_id = m.payload.get("waypoint_id") or m.payload.get("route_leg_id")
+    try:
+        waypoint = uuid.UUID(str(waypoint_id))
+        if m.entity_type == "route_leg":
+            await arrive(waypoint, ArriveRequest.model_validate(m.payload), db, user)
+        elif "issue_type" in m.payload:
+            await log_discrepancy(waypoint, DiscrepancyRequest.model_validate(m.payload), db, user)
+        else:
+            await submit_pod(waypoint, PodRequest.model_validate(m.payload), db, user)
+    except (ValueError, ValidationError):
+        return MutationResult(idempotency_key=m.idempotency_key, status="conflict_resolved")
+    except HTTPException as exc:
+        known = exc.status_code == status.HTTP_409_CONFLICT
+        return MutationResult(
+            idempotency_key=m.idempotency_key,
+            status="duplicate_ignored" if known else "conflict_resolved",
+            entity_id=entity_id,
+        )
+    return MutationResult(idempotency_key=m.idempotency_key, status="applied", entity_id=entity_id)
+
+
 @router.post(
     "/batch",
     response_model=SyncBatchResponse,
@@ -52,7 +111,8 @@ class SyncBatchResponse(BaseModel):
 )
 async def process_sync_batch(
     req: SyncBatchRequest,
-    db: AsyncSession = Depends(get_db),
+    user: User = Depends(current_active_user),
+    db: AsyncSession = Depends(get_async_session),
 ):
     # ponytail: process mutations directly with idempotency check
     batch_id = f"batch_{uuid.uuid4().hex[:12]}"
@@ -62,42 +122,34 @@ async def process_sync_batch(
         entity_id = m.payload.get("id") or m.payload.get("order_id") or m.payload.get("waypoint_id")
 
         if m.entity_type == "order" and m.action == "create":
-            order_id = entity_id or f"ORD-{uuid.uuid4().hex[:8].upper()}"
-            existing = await db.get(OrderModel, order_id)
-            if existing:
-                results.append(
-                    MutationResult(idempotency_key=m.idempotency_key, status="duplicate_ignored", entity_id=order_id)
+            try:
+                order_in = OrderCreate.model_validate({**m.payload, "idempotency_key": m.idempotency_key})
+            except ValidationError:
+                results.append(MutationResult(idempotency_key=m.idempotency_key, status="conflict_resolved"))
+                continue
+            known = (
+                await db.execute(select(CustomerOrder.id).where(CustomerOrder.idempotency_key == m.idempotency_key))
+            ).scalar_one_or_none()
+            try:
+                order = await create_order(db, order_in, user.id)
+            except HTTPException:
+                results.append(MutationResult(idempotency_key=m.idempotency_key, status="conflict_resolved"))
+                continue
+            results.append(
+                MutationResult(
+                    idempotency_key=m.idempotency_key,
+                    status="duplicate_ignored" if known else "applied",
+                    entity_id=str(order.id),
                 )
-            else:
-                now = datetime.utcnow()
-                new_order = OrderModel(
-                    ID=order_id,
-                    CreateTime=now,
-                    UpdateTime=now,
-                    CreatedBy=m.user_id or "OFFLINE_SYNC",
-                    UpdatedBy=m.user_id or "OFFLINE_SYNC",
-                    IsActive=True,
-                    outlet_id=m.payload.get("outlet_id", "OUT001"),
-                    order_date=datetime.fromisoformat(m.payload.get("order_date", now.date().isoformat())).date()
-                    if isinstance(m.payload.get("order_date"), str)
-                    else now.date(),
-                    order_time=m.payload.get("order_time", "08:00"),
-                    weight_kg=float(m.payload.get("weight_kg", m.payload.get("total_weight_kg", 10.0))),
-                    volume_m3=float(m.payload.get("volume_m3", m.payload.get("total_volume_m3", 0.1))),
-                    temp_condition=m.payload.get("temp_condition", m.payload.get("temp_requirement", "ambient")),
-                    status="pending",
-                )
-                db.add(new_order)
-                results.append(MutationResult(idempotency_key=m.idempotency_key, status="applied", entity_id=order_id))
+            )
+        elif m.entity_type == "telemetry" and m.action == "create":
+            results.append(await _apply_telemetry(db, m))
+        elif m.entity_type in ("route_leg", "proof_of_delivery"):
+            results.append(await _apply_delivery(db, user, m, entity_id))
         else:
-            # For route legs, proof_of_delivery, checklists, telemetry
             results.append(MutationResult(idempotency_key=m.idempotency_key, status="applied", entity_id=entity_id))
 
-    try:
-        await db.flush()
-    except Exception:
-        # Fallback to safe success response
-        pass
+    await db.commit()
 
     return SyncBatchResponse(
         batch_id=batch_id,

@@ -37,6 +37,8 @@ print_banner() {
     echo -e "  ${GREEN}Backend API (FastAPI):${RESET}     ${CYAN}http://localhost:8000${RESET}"
     echo -e "  ${GREEN}API Swagger Docs:${RESET}          ${CYAN}http://localhost:8000/docs${RESET}"
     echo -e "  ${GREEN}API ReDoc:${RESET}                 ${CYAN}http://localhost:8000/redoc${RESET}"
+    echo -e "  ${GREEN}Planning API:${RESET}              ${CYAN}http://localhost:8005${RESET}"
+    echo -e "  ${GREEN}Planning Swagger Docs:${RESET}    ${CYAN}http://localhost:8005/planning/v1/docs${RESET}"
     echo -e "  ${GREEN}PostgreSQL Database:${RESET}       ${CYAN}localhost:5432${RESET}"
     echo -e "  ${GREEN}Redis Cache / Broker:${RESET}      ${CYAN}localhost:6379${RESET}"
     echo -e "  ${GREEN}Mailpit Web Inbox:${RESET}         ${CYAN}http://localhost:8025${RESET} (SMTP: 1025)"
@@ -67,16 +69,23 @@ print_microservices_banner() {
 }
 
 # Check for required tools
-check_prerequisites() {
+check_uv() {
     if ! command -v uv &> /dev/null; then
         log_error "'uv' is required for backend management but not found. Install from https://github.com/astral-sh/uv"
         exit 1
     fi
+}
 
+check_bun() {
     if ! command -v bun &> /dev/null; then
         log_error "'bun' is required for frontend and email management but not found. Install from https://bun.sh"
         exit 1
     fi
+}
+
+check_prerequisites() {
+    check_uv
+    check_bun
 }
 
 # Ensure .env file exists
@@ -85,6 +94,13 @@ ensure_env() {
         log_info ".env file not found. Copying from .env.example..."
         cp "$ROOT_DIR/.env.example" "$ROOT_DIR/.env"
         log_success "Created .env"
+    fi
+}
+
+require_planning_env() {
+    if [ ! -x "$ROOT_DIR/backend/planning_service/.venv/bin/python" ]; then
+        log_error "Planning service dependencies are not installed. Run './dev.sh install' first."
+        exit 1
     fi
 }
 
@@ -122,16 +138,17 @@ run_backend() {
 
 # Run planning service
 run_planning() {
-    check_prerequisites
+    check_uv
     ensure_env
-    log_info "Starting planning service on http://localhost:8005 (Docs: http://localhost:8005/docs)..."
+    require_planning_env
+    log_info "Starting planning service on http://localhost:8005 (Docs: http://localhost:8005/planning/v1/docs)..."
     cd "$ROOT_DIR/backend/planning_service"
     exec .venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
 }
 
 # Run planning Celery worker
 run_planning_worker() {
-    check_prerequisites
+    check_uv
     ensure_env
     log_info "Starting planning Celery worker..."
     cd "$ROOT_DIR/backend/planning_service"
@@ -192,6 +209,7 @@ run_microservices_down() {
 run_dev() {
     check_prerequisites
     ensure_env
+    require_planning_env
 
     # Automatically start dev infrastructure if Docker daemon is running
     if command -v docker &> /dev/null && docker info &> /dev/null; then
@@ -207,6 +225,9 @@ run_dev() {
     (cd "$ROOT_DIR/backend/core_service" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
     BACKEND_PID=$!
 
+    (cd "$ROOT_DIR/backend/planning_service" && .venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005) &
+    PLANNING_PID=$!
+
     (cd "$ROOT_DIR/frontend" && bun run dev) &
     FRONTEND_PID=$!
 
@@ -217,7 +238,7 @@ run_dev() {
     sleep 1.5
     print_banner
 
-    wait $BACKEND_PID $FRONTEND_PID $EMAILS_PID
+    wait $BACKEND_PID $PLANNING_PID $FRONTEND_PID $EMAILS_PID
 }
 
 # Linting
@@ -341,7 +362,7 @@ show_help() {
     echo "Usage: ./dev.sh [command]"
     echo ""
     echo "Commands:"
-    echo "  dev                  Start backend, frontend, and emails concurrently (default)"
+    echo "  dev                  Start core API, planning API, frontend, and emails (default)"
     echo "  services             Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
     echo "  services:down        Stop dev infrastructure"
     echo "  microservices        Build and start the full Waypoint services stack"

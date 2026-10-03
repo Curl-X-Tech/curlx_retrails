@@ -150,21 +150,21 @@ async def list_deferred_orders(
 
 
 @router.patch(
-    "/{order_id}/status",
+    "/{id}/status",
     response_model=OrderResponse,
     summary="Manually set order status",
     description="Allows manual override e.g. pending → cancelled. Role: DISPATCHER+",
 )
 async def update_order_status(
-    order_id: str = Path(...),
+    id: str = Path(...),
     payload: OrderStatusUpdate = ...,
     db: AsyncSession = Depends(get_db),
 ):
-    order = await db.get(OrderModel, order_id)
+    order = await db.get(OrderModel, id)
     if not order or not order.IsActive:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Order '{order_id}' not found.",
+            detail=f"Order '{id}' not found.",
         )
 
     order.status = payload.status.value

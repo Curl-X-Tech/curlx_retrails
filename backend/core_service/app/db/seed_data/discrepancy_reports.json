@@ -1,0 +1,211 @@
+[
+  {
+    "trip_code": "TRP-260622-KDY01",
+    "seq": 0,
+    "package_code": "ORD-20260622-OUT112-01",
+    "discrepancy_type": "damaged",
+    "reported_qty": 1,
+    "reported_by_email": "driver40@curlx.tech",
+    "reported_at": "2026-06-21T23:48:00+00:00",
+    "description": "Crates arrived with crushed corners",
+    "resolution_status": "open"
+  },
+  {
+    "trip_code": "TRP-260622-PEL05",
+    "seq": 0,
+    "package_code": "ORD-20260622-OUT052-01",
+    "discrepancy_type": "shortage",
+    "reported_qty": 1,
+    "reported_by_email": "driver01@curlx.tech",
+    "reported_at": "2026-06-22T00:20:00+00:00",
+    "description": "Fewer crates received than invoiced",
+    "resolution_status": "under_investigation"
+  },
+  {
+    "trip_code": "TRP-260622-PEL01",
+    "seq": 0,
+    "package_code": "ORD-20260622-OUT013-01",
+    "discrepancy_type": "rejected",
+    "reported_qty": 2,
+    "reported_by_email": "driver@curlx.tech",
+    "reported_at": "2026-06-21T23:50:00+00:00",
+    "description": "Store manager rejected part of the consignment",
+    "resolution_status": "resolved"
+  },
+  {
+    "trip_code": "TRP-260622-PEL11",
+    "seq": 0,
+    "package_code": "ORD-20260622-OUT070-01",
+    "discrepancy_type": "damaged",
+    "reported_qty": 1,
+    "reported_by_email": "driver14@curlx.tech",
+    "reported_at": "2026-06-22T03:55:00+00:00",
+    "description": "Crates arrived with crushed corners",
+    "resolution_status": "waived"
+  },
+  {
+    "trip_code": "TRP-260623-KDY09",
+    "seq": 0,
+    "package_code": "ORD-20260623-OUT105-01",
+    "discrepancy_type": "delayed_window",
+    "reported_qty": null,
+    "reported_by_email": "driver38@curlx.tech",
+    "reported_at": "2026-06-22T23:53:00+00:00",
+    "description": "Delivered after the outlet window closed",
+    "resolution_status": "open"
+  },
+  {
+    "trip_code": "TRP-260623-KDY06",
+    "seq": 1,
+    "package_code": "ORD-20260623-OUT119-01",
+    "discrepancy_type": "damaged",
+    "reported_qty": 1,
+    "reported_by_email": "driver57@curlx.tech",
+    "reported_at": "2026-06-23T00:19:00+00:00",
+    "description": "Crates arrived with crushed corners",
+    "resolution_status": "under_investigation"
+  },
+  {
+    "trip_code": "TRP-260623-PEL01",
+    "seq": 5,
+    "package_code": "ORD-20260623-OUT014-01",
+    "discrepancy_type": "shortage",
+    "reported_qty": 2,
+    "reported_by_email": "driver03@curlx.tech",
+    "reported_at": "2026-06-23T02:11:00+00:00",
+    "description": "Fewer crates received than invoiced",
+    "resolution_status": "resolved"
+  },
+  {
+    "trip_code": "TRP-260624-KDY01",
+    "seq": 1,
+    "package_code": "ORD-20260624-OUT110-01",
+    "discrepancy_type": "rejected",
+    "reported_qty": 2,
+    "reported_by_email": "driver56@curlx.tech",
+    "reported_at": "2026-06-24T00:21:00+00:00",
+    "description": "Store manager rejected part of the consignment",
+    "resolution_status": "waived"
+  },
+  {
+    "trip_code": "TRP-260624-KDY03",
+    "seq": 3,
+    "package_code": "ORD-20260624-OUT081-01",
+    "discrepancy_type": "temp_breach",
+    "reported_qty": 3,
+    "reported_by_email": "driver57@curlx.tech",
+    "reported_at": "2026-06-24T00:43:00+00:00",
+    "description": "Reefer reading above 8C at handover",
+    "resolution_status": "open"
+  },
+  {
+    "trip_code": "TRP-260624-PEL07",
+    "seq": 5,
+    "package_code": "ORD-20260624-OUT033-01",
+    "discrepancy_type": "delayed_window",
+    "reported_qty": null,
+    "reported_by_email": "driver02@curlx.tech",
+    "reported_at": "2026-06-24T02:18:00+00:00",
+    "description": "Delivered after the outlet window closed",
+    "resolution_status": "under_investigation"
+  },
+  {
+    "trip_code": "TRP-260624-KDY09",
+    "seq": 0,
+    "package_code": "ORD-20260624-OUT109-01",
+    "discrepancy_type": "damaged",
+    "reported_qty": 1,
+    "reported_by_email": "driver45@curlx.tech",
+    "reported_at": "2026-06-24T03:55:00+00:00",
+    "description": "Crates arrived with crushed corners",
+    "resolution_status": "resolved"
+  },
+  {
+    "trip_code": "TRP-260625-KDY03",
+    "seq": 1,
+    "package_code": "ORD-20260625-OUT081-01",
+    "discrepancy_type": "shortage",
+    "reported_qty": 1,
+    "reported_by_email": "driver56@curlx.tech",
+    "reported_at": "2026-06-24T22:30:00+00:00",
+    "description": "Fewer crates received than invoiced",
+    "resolution_status": "waived"
+  },
+  {
+    "trip_code": "TRP-260625-PEL10",
+    "seq": 4,
+    "package_code": "ORD-20260625-OUT045-01",
+    "discrepancy_type": "rejected",
+    "reported_qty": 2,
+    "reported_by_email": "driver02@curlx.tech",
+    "reported_at": "2026-06-25T02:12:00+00:00",
+    "description": "Store manager rejected part of the consignment",
+    "resolution_status": "open"
+  },
+  {
+    "trip_code": "TRP-260625-KDY02",
+    "seq": 0,
+    "package_code": "ORD-20260625-OUT085-01",
+    "discrepancy_type": "temp_breach",
+    "reported_qty": 2,
+    "reported_by_email": "driver39@curlx.tech",
+    "reported_at": "2026-06-24T23:50:00+00:00",
+    "description": "Reefer reading above 8C at handover",
+    "resolution_status": "under_investigation"
+  },
+  {
+    "trip_code": "TRP-260626-KDY01",
+    "seq": 1,
+    "package_code": "ORD-20260626-OUT110-01",
+    "discrepancy_type": "delayed_window",
+    "reported_qty": null,
+    "reported_by_email": "driver40@curlx.tech",
+    "reported_at": "2026-06-26T00:22:00+00:00",
+    "description": "Delivered after the outlet window closed",
+    "resolution_status": "resolved"
+  },
+  {
+    "trip_code": "TRP-260626-PEL06",
+    "seq": 2,
+    "package_code": "ORD-20260626-OUT055-01",
+    "discrepancy_type": "damaged",
+    "reported_qty": 3,
+    "reported_by_email": "driver06@curlx.tech",
+    "reported_at": "2026-06-26T00:55:00+00:00",
+    "description": "Crates arrived with crushed corners",
+    "resolution_status": "waived"
+  },
+  {
+    "trip_code": "TRP-260626-PEL01",
+    "seq": 1,
+    "package_code": "ORD-20260626-OUT010-01",
+    "discrepancy_type": "shortage",
+    "reported_qty": 1,
+    "reported_by_email": "driver01@curlx.tech",
+    "reported_at": "2026-06-26T00:36:00+00:00",
+    "description": "Fewer crates received than invoiced",
+    "resolution_status": "open"
+  },
+  {
+    "trip_code": "TRP-260626-PEL17",
+    "seq": 0,
+    "package_code": "ORD-20260626-OUT064-01",
+    "discrepancy_type": "rejected",
+    "reported_qty": 2,
+    "reported_by_email": "driver24@curlx.tech",
+    "reported_at": "2026-06-26T04:02:00+00:00",
+    "description": "Store manager rejected part of the consignment",
+    "resolution_status": "under_investigation"
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "seq": 1,
+    "package_code": "ORD-20260627-OUT002-01",
+    "discrepancy_type": "temp_breach",
+    "reported_qty": 2,
+    "reported_by_email": "driver@curlx.tech",
+    "reported_at": "2026-06-27T00:45:00+00:00",
+    "description": "Reefer reading above 8C at handover",
+    "resolution_status": "resolved"
+  }
+]

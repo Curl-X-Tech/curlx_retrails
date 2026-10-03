@@ -32,9 +32,6 @@ def test_core_service_routes_registered(core_app):
     # Verify orders endpoints
     assert "/orders/v1/orders" in openapi_paths
 
-    # Verify outlets endpoints
-    assert "/outlets/v1/outlets" in openapi_paths
-
     # Verify routes endpoints
     assert "/routes/v1/routes" in openapi_paths
 
@@ -56,15 +53,26 @@ def test_core_service_routes_registered(core_app):
     assert "/api/v1/master/districts" in openapi_paths
     assert "/api/v1/master/items" in openapi_paths
     assert "/api/v1/master/outlets" in openapi_paths
+    assert "/api/v1/master/outlets/{identifier}/windows/effective" in openapi_paths
+    assert "/api/v1/master/outlets/windows/by-district" in openapi_paths
+    assert "/outlets/v1/outlets" not in openapi_paths
     assert "/api/v1/master/prices" in openapi_paths
     assert "/api/v1/master/calendar/operating-days" in openapi_paths
+    assert "/api/v1/sync/batch" in openapi_paths
+    assert "/sync/batch" not in openapi_paths
+    assert "/master/brands" not in openapi_paths
+    assert "/master/depots" not in openapi_paths
+    assert "/master/districts" not in openapi_paths
+    assert "/master/items" not in openapi_paths
+    assert "/master/outlets" not in openapi_paths
+    assert "/master/prices" not in openapi_paths
+    assert "/master/calendar" not in openapi_paths
 
 
 def test_core_service_openapi_schema(core_app):
     openapi = core_app.openapi()
     assert openapi["info"]["title"] == "Waypoint — Core Service"
     assert "/orders/v1/orders" in openapi["paths"]
-    assert "/outlets/v1/outlets" in openapi["paths"]
     assert "/routes/v1/routes" in openapi["paths"]
     assert "/vehicles/v1/vehicles" in openapi["paths"]
     assert "/dispatch/v1/trips" in openapi["paths"]

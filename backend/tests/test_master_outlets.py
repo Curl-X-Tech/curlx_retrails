@@ -255,3 +255,76 @@ async def test_update_and_delete_outlet(
     # 4. Verify 404
     get_res = await client.get(f"/api/v1/master/outlets/{outlet_id}")
     assert get_res.status_code == 404
+
+
+@pytest.mark.anyio
+async def test_outlet_windows_and_pagination(
+    client: AsyncClient,
+    session: AsyncSession,
+) -> None:
+    depot = Depot(code="PEL", name="Peliyagoda DC", latitude=6.9649, longitude=79.8872)
+    brand = Brand(
+        code="STYLE",
+        name="Waypoint Style",
+        delivery_window_type=DeliveryWindowType.MALL_BAY_RESTRICTED,
+        requires_cold_chain=False,
+        daily_time_budget_min=480,
+    )
+    session.add_all([depot, brand])
+    await session.commit()
+    await session.refresh(depot)
+    await session.refresh(brand)
+
+    district = District(name="Colombo", province="Western", assigned_depot_id=depot.id)
+    session.add(district)
+    await session.commit()
+    await session.refresh(district)
+
+    common = {"brand_id": brand.id, "district_id": district.id, "depot_id": depot.id, "dock_type": DockType.MALL_BAY}
+    session.add_all(
+        [
+            Outlet(
+                outlet_id="OUT101",
+                name="Mall Store",
+                parking_constraint=ParkingConstraint.MALL_DOCK,
+                mall_window="09:00-11:00",
+                window_open_time=time(8, 0),
+                window_close_time=time(12, 0),
+                **common,
+            ),
+            Outlet(
+                outlet_id="OUT102",
+                name="Street Store",
+                parking_constraint=ParkingConstraint.NORMAL,
+                window_open_time=time(7, 0),
+                window_close_time=time(10, 0),
+                **common,
+            ),
+        ]
+    )
+    await session.commit()
+
+    mall = await client.get("/api/v1/master/outlets/out101/windows/effective")
+    assert mall.status_code == 200
+    assert mall.json() == {
+        "outlet_id": "OUT101",
+        "effective_open_time": "09:00:00",
+        "effective_close_time": "11:00:00",
+        "is_mall": True,
+        "mall_window_applied": True,
+    }
+
+    plain = await client.get("/api/v1/master/outlets/OUT102/windows/effective")
+    assert plain.json()["effective_open_time"] == "07:00:00"
+    assert plain.json()["mall_window_applied"] is False
+
+    assert (await client.get("/api/v1/master/outlets/NOPE/windows/effective")).status_code == 404
+
+    by_district = await client.get("/api/v1/master/outlets/windows/by-district", params={"depot_id": str(depot.id)})
+    assert by_district.status_code == 200
+    assert [o["outlet_id"] for o in by_district.json()] == ["OUT101", "OUT102"]
+    assert by_district.json()[0]["district"] == "Colombo"
+    assert by_district.json()[0]["brand_code"] == "STYLE"
+
+    page = await client.get("/api/v1/master/outlets", params={"limit": 1, "offset": 1})
+    assert [o["outlet_id"] for o in page.json()] == ["OUT102"]

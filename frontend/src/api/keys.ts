@@ -69,7 +69,8 @@ export const allocationsKeys = {
     [...allocationsKeys.lists(), { filters }] as const,
   details: () => [...allocationsKeys.all, "detail"] as const,
   detail: (id: string) => [...allocationsKeys.details(), id] as const,
-  summary: () => [...allocationsKeys.all, "summary"] as const,
+  summary: (filters?: Record<string, unknown>) =>
+    [...allocationsKeys.all, "summary", { filters }] as const,
   solverStatus: () => [...allocationsKeys.all, "engine", "status"] as const,
 };
 

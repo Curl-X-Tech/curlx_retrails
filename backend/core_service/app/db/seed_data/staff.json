@@ -1,0 +1,74 @@
+[
+  {
+    "email": "dispatcher@curlx.tech",
+    "employee_code": "DSP-001",
+    "role": "dispatcher",
+    "phone": "0731000001",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "dispatcher02@curlx.tech",
+    "employee_code": "DSP-002",
+    "role": "dispatcher",
+    "phone": "0731000002",
+    "depot": "KDY",
+    "outlet_id": null
+  },
+  {
+    "email": "dispatcher03@curlx.tech",
+    "employee_code": "DSP-003",
+    "role": "dispatcher",
+    "phone": "0731000003",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "loader@curlx.tech",
+    "employee_code": "LDR-001",
+    "role": "loader",
+    "phone": "0721000001",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "loader02@curlx.tech",
+    "employee_code": "LDR-002",
+    "role": "loader",
+    "phone": "0721000002",
+    "depot": "KDY",
+    "outlet_id": null
+  },
+  {
+    "email": "loader03@curlx.tech",
+    "employee_code": "LDR-003",
+    "role": "loader",
+    "phone": "0721000003",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "store@curlx.tech",
+    "employee_code": "MGR-001",
+    "role": "store_manager",
+    "phone": "0741000001",
+    "depot": "PEL",
+    "outlet_id": "OUT001"
+  },
+  {
+    "email": "store02@curlx.tech",
+    "employee_code": "MGR-002",
+    "role": "store_manager",
+    "phone": "0741000002",
+    "depot": "PEL",
+    "outlet_id": "OUT030"
+  },
+  {
+    "email": "store03@curlx.tech",
+    "employee_code": "MGR-003",
+    "role": "store_manager",
+    "phone": "0741000003",
+    "depot": "PEL",
+    "outlet_id": "OUT065"
+  }
+]

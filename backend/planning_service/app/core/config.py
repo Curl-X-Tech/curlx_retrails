@@ -14,7 +14,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(env_file=(".env", "../../.env"), env_file_encoding="utf-8", extra="ignore")
 
     # ── Service identity ──────────────────────────────────────────────────── #
     SERVICE_NAME: str = "planning-engine"
@@ -39,7 +39,6 @@ class Settings(BaseSettings):
     # routes, and vehicles.
     CORE_SERVICE_URL: str = "http://localhost:8000"
     ORDER_SERVICE_URL: str = "http://localhost:8000"
-    OUTLET_SERVICE_URL: str = "http://localhost:8000"
     ROUTE_SERVICE_URL: str = "http://localhost:8000"
     VEHICLE_SERVICE_URL: str = "http://localhost:8000"
 

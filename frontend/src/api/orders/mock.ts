@@ -13,11 +13,12 @@ import type {
 let ordersState: OrderDetail[] = [...INITIAL_SEED_ORDERS];
 
 const VALID_TRANSITIONS: Record<OrderLifecycleStatus, OrderLifecycleStatus[]> = {
-  pending: ["allocated", "deferred"],
+  pending: ["allocated", "deferred", "cancelled"],
   allocated: ["in_transit", "pending", "deferred"],
   in_transit: ["delivered"],
   deferred: ["pending"],
   delivered: [],
+  cancelled: [],
 };
 
 export async function getOrdersMock(

@@ -107,24 +107,8 @@ async def _create_tables() -> None:
 
 
 async def init_db() -> None:
-    from app.core.seed import (
-        seed_initial_users,
-        seed_master_brands,
-        seed_master_calendar,
-        seed_master_depots,
-        seed_master_districts,
-        seed_master_items,
-        seed_master_outlets,
-        seed_master_prices,
-    )
+    from app.db.seed import seed_database
 
     await _create_tables()
     async with async_session_maker() as session:
-        await seed_initial_users(session)
-        await seed_master_depots(session)
-        await seed_master_districts(session)
-        await seed_master_brands(session)
-        await seed_master_outlets(session)
-        await seed_master_items(session)
-        await seed_master_prices(session)
-        await seed_master_calendar(session)
+        await seed_database(session)

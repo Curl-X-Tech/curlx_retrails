@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.main import api_router
+from app.routers.main import api_router
 from app.core.config import settings
 from app.core.db import init_db
 from app.routers import (
@@ -14,9 +14,6 @@ from app.routers import (
     orders,
     orders_analytics,
     orders_status,
-    outlets,
-    outlets_lookup,
-    outlets_windows,
     plan_ingest,
     routes,
     runsheets,
@@ -74,18 +71,13 @@ if settings.BACKEND_CORS_ORIGINS:
 
 # --- Master Domain, Identity & Auth (/api/v1) ---
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(api_router, include_in_schema=False)
 
 # --- Orders ---
 for prefix in ("/orders/v1", "/orders"):
     app.include_router(orders_status.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
     app.include_router(orders_analytics.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
     app.include_router(orders.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
-
-# --- Outlets ---
-for prefix in ("/outlets/v1", "/outlets"):
-    app.include_router(outlets_lookup.router, prefix=prefix, include_in_schema=(prefix == "/outlets/v1"))
-    app.include_router(outlets_windows.router, prefix=prefix, include_in_schema=(prefix == "/outlets/v1"))
-    app.include_router(outlets.router, prefix=prefix, include_in_schema=(prefix == "/outlets/v1"))
 
 # --- Routes ---
 for prefix in ("/routes/v1", "/routes"):
@@ -110,7 +102,7 @@ for prefix in ("/dispatch/v1", "/dispatch"):
 
 # --- Sync ---
 app.include_router(sync.router, prefix=settings.API_V1_STR)
-app.include_router(sync.router, prefix="")
+app.include_router(sync.router, prefix="", include_in_schema=False)
 
 
 @app.get("/")

@@ -67,8 +67,9 @@ export function useOrderQueue() {
   const sortDirection = (searchParams.get("dir") as "asc" | "desc") || "asc";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
 
-  const { data: detailOrder } = useOrder(orderParam ?? "", {
+  const { data: detailOrder, isError: detailMissing } = useOrder(orderParam ?? "", {
     enabled: Boolean(orderParam),
+    retry: false,
   });
 
   const updateQueryParams = React.useCallback(
@@ -101,6 +102,10 @@ export function useOrderQueue() {
     },
     [setSearchParams]
   );
+
+  React.useEffect(() => {
+    if (detailMissing) updateQueryParams({ order: null });
+  }, [detailMissing, updateQueryParams]);
 
   const selectedOrder: QueuedOrder | null = React.useMemo(() => {
     if (!orderParam) return null;
