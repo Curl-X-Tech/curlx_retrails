@@ -3,7 +3,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import type L from "leaflet";
 import { Button } from "@/components/ui/button";
 import { SwipeToConfirm } from "@/components/ui/swipe-to-confirm";
-import { mockDriverTrip } from "@/data/mock-driver-trips";
 import {
   useOfflineActiveTrip,
   useSyncState,
@@ -19,16 +18,14 @@ export function DriverActiveTripPage() {
   const navigate = useNavigate();
   const mapInstanceRef = React.useRef<L.Map | null>(null);
 
-  const { tripDetail, arriveAtStop } = useOfflineActiveTrip();
+  const { waypoints, arriveAtStop } = useOfflineActiveTrip();
   const { isOnline } = useSyncState();
-  const trip = tripDetail || mockDriverTrip;
-  const waypoints = trip.waypoints;
 
   const queryWpSeq = Number(searchParams.get("wp"));
   const initialIndex =
     queryWpSeq && waypoints.some((w) => w.seq === queryWpSeq)
       ? waypoints.findIndex((w) => w.seq === queryWpSeq)
-      : waypoints.findIndex((w) => w.status === "active") || 0;
+      : waypoints.findIndex((w) => w.status === "arrived" || w.status === "pending") || 0;
 
   const [currentIndex, setCurrentIndex] = React.useState(
     initialIndex >= 0 ? initialIndex : 0
@@ -63,13 +60,23 @@ export function DriverActiveTripPage() {
   };
 
   const handleGetDirections = () => {
+    if (!currentWp) return;
     const url = `https://www.google.com/maps/dir/?api=1&destination=${currentWp.lat},${currentWp.lng}`;
     window.open(url, "_blank");
   };
 
   const handleNavigateToUnload = () => {
+    if (!currentWp) return;
     navigate(`/driver/unload?wp=${currentWp.seq}`);
   };
+
+  if (!currentWp) {
+    return (
+      <div className="flex-1 flex items-center justify-center p-6 text-muted-foreground text-sm font-semibold">
+        Loading active trip route...
+      </div>
+    );
+  }
 
   return (
     <div className="relative w-full h-full flex flex-col min-h-0 overflow-hidden select-none bg-background">

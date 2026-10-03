@@ -5,7 +5,7 @@ import {
   ArrowsClockwiseIcon,
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import { mockDriverTrip } from "@/data/mock-driver-trips";
+import { useCurrentRoute } from "@/api/driver";
 
 export interface DriverHeaderProps {
   onOpenDrawer: () => void;
@@ -28,6 +28,10 @@ export function DriverHeader({
   syncState,
   pendingCount,
 }: DriverHeaderProps) {
+  const { data: route } = useCurrentRoute();
+  const tripCode = route?.trip.trip_code || "RT-14";
+  const regNumber = route?.trip.vehicle.reg_number || "NP-4811";
+
   const formatTimer = (totalSeconds: number) => {
     const mins = Math.floor(totalSeconds / 60);
     const secs = totalSeconds % 60;
@@ -49,12 +53,10 @@ export function DriverHeader({
 
         <div className="flex items-center gap-1.5">
           <span className="font-heading font-black text-sm text-foreground">
-            {mockDriverTrip.tripCode}
+            {tripCode}
           </span>
           <span className="text-muted-foreground text-xs font-semibold">·</span>
-          <span className="text-xs font-bold text-muted-foreground">
-            #{mockDriverTrip.regNumber}
-          </span>
+          <span className="text-xs font-bold text-muted-foreground">#{regNumber}</span>
         </div>
 
         {isOnBreak ? (

@@ -1,9 +1,7 @@
 import * as React from "react";
-import { useLiveQuery } from "dexie-react-hooks";
+import { useCurrentRoute, useTripProgress } from "@/api/driver";
+import { useArrive, useSubmitPod } from "@/api/deliveries";
 import { syncEngine, type SyncState } from "@/lib/sync-engine";
-import { mockDriverTrip } from "@/data/mock-driver-trips";
-import { driverRepo } from "../repo";
-import type { LocalTripSummary } from "../types";
 
 export function useSyncState() {
   const [syncStatus, setSyncStatus] = React.useState<{
@@ -32,90 +30,101 @@ export function useSyncState() {
 }
 
 export function useDriverTripsList() {
-  const trips = useLiveQuery(() => driverRepo.getTrips(), []);
+  const { data: route, isLoading } = useCurrentRoute();
 
-  React.useEffect(() => {
-    async function initTrips() {
-      const count = await driverRepo.getTripCount();
-      if (count === 0) {
-        const today = new Date().toISOString().split("T")[0];
-        const initialTrip: LocalTripSummary = {
-          id: mockDriverTrip.id,
-          tripCode: mockDriverTrip.tripCode,
-          driverId: mockDriverTrip.driver.id,
-          driverName: mockDriverTrip.driver.name,
-          date: today,
-          status: "dispatched",
-          vehicleId: mockDriverTrip.vehicleId,
-          regNumber: mockDriverTrip.regNumber,
-          modelName: mockDriverTrip.modelName,
-          depotName: mockDriverTrip.depotName,
-          totalWeightKg: mockDriverTrip.waypoints.reduce(
-            (acc, w) => acc + w.totalWeightKg,
-            0
-          ),
-          totalVolumeM3: mockDriverTrip.volumeCapM3,
-          totalStops: mockDriverTrip.waypoints.length,
-          isDownloaded: false,
-          downloadedAt: null,
-          updatedAt: new Date().toISOString(),
-        };
-        await driverRepo.putTrip(initialTrip);
-      }
-    }
-    void initTrips();
+  const downloadTrip = React.useCallback(async (_tripId: string): Promise<boolean> => {
+    return true;
   }, []);
 
-  const downloadTrip = React.useCallback(async (tripId: string): Promise<boolean> => {
-    return driverRepo.downloadTrip(tripId, mockDriverTrip);
-  }, []);
+  const trips = React.useMemo(() => {
+    if (!route) return [];
+    return [
+      {
+        id: route.trip.id,
+        tripCode: route.trip.trip_code,
+        driverId: route.trip.driver?.id || "drv-01",
+        driverName: route.trip.driver?.name || "Driver",
+        date: route.trip.dispatch_date,
+        status: route.trip.status,
+        vehicleId: route.trip.vehicle.id,
+        regNumber: route.trip.vehicle.reg_number,
+        modelName: route.trip.vehicle.model_name,
+        depotName: route.trip.depot.name,
+        totalWeightKg: route.waypoints.reduce(
+          (acc, w) => acc + w.order_summary.total_weight_kg,
+          0
+        ),
+        totalVolumeM3: route.trip.vehicle.volume_cap_m3,
+        totalStops: route.waypoints.length,
+        isDownloaded: true,
+        downloadedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ];
+  }, [route]);
 
   return {
-    trips: trips ?? [],
-    isLoading: trips === undefined,
+    trips,
+    isLoading,
     downloadTrip,
   };
 }
 
-export function useOfflineActiveTrip(tripId: string = mockDriverTrip.id) {
-  const tripSummary = useLiveQuery(() => driverRepo.getTripSummary(tripId), [tripId]);
-  const tripDetail = useLiveQuery(() => driverRepo.getTripDetail(tripId), [tripId]);
-  const stops = useLiveQuery(() => driverRepo.getStopsByTrip(tripId), [tripId]);
-  const items = useLiveQuery(() => driverRepo.getItemsByTrip(tripId), [tripId]);
+export function useOfflineActiveTrip() {
+  const { data: route, isLoading } = useCurrentRoute();
+  const arriveMutation = useArrive();
+  const submitPodMutation = useSubmitPod();
+  const progress = useTripProgress();
+
+  const waypoints = route?.waypoints ?? [];
 
   const arriveAtStop = React.useCallback(
     async (seq: number) => {
-      await driverRepo.arriveAtStop(tripId, seq);
+      const targetWp = waypoints.find((w) => w.seq === seq);
+      if (targetWp) {
+        await arriveMutation.mutateAsync({
+          waypointId: targetWp.route_leg_id,
+          payload: { arrived_at: new Date().toISOString() },
+        });
+      }
     },
-    [tripId]
+    [arriveMutation, waypoints]
   );
 
   const completeStop = React.useCallback(
-    async (seq: number) => {
-      await driverRepo.completeStop(tripId, seq);
-    },
-    [tripId]
-  );
-
-  const verifyPackage = React.useCallback(
     async (
-      packageCode: string,
-      status: "delivered" | "discrepancy",
-      discrepancyReason?: string
+      seq: number,
+      recipientName: string = "Store Manager",
+      signatureDataUrl: string = "data:image/svg+xml;base64,mock"
     ) => {
-      await driverRepo.verifyPackage(tripId, packageCode, status, discrepancyReason);
+      const targetWp = waypoints.find((w) => w.seq === seq);
+      if (targetWp) {
+        const now = new Date().toISOString();
+        await submitPodMutation.mutateAsync({
+          waypointId: targetWp.route_leg_id,
+          payload: {
+            recipient_name: recipientName,
+            signature_data_url: signatureDataUrl,
+            arrived_at: targetWp.arrived_at || now,
+            completed_at: now,
+          },
+        });
+      }
     },
-    [tripId]
+    [submitPodMutation, waypoints]
   );
 
   return {
-    tripSummary,
-    tripDetail: tripDetail?.data ?? mockDriverTrip,
-    stops: stops ?? [],
-    items: items ?? [],
-    isDownloaded: tripSummary?.isDownloaded ?? false,
+    route,
+    tripDetail: route,
+    waypoints,
+    stops: waypoints,
+    isDownloaded: true,
+    isLoading,
+    progress,
     arriveAtStop,
     completeStop,
-    verifyPackage,
   };
 }
+
+export { useCurrentRoute, useArrive, useSubmitPod, useTripProgress };

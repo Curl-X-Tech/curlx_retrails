@@ -19,7 +19,7 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 | `useUpdateDepot` | `src/hooks/use-master-data.ts` | `PUT /api/v1/master/depots/{id}` | Backend master depots router only implements `GET /` and `GET /{id}`. |
 | `useUpdateCalendarDay` | `src/hooks/use-master-data.ts` | `PUT /api/v1/master/calendar/{date}` | Backend master calendar router lacks day update endpoint. |
 | `useDriverTripsList` | `src/hooks/use-offline-trip.ts` | `GET /api/v1/driver/routes/current` | Driver route execution endpoint pending implementation in Issue #14; falls back to Dexie and mock trip. |
-| `useOfflineActiveTrip` | `src/hooks/use-offline-trip.ts` | `POST /api/v1/deliveries/*` | EPOD and delivery arrival endpoints pending implementation in Issue #14; queues mutations in Dexie. |
+| `useOfflineActiveTrip` | `src/hooks/use-offline-trip.ts` | `POST /api/v1/deliveries/*` | EPOD and delivery arrival endpoints pending implementation in Issue #14; queues mutations in Dexie. Note: API path param `{waypoint_id}` is treated as `route_leg.id`. |
 | Store Order Hooks | `src/pages/store/*` | `POST /api/v1/orders`, `GET /api/v1/orders` | Store orders CRUD pending backend implementation in Issue #10; UI consumes mock data directly. |
 | Dispatcher Queue Hooks | `src/pages/dispatcher/order-queue-page.tsx` | `GET /api/v1/orders` | Queue queries pending backend implementation in Issue #10; UI consumes mock data directly. |
 | Deferral Queue Hooks | `src/pages/dispatcher/deferrals-page.tsx` | `GET /api/v1/deferrals`, `POST /api/v1/orders/{id}/defer` | Deferral workflow pending backend implementation in Issue #11; UI consumes mock data directly. |

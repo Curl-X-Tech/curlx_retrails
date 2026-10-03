@@ -13,6 +13,11 @@ export function UnloadingHeader({
   onBack,
   onOpenFlagModal,
 }: UnloadingHeaderProps) {
+  const outletName =
+    (currentWp as { outletName?: string }).outletName ||
+    (currentWp as { outlet_name?: string }).outlet_name ||
+    "Outlet";
+
   return (
     <div className="shrink-0 px-4 pt-3 pb-2 flex items-center justify-between gap-3 border-b border-border/70 bg-background/95 backdrop-blur-md">
       <div className="flex items-center gap-2.5 min-w-0">
@@ -30,7 +35,7 @@ export function UnloadingHeader({
 
         <div className="flex flex-col min-w-0">
           <h2 className="font-heading font-black text-sm sm:text-base text-foreground truncate leading-tight">
-            {currentWp.outletName}
+            {outletName}
           </h2>
           <span className="text-[11px] font-semibold text-muted-foreground truncate">
             {currentWp.address}

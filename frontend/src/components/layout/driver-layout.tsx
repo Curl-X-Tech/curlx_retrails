@@ -1,7 +1,6 @@
 import * as React from "react";
 import { Outlet } from "react-router-dom";
 import { useSyncState } from "@/features/driver";
-import { mockDriverTrip } from "@/data/mock-driver-trips";
 import { DriverHeader } from "./driver-header";
 import { DriverBottomNav } from "./driver-bottom-nav";
 import { DriverDrawer } from "./driver-drawer";
@@ -9,7 +8,7 @@ import { DriverBreakDialog } from "./driver-break-dialog";
 
 export function DriverLayout() {
   const { isOnline, state: syncState, pendingCount } = useSyncState();
-  const [isOnBreak, setIsOnBreak] = React.useState(mockDriverTrip.onBreak);
+  const [isOnBreak, setIsOnBreak] = React.useState(false);
   const [breakTimerSeconds, setBreakTimerSeconds] = React.useState(0);
   const [isBreakModalOpen, setIsBreakModalOpen] = React.useState(false);
   const [isMenuDrawerOpen, setIsMenuDrawerOpen] = React.useState(false);

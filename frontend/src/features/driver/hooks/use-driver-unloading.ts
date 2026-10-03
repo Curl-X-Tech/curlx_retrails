@@ -1,36 +1,54 @@
 import * as React from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { mockDriverTrip } from "@/data/mock-driver-trips";
-import type { DriverWaypoint, DriverTrip } from "../types";
-import { useOfflineActiveTrip } from "./use-offline-trip";
+import { useCurrentRoute, type CurrentRouteWaypoint } from "@/api/driver";
+import { useSubmitPod, useLogDiscrepancy } from "@/api/deliveries";
+
+const FALLBACK_WAYPOINT: CurrentRouteWaypoint = {
+  id: "leg-fallback",
+  route_leg_id: "leg-fallback",
+  seq: 1,
+  outlet_id: "OUT001",
+  outlet_name: "Loading...",
+  address: "Address",
+  lat: 6.9,
+  lng: 79.8,
+  contact_name: "Store Manager",
+  contact_number: "+94 77 000 0000",
+  delivery_window: "08:00 AM",
+  status: "pending",
+  order_summary: {
+    order_id: "ord-fallback",
+    order_ref: "ORD-000",
+    total_weight_kg: 0,
+    total_crate_count: 0,
+    items: [],
+  },
+};
 
 export function useDriverUnloading() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { completeStop, verifyPackage } = useOfflineActiveTrip();
 
-  const [trip, setTrip] = React.useState<DriverTrip>(mockDriverTrip);
-  const waypoints = trip.waypoints;
+  const { data: route } = useCurrentRoute();
+  const submitPodMutation = useSubmitPod();
+  const logDiscrepancyMutation = useLogDiscrepancy();
 
+  const waypoints = route?.waypoints ?? [];
   const queryWpSeq = Number(searchParams.get("wp"));
+
   const targetWp =
     (queryWpSeq && waypoints.find((w) => w.seq === queryWpSeq)) ||
-    waypoints.find((w) => w.status === "active") ||
-    waypoints[0];
+    waypoints.find((w) => w.status === "arrived") ||
+    waypoints.find((w) => w.status === "pending") ||
+    waypoints[0] ||
+    FALLBACK_WAYPOINT;
 
-  const [currentWp, setCurrentWp] = React.useState<DriverWaypoint>(targetWp);
-  const [verifiedItems, setVerifiedItems] = React.useState<Set<string>>(() => {
-    if (targetWp.status === "completed") {
-      return new Set(targetWp.items.map((i) => i.id));
-    }
-    return new Set();
-  });
-  const [expandedItems, setExpandedItems] = React.useState<Set<string>>(() => {
-    if (targetWp.items.length > 0) {
-      return new Set([targetWp.items[0].id]);
-    }
-    return new Set();
-  });
+  const items = React.useMemo(() => {
+    return targetWp.order_summary.items;
+  }, [targetWp]);
+
+  const [verifiedItems, setVerifiedItems] = React.useState<Set<string>>(new Set());
+  const [expandedItems, setExpandedItems] = React.useState<Set<string>>(new Set());
 
   const [isFlagModalOpen, setIsFlagModalOpen] = React.useState(false);
   const [flaggedItemId, setFlaggedItemId] = React.useState<string | null>(null);
@@ -41,24 +59,24 @@ export function useDriverUnloading() {
 
   React.useEffect(() => {
     if (targetWp) {
-      setCurrentWp(targetWp);
       if (targetWp.status === "completed") {
-        setVerifiedItems(new Set(targetWp.items.map((i) => i.id)));
+        setVerifiedItems(new Set(targetWp.order_summary.items.map((i) => i.id)));
+      } else {
+        setVerifiedItems(new Set());
+      }
+      if (targetWp.order_summary.items.length > 0) {
+        setExpandedItems(new Set([targetWp.order_summary.items[0].id]));
       }
     }
   }, [targetWp]);
 
   const toggleItemVerification = (itemId: string) => {
-    const isNowVerified = !verifiedItems.has(itemId);
     setVerifiedItems((prev) => {
       const next = new Set(prev);
       if (next.has(itemId)) next.delete(itemId);
       else next.add(itemId);
       return next;
     });
-    const foundItem = currentWp.items.find((i) => i.id === itemId);
-    const code = foundItem?.packageCode || itemId;
-    void verifyPackage(code, isNowVerified ? "delivered" : "delivered");
   };
 
   const toggleExpandItem = (itemId: string) => {
@@ -75,35 +93,43 @@ export function useDriverUnloading() {
     setIsFlagModalOpen(true);
   };
 
-  const handleConfirmFlagIssue = () => {
-    if (flaggedItemId) {
-      setCurrentWp((prev) => ({
-        ...prev,
-        items: prev.items.map((i) =>
-          i.id === flaggedItemId ? { ...i, status: "discrepancy" as const } : i
-        ),
-      }));
-      const foundItem = currentWp.items.find((i) => i.id === flaggedItemId);
-      const code = foundItem?.packageCode || flaggedItemId;
-      void verifyPackage(code, "discrepancy", flagReason);
+  const handleConfirmFlagIssue = async () => {
+    if (targetWp && flaggedItemId) {
+      await logDiscrepancyMutation.mutateAsync({
+        waypointId: targetWp.route_leg_id,
+        payload: {
+          item_id: flaggedItemId,
+          issue_type: "damaged_in_transit",
+          reported_qty: 1,
+          notes: flagReason,
+        },
+      });
     }
     setIsFlagModalOpen(false);
     setFlaggedItemId(null);
   };
 
-  const handleFinalDeliveryConfirm = () => {
-    setTrip((prev) => ({
-      ...prev,
-      waypoints: prev.waypoints.map((w) =>
-        w.seq === currentWp.seq ? { ...w, status: "completed" as const } : w
-      ),
-    }));
+  const handleFinalDeliveryConfirm = async (
+    recipientName: string = "Store Manager",
+    signatureDataUrl: string = "data:image/svg+xml;base64,mock"
+  ) => {
+    if (!targetWp) return;
 
-    void completeStop(currentWp.seq);
+    const now = new Date().toISOString();
+    await submitPodMutation.mutateAsync({
+      waypointId: targetWp.route_leg_id,
+      payload: {
+        recipient_name: recipientName,
+        signature_data_url: signatureDataUrl,
+        arrived_at: targetWp.arrived_at || now,
+        completed_at: now,
+      },
+    });
+
     setIsPodModalOpen(false);
 
     const nextWp = waypoints.find(
-      (w) => w.seq > currentWp.seq && w.status !== "completed"
+      (w) => w.seq > targetWp.seq && w.status !== "completed"
     );
     if (nextWp) {
       navigate(`/driver/active?wp=${nextWp.seq}`);
@@ -113,7 +139,9 @@ export function useDriverUnloading() {
   };
 
   return {
-    currentWp,
+    currentWp: targetWp,
+    targetWp,
+    items,
     verifiedItems,
     expandedItems,
     isFlagModalOpen,

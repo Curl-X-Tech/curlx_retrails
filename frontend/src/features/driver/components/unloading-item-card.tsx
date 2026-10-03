@@ -28,6 +28,29 @@ export function UnloadingItemCard({
   onToggleExpand,
   onOpenFlagModal,
 }: UnloadingItemCardProps) {
+  const orderRef =
+    (item as { orderRef?: string }).orderRef || item.order_ref || item.order_id;
+  const packageCode =
+    (item as { packageCode?: string }).packageCode || item.package_code || item.id;
+  const crateCount =
+    (item as { crateCount?: number }).crateCount ?? item.crate_count ?? 1;
+  const itemTitle =
+    (item as { itemTitle?: string }).itemTitle ||
+    item.item_title ||
+    item.category ||
+    "Cargo Item";
+  const weightKg = (item as { weightKg?: number }).weightKg ?? item.weight_kg ?? 0;
+  const shc =
+    (item as { specialHandlingCode?: string | null }).specialHandlingCode ??
+    item.special_handling_code;
+  const isReefer = (item as { isReefer?: boolean }).isReefer ?? shc === "COL";
+  const tempText =
+    (item as { temperature?: string }).temperature ||
+    (isReefer ? "Cold Chain (-18°C)" : "Ambient");
+  const stagingLocation =
+    (currentWp as { stagingLocation?: string }).stagingLocation ||
+    `Bay #${currentWp.seq}`;
+
   return (
     <div
       className={cn(
@@ -60,14 +83,14 @@ export function UnloadingItemCard({
           </button>
 
           <span className="font-heading font-black text-xs sm:text-sm text-foreground">
-            #{item.orderRef || item.packageCode}
+            #{orderRef || packageCode}
           </span>
 
           <span className="font-heading font-bold text-xs sm:text-sm text-[#0070BA]">
-            {item.crateCount} Crates
+            {crateCount} Crates
           </span>
 
-          {item.isReefer && (
+          {isReefer && (
             <div
               className="size-6 rounded-full bg-sky-100 dark:bg-sky-950/80 flex items-center justify-center text-[#0070BA] shrink-0"
               title="Cold Chain Temperature Controlled"
@@ -85,8 +108,8 @@ export function UnloadingItemCard({
             className="size-10"
             ariaLabel={
               isVerified
-                ? `Hold to uncheck ${item.orderRef || item.packageCode}`
-                : `Hold to verify ${item.orderRef || item.packageCode}`
+                ? `Hold to uncheck ${orderRef || packageCode}`
+                : `Hold to verify ${orderRef || packageCode}`
             }
           />
         </div>
@@ -95,25 +118,25 @@ export function UnloadingItemCard({
       {isExpanded && (
         <div className="px-4 pb-3.5 pt-1 border-t border-border/60 bg-muted/20 space-y-2 text-xs rounded-b-2xl">
           <div className="font-heading font-black text-xs sm:text-sm text-foreground leading-snug">
-            {item.category || item.itemTitle}
+            {item.category || itemTitle}
           </div>
 
           <div className="border-t border-border/50 divide-y divide-border/40 pt-1">
             <div className="py-1.5 flex items-center justify-between">
               <span className="text-muted-foreground font-medium">Total Weight</span>
               <strong className="font-heading font-bold text-foreground">
-                {item.weightKg} kg
+                {weightKg} kg
               </strong>
             </div>
 
             <div className="py-1.5 flex items-center justify-between">
               <span className="text-muted-foreground font-medium">Handling Type</span>
               <strong className="font-heading font-bold text-foreground">
-                {item.isReefer
-                  ? `Cold Chain (${item.temperature || "-18°C"})`
-                  : item.specialHandlingCode === "FRG"
+                {isReefer
+                  ? tempText
+                  : shc === "FRG"
                     ? "Fragile Intake"
-                    : item.specialHandlingCode === "MAL"
+                    : shc === "MAL"
                       ? "Mall Bay"
                       : "Ambient Cargo"}
               </strong>
@@ -125,7 +148,7 @@ export function UnloadingItemCard({
                 <span>Staging Location</span>
               </span>
               <strong className="font-heading font-bold text-foreground">
-                {currentWp.stagingLocation || "Bay 4C"}
+                {stagingLocation}
               </strong>
             </div>
           </div>

@@ -30,27 +30,48 @@ export function ActiveTripWaypointCard({
   onNavigateToUnload,
   onGetDirections,
 }: ActiveTripWaypointCardProps) {
+  const outletName =
+    (currentWp as { outletName?: string }).outletName ||
+    currentWp.outlet_name ||
+    "Outlet";
+  const deliveryWindow =
+    (currentWp as { deliveryWindow?: string }).deliveryWindow ||
+    currentWp.delivery_window ||
+    "Standard";
+  const totalWeight =
+    (currentWp as { totalWeightKg?: number }).totalWeightKg ??
+    currentWp.order_summary?.total_weight_kg ??
+    0;
+  const totalCrates =
+    (currentWp as { totalCrateCount?: number }).totalCrateCount ??
+    currentWp.order_summary?.total_crate_count ??
+    0;
+  const dockType =
+    (currentWp as { dockType?: string }).dockType || currentWp.dock_type || "rear_dock";
+  const stagingLocation =
+    (currentWp as { stagingLocation?: string }).stagingLocation ||
+    `Dock ${currentWp.seq}`;
+
+  const isCompleted = currentWp.status === "completed";
+  const isActive = currentWp.status === "arrived" || currentWp.status === "pending";
+
   return (
     <Card className="rounded-3xl p-4 bg-background/95 backdrop-blur-xl border border-border/90 shadow-2xl space-y-3.5">
       <div className="flex items-center gap-3">
         <span
           className={cn(
             "size-8 rounded-xl flex items-center justify-center font-heading font-black text-sm text-white shrink-0 shadow-xs",
-            currentWp.status === "completed"
-              ? "bg-emerald-600"
-              : currentWp.status === "active"
-                ? "bg-primary"
-                : "bg-sky-700"
+            isCompleted ? "bg-emerald-600" : isActive ? "bg-primary" : "bg-sky-700"
           )}
         >
           {currentWp.seq}
         </span>
         <div className="flex flex-col min-w-0">
           <h3 className="font-heading font-black text-base text-foreground truncate leading-tight">
-            {currentWp.outletName}
+            {outletName}
           </h3>
           <span className="text-[11px] font-semibold text-muted-foreground truncate">
-            Window: {currentWp.deliveryWindow}
+            Window: {deliveryWindow}
           </span>
         </div>
       </div>
@@ -60,13 +81,13 @@ export function ActiveTripWaypointCard({
           onClick={onNavigateToUnload}
           className={cn(
             "h-10 rounded-2xl font-bold text-xs gap-2 shadow-xs transition-all cursor-pointer",
-            currentWp.status === "completed"
+            isCompleted
               ? "bg-muted text-muted-foreground hover:bg-muted"
               : "bg-emerald-600 text-white hover:bg-emerald-700"
           )}
         >
           <CheckCircleIcon className="size-4" weight="fill" />
-          <span>{currentWp.status === "completed" ? "View Checklist" : "Arrived"}</span>
+          <span>{isCompleted ? "View Checklist" : "Arrived"}</span>
         </Button>
 
         <Button
@@ -88,21 +109,21 @@ export function ActiveTripWaypointCard({
         <div className="py-2 flex items-center justify-between">
           <span className="text-muted-foreground font-medium">Total Weight</span>
           <strong className="font-heading font-bold text-foreground">
-            {currentWp.totalWeightKg} kg
+            {totalWeight} kg
           </strong>
         </div>
 
         <div className="py-2 flex items-center justify-between">
           <span className="text-muted-foreground font-medium">Pallets / Crates</span>
           <strong className="font-heading font-bold text-primary">
-            {currentWp.totalCrateCount} Crates
+            {totalCrates} Crates
           </strong>
         </div>
 
         <div className="py-2 flex items-center justify-between">
           <span className="text-muted-foreground font-medium">Staging Location</span>
           <span className="font-semibold text-muted-foreground">
-            {currentWp.stagingLocation} ({currentWp.dockType.replace("_", " ")})
+            {stagingLocation} ({dockType.replace("_", " ")})
           </span>
         </div>
       </div>

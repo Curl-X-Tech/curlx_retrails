@@ -12,6 +12,7 @@ export function DriverUnloadingPage() {
   const navigate = useNavigate();
   const {
     currentWp,
+    items,
     verifiedItems,
     expandedItems,
     isFlagModalOpen,
@@ -30,6 +31,10 @@ export function DriverUnloadingPage() {
     handleFinalDeliveryConfirm,
   } = useDriverUnloading();
 
+  const totalCrates = currentWp.order_summary.total_crate_count;
+  const totalWeight = currentWp.order_summary.total_weight_kg;
+  const outletName = currentWp.outlet_name;
+
   return (
     <div className="relative w-full h-full flex flex-col min-h-0 overflow-hidden select-none bg-background">
       <UnloadingHeader
@@ -41,15 +46,15 @@ export function DriverUnloadingPage() {
       <div className="flex-1 overflow-y-auto p-4 space-y-3">
         <div className="flex items-center justify-between px-1">
           <span className="font-heading font-black text-xs uppercase tracking-wider text-muted-foreground">
-            Unloading Crates ({verifiedItems.size}/{currentWp.items.length})
+            Unloading Crates ({verifiedItems.size}/{items.length})
           </span>
           <span className="text-xs font-bold text-primary">
-            {currentWp.totalCrateCount} Crates · {currentWp.totalWeightKg} kg
+            {totalCrates} Crates · {totalWeight} kg
           </span>
         </div>
 
         <div className="space-y-3">
-          {currentWp.items.map((item) => (
+          {items.map((item) => (
             <UnloadingItemCard
               key={item.id}
               item={item}
@@ -84,7 +89,7 @@ export function DriverUnloadingPage() {
 
       <UnloadingFlagModal
         isOpen={isFlagModalOpen}
-        targetLabel={flaggedItemId ? `Item #${flaggedItemId}` : currentWp.outletName}
+        targetLabel={flaggedItemId ? `Item #${flaggedItemId}` : outletName}
         flagReason={flagReason}
         onSelectReason={setFlagReason}
         onConfirm={handleConfirmFlagIssue}

@@ -1,7 +1,9 @@
-import { NavigationArrowIcon, CheckCircleIcon } from "@phosphor-icons/react";
+import { NavigationArrowIcon, CheckCircleIcon, ClockIcon } from "@phosphor-icons/react";
+import { useLiveQuery } from "dexie-react-hooks";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { db } from "@/lib/dexie-db";
 import type { DriverWaypoint, LocalTripStop } from "../types";
 
 interface DriverStopCardProps {
@@ -16,7 +18,43 @@ export function DriverStopCard({
   onNavigateToUnload,
 }: DriverStopCardProps) {
   const isCompleted = wp.status === "completed";
-  const isActive = wp.status === "active";
+  const isActive = (wp.status as string) === "active" || wp.status === "arrived";
+
+  const outletName =
+    (wp as { outletName?: string }).outletName ||
+    (wp as { outlet_name?: string }).outlet_name ||
+    "Outlet";
+  const address = wp.address || "";
+  const deliveryWindow =
+    (wp as { deliveryWindow?: string }).deliveryWindow ||
+    (wp as { delivery_window?: string }).delivery_window ||
+    "Schedule";
+  const totalCrates =
+    (wp as { totalCrateCount?: number }).totalCrateCount ??
+    (wp as { order_summary?: { total_crate_count: number } }).order_summary
+      ?.total_crate_count ??
+    0;
+  const totalWeight =
+    (wp as { totalWeightKg?: number }).totalWeightKg ??
+    (wp as { order_summary?: { total_weight_kg: number } }).order_summary
+      ?.total_weight_kg ??
+    0;
+  const legId =
+    (wp as { route_leg_id?: string }).route_leg_id ||
+    (wp as { id?: string }).id ||
+    String(wp.seq);
+
+  const queuedMutations = useLiveQuery(
+    () => db.mutationQueue.where("syncStatus").equals("pending").toArray(),
+    []
+  );
+
+  const isQueued = queuedMutations?.some(
+    (m) =>
+      m.payload?.waypoint_id === legId ||
+      m.payload?.route_leg_id === legId ||
+      m.payload?.seq === wp.seq
+  );
 
   return (
     <Card
@@ -41,15 +79,18 @@ export function DriverStopCard({
           </span>
           <div className="flex flex-col min-w-0">
             <h4 className="font-heading font-bold text-xs text-foreground truncate">
-              {wp.outletName}
+              {outletName}
             </h4>
-            <span className="text-[11px] text-muted-foreground truncate">
-              {wp.address}
-            </span>
+            <span className="text-[11px] text-muted-foreground truncate">{address}</span>
           </div>
         </div>
 
-        {isCompleted ? (
+        {isQueued ? (
+          <span className="bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 flex items-center gap-1">
+            <ClockIcon className="size-3" weight="bold" />
+            Queued, will sync
+          </span>
+        ) : isCompleted ? (
           <span className="bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5 rounded-md shrink-0 flex items-center gap-1">
             <CheckCircleIcon className="size-3" weight="fill" />
             Delivered
@@ -60,18 +101,18 @@ export function DriverStopCard({
           </span>
         ) : (
           <span className="text-[11px] font-semibold text-muted-foreground shrink-0">
-            {wp.deliveryWindow.split(" - ")[0]}
+            {deliveryWindow.split(" - ")[0]}
           </span>
         )}
       </div>
 
       <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs">
         <div className="flex items-center gap-2 text-muted-foreground text-[11px] font-medium">
-          <span>{wp.totalCrateCount} Crates</span>
+          <span>{totalCrates} Crates</span>
           <span>·</span>
-          <span>{wp.totalWeightKg} kg</span>
+          <span>{totalWeight} kg</span>
           <span>·</span>
-          <span>{wp.deliveryWindow}</span>
+          <span>{deliveryWindow}</span>
         </div>
 
         <div className="flex items-center gap-1.5">

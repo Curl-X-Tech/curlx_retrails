@@ -1,49 +1,39 @@
-import type { SpecialHandlingCode, DockType, ParkingConstraint } from "@/types/domain";
-import type {
-  LocalTripSummary,
+export type {
+  CurrentRoute,
+  CurrentRouteTrip,
+  CurrentRouteWaypoint,
+  CurrentRouteOrderItem,
+  DriverWaypoint,
+  DriverOrderItem,
   LocalTripDetail,
-  LocalTripStop,
   LocalStopItem,
+  LocalTripSummary,
+  LocalTripStop,
+  TripProgressSummary,
+  WaypointStatus,
+  TripStatus,
+} from "@/api/driver";
+
+export type {
+  ProofOfDelivery,
+  DiscrepancyReport,
+  DiscrepancyIssueType,
+  ArriveRequest,
+  SubmitPodRequest,
+  LogDiscrepancyRequest,
+  OfflineMutationRecord,
+  TelemetryRecord,
   MutationRecord,
   LocalTelemetryRecord,
-} from "@/lib/dexie-db";
+} from "@/api/deliveries";
 
-export interface DriverOrderItem {
+export interface DriverTripDriver {
   id: string;
-  orderRef: string;
-  packageCode: string;
-  sku: string;
-  itemTitle: string;
-  category: string;
-  crateCount: number;
-  weightKg: number;
-  volumeM3: number;
-  temperature: string;
-  isReefer: boolean;
-  specialHandlingCode?: SpecialHandlingCode | null;
-  status: "pending" | "delivered" | "discrepancy";
-}
-
-export interface DriverWaypoint {
-  seq: number;
-  outletId: string;
-  outletCode: string;
-  outletName: string;
-  address: string;
-  lat: number;
-  lng: number;
-  dockType: DockType;
-  parkingConstraint?: ParkingConstraint;
-  stagingLocation: string;
-  deliveryWindow: string;
-  storeManagerName: string;
-  storeManagerPhone: string;
-  totalWeightKg: number;
-  totalCrateCount: number;
-  status: "completed" | "active" | "upcoming";
-  arrivedAt?: string;
-  departedAt?: string;
-  items: DriverOrderItem[];
+  name: string;
+  designation: string;
+  licenseId: string;
+  phone: string;
+  avatarInitials: string;
 }
 
 export interface DriverTrip {
@@ -67,28 +57,12 @@ export interface DriverTrip {
   depotName: string;
   depotLat: number;
   depotLng: number;
-  driver: {
-    id: string;
-    name: string;
-    designation: string;
-    licenseId: string;
-    phone: string;
-    avatarInitials: string;
-  };
+  driver: DriverTripDriver;
   status: "in_transit" | "paused" | "completed";
   activeWaypointSeq: number;
   plannedDepartureTime: string;
   estimatedReturnTime: string;
   breakDurationMinutes: number;
   onBreak: boolean;
-  waypoints: DriverWaypoint[];
+  waypoints: import("@/api/driver").CurrentRouteWaypoint[];
 }
-
-export type {
-  LocalTripSummary,
-  LocalTripDetail,
-  LocalTripStop,
-  LocalStopItem,
-  MutationRecord,
-  LocalTelemetryRecord,
-};
