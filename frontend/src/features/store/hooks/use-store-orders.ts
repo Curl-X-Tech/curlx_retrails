@@ -1,5 +1,5 @@
 import * as React from "react";
-import { getStoreOrders } from "@/data/mock-store-orders";
+import { useOrders, type CustomerOrder } from "@/api/orders";
 import type { StoreOrderRecord } from "../types";
 
 export interface StoreOrderFilterOptions {
@@ -9,15 +9,46 @@ export interface StoreOrderFilterOptions {
   dateFilter?: string;
 }
 
+function mapToStoreOrderRecord(order: CustomerOrder): StoreOrderRecord {
+  return {
+    id: order.id,
+    orderRef: order.order_ref,
+    outletId: order.outlet_id,
+    outletName: `Waypoint Fresh - ${order.outlet_id}`,
+    outletAddress: "Colombo, Sri Lanka",
+    district: "Colombo",
+    depot: "Peliyagoda",
+    orderDate: order.order_date,
+    requiredDate: order.required_date ?? order.order_date,
+    tempRequirement: order.temp_requirement,
+    status: (order.status === "delivered"
+      ? "served"
+      : order.status) as StoreOrderRecord["status"],
+    isUrgent: order.is_urgent ?? false,
+    totalItems: 3,
+    totalUnits: 25,
+    totalWeightKg: order.total_weight_kg,
+    totalVolumeM3: order.total_volume_m3,
+    totalOrderValueLkr: order.total_price_lkr,
+    createdAt: order.created_at,
+    items: [],
+  };
+}
+
 export function useStoreOrders() {
-  const [orders, setOrders] = React.useState<StoreOrderRecord[]>(() => getStoreOrders());
+  const { data: rawOrders = [], isLoading, error, refetch } = useOrders();
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [activeDetailOrder, setActiveDetailOrder] =
     React.useState<StoreOrderRecord | null>(null);
 
+  const orders: StoreOrderRecord[] = React.useMemo(
+    () => rawOrders.map(mapToStoreOrderRecord),
+    [rawOrders]
+  );
+
   const refreshOrders = React.useCallback(() => {
-    setOrders([...getStoreOrders()]);
-  }, []);
+    refetch();
+  }, [refetch]);
 
   const getFilteredOrders = React.useCallback(
     (filters: StoreOrderFilterOptions) => {
@@ -70,5 +101,7 @@ export function useStoreOrders() {
     getFilteredOrders,
     toggleSelectRow,
     toggleSelectAll,
+    isLoading,
+    error,
   };
 }

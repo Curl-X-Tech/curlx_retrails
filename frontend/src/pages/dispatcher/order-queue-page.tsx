@@ -35,7 +35,7 @@ export function OrderQueuePage({
     queue.sortDirection,
     queue.currentPage,
   ]);
-  const effectiveLoading = isLoading || isSimulatedLoading;
+  const effectiveLoading = isLoading || queue.isLoading || isSimulatedLoading;
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">

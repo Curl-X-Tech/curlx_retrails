@@ -1,16 +1,59 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
+import { useOrder, useOrders, type CustomerOrder } from "@/api/orders";
+import type { QueuedOrder, QueueSortKey, QueueViewMode, StoreOrderGroup } from "../types";
 import {
-  mockQueuedOrders,
-  getStoreGroupedOrders,
   computeOrderQueueKPIs,
-} from "@/data/mock-orders";
-import type { QueuedOrder, StoreOrderGroup, QueueSortKey, QueueViewMode } from "../types";
-import { filterQueuedOrders, sortQueuedOrders } from "./order-queue-filter-utils";
+  filterQueuedOrders,
+  getStoreGroupedOrders,
+  sortQueuedOrders,
+} from "./order-queue-filter-utils";
+
+function mapToQueuedOrder(order: CustomerOrder): QueuedOrder {
+  return {
+    id: order.id,
+    orderRef: order.order_ref,
+    outletId: order.outlet_id,
+    outletName: `Outlet ${order.outlet_id}`,
+    outletAddress: "Colombo, Sri Lanka",
+    brand: order.brand_id.includes("style")
+      ? "Style"
+      : order.brand_id.includes("tech")
+        ? "Tech"
+        : "Fresh",
+    district: "Colombo",
+    depot: "Peliyagoda",
+    dockType: "rear_dock",
+    parkingConstraint: "normal",
+    deliveryWindow: "05:00 - 08:00 AM",
+    orderDate: order.order_date,
+    requiredDate: order.required_date ?? order.order_date,
+    tempRequirement: order.temp_requirement,
+    status:
+      order.status === "delivered"
+        ? "served"
+        : order.status === "deferred"
+          ? "deferred"
+          : "pending",
+    isUrgent: order.is_urgent ?? false,
+    deferredYesterday: (order.deferred_yesterday ?? 0) as 0 | 1,
+    daysSinceLastServed: order.days_since_last_served ?? 0,
+    totalItems: 3,
+    totalWeightKg: order.total_weight_kg,
+    totalVolumeM3: order.total_volume_m3,
+    totalOrderValueLkr: order.total_price_lkr,
+    items: [],
+  };
+}
 
 export function useOrderQueue() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [orders] = React.useState<QueuedOrder[]>(mockQueuedOrders);
+  const { data: rawOrders = [], isLoading, error, refetch } = useOrders();
+
+  const orders: QueuedOrder[] = React.useMemo(
+    () => rawOrders.map(mapToQueuedOrder),
+    [rawOrders]
+  );
 
   const orderParam = searchParams.get("order");
   const searchQuery = searchParams.get("search") || searchParams.get("q") || "";
@@ -23,6 +66,10 @@ export function useOrderQueue() {
   const sortKey = (searchParams.get("sort") as QueueSortKey) || null;
   const sortDirection = (searchParams.get("dir") as "asc" | "desc") || "asc";
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
+
+  const { data: detailOrder } = useOrder(orderParam ?? "", {
+    enabled: Boolean(orderParam),
+  });
 
   const updateQueryParams = React.useCallback(
     (updates: Record<string, string | number | boolean | null | undefined>) => {
@@ -55,13 +102,34 @@ export function useOrderQueue() {
     [setSearchParams]
   );
 
-  const selectedOrder = React.useMemo(
-    () =>
-      orderParam
-        ? orders.find((o) => o.orderRef === orderParam || o.id === orderParam) || null
-        : null,
-    [orderParam, orders]
-  );
+  const selectedOrder: QueuedOrder | null = React.useMemo(() => {
+    if (!orderParam) return null;
+    const found = orders.find((o) => o.orderRef === orderParam || o.id === orderParam);
+    if (found && detailOrder) {
+      return {
+        ...found,
+        items: detailOrder.items.map((i) => ({
+          id: i.id || i.item_id,
+          orderId: detailOrder.id,
+          itemId: i.item_id,
+          packageCode: i.package_code || "PKG-000",
+          itemName: i.item_name || "Item",
+          category: i.category || "General",
+          requestedQty: i.requested_qty,
+          unitWeightKg: i.unit_weight_kg,
+          unitVolumeM3: i.unit_volume_m3,
+          unitPrice: i.unit_price,
+          totalWeightKg: Number((i.unit_weight_kg * i.requested_qty).toFixed(2)),
+          totalVolumeM3: Number((i.unit_volume_m3 * i.requested_qty).toFixed(4)),
+          totalPriceLkr: Number((i.unit_price * i.requested_qty).toFixed(2)),
+          specialHandlingCode:
+            (i.special_handling_code as QueuedOrder["items"][0]["specialHandlingCode"]) ||
+            "GEN",
+        })),
+      };
+    }
+    return found || null;
+  }, [orderParam, orders, detailOrder]);
 
   const filteredOrders = React.useMemo(
     () =>
@@ -147,6 +215,9 @@ export function useOrderQueue() {
     paginatedGridOrders,
     paginatedStoreGroups,
     paginatedOrders,
+    isLoading,
+    error,
+    refetch,
     updateQueryParams,
     handleExportOrders,
   };

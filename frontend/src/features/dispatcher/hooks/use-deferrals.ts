@@ -1,7 +1,7 @@
 import * as React from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
+import { useOrder } from "@/api/orders";
 import { mockCarryoverKPIs, mockDeferralAuditLogs } from "@/data/mock-deferrals";
-import { mockQueuedOrders } from "@/data/mock-orders";
 import { useCarryoverOrders } from "./use-carryover-orders";
 import { useDeferralAuditLogs } from "./use-deferral-audit-logs";
 import type { CarryoverGroupBy, AuditGroupBy, QueuedOrder } from "../types";
@@ -64,10 +64,64 @@ export function useDeferrals(
     [setSearchParams]
   );
 
+  const { data: detailOrder } = useOrder(orderParam ?? "", {
+    enabled: Boolean(orderParam),
+  });
+
   const selectedOrder: QueuedOrder | null = React.useMemo(() => {
-    if (!orderParam) return null;
-    return mockQueuedOrders.find((o) => o.orderRef === orderParam) || null;
-  }, [orderParam]);
+    if (!orderParam || !detailOrder) return null;
+    return {
+      id: detailOrder.id,
+      orderRef: detailOrder.order_ref,
+      outletId: detailOrder.outlet_id,
+      outletName: detailOrder.outlet_name || `Outlet ${detailOrder.outlet_id}`,
+      outletAddress: detailOrder.outlet_address || "",
+      brand: detailOrder.brand_id.includes("style")
+        ? "Style"
+        : detailOrder.brand_id.includes("tech")
+          ? "Tech"
+          : "Fresh",
+      district: detailOrder.district || "Colombo",
+      depot: detailOrder.depot || "Peliyagoda",
+      dockType: "rear_dock",
+      parkingConstraint: "normal",
+      deliveryWindow: detailOrder.delivery_window || "05:00 - 08:00 AM",
+      orderDate: detailOrder.order_date,
+      requiredDate: detailOrder.required_date ?? detailOrder.order_date,
+      tempRequirement: detailOrder.temp_requirement,
+      status:
+        detailOrder.status === "delivered"
+          ? "served"
+          : detailOrder.status === "deferred"
+            ? "deferred"
+            : "pending",
+      isUrgent: detailOrder.is_urgent ?? false,
+      deferredYesterday: (detailOrder.deferred_yesterday ?? 0) as 0 | 1,
+      daysSinceLastServed: detailOrder.days_since_last_served ?? 0,
+      totalItems: detailOrder.items.length,
+      totalWeightKg: detailOrder.total_weight_kg,
+      totalVolumeM3: detailOrder.total_volume_m3,
+      totalOrderValueLkr: detailOrder.total_price_lkr,
+      items: detailOrder.items.map((i) => ({
+        id: i.id || i.item_id,
+        orderId: detailOrder.id,
+        itemId: i.item_id,
+        packageCode: i.package_code || "PKG-000",
+        itemName: i.item_name || "Item",
+        category: i.category || "General",
+        requestedQty: i.requested_qty,
+        unitWeightKg: i.unit_weight_kg,
+        unitVolumeM3: i.unit_volume_m3,
+        unitPrice: i.unit_price,
+        totalWeightKg: Number((i.unit_weight_kg * i.requested_qty).toFixed(2)),
+        totalVolumeM3: Number((i.unit_volume_m3 * i.requested_qty).toFixed(4)),
+        totalPriceLkr: Number((i.unit_price * i.requested_qty).toFixed(2)),
+        specialHandlingCode:
+          (i.special_handling_code as QueuedOrder["items"][0]["specialHandlingCode"]) ||
+          "GEN",
+      })),
+    };
+  }, [orderParam, detailOrder]);
 
   const carryover = useCarryoverOrders(
     carryoverSearch,

@@ -22,9 +22,7 @@ import type {
   CarryoverSummaryKPIs,
   DeferralAuditRecord,
 } from "@/data/mock-deferrals";
-import type { getStoreGroupedOrders } from "@/data/mock-orders";
-
-export type StoreOrderGroup = ReturnType<typeof getStoreGroupedOrders>[number];
+import type { StoreOrderGroup } from "@/types";
 
 export type {
   BrandName,
@@ -44,6 +42,7 @@ export type {
   DeferralAuditRecord,
   OrderQueueKPIs,
   QueuedOrder,
+  StoreOrderGroup,
   VehicleAllocation,
 };
 

@@ -90,5 +90,18 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 | Offline Telemetry Mutation Queue | `useReportTelemetry` (`POST /fleet/telemetry/report`) | `sync_mutation_audit_log` (`entity_name = 'telemetry'`) | Offline driver mutation generates UUID v4 idempotency key, enqueues to Dexie, and defers backend network drain to M9 universal sync. |
 | Event Timestamps | `recorded_at` (`TIMESTAMPTZ` string) | PostgreSQL `TIMESTAMPTZ` (`timestamp`) | All GPS readings and status logs recorded in UTC ISO-8601 strings and rendered in local client time. |
 
+---
+
+## 6. Type Mismatches & Domain Alignments (M4 - Store Orders & Line Items)
+
+| Field / Concept | Frontend Type (`@/api/orders`) | Backend / Database Schema (`schema.sql`, `app/models/orders.py`) | Alignment Strategy |
+| :--- | :--- | :--- | :--- |
+| Order Lifecycle State | `OrderLifecycleStatus` (`pending`, `allocated`, `in_transit`, `delivered`, `deferred`) | `customer_order.status` (`pending`, `served`, `deferred`, `cancelled` / planned) | Frontend supports full 5-stage lifecycle state machine with validation rejecting invalid state jumps. |
+| Cutoff & Order Dates | `order_date`, `required_date` (`DATE` string `"YYYY-MM-DD"`) | PostgreSQL `DATE NOT NULL REFERENCES calendar_day(date)` | Evaluated against 4:00 PM Asia/Colombo daily cutoff in `@/lib/business-day.ts` without local time conversions. |
+| Physical & Monetary Totals | `total_weight_kg`, `total_volume_m3`, `total_price_lkr` | `v_customer_order_summary` aggregated view | Response payload supplies canonical server-computed order aggregates; client cart presents estimate preview. |
+| Offline Order Creation | `useCreateOrder` (`POST /api/v1/orders`) | `sync_mutation_audit_log` (`entity_name = 'order'`) | Generates UUID v4 idempotency key and enqueues to Dexie IndexedDB `mutationQueue`; merges local pending orders into `useOrders` queries. |
+| Special Handling Codes | `special_handling_code` (`COL`, `FRG`, `MAL`, `HAZ`, `GEN`) | `order_item.special_handling_code` `TEXT` | Canonical 4 codes + generic handling mapped and aligned with master items catalog. |
+| Status Transition Mutations | `useUpdateOrderStatus` (`PATCH /api/v1/orders/{id}/status`) | Planned backend endpoint (Issue #10) | In-memory mock adapter handles status transitions with lifecycle audit log and invalidates allocation/order queries. |
+
 
 

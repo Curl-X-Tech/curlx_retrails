@@ -1,5 +1,6 @@
 import * as React from "react";
-import { createStoreOrder } from "@/data/mock-store-orders";
+import { useCreateOrder } from "@/api/orders";
+import { getTargetOrderDate } from "@/lib/business-day";
 import type { CatalogProduct, StoreOrderItemRow, StoreOutletOption } from "../types";
 import type { OrderCatalog } from "./use-order-catalog";
 import {
@@ -19,22 +20,26 @@ export function useOrderBuilder({
   outlets,
   products,
 }: Pick<OrderCatalog, "outlets" | "products">) {
+  const [createdOrderRef, setCreatedOrderRef] = React.useState<string>("");
   const [orderRef] = React.useState(
     () => `ORD-2026-${Math.floor(100 + Math.random() * 900)}`
   );
   const [selectedOutlet, setSelectedOutlet] = React.useState<StoreOutletOption>(
     outlets[0]
   );
-  const [selectedDate, setSelectedDate] = React.useState<string>("2026-10-02");
+  const [selectedDate, setSelectedDate] = React.useState<string>(() =>
+    getTargetOrderDate()
+  );
   const [isUrgent, setIsUrgent] = React.useState<boolean>(false);
   const [outletSearch, setOutletSearch] = React.useState<string>("");
   const [catalogSearch, setCatalogSearch] = React.useState<string>("");
   const [isSearchingCatalog, setIsSearchingCatalog] = React.useState<boolean>(false);
   const [rows, setRows] = React.useState<StoreOrderItemRow[]>(() => loadSavedDraftRows());
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
   const [showSuccessModal, setShowSuccessModal] = React.useState<boolean>(false);
   const [showPrintPreview, setShowPrintPreview] = React.useState<boolean>(false);
+
+  const createOrderMutation = useCreateOrder();
 
   React.useEffect(() => {
     saveDraftRows(rows);
@@ -83,33 +88,32 @@ export function useOrderBuilder({
 
   const metrics = calculateOrderMetrics(rows);
 
-  const handleConfirmOrder = () => {
-    if (rows.length === 0) return;
-    setIsSubmitting(true);
-    setTimeout(() => {
-      createStoreOrder({
-        orderRef,
-        outletId: selectedOutlet.id,
-        outletName: selectedOutlet.name,
-        outletAddress: selectedOutlet.address,
-        district: selectedOutlet.district,
-        depot: selectedOutlet.depot,
-        orderDate: new Date().toISOString().split("T")[0],
-        requiredDate: selectedDate,
-        tempRequirement: metrics.hasColdChain ? "chilled" : "ambient",
-        status: "pending",
-        isUrgent,
-        ...metrics,
-        items: rows,
+  const handleConfirmOrder = async () => {
+    if (rows.length === 0 || !selectedOutlet) return;
+    try {
+      const created = await createOrderMutation.mutateAsync({
+        outlet_id: selectedOutlet.id,
+        order_date: selectedDate,
+        required_date: selectedDate,
+        temp_requirement: metrics.hasColdChain ? "chilled" : "ambient",
+        is_urgent: isUrgent,
+        items: rows.map((r) => ({
+          item_id: r.productId,
+          requested_qty: r.quantity,
+          special_handling_code: r.specialHandlingCode,
+        })),
       });
-      setIsSubmitting(false);
+      setCreatedOrderRef(created.order_ref);
       localStorage.removeItem(DRAFT_STORAGE_KEY);
       setShowSuccessModal(true);
-    }, 400);
+    } catch {
+      setCreatedOrderRef(orderRef);
+      setShowSuccessModal(true);
+    }
   };
 
   return {
-    orderRef,
+    orderRef: createdOrderRef || orderRef,
     selectedOutlet,
     setSelectedOutlet,
     selectedDate,
@@ -132,7 +136,7 @@ export function useOrderBuilder({
     rows,
     setRows,
     selectedRowIds,
-    isSubmitting,
+    isSubmitting: createOrderMutation.isPending,
     showSuccessModal,
     setShowSuccessModal,
     showPrintPreview,

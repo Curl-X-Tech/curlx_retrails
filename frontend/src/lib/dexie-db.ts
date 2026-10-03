@@ -69,8 +69,8 @@ export interface LocalStopItem {
 export interface MutationRecord {
   id?: number; // Auto-incremented
   tripId: string;
-  entityType: "trip" | "stop" | "item" | "telemetry" | "break";
-  actionType: string; // e.g., 'ARRIVE_STOP', 'COMPLETE_STOP', 'VERIFY_ITEM', 'RECORD_BREAK'
+  entityType: "trip" | "stop" | "item" | "telemetry" | "break" | "order";
+  actionType: string; // e.g., 'ARRIVE_STOP', 'COMPLETE_STOP', 'VERIFY_ITEM', 'RECORD_BREAK', 'CREATE_ORDER'
   payload: Record<string, unknown>;
   timestamp: string; // ISO UTC string
   syncStatus: "pending" | "syncing" | "synced" | "failed";

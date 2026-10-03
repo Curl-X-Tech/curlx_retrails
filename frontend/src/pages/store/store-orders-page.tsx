@@ -1,5 +1,7 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
+import { QueryState } from "@/components/shared";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   useStoreOrders,
   OrderListFilterBar,
@@ -26,6 +28,8 @@ export function StoreOrdersPage() {
     getFilteredOrders,
     toggleSelectRow,
     toggleSelectAll,
+    isLoading,
+    error,
   } = useStoreOrders();
 
   const filteredOrders = React.useMemo(() => {
@@ -77,19 +81,34 @@ export function StoreOrdersPage() {
       />
 
       <div className="flex-1 overflow-auto p-4">
-        <OrderListTable
-          orders={filteredOrders}
-          selectedIds={selectedIds}
-          allSelected={allSelected}
-          onToggleSelectAll={() => toggleSelectAll(filteredOrders)}
-          onToggleSelectRow={toggleSelectRow}
-          onSelectOrder={(order: StoreOrderRecord) => setActiveDetailOrder(order)}
-        />
+        <QueryState
+          isLoading={isLoading}
+          error={error}
+          isEmpty={filteredOrders.length === 0}
+          onRetry={refreshOrders}
+          emptyMessage="No orders found matching the filter criteria."
+          loading={
+            <div className="space-y-3">
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+              <Skeleton className="h-12 w-full" />
+            </div>
+          }
+        >
+          <OrderListTable
+            orders={filteredOrders}
+            selectedIds={selectedIds}
+            allSelected={allSelected}
+            onToggleSelectAll={() => toggleSelectAll(filteredOrders)}
+            onToggleSelectRow={toggleSelectRow}
+            onSelectOrder={(order: StoreOrderRecord) => setActiveDetailOrder(order)}
+          />
 
-        <OrderListCards
-          orders={filteredOrders}
-          onSelectOrder={(order: StoreOrderRecord) => setActiveDetailOrder(order)}
-        />
+          <OrderListCards
+            orders={filteredOrders}
+            onSelectOrder={(order: StoreOrderRecord) => setActiveDetailOrder(order)}
+          />
+        </QueryState>
       </div>
 
       <OrderListPagination totalCount={filteredOrders.length} />
