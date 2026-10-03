@@ -3,7 +3,6 @@ import { TruckIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { CardGridSkeleton } from "@/components/skeletons/card-grid-skeleton";
-import { useSimulatedLoading } from "@/lib/simulated-delay";
 import {
   useAllocations,
   AllocationKpiBar,
@@ -25,17 +24,7 @@ export function AllocationSummaryPage({
 }: AllocationSummaryPageProps = {}) {
   const navigate = useNavigate();
   const a = useAllocations();
-
-  const isSimulatedLoading = useSimulatedLoading([
-    a.searchQuery,
-    a.statusFilter,
-    a.categoryFilter,
-    a.viewMode,
-    a.sortKey,
-    a.sortDirection,
-    a.currentPage,
-  ]);
-  const effectiveLoading = isLoading || isSimulatedLoading;
+  const effectiveLoading = isLoading;
 
   const handleSelect = (alloc: VehicleAllocation) => {
     onSelectAllocation?.(alloc);

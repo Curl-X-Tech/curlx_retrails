@@ -1,4 +1,4 @@
-import { MOCK_USERS_SEED, type MockUserWithMeta } from "@/data/mock-users";
+import { MOCK_USERS_SEED, type MockUserWithMeta } from "@/api/users/mock-data";
 import type { UserCreate } from "@/api/users";
 
 const LOCAL_USERS_KEY = "retrails_cached_users_v1";

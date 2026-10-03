@@ -1,24 +1,4 @@
-import type {
-  AllocationDriverDetails,
-  AllocationManifestDetail,
-  AllocationVehiclePosition,
-  AllocationVehicleSpec,
-  AllocationWaypoint,
-  AssignedStop,
-  CargoItem,
-  VehicleAllocation,
-} from "@/types";
-
-export type {
-  AllocationDriverDetails,
-  AllocationManifestDetail,
-  AllocationVehiclePosition,
-  AllocationVehicleSpec,
-  AllocationWaypoint,
-  AssignedStop,
-  CargoItem,
-  VehicleAllocation,
-};
+import type { AllocationManifestDetail, AssignedStop, VehicleAllocation } from "@/types";
 
 const mockAllocationManifests: Record<string, AllocationManifestDetail> = {
   "alloc-01": {

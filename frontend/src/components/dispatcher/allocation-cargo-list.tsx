@@ -7,7 +7,7 @@ import {
   SheetFooter,
   SheetClose,
 } from "@/components/ui/sheet";
-import type { CargoItem } from "@/data/mock-allocation-details";
+import type { CargoItem } from "@/types";
 import { CargoListTable } from "./cargo-list-table";
 import { CargoListHeader } from "./cargo-list-header";
 import { useCargoListFilter } from "./use-cargo-list-filter";

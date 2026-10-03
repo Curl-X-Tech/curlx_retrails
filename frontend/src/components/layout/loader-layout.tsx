@@ -8,6 +8,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { LoaderSidebar } from "./loader-sidebar";
+import { SyncStatusIndicator } from "@/components/shared";
 
 export function LoaderLayout() {
   const navigate = useNavigate();
@@ -66,6 +67,7 @@ export function LoaderLayout() {
               <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
               <span>Station: Bay 04</span>
             </div>
+            <SyncStatusIndicator />
           </div>
         </header>
 

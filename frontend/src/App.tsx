@@ -7,6 +7,8 @@ import { DispatcherRoutes } from "@/routes/dispatcher-routes";
 import { LoaderRoutes } from "@/routes/loader-routes";
 import { DriverRoutes } from "@/routes/driver-routes";
 import { StoreRoutes } from "@/routes/store-routes";
+import * as React from "react";
+import { startSync, stopSync } from "@/sync";
 
 export function App() {
   const { user, isAuthenticated } = useAuth();
@@ -17,6 +19,11 @@ export function App() {
       : activeDomainRole
         ? getRoleHomePath(activeDomainRole)
         : "/login";
+
+  React.useEffect(() => {
+    startSync();
+    return () => stopSync();
+  }, []);
 
   return (
     <Routes>

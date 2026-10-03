@@ -8,7 +8,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import type { CargoItem } from "@/data/mock-allocation-details";
+import type { CargoItem } from "@/types";
 import { CargoListRow } from "./cargo-list-row";
 
 export type CargoSortField = "code" | "weight" | null;

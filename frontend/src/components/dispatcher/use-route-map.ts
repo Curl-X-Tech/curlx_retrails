@@ -1,9 +1,6 @@
 import * as React from "react";
 import L from "leaflet";
-import type {
-  AllocationWaypoint,
-  AllocationVehiclePosition,
-} from "@/data/mock-allocation-details";
+import type { AllocationWaypoint, AllocationVehiclePosition } from "@/types";
 import { buildTileUrl } from "@/lib/map-themes";
 import {
   getWaypointCategory,

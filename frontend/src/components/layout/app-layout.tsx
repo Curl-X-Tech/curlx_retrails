@@ -4,6 +4,7 @@ import { AppSidebar } from "@/components/layout/sidebar";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/auth-context";
 import { AppBreadcrumbs } from "./app-breadcrumbs";
+import { SyncStatusIndicator } from "@/components/shared";
 
 export function AppLayout() {
   const location = useLocation();
@@ -38,6 +39,10 @@ export function AppLayout() {
               <Separator orientation="vertical" className="h-4 hidden sm:block" />
               <AppBreadcrumbs pathname={location.pathname} />
             </div>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <SyncStatusIndicator />
           </div>
         </header>
 

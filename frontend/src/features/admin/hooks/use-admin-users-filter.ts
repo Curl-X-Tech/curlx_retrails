@@ -1,7 +1,7 @@
 import * as React from "react";
 import { sortUsers } from "../admin-utils";
 import type { UserSortKey } from "../types";
-import type { MockUserWithMeta } from "@/data/mock-users";
+import type { MockUserWithMeta } from "@/features/admin/types";
 
 interface UseAdminUsersFilterProps {
   users: MockUserWithMeta[];

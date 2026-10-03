@@ -1,4 +1,8 @@
 import type { AllocationDetail, AllocationKpis, AllocationSummary } from "./types";
+import { mockAllocationKPIs as legacyMockAllocationKPIs } from "@/data/mock-allocations";
+import { mockVehicleAllocations as legacyMockVehicleAllocations } from "@/data/mock-allocations";
+import { getManifestForAllocation as legacyGetManifestForAllocation } from "@/data/mock-allocation-details";
+import type { AllocationManifestDetail, VehicleAllocation } from "@/types";
 
 export const MOCK_ALLOCATION_SUMMARIES: AllocationSummary[] = [
   {
@@ -308,3 +312,13 @@ export const MOCK_ALLOCATION_KPIS: AllocationKpis = {
   avg_volume_utilization_pct: 81.5,
   fully_utilized_trips: 3,
 };
+
+export const mockVehicleAllocations: VehicleAllocation[] = legacyMockVehicleAllocations;
+
+export const mockAllocationKPIs = legacyMockAllocationKPIs;
+
+export function getManifestForAllocation(
+  allocation: VehicleAllocation
+): AllocationManifestDetail {
+  return legacyGetManifestForAllocation(allocation);
+}

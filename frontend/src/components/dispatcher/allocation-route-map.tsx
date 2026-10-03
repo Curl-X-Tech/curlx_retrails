@@ -3,10 +3,7 @@ import { PlusIcon, MinusIcon, CrosshairIcon } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
-import type {
-  AllocationWaypoint,
-  AllocationVehiclePosition,
-} from "@/data/mock-allocation-details";
+import type { AllocationWaypoint, AllocationVehiclePosition } from "@/types";
 import { useRouteMap } from "./use-route-map";
 
 interface AllocationRouteMapProps {

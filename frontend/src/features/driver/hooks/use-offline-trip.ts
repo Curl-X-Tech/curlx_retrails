@@ -1,30 +1,32 @@
 import * as React from "react";
 import { useCurrentRoute, useTripProgress } from "@/api/driver";
 import { useArrive, useSubmitPod } from "@/api/deliveries";
-import { syncEngine, type SyncState } from "@/lib/sync-engine";
+import { requestSyncDrain } from "@/sync/events";
+import { useSyncStatus } from "@/sync/use-sync-status";
 
 export function useSyncState() {
-  const [syncStatus, setSyncStatus] = React.useState<{
-    state: SyncState;
-    pendingCount: number;
-  }>({
-    state: syncEngine.isOnline ? "synced" : "offline",
-    pendingCount: 0,
-  });
+  const online = useSyncStatus((state) => state.online);
+  const draining = useSyncStatus((state) => state.draining);
+  const queueCount = useSyncStatus((state) => state.queueCount);
+  const blockedCount = useSyncStatus((state) => state.blockedCount);
 
-  React.useEffect(() => {
-    return syncEngine.subscribe((state, pendingCount) => {
-      setSyncStatus({ state, pendingCount });
-    });
-  }, []);
+  const pendingCount = queueCount + blockedCount;
+  const state = !online
+    ? "offline"
+    : draining
+      ? "syncing"
+      : pendingCount > 0
+        ? "online"
+        : "synced";
 
   const triggerSync = React.useCallback(() => {
-    syncEngine.drainMutationQueue();
+    requestSyncDrain("manual");
   }, []);
 
   return {
-    ...syncStatus,
-    isOnline: syncEngine.isOnline,
+    state,
+    pendingCount,
+    isOnline: online,
     triggerSync,
   };
 }
@@ -127,4 +129,4 @@ export function useOfflineActiveTrip() {
   };
 }
 
-export { useCurrentRoute, useArrive, useSubmitPod, useTripProgress };
+export { useCurrentRoute, useTripProgress };

@@ -7,7 +7,6 @@ interface ImportMetaEnv {
   readonly VITE_APP_NAME?: string;
   readonly VITE_MAP_API_KEY?: string;
   readonly VITE_MAP_TILE_URL?: string;
-  readonly VITE_SIMULATED_DELAY_SEC?: string;
 }
 
 interface ImportMeta {

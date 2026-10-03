@@ -1,3 +1,4 @@
+import { mockDelay } from "@/api/_mock-delay";
 import { getInMemoryCurrentRoute, updateInMemoryCurrentRoute } from "@/api/driver/mock";
 import { updateOrderStatusMock } from "@/api/orders/mock";
 import { enqueue } from "@/sync/queue";
@@ -32,6 +33,7 @@ export async function arriveWaypointMock(
   waypointId: string,
   payload: ArriveRequest
 ): Promise<{ success: boolean; waypoint_id: string; status: "arrived" }> {
+  await mockDelay();
   const currentRoute = getInMemoryCurrentRoute();
   const waypoint = currentRoute.waypoints.find(
     (w) =>
@@ -80,6 +82,7 @@ export async function submitPodMock(
   waypointId: string,
   payload: SubmitPodRequest
 ): Promise<ProofOfDelivery> {
+  await mockDelay();
   const currentRoute = getInMemoryCurrentRoute();
   const waypoint = currentRoute.waypoints.find(
     (w) =>
@@ -164,6 +167,7 @@ export async function logDiscrepancyMock(
   waypointId: string,
   payload: LogDiscrepancyRequest
 ): Promise<DiscrepancyReport> {
+  await mockDelay();
   const currentRoute = getInMemoryCurrentRoute();
   const waypoint = currentRoute.waypoints.find(
     (w) =>

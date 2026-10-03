@@ -1,7 +1,10 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
-import { mockVehicleAllocations, mockAllocationKPIs } from "@/data/mock-allocations";
-import { getManifestForAllocation } from "@/data/mock-allocation-details";
+import {
+  mockAllocationKPIs,
+  mockVehicleAllocations,
+  getManifestForAllocation,
+} from "@/api/allocations/mock-data";
 import type {
   VehicleAllocation,
   AllocationSortKey,

@@ -1,6 +1,6 @@
 import { TableRow, TableCell } from "@/components/ui/table";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import type { CargoItem } from "@/data/mock-allocation-details";
+import type { CargoItem } from "@/types";
 
 interface CargoListRowProps {
   item: CargoItem;

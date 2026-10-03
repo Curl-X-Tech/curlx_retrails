@@ -2,7 +2,7 @@ import * as React from "react";
 import type { Role } from "@/api/users";
 import { WarningCircleIcon } from "@phosphor-icons/react";
 import { FormDialog } from "@/components/shared";
-import type { MockUserWithMeta } from "@/data/mock-users";
+import type { MockUserWithMeta } from "@/features/admin/types";
 import { UserFormFields } from "./user-form-fields";
 
 export interface UserEditDialogProps {

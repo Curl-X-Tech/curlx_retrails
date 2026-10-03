@@ -14,7 +14,7 @@ import {
   type UserSortKey,
 } from "@/features/admin";
 import { useAdminUsersFilter } from "@/features/admin/hooks/use-admin-users-filter";
-import type { MockUserWithMeta } from "@/data/mock-users";
+import type { MockUserWithMeta } from "@/features/admin/types";
 import { cn } from "@/lib/utils";
 
 export function AdminUsersPage() {

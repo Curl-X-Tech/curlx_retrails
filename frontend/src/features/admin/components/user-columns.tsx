@@ -1,5 +1,5 @@
 import type { DataTableColumn } from "@/components/shared";
-import type { MockUserWithMeta } from "@/data/mock-users";
+import type { MockUserWithMeta } from "@/features/admin/types";
 import { cn } from "@/lib/utils";
 import { getRoleConfig } from "./user-constants";
 import { UserRowActions } from "./user-row-actions";

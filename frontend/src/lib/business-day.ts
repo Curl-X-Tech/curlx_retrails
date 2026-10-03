@@ -51,7 +51,7 @@ export function getTodayColomboDate(date: Date = new Date()): string {
 export function getTargetOrderDate(date: Date = new Date()): string {
   const parts = getColomboParts(date);
   const base = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
-  const offsetDays = isPastCutoff(date) ? 2 : 1;
+  const offsetDays = isPastCutoff(date) ? 1 : 0;
   base.setUTCDate(base.getUTCDate() + offsetDays);
   const y = base.getUTCFullYear();
   const m = String(base.getUTCMonth() + 1).padStart(2, "0");

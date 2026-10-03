@@ -1,3 +1,4 @@
+import { mockDelay } from "@/api/_mock-delay";
 import { INITIAL_SEED_ORDERS, MOCK_CATALOG_PRODUCTS } from "./mock-data";
 import type {
   CreateOrderRequest,
@@ -22,6 +23,7 @@ const VALID_TRANSITIONS: Record<OrderLifecycleStatus, OrderLifecycleStatus[]> = 
 export async function getOrdersMock(
   filters: OrderFilters = {}
 ): Promise<CustomerOrder[]> {
+  await mockDelay();
   let list = [...ordersState];
 
   if (filters.outlet_id) {
@@ -67,6 +69,7 @@ export async function getOrdersMock(
 }
 
 export async function getOrderMock(id: string): Promise<OrderDetail> {
+  await mockDelay();
   const order = ordersState.find((o) => o.id === id || o.order_ref === id);
   if (!order) {
     throw new Error(`Order ${id} not found`);
@@ -78,6 +81,7 @@ export async function createOrderMock(
   payload: CreateOrderRequest,
   idempotencyKey?: string
 ): Promise<CustomerOrder> {
+  await mockDelay();
   const id = idempotencyKey || `ord-${Date.now()}`;
   const order_ref = `ORD-${Date.now().toString().slice(-6)}`;
   const now = new Date().toISOString();
@@ -164,6 +168,7 @@ export async function updateOrderStatusMock(
   id: string,
   payload: UpdateOrderStatusRequest
 ): Promise<CustomerOrder> {
+  await mockDelay();
   const index = ordersState.findIndex((o) => o.id === id || o.order_ref === id);
   if (index === -1) {
     throw new Error(`Order ${id} not found`);

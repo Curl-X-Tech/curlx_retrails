@@ -8,7 +8,7 @@ import {
   type UserUpdate,
 } from "@/api/users";
 import { queryKeys } from "@/api/keys";
-import type { MockUserWithMeta } from "@/data/mock-users";
+import type { MockUserWithMeta } from "@/features/admin/types";
 import { getLocalUsers, saveLocalUsers, createSimulatedUser } from "./user-storage";
 
 export function useAdminUsers() {

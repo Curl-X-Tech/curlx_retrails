@@ -1,87 +1,29 @@
-import * as React from "react";
-import { count } from "./queue";
-import { drainMutationQueue, isSyncingActive } from "./drain";
+import { create } from "zustand";
 
-export interface SyncStatus {
-  isOnline: boolean;
-  isSyncing: boolean;
-  pendingCount: number;
-  lastSyncedAt: string | null;
-  triggerSync: () => Promise<void>;
+interface SyncStatusState {
+  online: boolean;
+  draining: boolean;
+  queueCount: number;
+  blockedCount: number;
+  lastSyncAt: string | null;
+  lastError: string | null;
+  setOnline: (online: boolean) => void;
+  setDraining: (draining: boolean) => void;
+  setCounts: (counts: Pick<SyncStatusState, "queueCount" | "blockedCount">) => void;
+  setLastSyncAt: (lastSyncAt: string | null) => void;
+  setLastError: (lastError: string | null) => void;
 }
 
-export function useSyncStatus(): SyncStatus {
-  const [isOnline, setIsOnline] = React.useState<boolean>(
-    typeof navigator !== "undefined" ? navigator.onLine : true
-  );
-  const [pendingCount, setPendingCount] = React.useState<number>(0);
-  const [isSyncing, setIsSyncing] = React.useState<boolean>(false);
-  const [lastSyncedAt, setLastSyncedAt] = React.useState<string | null>(null);
-
-  const refreshCount = React.useCallback(async () => {
-    try {
-      const c = await count();
-      setPendingCount(c);
-      setIsSyncing(isSyncingActive());
-    } catch {
-      // Ignore count error if DB is busy
-    }
-  }, []);
-
-  const triggerSync = React.useCallback(async () => {
-    if (!isOnline) return;
-    setIsSyncing(true);
-    try {
-      const { processed } = await drainMutationQueue();
-      if (processed > 0) {
-        setLastSyncedAt(new Date().toISOString());
-      }
-    } finally {
-      setIsSyncing(false);
-      await refreshCount();
-    }
-  }, [isOnline, refreshCount]);
-
-  React.useEffect(() => {
-    refreshCount();
-
-    const handleOnline = () => {
-      setIsOnline(true);
-      triggerSync();
-    };
-
-    const handleOffline = () => {
-      setIsOnline(false);
-      setIsSyncing(false);
-      refreshCount();
-    };
-
-    if (typeof window !== "undefined") {
-      window.addEventListener("online", handleOnline);
-      window.addEventListener("offline", handleOffline);
-    }
-
-    const intervalId = setInterval(() => {
-      refreshCount();
-      if (isOnline && !isSyncingActive()) {
-        triggerSync();
-      }
-    }, 10000);
-
-    return () => {
-      if (typeof window !== "undefined") {
-        window.removeEventListener("online", handleOnline);
-        window.removeEventListener("offline", handleOffline);
-      }
-      clearInterval(intervalId);
-    };
-  }, [isOnline, refreshCount, triggerSync]);
-
-  return {
-    isOnline,
-    isSyncing,
-    pendingCount,
-    lastSyncedAt,
-    triggerSync,
-  };
-}
+export const useSyncStatus = create<SyncStatusState>((set) => ({
+  online: typeof navigator !== "undefined" ? navigator.onLine : true,
+  draining: false,
+  queueCount: 0,
+  blockedCount: 0,
+  lastSyncAt: null,
+  lastError: null,
+  setOnline: (online) => set({ online }),
+  setDraining: (draining) => set({ draining }),
+  setCounts: (counts) => set(counts),
+  setLastSyncAt: (lastSyncAt) => set({ lastSyncAt }),
+  setLastError: (lastError) => set({ lastError }),
+}));

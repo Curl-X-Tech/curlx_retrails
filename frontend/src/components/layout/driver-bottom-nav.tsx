@@ -14,7 +14,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { mockDriverTrip } from "@/data/mock-driver-trips";
+import { useOfflineActiveTrip } from "@/features/driver/hooks/use-offline-trip";
 import { cn } from "@/lib/utils";
 
 export interface DriverBottomNavProps {
@@ -25,6 +25,7 @@ export function DriverBottomNav({ syncState }: DriverBottomNavProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
+  const { route } = useOfflineActiveTrip();
 
   const isHomeActive =
     location.pathname === "/driver" ||
@@ -81,7 +82,7 @@ export function DriverBottomNav({ syncState }: DriverBottomNavProps) {
           className="size-4.5"
           weight={isStopsActive ? "bold" : "regular"}
         />
-        <span className="text-[10px]">Stops ({mockDriverTrip.waypoints.length})</span>
+        <span className="text-[10px]">Stops ({route?.waypoints.length || 0})</span>
       </button>
 
       <DropdownMenu>
@@ -97,7 +98,7 @@ export function DriverBottomNav({ syncState }: DriverBottomNavProps) {
           <div className="px-2 py-1.5 text-xs text-muted-foreground">
             Driver:{" "}
             <span className="font-semibold text-foreground block truncate">
-              {user?.name || mockDriverTrip.driver.name}
+              {user?.name || route?.trip.driver?.name || "Driver"}
             </span>
             <span className="text-[10px] text-muted-foreground block truncate">
               {user?.email || "driver@curlx.tech"}

@@ -1,4 +1,3 @@
-export * from "./queue";
-export * from "./drain";
-export * from "./backoff";
-export * from "./use-sync-status";
+export { startSync, stopSync } from "./engine";
+export { enqueue } from "./queue";
+export { useSyncStatus } from "./use-sync-status";

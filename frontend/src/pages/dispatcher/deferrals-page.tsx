@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { OrderDetailSheet } from "@/components/dispatcher/order-detail-sheet";
-import { useSimulatedLoading } from "@/lib/simulated-delay";
 import {
   useDeferrals,
   DeferralsKpiBar,
@@ -25,21 +24,7 @@ export function DeferralsPage({
   isLoading = false,
 }: DeferralsPageProps = {}) {
   const d = useDeferrals(viewMode);
-
-  const isSimulatedLoading = useSimulatedLoading([
-    d.carryoverSearch,
-    d.carryoverBrandFilter,
-    d.carryoverGroupBy,
-    d.carryoverPage,
-    d.auditSearch,
-    d.auditReasonFilter,
-    d.auditResourceFilter,
-    d.auditGroupBy,
-    d.auditSortKey,
-    d.auditSortDirection,
-    d.auditPage,
-  ]);
-  const effectiveLoading = isLoading || isSimulatedLoading;
+  const effectiveLoading = isLoading;
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">

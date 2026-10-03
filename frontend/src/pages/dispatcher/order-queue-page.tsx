@@ -1,7 +1,6 @@
 import { TableSkeleton } from "@/components/skeletons/table-skeleton";
 import { CardGridSkeleton } from "@/components/skeletons/card-grid-skeleton";
 import { OrderDetailSheet } from "@/components/dispatcher/order-detail-sheet";
-import { useSimulatedLoading } from "@/lib/simulated-delay";
 import {
   useOrderQueue,
   QueueKpiBar,
@@ -22,20 +21,7 @@ export function OrderQueuePage({
   onNavigateToAllocation,
 }: OrderQueuePageProps = {}) {
   const queue = useOrderQueue();
-
-  const isSimulatedLoading = useSimulatedLoading([
-    queue.searchQuery,
-    queue.brandFilter,
-    queue.tempFilter,
-    queue.statusFilter,
-    queue.dockFilter,
-    queue.groupByStore,
-    queue.viewMode,
-    queue.sortKey,
-    queue.sortDirection,
-    queue.currentPage,
-  ]);
-  const effectiveLoading = isLoading || queue.isLoading || isSimulatedLoading;
+  const effectiveLoading = isLoading || queue.isLoading;
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">

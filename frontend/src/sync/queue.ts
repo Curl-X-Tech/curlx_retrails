@@ -1,5 +1,7 @@
 import { db } from "@/lib/dexie-db";
 import type { QueuedMutation, EntityType, MutationStatus } from "@/api/sync/types";
+import { requestSyncDrain } from "./events";
+import { useSyncStatus } from "./use-sync-status";
 
 export type EnqueuePayload = Omit<
   QueuedMutation,
@@ -26,6 +28,8 @@ export async function enqueue(mutation: EnqueuePayload): Promise<number> {
   };
 
   const id = await db.mutationQueue.add(record);
+  await refreshSyncQueueCounts();
+  requestSyncDrain("enqueue");
   return id;
 }
 
@@ -43,11 +47,13 @@ export async function markSent(keys: string[]): Promise<void> {
     .where("idempotency_key")
     .anyOf(keys)
     .modify({ status: "sending" });
+  await refreshSyncQueueCounts();
 }
 
 export async function markApplied(keys: string[]): Promise<void> {
   if (keys.length === 0) return;
   await db.mutationQueue.where("idempotency_key").anyOf(keys).delete();
+  await refreshSyncQueueCounts();
 }
 
 export async function markFailed(
@@ -59,6 +65,16 @@ export async function markFailed(
     .where("idempotency_key")
     .equals(key)
     .modify({ status: "failed", attempts, last_error: error });
+  await refreshSyncQueueCounts();
+}
+
+export async function retryMutation(idempotencyKey: string): Promise<void> {
+  await db.mutationQueue
+    .where("idempotency_key")
+    .equals(idempotencyKey)
+    .modify({ status: "queued", last_error: null });
+  await refreshSyncQueueCounts();
+  requestSyncDrain("retry");
 }
 
 export async function count(): Promise<number> {
@@ -66,6 +82,18 @@ export async function count(): Promise<number> {
     .where("status")
     .anyOf(["queued", "sending", "failed"] as MutationStatus[])
     .count();
+}
+
+export async function refreshSyncQueueCounts(): Promise<void> {
+  const [queueCount, blockedCount] = await Promise.all([
+    db.mutationQueue
+      .where("status")
+      .anyOf(["queued", "sending"] as MutationStatus[])
+      .count(),
+    db.mutationQueue.where("status").equals("failed").count(),
+  ]);
+
+  useSyncStatus.setState({ queueCount, blockedCount });
 }
 
 export async function listByEntity(entityType: EntityType): Promise<QueuedMutation[]> {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Card } from "@/components/ui/card";
 import { VehicleCargoVisualizer } from "@/components/shared";
-import type { VehicleAllocation } from "@/data/mock-allocations";
+import type { VehicleAllocation } from "@/types";
 
 interface AllocationPayloadCardProps {
   allocation: VehicleAllocation;

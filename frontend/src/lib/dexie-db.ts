@@ -1,5 +1,5 @@
 import Dexie, { type Table } from "dexie";
-import type { DriverTrip } from "@/data/mock-driver-trips";
+import type { DriverTrip } from "@/features/driver/types";
 import type { QueuedMutation } from "@/api/sync/types";
 
 export interface LocalTripSummary {

@@ -29,32 +29,7 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 
 ---
 
-## 2. Mock Data Exports Without Connected Backend Endpoints
-
-| Export Symbol | File Location | Entity Domain | Target Backend Endpoint (Planned) |
-| :--- | :--- | :--- | :--- |
-| `mockQueuedOrders` | `src/data/mock-orders.ts` | Customer Orders | `GET /api/v1/orders` (Issue #10) |
-| `mockCarryoverOrders` | `src/data/mock-deferrals.ts` | Deferred Orders | `GET /api/v1/deferrals` (Issue #11) |
-| `mockCarryoverKPIs` | `src/data/mock-deferrals.ts` | Deferral Metrics | `GET /api/v1/deferrals/summary` (Issue #11) |
-| `mockDeferralAuditLogs` | `src/data/mock-deferrals.ts` | Deferral Audit Trail | `GET /api/v1/deferrals` (Issue #11) |
-| `mockVehicleAllocations` | `src/data/mock-allocations.ts` | Daily Trips | `GET /api/v1/allocations` (Issue #12) |
-| `mockAllocationKPIs` | `src/data/mock-allocations.ts` | Allocation Summary | `GET /api/v1/allocations/summary` (Issue #12) |
-| `mockAllocationManifests` | `src/data/mock-allocation-details.ts` | Route Legs & Waypoints | `GET /api/v1/allocations/{id}` (Issue #12) |
-| `INITIAL_STORE_ORDERS` | `src/data/mock-store-orders.ts` | Store Order Records | `GET /api/v1/orders` (Issue #10) |
-| `getStoreOrderById` | `src/data/mock-store-orders.ts` | Store Order Lookup | `GET /api/v1/orders/{id}` (Issue #10) |
-| `STORE_OUTLETS` | `src/data/mock-store-orders.ts` | Retail Outlets | `GET /api/v1/master/outlets` (Implemented) |
-| `CATALOG_PRODUCTS` | `src/data/mock-store-orders.ts` | Catalog SKUs | `GET /api/v1/master/items` (Implemented) |
-| `mockLoaderTrips` | `src/data/mock-loader-bays.ts` | Dock Bays & Checklists | `GET /api/v1/loader/bays` (Issue #13) |
-| `mockDriverTrip` | `src/data/mock-driver-trips.ts` | Driver Active Trip | `GET /api/v1/driver/routes/current` (Issue #14) |
-| `MOCK_VEHICLES` | `src/data/mock-live-map.ts` | Vehicle Telemetry | `GET /api/v1/fleet/telemetry/live` (Issue #9) |
-| `MOCK_STORES` | `src/data/mock-live-map.ts` | Store Map Pins | `GET /api/v1/master/outlets` (Implemented) |
-| `MOCK_HUBS` | `src/data/mock-hubs.ts` | Depot Coordinates | `GET /api/v1/master/depots` (Implemented) |
-| `MAP_THEMES` | `src/data/mock-live-map.ts` | UI Map Styles | Client-side visual styling (No endpoint needed) |
-| `CENTRAL_HUB` | `src/data/mock-live-map.ts` | Map Center Coordinate | Client-side visual center (No endpoint needed) |
-
----
-
-## 3. Type Mismatches & Domain Alignments (M1 - Auth & Users)
+## 2. Type Mismatches & Domain Alignments (M1 - Auth & Users)
 
 | Field / Concept | Frontend Type (`@/api/auth`, `@/api/users`) | Backend / Database Schema (`schema.sql`, `app/entities/user.py`) | Alignment Strategy |
 | :--- | :--- | :--- | :--- |
@@ -65,7 +40,7 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 
 ---
 
-## 4. Type Mismatches & Domain Alignments (M2 - Master Data)
+## 3. Type Mismatches & Domain Alignments (M2 - Master Data)
 
 | Field / Concept | Frontend Type (`@/api/master`) | Backend / Database Schema (`schema.sql`, `app/schemas/master.py`) | Alignment Strategy |
 | :--- | :--- | :--- | :--- |
@@ -79,7 +54,7 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 
 ---
 
-## 5. Type Mismatches & Domain Alignments (M3 - Fleet & Telemetry)
+## 4. Type Mismatches & Domain Alignments (M3 - Fleet & Telemetry)
 
 | Field / Concept | Frontend Type (`@/api/fleet`, `@/api/telemetry`) | Backend / Database Schema (`schema.sql`, `app/models/telemetry.py`) | Alignment Strategy |
 | :--- | :--- | :--- | :--- |
@@ -92,7 +67,7 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 
 ---
 
-## 6. Type Mismatches & Domain Alignments (M4 - Store Orders & Line Items)
+## 5. Type Mismatches & Domain Alignments (M4 - Store Orders & Line Items)
 
 | Field / Concept | Frontend Type (`@/api/orders`) | Backend / Database Schema (`schema.sql`, `app/models/orders.py`) | Alignment Strategy |
 | :--- | :--- | :--- | :--- |
@@ -105,7 +80,7 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 
 ---
 
-## 7. Type Mismatches & Domain Alignments (M5 - Order Deferrals & Audit Queue)
+## 6. Type Mismatches & Domain Alignments (M5 - Order Deferrals & Audit Queue)
 
 | Field / Concept | Frontend Type (`@/api/deferrals`) | Backend / Database Schema (`schema.sql`, `app/models/deferral.py`) | Alignment Strategy |
 | :--- | :--- | :--- | :--- |
@@ -116,7 +91,7 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 
 ---
 
-## 8. Type Mismatches & Domain Alignments (M7 - Loader Bay Operations)
+## 7. Type Mismatches & Domain Alignments (M7 - Loader Bay Operations)
 
 | Field / Concept | Frontend Type (`@/api/loader`) | Backend / Database Schema (`schema.sql`, `app/models/loader.py`) | Alignment Strategy |
 | :--- | :--- | :--- | :--- |
@@ -127,7 +102,13 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 
 ---
 
-## 9. Type Mismatches & Domain Alignments (M9 - Universal Offline Sync Engine)
+## 8. Type Mismatches & Domain Alignments (M9 - Universal Offline Sync Engine)
+
+## How to Go Live
+
+1. Flip the endpoint `status` in `frontend/src/api/endpoints.ts`.
+2. Run the domain test list for the affected endpoint and its consumer hooks.
+3. Compare the live payload shape against the current mock response and log any differences before removing the mock path.
 
 | Field / Concept | Frontend Type (`@/api/sync`, `@/sync`) | Backend / Database Schema (`schema.sql`, `app/models/sync.py`) | Alignment Strategy |
 | :--- | :--- | :--- | :--- |

@@ -1,4 +1,5 @@
 import type { Role } from "@/api/users";
+import type { UserRead } from "@/api/users";
 import type {
   Depot,
   District,
@@ -43,3 +44,12 @@ export type ItemSortKey =
   "sku" | "name" | "brand" | "category" | "weight" | "volume" | "price";
 
 export type CalendarSortKey = "date" | "dayOfWeek" | "operating" | "surge" | "monsoon";
+
+export interface MockUserWithMeta extends UserRead {
+  department: string;
+  phone: string;
+  location: string;
+  avatarUrl?: string;
+  assignedVehicle?: string;
+  assignedHub?: string;
+}

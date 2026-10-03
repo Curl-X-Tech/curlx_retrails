@@ -1,6 +1,10 @@
 import * as React from "react";
 import { useCreateOrder } from "@/api/orders";
-import { getTargetOrderDate } from "@/lib/business-day";
+import {
+  getTodayColomboDate,
+  getTargetOrderDate,
+  isPastCutoff,
+} from "@/lib/business-day";
 import type { CatalogProduct, StoreOrderItemRow, StoreOutletOption } from "../types";
 import type { OrderCatalog } from "./use-order-catalog";
 import {
@@ -28,7 +32,7 @@ export function useOrderBuilder({
     outlets[0]
   );
   const [selectedDate, setSelectedDate] = React.useState<string>(() =>
-    getTargetOrderDate()
+    isPastCutoff() ? getTargetOrderDate() : getTodayColomboDate()
   );
   const [isUrgent, setIsUrgent] = React.useState<boolean>(false);
   const [outletSearch, setOutletSearch] = React.useState<string>("");

@@ -1,3 +1,4 @@
+import { mockDelay } from "@/api/_mock-delay";
 import { getOrderMock, updateOrderStatusMock } from "@/api/orders/mock";
 import { INITIAL_DEFERRAL_AUDIT_LOGS, INITIAL_DEFERRED_ORDERS } from "./mock-data";
 import type {
@@ -16,6 +17,7 @@ let auditLogsState: DeferralAuditLog[] = [...INITIAL_DEFERRAL_AUDIT_LOGS];
 export async function getDeferralsMock(
   filters: DeferralFilters = {}
 ): Promise<DeferredOrder[]> {
+  await mockDelay();
   let list = [...deferredOrdersState];
 
   if (filters.outlet_id) {
@@ -72,6 +74,7 @@ export async function getDeferralsMock(
 export async function getDeferralSummaryMock(
   _filters: DeferralFilters = {}
 ): Promise<DeferralSummary> {
+  await mockDelay();
   const total = deferredOrdersState.length;
   const critical = deferredOrdersState.filter((o) => o.deferred_yesterday === 1).length;
   const totalWeight = deferredOrdersState.reduce((sum, o) => sum + o.total_weight_kg, 0);
@@ -119,6 +122,7 @@ export async function deferOrderMock(
   id: string,
   payload: DeferOrderRequest
 ): Promise<DeferralAuditLog> {
+  await mockDelay();
   if (!payload.reason || !payload.limiting_resource) {
     throw new Error("Deferral reason and limiting resource are required.");
   }
@@ -215,6 +219,7 @@ export async function requeueDeferralMock(
   id: string,
   _payload?: RequeueRequest
 ): Promise<{ success: boolean; id: string }> {
+  await mockDelay();
   try {
     await updateOrderStatusMock(id, {
       status: "pending",

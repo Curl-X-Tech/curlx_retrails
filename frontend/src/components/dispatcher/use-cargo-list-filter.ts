@@ -1,5 +1,5 @@
 import * as React from "react";
-import type { CargoItem } from "@/data/mock-allocation-details";
+import type { CargoItem } from "@/types";
 import type { CargoSortField, CargoSortOrder, StopGroup } from "./cargo-list-table";
 
 export function useCargoListFilter(cargoList: CargoItem[]) {

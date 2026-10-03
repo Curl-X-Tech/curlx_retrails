@@ -11,6 +11,7 @@ import {
 } from "./api";
 import { getStoredToken } from "./tokens";
 import { getCachedSessionFromDexie } from "./session";
+import { requestSyncDrain } from "@/sync/events";
 import type {
   LoginCredentials,
   RefreshTokenRequest,
@@ -69,6 +70,7 @@ export function useRefreshToken() {
     mutationFn: (payload?: RefreshTokenRequest) => refreshToken(payload),
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: queryKeys.auth.all });
+      requestSyncDrain("token-refresh");
     },
   });
 }

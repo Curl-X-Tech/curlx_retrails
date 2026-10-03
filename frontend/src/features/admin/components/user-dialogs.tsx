@@ -1,5 +1,5 @@
 import { UserCreateDialog, UserEditDialog, UserDeleteDialog } from "./index";
-import type { MockUserWithMeta } from "@/data/mock-users";
+import type { MockUserWithMeta } from "@/features/admin/types";
 import type {
   useCreateAdminUser,
   useUpdateAdminUser,

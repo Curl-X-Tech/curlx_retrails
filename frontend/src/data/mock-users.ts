@@ -1,13 +1,4 @@
-import type { UserRead } from "@/api/users";
-
-export interface MockUserWithMeta extends UserRead {
-  department: string;
-  phone: string;
-  location: string;
-  avatarUrl?: string;
-  assignedVehicle?: string;
-  assignedHub?: string;
-}
+import type { MockUserWithMeta } from "@/features/admin/types";
 
 export const MOCK_USERS_SEED: MockUserWithMeta[] = [
   {

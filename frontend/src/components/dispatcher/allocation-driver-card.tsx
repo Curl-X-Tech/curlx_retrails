@@ -1,6 +1,6 @@
 import { UserIcon, IdentificationCardIcon, CalendarIcon } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
-import type { AllocationDriverDetails } from "@/data/mock-allocation-details";
+import type { AllocationDriverDetails } from "@/types";
 import { AllocationDriverShiftMeter } from "./allocation-driver-shift-meter";
 import { AllocationDriverContactBar } from "./allocation-driver-contact-bar";
 

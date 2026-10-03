@@ -1,3 +1,4 @@
+import { mockDelay } from "@/api/_mock-delay";
 import {
   MOCK_ALLOCATION_DETAILS,
   MOCK_ALLOCATION_KPIS,
@@ -19,6 +20,7 @@ const allocationDetailsState: Record<string, AllocationDetail> = {
 export async function getAllocationsMock(
   filters: AllocationFilters = {}
 ): Promise<AllocationSummary[]> {
+  await mockDelay();
   let result = [...allocationSummariesState];
 
   if (filters.dispatch_date) {
@@ -51,6 +53,7 @@ export async function getAllocationsMock(
 }
 
 export async function getAllocationDetailMock(id: string): Promise<AllocationDetail> {
+  await mockDelay();
   const detail = allocationDetailsState[id];
   if (detail) {
     return detail;
@@ -107,6 +110,7 @@ export async function getAllocationDetailMock(id: string): Promise<AllocationDet
 export async function getAllocationKpisMock(
   _filters: AllocationFilters = {}
 ): Promise<AllocationKpis> {
+  await mockDelay();
   const totalTrips = allocationSummariesState.length;
   const activeTrips = allocationSummariesState.filter(
     (a) =>
@@ -127,6 +131,7 @@ export async function getAllocationKpisMock(
 export async function confirmAllocationMock(
   id: string
 ): Promise<ConfirmAllocationResponse> {
+  await mockDelay();
   const summary = allocationSummariesState.find((a) => a.id === id);
   if (summary) {
     summary.status = "dispatched";

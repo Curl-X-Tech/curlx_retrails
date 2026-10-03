@@ -1,5 +1,7 @@
-import { mockVehicleAllocations } from "@/data/mock-allocations";
-import { getManifestForAllocation } from "@/data/mock-allocation-details";
+import {
+  getManifestForAllocation,
+  mockVehicleAllocations,
+} from "@/api/allocations/mock-data";
 
 export interface CrumbItem {
   label: string;

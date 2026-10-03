@@ -20,3 +20,4 @@ export * from "./use-hold-gesture";
 export * from "./circular-progress-ring";
 export * from "./sort-header-icon";
 export * from "./query-state";
+export * from "./sync-status-indicator";

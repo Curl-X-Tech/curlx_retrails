@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Outlet } from "react-router-dom";
 import { useSyncState } from "@/features/driver";
+import { SyncStatusIndicator } from "@/components/shared";
 import { DriverHeader } from "./driver-header";
 import { DriverBottomNav } from "./driver-bottom-nav";
 import { DriverDrawer } from "./driver-drawer";
@@ -40,6 +41,10 @@ export function DriverLayout() {
           syncState={syncState}
           pendingCount={pendingCount}
         />
+
+        <div className="flex items-center justify-end border-b border-border/60 bg-background px-3 py-2">
+          <SyncStatusIndicator />
+        </div>
 
         <main className="flex-1 min-h-0 relative overflow-hidden flex flex-col">
           <Outlet />

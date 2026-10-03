@@ -5,7 +5,7 @@ import {
   TruckIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
-import type { MockUserWithMeta } from "@/data/mock-users";
+import type { MockUserWithMeta } from "@/features/admin/types";
 
 export interface UserMetricsProps {
   users: MockUserWithMeta[];

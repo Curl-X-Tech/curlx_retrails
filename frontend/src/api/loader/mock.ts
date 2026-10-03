@@ -1,3 +1,4 @@
+import { mockDelay } from "@/api/_mock-delay";
 import { enqueue } from "@/sync/queue";
 import { MOCK_CARGO_BAYS, MOCK_TRIP_CHECKLISTS } from "./mock-data";
 import type {
@@ -16,6 +17,7 @@ let cargoBaysState: BayWithManifest[] = [...MOCK_CARGO_BAYS];
 const tripChecklistsState: Record<string, TripChecklist> = { ...MOCK_TRIP_CHECKLISTS };
 
 export async function getBaysMock(depotId?: string): Promise<BayWithManifest[]> {
+  await mockDelay();
   if (!depotId) return cargoBaysState;
   return cargoBaysState.filter(
     (b) =>
@@ -24,6 +26,7 @@ export async function getBaysMock(depotId?: string): Promise<BayWithManifest[]> 
 }
 
 export async function getTripChecklistMock(tripId: string): Promise<TripChecklist> {
+  await mockDelay();
   const checklist = tripChecklistsState[tripId];
   if (!checklist) {
     throw new Error(`Checklist for trip ${tripId} not found`);
@@ -36,6 +39,7 @@ export async function verifyItemMock(
   payload: VerifyItemRequest,
   targetTripId = "trip-1"
 ): Promise<VerifyItemResponse> {
+  await mockDelay();
   const checklist = tripChecklistsState[targetTripId];
   if (!checklist) {
     throw new Error(`Trip ${targetTripId} not found`);
@@ -116,6 +120,7 @@ export async function sealWaypointMock(
   seq: number,
   _payload?: SealWaypointRequest
 ): Promise<SealWaypointResponse> {
+  await mockDelay();
   const checklist = tripChecklistsState[tripId];
   if (!checklist) {
     throw new Error(`Trip ${tripId} not found`);
@@ -173,6 +178,7 @@ export async function confirmDepartureMock(
   tripId: string,
   payload: ConfirmDepartureRequest
 ): Promise<ConfirmDepartureResponse> {
+  await mockDelay();
   const checklist = tripChecklistsState[tripId];
   if (!checklist) {
     throw new Error(`Trip ${tripId} not found`);

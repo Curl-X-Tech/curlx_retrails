@@ -1,12 +1,12 @@
-import type { SpecialHandlingCode, DockType, ParkingConstraint } from "@/types/domain";
+import type {
+  SpecialHandlingCode,
+  DockType,
+  ParkingConstraint,
+  BayCoordinates,
+} from "@/types/domain";
 
 export type { SpecialHandlingCode, DockType, ParkingConstraint };
-
-export interface BayCoordinates {
-  bayX: number;
-  bayY: number;
-  bayZ: number;
-}
+export type { BayCoordinates };
 
 export interface LoaderOrderItem {
   id: string;
