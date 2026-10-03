@@ -6,7 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.main import api_router
+from app.routers.main import api_router
 from app.core.config import settings
 from app.core.db import init_db
 from app.routers import (

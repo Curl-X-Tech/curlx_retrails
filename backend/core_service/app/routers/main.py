@@ -6,7 +6,7 @@ from fastapi_users import exceptions
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.api.v1.master import master_router
+from app.routers.master import master_router
 from app.core.db import get_async_session
 from app.core.users import (
     UserManager,
