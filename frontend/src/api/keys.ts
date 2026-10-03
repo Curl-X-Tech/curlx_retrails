@@ -95,6 +95,11 @@ export const syncKeys = {
   status: () => [...syncKeys.all, "status"] as const,
 };
 
+export const engineKeys = {
+  all: ["engine"] as const,
+  status: () => [...engineKeys.all, "status"] as const,
+};
+
 export const queryKeys = {
   auth: authKeys,
   users: usersKeys,
@@ -104,6 +109,7 @@ export const queryKeys = {
   orders: ordersKeys,
   deferrals: deferralsKeys,
   allocations: allocationsKeys,
+  engine: engineKeys,
   loader: loaderKeys,
   driver: driverKeys,
   deliveries: deliveriesKeys,
