@@ -9,3 +9,5 @@ export * from "./filter-bar";
 export * from "./data-table";
 export * from "./admin-crud-shell";
 export * from "./hold-to-confirm-button";
+export * from "./circular-progress-ring";
+export * from "./sort-header-icon";
