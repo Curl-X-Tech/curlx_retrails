@@ -2,6 +2,7 @@ import * as React from "react";
 import { PlusIcon, MinusIcon, CrosshairIcon } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { IconButton } from "@/components/ui/icon-button";
+import { cn } from "@/lib/utils";
 import type {
   AllocationWaypoint,
   AllocationVehiclePosition,
@@ -37,9 +38,12 @@ export function AllocationRouteMap({
 
   return (
     <Card
-      className={`relative isolate overflow-hidden rounded-2xl border border-border/80 shadow-xs h-[230px] sm:h-[260px] min-w-0 ${className || ""}`}
+      className={cn(
+        "relative isolate overflow-hidden rounded-2xl border border-border/80 shadow-xs h-full min-h-[300px] w-full min-w-0 flex flex-col",
+        className
+      )}
     >
-      <div ref={mapContainerRef} className="w-full h-full z-0" />
+      <div ref={mapContainerRef} className="w-full h-full min-h-[300px] flex-1 z-0" />
       <div className="absolute top-2.5 left-2.5 z-10 flex items-center gap-1.5 bg-background/92 backdrop-blur-md px-2.5 py-1.5 rounded-lg border border-border/70 shadow-xs text-[11px] font-medium text-foreground select-none">
         <div className="flex items-center gap-1">
           <span className="size-2 rounded-full bg-[#059669]" />

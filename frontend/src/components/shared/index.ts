@@ -15,6 +15,7 @@ export * from "./data-table";
 export * from "./data-table-pagination";
 export * from "./admin-crud-shell";
 export * from "./hold-to-confirm-button";
+export * from "./hold-to-verify-button";
 export * from "./use-hold-gesture";
 export * from "./circular-progress-ring";
 export * from "./sort-header-icon";

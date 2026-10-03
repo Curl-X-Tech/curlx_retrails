@@ -5,7 +5,7 @@ import {
   WarningIcon,
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import { HoldToToggleCheckbox } from "@/components/ui/hold-to-toggle-checkbox";
+import { HoldToVerifyButton } from "@/components/shared";
 import { cn } from "@/lib/utils";
 import type { DriverOrderItem, DriverWaypoint } from "../types";
 
@@ -77,11 +77,12 @@ export function UnloadingItemCard({
           )}
         </div>
 
-        <div onClick={(e) => e.stopPropagation()}>
-          <HoldToToggleCheckbox
-            checked={isVerified}
+        <div onClick={(e) => e.stopPropagation()} className="flex items-center shrink-0">
+          <HoldToVerifyButton
+            isVerified={isVerified}
             onToggle={onToggleVerification}
-            holdDurationMs={500}
+            durationMs={400}
+            className="size-10"
             ariaLabel={
               isVerified
                 ? `Hold to uncheck ${item.orderRef || item.packageCode}`

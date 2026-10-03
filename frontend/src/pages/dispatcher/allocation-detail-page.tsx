@@ -114,15 +114,18 @@ export function AllocationDetailPage({
             <AllocationVehicleSpecCard specs={currentManifest.specs} />
           </div>
 
-          <AllocationPayloadCard allocation={selectedAllocation} />
-
-          <AllocationRouteMap
-            waypoints={currentManifest.waypoints}
-            vehiclePosition={currentManifest.vehiclePosition}
-            vehicleUnitId={currentManifest.specs.unitId}
-            vehicleModel={currentManifest.specs.model}
-            driverName={currentManifest.driver.name}
-          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <AllocationPayloadCard allocation={selectedAllocation} className="h-full" />
+            <AllocationRouteMap
+              key={selectedAllocationId}
+              waypoints={currentManifest.waypoints}
+              vehiclePosition={currentManifest.vehiclePosition}
+              vehicleUnitId={currentManifest.specs.unitId}
+              vehicleModel={currentManifest.specs.model}
+              driverName={currentManifest.driver.name}
+              className="h-full min-h-[300px]"
+            />
+          </div>
         </div>
       </div>
 

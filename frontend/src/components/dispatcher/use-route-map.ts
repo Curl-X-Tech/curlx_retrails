@@ -19,9 +19,8 @@ export function useRouteMap(
   vehicleModel = "truck",
   driverName?: string
 ) {
-  const mapInstanceRef = React.useRef<L.Map | null>(null);
-  const markersRef = React.useRef<L.Marker[]>([]);
-  const vehicleMarkerRef = React.useRef<L.Marker | null>(null);
+  const [mapInstance, setMapInstance] = React.useState<L.Map | null>(null);
+  const layerGroupRef = React.useRef<L.LayerGroup | null>(null);
 
   const apiKey =
     (import.meta as unknown as { env: Record<string, string> }).env?.VITE_MAP_API_KEY ||
@@ -34,29 +33,44 @@ export function useRouteMap(
   React.useEffect(() => {
     if (!mapContainerRef.current) return;
 
-    if (!mapInstanceRef.current) {
-      const map = L.map(mapContainerRef.current, {
-        center: [6.9366, 79.8612],
-        zoom: 12,
-        zoomControl: false,
-        attributionControl: false,
-      });
+    const map = L.map(mapContainerRef.current, {
+      center: [6.9366, 79.8612],
+      zoom: 12,
+      zoomControl: false,
+      attributionControl: false,
+    });
 
-      L.tileLayer(resolvedTileUrl, {
-        maxZoom: 20,
-        subdomains: "abcd",
-      }).addTo(map);
+    L.tileLayer(resolvedTileUrl, {
+      maxZoom: 20,
+      subdomains: "abcd",
+    }).addTo(map);
 
-      mapInstanceRef.current = map;
+    const layerGroup = L.layerGroup().addTo(map);
+    layerGroupRef.current = layerGroup;
+    setMapInstance(map);
+
+    const timer = setTimeout(() => map.invalidateSize(), 150);
+
+    const resizeObserver = new ResizeObserver(() => {
+      map.invalidateSize();
+    });
+    if (mapContainerRef.current) {
+      resizeObserver.observe(mapContainerRef.current);
     }
 
-    const map = mapInstanceRef.current;
-    markersRef.current.forEach((m) => m.remove());
-    markersRef.current = [];
-    if (vehicleMarkerRef.current) {
-      vehicleMarkerRef.current.remove();
-      vehicleMarkerRef.current = null;
-    }
+    return () => {
+      clearTimeout(timer);
+      resizeObserver.disconnect();
+      map.remove();
+      setMapInstance(null);
+      layerGroupRef.current = null;
+    };
+  }, [mapContainerRef, resolvedTileUrl]);
+
+  React.useEffect(() => {
+    if (!mapInstance || !layerGroupRef.current) return;
+    const layerGroup = layerGroupRef.current;
+    layerGroup.clearLayers();
 
     if (!waypoints || waypoints.length === 0) return;
 
@@ -65,13 +79,12 @@ export function useRouteMap(
     waypoints.forEach((wp) => {
       const pos: [number, number] = [wp.lat, wp.lng];
       allCoords.push(pos);
-
       const isHub = wp.name.toLowerCase().includes("hub") || wp.seq === 1;
       const category = getWaypointCategory(wp.status);
 
       const marker = L.marker(pos, {
         icon: createWaypointPin(wp.seq, category, isHub),
-      }).addTo(map);
+      });
 
       const statusBadge =
         category === "completed"
@@ -90,8 +103,7 @@ export function useRouteMap(
           </div>
         </div>
       `);
-
-      markersRef.current.push(marker);
+      marker.addTo(layerGroup);
     });
 
     if (vehiclePosition) {
@@ -105,7 +117,7 @@ export function useRouteMap(
           vehiclePosition.heading || 0
         ),
         zIndexOffset: 1000,
-      }).addTo(map);
+      });
 
       vMarker.bindPopup(`
         <div style="font-family: sans-serif; padding: 4px; min-width: 150px;">
@@ -122,37 +134,33 @@ export function useRouteMap(
           </div>
         </div>
       `);
-
-      vehicleMarkerRef.current = vMarker;
+      vMarker.addTo(layerGroup);
     }
 
     if (allCoords.length > 1) {
-      map.fitBounds(L.latLngBounds(allCoords), { padding: [30, 30], maxZoom: 14 });
+      mapInstance.fitBounds(L.latLngBounds(allCoords), {
+        padding: [30, 30],
+        maxZoom: 14,
+      });
     } else if (allCoords.length === 1) {
-      map.setView(allCoords[0], 13);
+      mapInstance.setView(allCoords[0], 13);
     }
-  }, [
-    waypoints,
-    vehiclePosition,
-    vehicleUnitId,
-    vehicleModel,
-    driverName,
-    resolvedTileUrl,
-    mapContainerRef,
-  ]);
 
-  const handleZoomIn = () => mapInstanceRef.current?.zoomIn();
-  const handleZoomOut = () => mapInstanceRef.current?.zoomOut();
+    mapInstance.invalidateSize();
+  }, [mapInstance, waypoints, vehiclePosition, vehicleUnitId, vehicleModel, driverName]);
+
+  const handleZoomIn = () => mapInstance?.zoomIn();
+  const handleZoomOut = () => mapInstance?.zoomOut();
   const handleRecenter = () => {
-    if (!mapInstanceRef.current) return;
+    if (!mapInstance) return;
     const allCoords: [number, number][] = waypoints.map(
       (w) => [w.lat, w.lng] as [number, number]
     );
     if (vehiclePosition) allCoords.push([vehiclePosition.lat, vehiclePosition.lng]);
     if (allCoords.length > 1) {
-      mapInstanceRef.current.fitBounds(L.latLngBounds(allCoords), { padding: [30, 30] });
+      mapInstance.fitBounds(L.latLngBounds(allCoords), { padding: [30, 30] });
     } else if (allCoords.length === 1) {
-      mapInstanceRef.current.setView(allCoords[0], 13);
+      mapInstance.setView(allCoords[0], 13);
     }
   };
 
