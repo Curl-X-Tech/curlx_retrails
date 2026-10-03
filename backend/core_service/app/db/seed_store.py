@@ -3,7 +3,13 @@
 import math
 from typing import Any
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.timezone import sl_today
+from app.entities.trip import Trip
+from app.services.checklist import ensure_checklist
+from app.services.planner import run_planner
 
 from app.db.seed_json import SeedData, resolve_depot
 from app.entities.customer_order import CustomerOrder, DeferralAuditLog, OrderItem
@@ -136,7 +142,7 @@ async def seed_store(
     drivers = await upsert(session, StaffProfile, "employee_code", staff_rows(data, users, depots), counts)
     await session.flush()
     await upsert(session, Vehicle, "vehicle_id", vehicle_rows(data, depots, drivers), counts)
-    if not data.orders:
+    if not data.orders or (await session.execute(select(Trip.id).limit(1))).first():
         return
 
     unit_prices = {p["sku"]: p["unit_price"] for p in data.prices}
@@ -172,3 +178,17 @@ async def seed_store(
             }
         )
     await upsert(session, DeferralAuditLog, "order_id", logs, counts)
+    await seed_trips(session, depots)
+
+
+async def seed_trips(session: AsyncSession, depots: dict[str, Depot]) -> None:
+    """Plans today's pending orders per depot and advances one trip per depot to loading."""
+    for depot in depots.values():
+        await run_planner(session, sl_today(), depot.id, None, set(), None)
+    await session.flush()
+    first_per_depot = {}
+    for trip in (await session.execute(select(Trip).order_by(Trip.trip_code))).scalars():
+        first_per_depot.setdefault(trip.depot_id, trip)
+    for trip in first_per_depot.values():
+        trip.status = "loading"
+        await ensure_checklist(session, trip.id)

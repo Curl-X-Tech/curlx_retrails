@@ -8,6 +8,14 @@ from app.entities.item import Item
 from app.entities.outlet import Outlet
 from app.entities.price_list import PriceList
 from app.entities.staff_profile import StaffProfile
+from app.entities.trip import (
+    DiscrepancyReport,
+    LoadingChecklistItem,
+    ProofOfDelivery,
+    RouteLeg,
+    Trip,
+    VehicleTelemetry,
+)
 from app.entities.user import User
 from app.entities.vehicle import Vehicle
 
@@ -18,12 +26,18 @@ __all__ = [
     "CustomerOrder",
     "DeferralAuditLog",
     "Depot",
+    "DiscrepancyReport",
     "District",
     "Item",
+    "LoadingChecklistItem",
     "OrderItem",
     "Outlet",
     "PriceList",
+    "ProofOfDelivery",
+    "RouteLeg",
     "StaffProfile",
+    "Trip",
     "User",
     "Vehicle",
+    "VehicleTelemetry",
 ]

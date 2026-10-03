@@ -11,6 +11,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.db import get_async_session
 from app.core.users import current_active_user
+from app.entities.trip import VehicleTelemetry
+from app.routers.deliveries import (
+    ArriveRequest,
+    DiscrepancyRequest,
+    PodRequest,
+    arrive,
+    log_discrepancy,
+    submit_pod,
+)
+from app.routers.telemetry import TelemetryReport, build_telemetry
 from app.entities.customer_order import CustomerOrder
 from app.entities.user import User
 from app.schemas.customer_order import OrderCreate
@@ -46,6 +56,50 @@ class SyncBatchResponse(BaseModel):
     processed_count: int
     results: list[MutationResult]
     server_timestamp: int
+
+
+async def _apply_telemetry(db: AsyncSession, m: QueuedMutationSchema) -> MutationResult:
+    try:
+        pings = [TelemetryReport.model_validate(p) for p in m.payload.get("pings", [])]
+    except ValidationError:
+        return MutationResult(idempotency_key=m.idempotency_key, status="conflict_resolved")
+    known = (
+        await db.execute(
+            select(VehicleTelemetry.id).where(VehicleTelemetry.idempotency_key == f"{m.idempotency_key}:0")
+        )
+    ).first()
+    if known is None:
+        for index, ping in enumerate(pings):
+            row = build_telemetry(ping)
+            row.idempotency_key = f"{m.idempotency_key}:{index}"
+            db.add(row)
+    return MutationResult(
+        idempotency_key=m.idempotency_key, status="duplicate_ignored" if known else "applied", entity_id=None
+    )
+
+
+async def _apply_delivery(
+    db: AsyncSession, user: User, m: QueuedMutationSchema, entity_id: str | None
+) -> MutationResult:
+    waypoint_id = m.payload.get("waypoint_id") or m.payload.get("route_leg_id")
+    try:
+        waypoint = uuid.UUID(str(waypoint_id))
+        if m.entity_type == "route_leg":
+            await arrive(waypoint, ArriveRequest.model_validate(m.payload), db, user)
+        elif "issue_type" in m.payload:
+            await log_discrepancy(waypoint, DiscrepancyRequest.model_validate(m.payload), db, user)
+        else:
+            await submit_pod(waypoint, PodRequest.model_validate(m.payload), db, user)
+    except (ValueError, ValidationError):
+        return MutationResult(idempotency_key=m.idempotency_key, status="conflict_resolved")
+    except HTTPException as exc:
+        known = exc.status_code == status.HTTP_409_CONFLICT
+        return MutationResult(
+            idempotency_key=m.idempotency_key,
+            status="duplicate_ignored" if known else "conflict_resolved",
+            entity_id=entity_id,
+        )
+    return MutationResult(idempotency_key=m.idempotency_key, status="applied", entity_id=entity_id)
 
 
 @router.post(
@@ -88,8 +142,11 @@ async def process_sync_batch(
                     entity_id=str(order.id),
                 )
             )
+        elif m.entity_type == "telemetry" and m.action == "create":
+            results.append(await _apply_telemetry(db, m))
+        elif m.entity_type in ("route_leg", "proof_of_delivery"):
+            results.append(await _apply_delivery(db, user, m, entity_id))
         else:
-            # For route legs, proof_of_delivery, checklists, telemetry
             results.append(MutationResult(idempotency_key=m.idempotency_key, status="applied", entity_id=entity_id))
 
     await db.commit()

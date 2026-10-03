@@ -26,12 +26,28 @@ from app.guards import (
 )
 from app.schemas import UserCreate, UserRead, UserUpdate
 
+from app.routers.allocations import router as allocations_router
+from app.routers.auth_refresh import router as auth_refresh_router
+from app.routers.deliveries import router as deliveries_router
+from app.routers.driver_route import router as driver_route_router
+from app.routers.loader import router as loader_router
+from app.routers.telemetry import router as telemetry_router
+
 api_router = APIRouter()
 
 api_router.include_router(master_router)
 api_router.include_router(fleet_router)
 api_router.include_router(store_orders_router)
 api_router.include_router(deferrals_router)
+for _router in (
+    allocations_router,
+    loader_router,
+    driver_route_router,
+    deliveries_router,
+    telemetry_router,
+    auth_refresh_router,
+):
+    api_router.include_router(_router)
 
 api_router.include_router(
     fastapi_users.get_auth_router(auth_backend),
