@@ -6,6 +6,7 @@ from app.guards.rate_limit import (
 )
 from app.guards.roles import (
     RoleGuard,
+    require_authenticated_user,
     require_dispatcher,
     require_driver,
     require_loader,
@@ -19,6 +20,7 @@ __all__ = [
     "api_rate_limiter",
     "auth_rate_limiter",
     "register_rate_limiter",
+    "require_authenticated_user",
     "require_dispatcher",
     "require_driver",
     "require_loader",
