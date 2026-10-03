@@ -10,11 +10,11 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { getStoreOrders, type StoreOrderRecord } from "@/data/mock-store-orders";
+import { useStoreOrders } from "@/features/store";
 
 export function StoreDashboardPage() {
   const navigate = useNavigate();
-  const [orders] = React.useState<StoreOrderRecord[]>(() => getStoreOrders());
+  const { orders } = useStoreOrders();
 
   const totalOrders = orders.length;
   const inTransitCount = orders.filter((o) => o.status === "in_transit").length;
