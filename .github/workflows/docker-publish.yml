@@ -30,9 +30,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -43,30 +40,51 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Extract metadata (tags, labels) for Backend
-      - name: Extract metadata for Backend
-        id: meta-backend
+      - name: Extract metadata for Core Service
+        id: meta-core
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-backend
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-core
           tags: |
             type=raw,value=latest,enable={{is_default_branch}}
             type=ref,event=branch
             type=ref,event=tag
             type=sha,prefix=sha-
 
-      # Build and push Backend image (multi-arch: amd64 + arm64)
-      - name: Build and push Backend Image
+      - name: Build and push Core Service Image
         uses: docker/build-push-action@v6
         with:
-          context: ./backend
-          file: ./backend/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          context: ./backend/core_service
+          file: ./backend/core_service/Dockerfile
+          platforms: linux/amd64
           push: true
-          tags: ${{ steps.meta-backend.outputs.tags }}
-          labels: ${{ steps.meta-backend.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          tags: ${{ steps.meta-core.outputs.tags }}
+          labels: ${{ steps.meta-core.outputs.labels }}
+          cache-from: type=gha,scope=core
+          cache-to: type=gha,mode=max,scope=core
+
+      - name: Extract metadata for Planning Service
+        id: meta-planning
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_PREFIX }}-planning
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=ref,event=branch
+            type=ref,event=tag
+            type=sha,prefix=sha-
+
+      - name: Build and push Planning Service Image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend/planning_service
+          file: ./backend/planning_service/Dockerfile
+          platforms: linux/amd64
+          push: true
+          tags: ${{ steps.meta-planning.outputs.tags }}
+          labels: ${{ steps.meta-planning.outputs.labels }}
+          cache-from: type=gha,scope=planning
+          cache-to: type=gha,mode=max,scope=planning
 
       # Extract metadata (tags, labels) for Frontend
       - name: Extract metadata for Frontend
@@ -80,18 +98,18 @@ jobs:
             type=ref,event=tag
             type=sha,prefix=sha-
 
-      # Build and push Frontend Image (multi-arch: amd64 + arm64)
+      # Build and push Frontend Image (amd64)
       - name: Build and push Frontend Image
         uses: docker/build-push-action@v6
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
           build-args: |
             VITE_MAP_API_KEY=${{ secrets.VITE_MAP_API_KEY }}
             VITE_MAP_TILE_URL=https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=gha,scope=frontend
+          cache-to: type=gha,mode=max,scope=frontend

@@ -29,9 +29,7 @@ async def test_admin_create_user_success(
         "name": "New Driver",
         "user_type": RoleType.DRIVER.value,
     }
-    response = await client.post(
-        "/api/v1/users", json=payload, headers=superuser_token_headers
-    )
+    response = await client.post("/api/v1/users", json=payload, headers=superuser_token_headers)
     assert response.status_code == 201
     data = response.json()
     assert data["email"] == "newdriver@example.com"
@@ -56,26 +54,20 @@ async def test_admin_create_user_duplicate_email(
         "name": "Duplicate User",
         "user_type": RoleType.DISPATCHER.value,
     }
-    response = await client.post(
-        "/api/v1/users", json=payload, headers=superuser_token_headers
-    )
+    response = await client.post("/api/v1/users", json=payload, headers=superuser_token_headers)
     assert response.status_code == 400
     assert response.json()["detail"] == "REGISTER_USER_ALREADY_EXISTS"
 
 
 @pytest.mark.asyncio
-async def test_non_admin_cannot_create_user(
-    client: AsyncClient, driver_token_headers: dict[str, str]
-):
+async def test_non_admin_cannot_create_user(client: AsyncClient, driver_token_headers: dict[str, str]):
     payload = {
         "email": "unauthorized_create@example.com",
         "password": "validpassword123",
         "name": "Hacker",
         "user_type": RoleType.DISPATCHER.value,
     }
-    response = await client.post(
-        "/api/v1/users", json=payload, headers=driver_token_headers
-    )
+    response = await client.post("/api/v1/users", json=payload, headers=driver_token_headers)
     assert response.status_code == 403
 
 
@@ -92,9 +84,7 @@ async def test_unauthenticated_cannot_create_user(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_admin_list_users(
-    client: AsyncClient, superuser_token_headers: dict[str, str]
-):
+async def test_admin_list_users(client: AsyncClient, superuser_token_headers: dict[str, str]):
     response = await client.get("/api/v1/users", headers=superuser_token_headers)
     assert response.status_code == 200
     data = response.json()
@@ -103,9 +93,7 @@ async def test_admin_list_users(
 
 
 @pytest.mark.asyncio
-async def test_non_admin_cannot_list_users(
-    client: AsyncClient, driver_token_headers: dict[str, str]
-):
+async def test_non_admin_cannot_list_users(client: AsyncClient, driver_token_headers: dict[str, str]):
     response = await client.get("/api/v1/users", headers=driver_token_headers)
     assert response.status_code == 403
 
@@ -154,9 +142,7 @@ async def test_inactive_user_cannot_login(client: AsyncClient, session: AsyncSes
 
 
 @pytest.mark.asyncio
-async def test_get_current_user(
-    client: AsyncClient, user_token_headers: dict[str, str]
-):
+async def test_get_current_user(client: AsyncClient, user_token_headers: dict[str, str]):
     response = await client.get("/api/v1/users/me", headers=user_token_headers)
     assert response.status_code == 200
     data = response.json()
@@ -172,9 +158,7 @@ async def test_get_current_user_unauthorized(client: AsyncClient):
 
 
 @pytest.mark.asyncio
-async def test_update_current_user_name(
-    client: AsyncClient, user_token_headers: dict[str, str]
-):
+async def test_update_current_user_name(client: AsyncClient, user_token_headers: dict[str, str]):
     response = await client.patch(
         "/api/v1/users/me",
         headers=user_token_headers,
@@ -188,9 +172,7 @@ async def test_update_current_user_name(
 
 
 @pytest.mark.asyncio
-async def test_self_update_cannot_escalate_to_system_admin(
-    client: AsyncClient, driver_token_headers: dict[str, str]
-):
+async def test_self_update_cannot_escalate_to_system_admin(client: AsyncClient, driver_token_headers: dict[str, str]):
     # Self-update runs in safe mode which silently strips user_type modifications
     response = await client.patch(
         "/api/v1/users/me",
@@ -204,9 +186,7 @@ async def test_self_update_cannot_escalate_to_system_admin(
 
 
 @pytest.mark.asyncio
-async def test_self_update_cannot_change_own_role(
-    client: AsyncClient, driver_token_headers: dict[str, str]
-):
+async def test_self_update_cannot_change_own_role(client: AsyncClient, driver_token_headers: dict[str, str]):
     # Even if valid RoleType is passed to self-update, safe mode strips role modifications
     response = await client.patch(
         "/api/v1/users/me",
@@ -225,24 +205,16 @@ async def test_auth_guards_access_control(
     driver_token_headers: dict[str, str],
     superuser_token_headers: dict[str, str],
 ):
-    resp_driver_on_admin = await client.get(
-        "/api/v1/guards/admin-only", headers=driver_token_headers
-    )
+    resp_driver_on_admin = await client.get("/api/v1/guards/admin-only", headers=driver_token_headers)
     assert resp_driver_on_admin.status_code == 403
 
-    resp_su_on_admin = await client.get(
-        "/api/v1/guards/admin-only", headers=superuser_token_headers
-    )
+    resp_su_on_admin = await client.get("/api/v1/guards/admin-only", headers=superuser_token_headers)
     assert resp_su_on_admin.status_code == 200
 
-    resp_driver_on_driver = await client.get(
-        "/api/v1/guards/driver", headers=driver_token_headers
-    )
+    resp_driver_on_driver = await client.get("/api/v1/guards/driver", headers=driver_token_headers)
     assert resp_driver_on_driver.status_code == 200
 
-    resp_su_on_driver = await client.get(
-        "/api/v1/guards/driver", headers=superuser_token_headers
-    )
+    resp_su_on_driver = await client.get("/api/v1/guards/driver", headers=superuser_token_headers)
     assert resp_su_on_driver.status_code == 200
 
 

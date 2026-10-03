@@ -100,9 +100,7 @@ async def test_send_email_smtp_mock():
         )
 
         assert success is True
-        mock_smtp_class.assert_called_once_with(
-            host="smtp.example.com", port=587, timeout=15
-        )
+        mock_smtp_class.assert_called_once_with(host="smtp.example.com", port=587, timeout=15)
         mock_smtp_instance.starttls.assert_called_once()
         mock_smtp_instance.login.assert_called_once_with("smtp_user", "smtp_pass")
         mock_smtp_instance.sendmail.assert_called_once()

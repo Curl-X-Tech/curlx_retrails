@@ -93,9 +93,7 @@ async def test_upcoming_operating_days(
     session.add_all([d1, d2, d3])
     await session.commit()
 
-    res = await client.get(
-        f"/api/v1/master/calendar/operating-days?start_date={start_d}&days=5"
-    )
+    res = await client.get(f"/api/v1/master/calendar/operating-days?start_date={start_d}&days=5")
     assert res.status_code == 200
     op_days = res.json()
     dates = [d["date"] for d in op_days]
@@ -128,9 +126,7 @@ async def test_demand_surge_calculation(
     session.add(day)
     await session.commit()
 
-    res = await client.get(
-        f"/api/v1/master/calendar/surge?from_date={surge_date}&to_date={surge_date}"
-    )
+    res = await client.get(f"/api/v1/master/calendar/surge?from_date={surge_date}&to_date={surge_date}")
     assert res.status_code == 200
     surge_data = res.json()
     assert len(surge_data) == 1

@@ -47,6 +47,25 @@ print_banner() {
     echo ""
 }
 
+# Display microservices stack status banner
+print_microservices_banner() {
+    echo ""
+    echo -e "${BOLD}================================================================${RESET}"
+    echo -e "  ${BOLD}Waypoint Services Stack (Team CurlX)${RESET}"
+    echo -e "${BOLD}================================================================${RESET}"
+    echo -e "  ${GREEN}Core Service (Orders/Outlets/Routes/Vehicles/Dispatch):${RESET} ${CYAN}http://localhost:8000${RESET}"
+    echo -e "  ${GREEN}Planning Engine Service:${RESET}   ${CYAN}http://localhost:8005${RESET}"
+    echo -e "  ${GREEN}PostgreSQL Database:${RESET}       ${CYAN}localhost:5432${RESET}"
+    echo -e "  ${GREEN}Redis Cache / Broker:${RESET}      ${CYAN}localhost:6379${RESET}"
+    echo -e "  ${GREEN}RabbitMQ AMQP:${RESET}            ${CYAN}localhost:5672${RESET}"
+    echo -e "  ${GREEN}RabbitMQ Management UI:${RESET}    ${CYAN}http://localhost:15672${RESET} (waypoint/waypoint)"
+    echo -e "  ${GREEN}pgAdmin 4:${RESET}                ${CYAN}http://localhost:5050${RESET}"
+    echo -e "${BOLD}================================================================${RESET}"
+    echo -e "  ${YELLOW}Stack running in background. Use './dev.sh microservices:down' to stop.${RESET}"
+    echo -e "${BOLD}================================================================${RESET}"
+    echo ""
+}
+
 # Check for required tools
 check_prerequisites() {
     if ! command -v uv &> /dev/null; then
@@ -77,6 +96,12 @@ install_deps() {
     log_info "Installing backend dependencies (uv)..."
     (cd "$ROOT_DIR/backend" && uv sync)
 
+    log_info "Installing core service dependencies (uv)..."
+    (cd "$ROOT_DIR/backend/core_service" && uv sync)
+
+    log_info "Installing planning service dependencies (uv)..."
+    (cd "$ROOT_DIR/backend/planning_service" && uv venv --python 3.11 --allow-existing && uv pip install -r requirements.txt)
+
     log_info "Installing frontend dependencies (bun)..."
     (cd "$ROOT_DIR/frontend" && bun install)
 
@@ -91,8 +116,26 @@ run_backend() {
     check_prerequisites
     ensure_env
     log_info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
-    cd "$ROOT_DIR/backend"
+    cd "$ROOT_DIR/backend/core_service"
     exec uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+}
+
+# Run planning service
+run_planning() {
+    check_prerequisites
+    ensure_env
+    log_info "Starting planning service on http://localhost:8005 (Docs: http://localhost:8005/docs)..."
+    cd "$ROOT_DIR/backend/planning_service"
+    exec .venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
+}
+
+# Run planning Celery worker
+run_planning_worker() {
+    check_prerequisites
+    ensure_env
+    log_info "Starting planning Celery worker..."
+    cd "$ROOT_DIR/backend/planning_service"
+    exec .venv/bin/celery -A app.core.job_worker worker --loglevel=info --concurrency=4
 }
 
 # Run frontend service
@@ -125,10 +168,24 @@ run_services_up() {
 }
 
 run_services_down() {
-    log_info "Stopping dev infrastructure (PostgreSQL, Redis, Mailpit)..."
+    log_info "Stopping dev infrastructure..."
     docker compose -f "$ROOT_DIR/docker-compose.dev.yml" down 2>/dev/null || true
-    docker compose -f "$ROOT_DIR/docker-compose.yml" down 2>/dev/null || true
     log_success "Dev infrastructure stopped."
+}
+
+# Run the full Waypoint microservices stack via docker-compose.yml
+run_microservices_up() {
+    log_info "Building and starting Waypoint microservices stack..."
+    docker compose -f "$ROOT_DIR/docker-compose.yml" up -d --build
+    echo ""
+    log_success "Microservices stack running."
+    print_microservices_banner
+}
+
+run_microservices_down() {
+    log_info "Stopping Waypoint microservices stack..."
+    docker compose -f "$ROOT_DIR/docker-compose.yml" down 2>/dev/null || true
+    log_success "Microservices stack stopped."
 }
 
 # Run full development stack (Backend + Frontend + Auto Dev Services)
@@ -147,7 +204,7 @@ run_dev() {
     # Handle graceful exit on SIGINT/SIGTERM
     trap 'echo ""; log_info "Shutting down development processes..."; kill $(jobs -p) 2>/dev/null || true; exit 0' SIGINT SIGTERM EXIT
 
-    (cd "$ROOT_DIR/backend" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
+    (cd "$ROOT_DIR/backend/core_service" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
     BACKEND_PID=$!
 
     (cd "$ROOT_DIR/frontend" && bun run dev) &
@@ -241,7 +298,7 @@ run_check() {
 run_docker_up() {
     ensure_env
     log_info "Starting full Docker Compose services (App + DB + Redis + Mailpit)..."
-    docker compose up -d
+    docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d
 }
 
 run_docker_down() {
@@ -254,7 +311,7 @@ run_docker_down() {
 # Clean build artifacts and virtualenvs
 clean_all() {
     log_info "Cleaning caches, virtualenvs, and node_modules..."
-    rm -rf "$ROOT_DIR/backend/.venv" "$ROOT_DIR/backend/.pytest_cache" "$ROOT_DIR/backend/.ruff_cache" "$ROOT_DIR/backend/.mypy_cache" "$ROOT_DIR/backend/__pycache__"
+    rm -rf "$ROOT_DIR/backend/core_service/.venv" "$ROOT_DIR/backend/planning_service/.venv" "$ROOT_DIR/backend/.venv" "$ROOT_DIR/backend/.pytest_cache" "$ROOT_DIR/backend/.ruff_cache" "$ROOT_DIR/backend/.mypy_cache" "$ROOT_DIR/backend/__pycache__"
     rm -rf "$ROOT_DIR/frontend/node_modules" "$ROOT_DIR/frontend/dist"
     rm -rf "$ROOT_DIR/packages/emails/node_modules" "$ROOT_DIR/packages/emails/.react-email"
     log_success "Clean completed."
@@ -284,25 +341,30 @@ show_help() {
     echo "Usage: ./dev.sh [command]"
     echo ""
     echo "Commands:"
-    echo "  dev            Start backend, frontend, and emails concurrently (default)"
-    echo "  services       Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
-    echo "  down           Stop all running Docker containers (dev & prod)"
-    echo "  stop           Alias for down"
-    echo "  install        Install all dependencies for backend, frontend, and emails"
-    echo "  backend        Start backend server only (FastAPI on port 8000)"
-    echo "  frontend       Start frontend server only (Vite on port 5173)"
-    echo "  emails         Start React Email preview server on port 3001"
-    echo "  lint           Run linter on backend and frontend"
-    echo "  format         Auto-format code across backend, frontend, and emails"
-    echo "  format:check   Verify code formatting"
-    echo "  typecheck      Run TypeScript compiler type checks"
-    echo "  test           Run backend test suite"
-    echo "  check          Run all quality checks (lint + format + typecheck + test)"
-    echo "  graphify       Build/update Graphify knowledge graph (graphify-out/)"
-    echo "  docker         Start full Docker Compose environment in background"
-    echo "  docker:down    Stop all Docker Compose services"
-    echo "  clean          Remove virtual environments and node_modules"
-    echo "  help           Show this help message"
+    echo "  dev                  Start backend, frontend, and emails concurrently (default)"
+    echo "  services             Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
+    echo "  services:down        Stop dev infrastructure"
+    echo "  microservices        Build and start the full Waypoint services stack"
+    echo "  microservices:down   Stop the Waypoint services stack"
+    echo "  down                 Stop all running Docker containers (dev + services)"
+    echo "  stop                 Alias for down"
+    echo "  install              Install all dependencies for backend, frontend, and emails"
+    echo "  backend              Start backend server only (FastAPI on port 8000)"
+    echo "  planning             Start planning service only (FastAPI on port 8005)"
+    echo "  planning:worker      Start planning Celery worker (requires Redis)"
+    echo "  frontend             Start frontend server only (Vite on port 5173)"
+    echo "  emails               Start React Email preview server on port 3001"
+    echo "  lint                 Run linter on backend and frontend"
+    echo "  format               Auto-format code across backend, frontend, and emails"
+    echo "  format:check         Verify code formatting"
+    echo "  typecheck            Run TypeScript compiler type checks"
+    echo "  test                 Run backend test suite"
+    echo "  check                Run all quality checks (lint + format + typecheck + test)"
+    echo "  graphify             Build/update Graphify knowledge graph (graphify-out/)"
+    echo "  docker               Start dev infrastructure in background (alias for services)"
+    echo "  docker:down          Stop all Docker Compose services"
+    echo "  clean                Remove virtual environments and node_modules"
+    echo "  help                 Show this help message"
     echo ""
 }
 
@@ -316,14 +378,29 @@ case "$COMMAND" in
     services|infra)
         run_services_up
         ;;
-    services:down|infra:down|down|stop)
+    services:down|infra:down)
         run_services_down
+        ;;
+    microservices)
+        run_microservices_up
+        ;;
+    microservices:down)
+        run_microservices_down
+        ;;
+    down|stop)
+        run_docker_down
         ;;
     install)
         install_deps
         ;;
     backend)
         run_backend
+        ;;
+    planning)
+        run_planning
+        ;;
+    planning:worker)
+        run_planning_worker
         ;;
     frontend)
         run_frontend
