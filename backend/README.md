@@ -27,7 +27,7 @@ docker compose -f docker-compose.yml up -d --build
 Endpoints after startup:
 
 - Core Service API & Docs: http://localhost:8000/docs
-- Planning Engine API & Docs: http://localhost:8005/docs
+- Planning Engine API & Docs: http://localhost:8005/planning/v1/docs
 - PostgreSQL: `localhost:5432` (`general_db`, `planning_db`)
 - Redis: `localhost:6379`
 - RabbitMQ Management UI: http://localhost:15672 (`waypoint`/`waypoint`)
@@ -64,8 +64,7 @@ uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 Start `planning_service` locally:
 
 ```bash
-cd backend/planning_service
-uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
+./dev.sh planning
 ```
 
-Or run dev orchestration via `./dev.sh backend` or `./dev.ps1 backend`.
+Install dependencies first with `./dev.sh install`. Start the local infrastructure with `./dev.sh services` when the service needs PostgreSQL or Redis. Swagger docs are available at http://localhost:8005/planning/v1/docs.
