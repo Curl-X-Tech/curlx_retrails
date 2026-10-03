@@ -58,6 +58,15 @@ def test_core_service_routes_registered(core_app):
     assert "/outlets/v1/outlets" not in openapi_paths
     assert "/api/v1/master/prices" in openapi_paths
     assert "/api/v1/master/calendar/operating-days" in openapi_paths
+    assert "/api/v1/sync/batch" in openapi_paths
+    assert "/sync/batch" not in openapi_paths
+    assert "/master/brands" not in openapi_paths
+    assert "/master/depots" not in openapi_paths
+    assert "/master/districts" not in openapi_paths
+    assert "/master/items" not in openapi_paths
+    assert "/master/outlets" not in openapi_paths
+    assert "/master/prices" not in openapi_paths
+    assert "/master/calendar" not in openapi_paths
 
 
 def test_core_service_openapi_schema(core_app):

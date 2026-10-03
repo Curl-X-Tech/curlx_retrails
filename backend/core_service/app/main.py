@@ -71,7 +71,7 @@ if settings.BACKEND_CORS_ORIGINS:
 
 # --- Master Domain, Identity & Auth (/api/v1) ---
 app.include_router(api_router, prefix=settings.API_V1_STR)
-app.include_router(api_router)
+app.include_router(api_router, include_in_schema=False)
 
 # --- Orders ---
 for prefix in ("/orders/v1", "/orders"):
@@ -107,7 +107,7 @@ app.include_router(drivers.endpoint_router)
 
 # --- Sync ---
 app.include_router(sync.router, prefix=settings.API_V1_STR)
-app.include_router(sync.router, prefix="")
+app.include_router(sync.router, prefix="", include_in_schema=False)
 
 
 @app.get("/")
