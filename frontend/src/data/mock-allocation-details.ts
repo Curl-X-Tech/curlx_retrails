@@ -1,26 +1,6 @@
-import type {
-  AllocationDriverDetails,
-  AllocationManifestDetail,
-  AllocationVehiclePosition,
-  AllocationVehicleSpec,
-  AllocationWaypoint,
-  AssignedStop,
-  CargoItem,
-  VehicleAllocation,
-} from "@/types";
+import type { AllocationManifestDetail, AssignedStop, VehicleAllocation } from "@/types";
 
-export type {
-  AllocationDriverDetails,
-  AllocationManifestDetail,
-  AllocationVehiclePosition,
-  AllocationVehicleSpec,
-  AllocationWaypoint,
-  AssignedStop,
-  CargoItem,
-  VehicleAllocation,
-};
-
-export const mockAllocationManifests: Record<string, AllocationManifestDetail> = {
+const mockAllocationManifests: Record<string, AllocationManifestDetail> = {
   "alloc-01": {
     id: "mnf-01",
     manifestCode: "MNF-4811-01",

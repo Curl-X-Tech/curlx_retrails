@@ -17,6 +17,11 @@ export default defineConfig({
     VitePWA({
       registerType: "autoUpdate",
       injectRegister: "auto",
+      devOptions: {
+        enabled: true,
+        type: "module",
+        navigateFallback: "index.html",
+      },
       includeAssets: [
         "favicon.ico",
         "favicon-16x16.png",
@@ -28,7 +33,8 @@ export default defineConfig({
       manifest: {
         name: "ReTrails",
         short_name: "ReTrails",
-        description: "ReTrails - Offline-first cross-platform logistics platform by Team CurlX",
+        description:
+          "ReTrails - Offline-first cross-platform logistics platform by Team CurlX",
         theme_color: "#0f172a",
         background_color: "#0f172a",
         display: "standalone",
@@ -53,6 +59,73 @@ export default defineConfig({
       workbox: {
         globPatterns: ["**/*.{js,css,html,ico,png,svg,woff2}"],
         navigateFallback: "/index.html",
+        navigateFallbackDenylist: [/^\/api/],
+        runtimeCaching: [
+          {
+            urlPattern: ({ request }) => request.destination === "document",
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "html-cache",
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 7,
+              },
+            },
+          },
+          {
+            urlPattern: ({ request }) =>
+              request.destination === "style" ||
+              request.destination === "script" ||
+              request.destination === "worker",
+            handler: "StaleWhileRevalidate",
+            options: {
+              cacheName: "static-assets-cache",
+              expiration: {
+                maxEntries: 100,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+            },
+          },
+          {
+            urlPattern: ({ request }) => request.destination === "image",
+            handler: "CacheFirst",
+            options: {
+              cacheName: "image-cache",
+              expiration: {
+                maxEntries: 60,
+                maxAgeSeconds: 60 * 60 * 24 * 30,
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/[a-d]\.basemaps\.cartocdn\.com\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "carto-map-tiles",
+              expiration: {
+                maxEntries: 2500,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+          {
+            urlPattern: /^https:\/\/[a-c]\.tile\.openstreetmap\.org\/.*/i,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "osm-map-tiles",
+              expiration: {
+                maxEntries: 2500,
+                maxAgeSeconds: 60 * 60 * 24 * 30, // 30 days
+              },
+              cacheableResponse: {
+                statuses: [0, 200],
+              },
+            },
+          },
+        ],
       },
     }),
   ],
@@ -71,8 +144,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "vendor-maps": ["maplibre-gl", "leaflet"],
-          "vendor-icons": ["@phosphor-icons/react", "lucide-react"],
+          "vendor-maps": ["leaflet"],
+          "vendor-icons": ["@phosphor-icons/react"],
           "vendor-ui": [
             "@base-ui/react",
             "clsx",
