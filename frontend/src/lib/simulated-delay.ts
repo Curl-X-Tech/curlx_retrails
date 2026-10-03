@@ -8,7 +8,7 @@ import { useLocation } from "react-router-dom";
  * 2. `import.meta.env.VITE_SIMULATED_DELAY_SEC` (in seconds)
  * 3. Default fallback: 1000 ms (1 second)
  */
-export function getSimulatedDelayMs(search?: string | URLSearchParams): number {
+function getSimulatedDelayMs(search?: string | URLSearchParams): number {
   if (typeof window !== "undefined") {
     const params =
       typeof search === "string"
@@ -44,21 +44,6 @@ export function getSimulatedDelayMs(search?: string | URLSearchParams): number {
   return 1000; // 1 second default
 }
 
-/**
- * Wraps dynamic component imports with a simulated delay to showcase Suspense skeleton fallbacks.
- */
-export function lazyWithDelay<T extends React.ComponentType<any>>(
-  factory: () => Promise<{ default: T }>,
-  customDelayMs?: number
-): React.LazyExoticComponent<T> {
-  return React.lazy(async () => {
-    const delayMs = customDelayMs ?? getSimulatedDelayMs();
-    if (delayMs > 0) {
-      await new Promise((resolve) => setTimeout(resolve, delayMs));
-    }
-    return factory();
-  });
-}
 
 /**
  * Hook to simulate loading states when filter/search/pagination dependencies change.

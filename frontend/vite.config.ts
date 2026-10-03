@@ -144,8 +144,8 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          "vendor-maps": ["maplibre-gl", "leaflet"],
-          "vendor-icons": ["@phosphor-icons/react", "lucide-react"],
+          "vendor-maps": ["leaflet"],
+          "vendor-icons": ["@phosphor-icons/react"],
           "vendor-ui": [
             "@base-ui/react",
             "clsx",

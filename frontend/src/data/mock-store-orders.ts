@@ -286,7 +286,7 @@ export const STORE_OUTLETS: StoreOutletOption[] = [
   },
 ];
 
-export const INITIAL_STORE_ORDERS: StoreOrderRecord[] = [
+const INITIAL_STORE_ORDERS: StoreOrderRecord[] = [
   {
     id: "ord-rec-01",
     orderRef: "ORD-2026-081",
@@ -685,8 +685,4 @@ export function createStoreOrder(
   };
   activeStoreOrdersState = [created, ...activeStoreOrdersState];
   return created;
-}
-
-export function getStoreOrderById(id: string): StoreOrderRecord | undefined {
-  return activeStoreOrdersState.find((o) => o.id === id || o.orderRef === id);
 }

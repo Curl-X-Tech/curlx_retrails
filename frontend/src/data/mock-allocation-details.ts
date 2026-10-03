@@ -20,7 +20,7 @@ export type {
   VehicleAllocation,
 };
 
-export const mockAllocationManifests: Record<string, AllocationManifestDetail> = {
+const mockAllocationManifests: Record<string, AllocationManifestDetail> = {
   "alloc-01": {
     id: "mnf-01",
     manifestCode: "MNF-4811-01",

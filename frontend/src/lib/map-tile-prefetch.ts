@@ -9,7 +9,7 @@ export interface LatLng {
   lng: number;
 }
 
-export function latLngToTile(
+function latLngToTile(
   lat: number,
   lng: number,
   zoom: number

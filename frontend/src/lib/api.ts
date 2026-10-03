@@ -9,7 +9,7 @@ export function getStoredToken(): string | null {
   }
 }
 
-export function setStoredToken(token: string): void {
+function setStoredToken(token: string): void {
   try {
     localStorage.setItem(TOKEN_KEY, token);
   } catch {
@@ -158,32 +158,6 @@ export async function fetchCurrentUser(
   return response.json();
 }
 
-export async function updateCurrentUser(
-  payload: UserUpdatePayload,
-  token?: string
-): Promise<ApiUserResponse> {
-  const response = await fetch(`${API_URL}/users/me`, {
-    method: "PATCH",
-    headers: getAuthHeaders(token),
-    body: JSON.stringify(payload),
-  });
-
-  if (!response.ok) {
-    let errorDetail = "Failed to update profile.";
-    try {
-      const err = await response.json();
-      if (err?.detail) {
-        errorDetail =
-          typeof err.detail === "string" ? err.detail : JSON.stringify(err.detail);
-      }
-    } catch {
-      // Fallback
-    }
-    throw new Error(errorDetail);
-  }
-
-  return response.json();
-}
 
 export async function listUsersByAdmin(token?: string): Promise<ApiUserResponse[]> {
   const response = await fetch(`${API_URL}/users`, {
@@ -225,18 +199,6 @@ export async function createUserByAdmin(
   return response.json();
 }
 
-export async function getUserById(id: string, token?: string): Promise<ApiUserResponse> {
-  const response = await fetch(`${API_URL}/users/${id}`, {
-    method: "GET",
-    headers: getAuthHeaders(token),
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch user (${response.status})`);
-  }
-
-  return response.json();
-}
 
 export async function updateUserById(
   id: string,

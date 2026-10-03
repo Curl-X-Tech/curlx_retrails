@@ -4,11 +4,6 @@ import {
   createUserByAdmin,
   updateUserById,
   deleteUserById,
-  checkAdminOnlyGuard,
-  checkStoreManagerGuard,
-  checkDriverGuard,
-  checkHealth,
-  checkRoot,
   type UserCreatePayload,
   type UserUpdatePayload,
 } from "@/lib/api";
@@ -180,68 +175,5 @@ export function useDeleteUser() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
     },
-  });
-}
-
-export function useSystemGuardsCheck() {
-  return useQuery({
-    queryKey: ["admin", "system-guards"],
-    queryFn: async () => {
-      const results: Record<
-        string,
-        { ok: boolean; status: number | string; detail: string }
-      > = {};
-
-      try {
-        const rootRes = await checkRoot();
-        results.root = { ok: true, status: 200, detail: rootRes.message };
-      } catch (err: any) {
-        results.root = { ok: false, status: "ERR", detail: err.message || "Failed" };
-      }
-
-      try {
-        const healthRes = await checkHealth();
-        results.health = { ok: true, status: 200, detail: healthRes.status };
-      } catch (err: any) {
-        results.health = { ok: false, status: "ERR", detail: err.message || "Failed" };
-      }
-
-      try {
-        const adminRes = await checkAdminOnlyGuard();
-        results.adminGuard = { ok: true, status: 200, detail: adminRes.message };
-      } catch (err: any) {
-        results.adminGuard = {
-          ok: false,
-          status: "GUARD_FAILED",
-          detail: err.message || "Blocked",
-        };
-      }
-
-      try {
-        const smRes = await checkStoreManagerGuard();
-        results.storeManagerGuard = { ok: true, status: 200, detail: smRes.message };
-      } catch (err: any) {
-        results.storeManagerGuard = {
-          ok: false,
-          status: "GUARD_FAILED",
-          detail: err.message || "Blocked",
-        };
-      }
-
-      try {
-        const driverRes = await checkDriverGuard();
-        results.driverGuard = { ok: true, status: 200, detail: driverRes.message };
-      } catch (err: any) {
-        results.driverGuard = {
-          ok: false,
-          status: "GUARD_FAILED",
-          detail: err.message || "Blocked",
-        };
-      }
-
-      return results;
-    },
-    staleTime: 1000 * 30,
-    retry: false,
   });
 }
