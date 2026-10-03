@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Outlet } from "react-router-dom";
 import { useSyncState } from "@/features/driver";
+import { useTripOfflinePrep } from "@/features/driver/hooks/use-trip-offline-prep";
 import { SyncStatusIndicator } from "@/components/shared";
 import { DriverHeader } from "./driver-header";
 import { DriverBottomNav } from "./driver-bottom-nav";
@@ -9,6 +10,7 @@ import { DriverBreakDialog } from "./driver-break-dialog";
 
 export function DriverLayout() {
   const { isOnline, state: syncState, pendingCount } = useSyncState();
+  const { status: prepStatus } = useTripOfflinePrep();
   const [isOnBreak, setIsOnBreak] = React.useState(false);
   const [breakTimerSeconds, setBreakTimerSeconds] = React.useState(0);
   const [isBreakModalOpen, setIsBreakModalOpen] = React.useState(false);
@@ -42,7 +44,17 @@ export function DriverLayout() {
           pendingCount={pendingCount}
         />
 
-        <div className="flex items-center justify-end border-b border-border/60 bg-background px-3 py-2">
+        <div className="flex items-center justify-end gap-2 border-b border-border/60 bg-background px-3 py-2">
+          {prepStatus === "preparing" && (
+            <span className="text-xs font-medium text-muted-foreground">
+              Preparing offline trip
+            </span>
+          )}
+          {prepStatus === "failed" && (
+            <span className="text-xs font-medium text-destructive">
+              Offline map not ready
+            </span>
+          )}
           <SyncStatusIndicator />
         </div>
 
