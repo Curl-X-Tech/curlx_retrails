@@ -17,7 +17,7 @@ import sys
 import asyncpg
 from sqlalchemy import text
 
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
 CORE_SERVICE_DIR = os.path.join(BACKEND_DIR, "core_service")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
@@ -27,11 +27,12 @@ DB_PASS = os.getenv("POSTGRES_PASSWORD", "waypoint")
 DB_HOST = os.getenv("POSTGRES_HOST", "127.0.0.1")
 DB_PORT = os.getenv("POSTGRES_PORT", "5432")
 
+if not os.getenv("DATABASE_URL"):
+    os.environ["DATABASE_URL"] = f"postgresql://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/general_db"
+
 
 def _clear_app_modules():
-    for k in list(sys.modules.keys()):
-        if k == "app" or k.startswith("app."):
-            del sys.modules[k]
+    pass
 
 
 async def ensure_databases():
@@ -100,7 +101,7 @@ async def seed_vehicles():
                     "volume_cap_m3": float(row["volume_cap_m3"]),
                     "fuel_type": row["fuel_type"],
                     "km_per_l": float(row["km_per_l"]),
-                    "weekly_fuel_quota": float(row["weekly_fuel_quota"]),
+                    "weekly_fuel_quota": float(row.get("weekly_fuel_quota_l") or row.get("weekly_fuel_quota") or 0.0),
                     "depot": row["depot"],
                     "service_milage": float(row.get("service_milage", 0.0) or 0.0),
                     "trip_count_today": 0,
@@ -137,8 +138,6 @@ async def seed_vehicles():
             await conn.execute(stmt, r)
 
     print(f"[Vehicles] Successfully seeded {len(records)} vehicles into general_db.")
-    await engine.dispose()
-    _clear_app_modules()
 
 
 async def seed_outlets():
@@ -211,8 +210,6 @@ async def seed_outlets():
             await conn.execute(stmt, r)
 
     print(f"[Outlets] Successfully seeded {len(records)} outlets into general_db.")
-    await engine.dispose()
-    _clear_app_modules()
 
 
 async def seed_routes_and_allowances():
