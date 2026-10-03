@@ -12,6 +12,7 @@ from app.entities.calendar_day import CalendarDay
 from app.entities.user import User
 from app.guards import require_system_admin
 from app.schemas.calendar_day import (
+    CalendarBulkGenerate,
     CalendarDayCreate,
     CalendarDayRead,
     CalendarDayUpdate,
@@ -19,6 +20,31 @@ from app.schemas.calendar_day import (
 )
 
 router = APIRouter(prefix="/calendar", tags=["master-calendar"])
+
+
+def build_calendar_day(day_in: CalendarDayCreate) -> CalendarDay:
+    d = day_in.date
+    dow = d.weekday()
+    iso_year, iso_week, _ = d.isocalendar()
+    is_weekend = dow == 6  # Sunday off in Sri Lankan retail logistics
+    is_payday = day_in.is_payday if day_in.is_payday is not None else (25 <= d.day <= 28)
+    is_operating = (
+        day_in.is_operating if day_in.is_operating is not None else (not is_weekend and not day_in.is_holiday)
+    )
+    return CalendarDay(
+        date=d,
+        dow=dow,
+        dow_name=d.strftime("%a"),
+        is_weekend=is_weekend,
+        iso_year=iso_year,
+        iso_week=iso_week,
+        is_payday=is_payday,
+        festival=day_in.festival,
+        festival_ramp=day_in.festival_ramp,
+        is_holiday=day_in.is_holiday,
+        monsoon=day_in.monsoon,
+        is_operating=is_operating,
+    )
 
 
 @router.get(
@@ -170,34 +196,48 @@ async def create_calendar_day(
             detail="CALENDAR_DATE_ALREADY_EXISTS",
         )
 
-    d = day_in.date
-    dow = d.weekday()
-    dow_name = d.strftime("%a")
-    iso_year, iso_week, _ = d.isocalendar()
-    is_weekend = dow == 6  # Sunday off in Sri Lankan retail logistics
-    is_payday = day_in.is_payday if day_in.is_payday is not None else (25 <= d.day <= 28)
-    is_operating = (
-        day_in.is_operating if day_in.is_operating is not None else (not is_weekend and not day_in.is_holiday)
-    )
-
-    calendar_day = CalendarDay(
-        date=d,
-        dow=dow,
-        dow_name=dow_name,
-        is_weekend=is_weekend,
-        iso_year=iso_year,
-        iso_week=iso_week,
-        is_payday=is_payday,
-        festival=day_in.festival,
-        festival_ramp=day_in.festival_ramp,
-        is_holiday=day_in.is_holiday,
-        monsoon=day_in.monsoon,
-        is_operating=is_operating,
-    )
+    calendar_day = build_calendar_day(day_in)
     session.add(calendar_day)
     await session.commit()
     await session.refresh(calendar_day)
     return calendar_day
+
+
+@router.post(
+    "/bulk-generate",
+    response_model=list[CalendarDayRead],
+    status_code=status.HTTP_201_CREATED,
+    summary="Generate missing calendar days for a date range (Admin only)",
+)
+async def bulk_generate_calendar(
+    range_in: CalendarBulkGenerate,
+    admin: Annotated[User, Depends(require_system_admin)],
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+) -> list[CalendarDay]:
+    """Create default records for dates in the range that do not exist yet; existing days are kept."""
+    existing = (
+        (
+            await session.execute(
+                select(CalendarDay.date).where(
+                    CalendarDay.date >= range_in.from_date, CalendarDay.date <= range_in.to_date
+                )
+            )
+        )
+        .scalars()
+        .all()
+    )
+    existing_dates = set(existing)
+    span = (range_in.to_date - range_in.from_date).days + 1
+    created = [
+        build_calendar_day(CalendarDayCreate(date=range_in.from_date + timedelta(days=offset)))
+        for offset in range(span)
+        if range_in.from_date + timedelta(days=offset) not in existing_dates
+    ]
+    session.add_all(created)
+    await session.commit()
+    for day in created:
+        await session.refresh(day)
+    return created
 
 
 @router.patch(

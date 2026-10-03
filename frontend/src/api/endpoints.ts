@@ -263,8 +263,8 @@ export const ENDPOINTS = {
     path: "/master/outlets",
     roles: ["system_admin"],
     offline: false,
-    status: "pending",
-    issue: 7,
+    status: "live",
+    issue: null,
     ui: true,
   },
   masterOutletsUpdate: {
@@ -283,8 +283,8 @@ export const ENDPOINTS = {
     path: "/master/outlets/{id}",
     roles: ["system_admin"],
     offline: false,
-    status: "pending",
-    issue: 7,
+    status: "live",
+    issue: null,
     ui: true,
   },
   masterItemsList: {
@@ -313,8 +313,8 @@ export const ENDPOINTS = {
     path: "/master/items",
     roles: ["system_admin"],
     offline: false,
-    status: "pending",
-    issue: 7,
+    status: "live",
+    issue: null,
     ui: true,
   },
   masterItemsUpdate: {
@@ -333,8 +333,8 @@ export const ENDPOINTS = {
     path: "/master/items/{id}",
     roles: ["system_admin"],
     offline: false,
-    status: "pending",
-    issue: 7,
+    status: "live",
+    issue: null,
     ui: true,
   },
   masterPricesList: {
@@ -360,7 +360,7 @@ export const ENDPOINTS = {
   masterPricesGetByItem: {
     domain: "master",
     method: "GET",
-    path: "/master/prices/item/{item_id}",
+    path: "/master/prices/items/{item_id}/active",
     roles: [],
     offline: false,
     status: "live",
@@ -410,7 +410,7 @@ export const ENDPOINTS = {
   masterCalendarRange: {
     domain: "master",
     method: "GET",
-    path: "/master/calendar/range",
+    path: "/master/calendar",
     roles: [],
     offline: false,
     status: "live",

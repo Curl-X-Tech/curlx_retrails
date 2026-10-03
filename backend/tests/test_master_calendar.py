@@ -197,3 +197,23 @@ async def test_calendar_admin_authorization(
         json={"date": str(test_date)},
     )
     assert create_res.status_code == 401
+
+
+@pytest.mark.anyio
+async def test_bulk_generate_skips_existing_days(
+    client: AsyncClient,
+    superuser_token_headers: dict[str, str],
+) -> None:
+    payload = {"from_date": "2026-10-03", "to_date": "2026-10-05"}
+    first = await client.post("/api/v1/master/calendar/bulk-generate", json=payload, headers=superuser_token_headers)
+    assert first.status_code == 201
+    assert [d["date"] for d in first.json()] == ["2026-10-03", "2026-10-04", "2026-10-05"]
+    assert [d["is_operating"] for d in first.json()] == [True, False, True]
+
+    second = await client.post("/api/v1/master/calendar/bulk-generate", json=payload, headers=superuser_token_headers)
+    assert second.status_code == 201
+    assert second.json() == []
+
+    invalid = {"from_date": "2026-10-05", "to_date": "2026-10-03"}
+    bad = await client.post("/api/v1/master/calendar/bulk-generate", json=invalid, headers=superuser_token_headers)
+    assert bad.status_code == 422
