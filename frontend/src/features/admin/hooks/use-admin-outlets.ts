@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/api-request";
+import { apiRequest } from "@/lib/api";
 import type { MasterOutlet, MasterBrand, MasterDepot, MasterDistrict } from "../types";
 
 export function useAdminOutlets() {

@@ -17,10 +17,6 @@ trigger: always_on
 - Mock data stays in src/data/, split by entity. Hooks are the only importers.
 - Offline-marked endpoints in docs/api-map.md: leave Dexie code as is for now, do not move it.
   Terminal hangs: run commands as `timeout 120 ./dev.sh {parms} < /dev/null 2>&1 | tail -40`. If the output shows no errors, treat it as passed.
-- API layer lives in src/api/<domain>/{types,api,hooks,mock}.ts. Every endpoint in docs/api-map.md and docs/api-issues.json gets a function and a hook, even if no page uses it yet.
-- All paths come from src/api/endpoints.ts. No path strings elsewhere.
-- Endpoint status: live = calls the backend. pending = uses mock.ts adapter until backend ships. Flip status to go live; no other code changes.
-- Pages and features import only hooks from @/api/<domain>. Never import from src/data/ or call fetch directly.
-- Offline-marked endpoints: the mutation hook writes to Dexie with idempotency_key (UUID v4) and enqueues for POST /sync/batch.
-- Event timestamps are UTC ISO strings. TIME and DATE fields stay plain strings.
-- Types follow docs/schema/schema.sql and the issue contracts. Mismatches go to docs/api-gaps.md.
+
+- API sources: docs/api-map.md (paths, roles, status) wins over docs/api-issues.json (payload contracts). docs/api-gaps.md lists pending endpoints and the mocks that cover them.
+- Implemented in map = status live. Planned or gap = status pending (mock adapter).
