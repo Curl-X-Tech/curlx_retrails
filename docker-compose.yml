@@ -10,28 +10,10 @@ name: retrails
 #   5432  -- PostgreSQL
 #   5050  -- pgAdmin 4 Web UI
 #   6379  -- Redis
-#   5672  -- RabbitMQ (AMQP)
-#   15672 -- RabbitMQ Management UI (waypoint/waypoint)
 
 services:
 
   # -- Infrastructure -------------------------------------------------------- #
-
-  rabbitmq:
-    image: rabbitmq:3.13-management-alpine
-    container_name: waypoint-rabbitmq
-    restart: unless-stopped
-    ports:
-      - "5672:5672"
-      - "15672:15672"
-    environment:
-      RABBITMQ_DEFAULT_USER: waypoint
-      RABBITMQ_DEFAULT_PASS: waypoint
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
 
   postgres:
     image: postgres:16-alpine
@@ -119,7 +101,6 @@ services:
     environment:
       DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/planning_db
       REDIS_URL: redis://redis:6379/0
-      RABBITMQ_URL: amqp://waypoint:waypoint@rabbitmq:5672/
       CORE_SERVICE_URL: http://core-service:8000
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
@@ -131,8 +112,6 @@ services:
       postgres:
         condition: service_healthy
       redis:
-        condition: service_healthy
-      rabbitmq:
         condition: service_healthy
       core-service:
         condition: service_healthy
@@ -147,7 +126,6 @@ services:
     environment:
       DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/planning_db
       REDIS_URL: redis://redis:6379/0
-      RABBITMQ_URL: amqp://waypoint:waypoint@rabbitmq:5672/
       CORE_SERVICE_URL: http://core-service:8000
     depends_on:
       postgres:
