@@ -54,9 +54,16 @@ export function QueueTableView({
         <div className="text-muted-foreground text-xs">
           {groupByStore ? (
             <span>
-              Showing <strong className="text-foreground">{(currentPage - 1) * pageSize + 1}</strong> to{" "}
-              <strong className="text-foreground">{Math.min(currentPage * pageSize, storeGroups.length)}</strong> of{" "}
-              <strong className="text-foreground">{storeGroups.length}</strong> retail destinations ({filteredCount} total orders)
+              Showing{" "}
+              <strong className="text-foreground">
+                {(currentPage - 1) * pageSize + 1}
+              </strong>{" "}
+              to{" "}
+              <strong className="text-foreground">
+                {Math.min(currentPage * pageSize, storeGroups.length)}
+              </strong>{" "}
+              of <strong className="text-foreground">{storeGroups.length}</strong> retail
+              destinations ({filteredCount} total orders)
             </span>
           ) : (
             <span>
@@ -68,7 +75,8 @@ export function QueueTableView({
               <span className="font-bold text-foreground">
                 {Math.min(currentPage * pageSize, sortedOrders.length)}
               </span>{" "}
-              of <span className="font-bold text-foreground">{sortedOrders.length}</span> orders
+              of <span className="font-bold text-foreground">{sortedOrders.length}</span>{" "}
+              orders
             </span>
           )}
         </div>
@@ -84,7 +92,10 @@ export function QueueTableView({
               </PaginationItem>
               {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <PaginationItem key={page}>
-                  <PaginationLink isActive={currentPage === page} onClick={() => onPageChange(page)}>
+                  <PaginationLink
+                    isActive={currentPage === page}
+                    onClick={() => onPageChange(page)}
+                  >
                     {page}
                   </PaginationLink>
                 </PaginationItem>

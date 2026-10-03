@@ -44,7 +44,9 @@ export function AppSidebar({ activeId, onSelect, customNavGroups }: AppSidebarPr
   const isSubItemActive = (sub: SubNavItem) => {
     if (activeId) return activeId === sub.id;
     if (sub.id === "system-alerts") {
-      return location.pathname === "/store/dashboard" || location.pathname === "/store/alerts";
+      return (
+        location.pathname === "/store/dashboard" || location.pathname === "/store/alerts"
+      );
     }
     if (sub.id === "unserved-queue") {
       return (
@@ -109,7 +111,9 @@ export function AppSidebar({ activeId, onSelect, customNavGroups }: AppSidebarPr
           location.pathname === "/dispatcher/live-tracking"
         );
       }
-      return location.pathname === item.path || location.pathname.startsWith(item.path + "/");
+      return (
+        location.pathname === item.path || location.pathname.startsWith(item.path + "/")
+      );
     }
     return false;
   };
@@ -124,7 +128,10 @@ export function AppSidebar({ activeId, onSelect, customNavGroups }: AppSidebarPr
   };
 
   return (
-    <Sidebar collapsible="icon" className="border-r border-sidebar-border font-sans bg-sidebar select-none">
+    <Sidebar
+      collapsible="icon"
+      className="border-r border-sidebar-border font-sans bg-sidebar select-none"
+    >
       <SidebarHeaderComponent
         isAdminRole={isAdminRole}
         activeHub={activeHub}

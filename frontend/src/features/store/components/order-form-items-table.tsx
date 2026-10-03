@@ -37,7 +37,8 @@ export function OrderFormItemsTable({
   onRemoveRow,
   onAddRow,
 }: OrderFormItemsTableProps) {
-  const allRowsSelected = rows.length > 0 && rows.every((r) => selectedRowIds.includes(r.id));
+  const allRowsSelected =
+    rows.length > 0 && rows.every((r) => selectedRowIds.includes(r.id));
 
   return (
     <div className="space-y-3">
@@ -76,20 +77,36 @@ export function OrderFormItemsTable({
                   className="size-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
                 />
               </TableHead>
-              <TableHead className="text-xs font-semibold text-foreground min-w-[240px]">Item</TableHead>
-              <TableHead className="text-xs font-semibold text-foreground w-24">unit</TableHead>
-              <TableHead className="text-xs font-semibold text-foreground w-36 text-center">Qnt</TableHead>
-              <TableHead className="text-xs font-semibold text-foreground w-28 text-right">Unit Price</TableHead>
-              <TableHead className="text-xs font-semibold text-foreground w-24 text-right">Weight</TableHead>
-              <TableHead className="text-xs font-semibold text-foreground w-32 text-right">Subtotal (LKR)</TableHead>
+              <TableHead className="text-xs font-semibold text-foreground min-w-[240px]">
+                Item
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-foreground w-24">
+                unit
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-foreground w-36 text-center">
+                Qnt
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-foreground w-28 text-right">
+                Unit Price
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-foreground w-24 text-right">
+                Weight
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-foreground w-32 text-right">
+                Subtotal (LKR)
+              </TableHead>
               <TableHead className="w-12 text-right pr-4"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} className="h-36 text-center text-muted-foreground text-xs">
-                  No items in draft. Type in the search box above or click the + button to add products.
+                <TableCell
+                  colSpan={8}
+                  className="h-36 text-center text-muted-foreground text-xs"
+                >
+                  No items in draft. Type in the search box above or click the + button to
+                  add products.
                 </TableCell>
               </TableRow>
             ) : (

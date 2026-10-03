@@ -23,7 +23,9 @@ export function AppLayout() {
             <div className="flex items-center gap-2 truncate">
               <button
                 type="button"
-                onClick={() => navigate(isStoreRole ? "/store/orders" : "/dispatcher/orders")}
+                onClick={() =>
+                  navigate(isStoreRole ? "/store/orders" : "/dispatcher/orders")
+                }
                 className="cursor-pointer hover:text-foreground transition-colors hidden sm:flex items-center gap-1.5 text-xs sm:text-sm font-medium text-muted-foreground"
               >
                 <img

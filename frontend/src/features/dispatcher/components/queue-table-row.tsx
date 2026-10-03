@@ -6,11 +6,7 @@ import {
 } from "@phosphor-icons/react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { IconButton } from "@/components/ui/icon-button";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import type { QueuedOrder } from "../types";
 
 interface QueueTableRowProps {
@@ -52,7 +48,9 @@ export function QueueTableRow({
                         : "bg-primary"
                   }`}
                 />
-                <span className="group-hover/ref:text-primary transition-colors">#{order.orderRef}</span>
+                <span className="group-hover/ref:text-primary transition-colors">
+                  #{order.orderRef}
+                </span>
               </div>
             }
           />
@@ -91,20 +89,34 @@ export function QueueTableRow({
               <div className="flex items-center gap-1 text-xs font-semibold cursor-help">
                 {isChilled ? (
                   <>
-                    <SnowflakeIcon className="size-3 text-[var(--status-chilled)] shrink-0" weight="bold" />
-                    <span className="text-[var(--status-chilled)] text-[11px]">Chilled</span>
+                    <SnowflakeIcon
+                      className="size-3 text-[var(--status-chilled)] shrink-0"
+                      weight="bold"
+                    />
+                    <span className="text-[var(--status-chilled)] text-[11px]">
+                      Chilled
+                    </span>
                   </>
                 ) : (
                   <>
-                    <SunIcon className="size-3 text-[var(--status-ambient)] shrink-0" weight="bold" />
-                    <span className="text-[var(--status-ambient)] text-[11px]">Ambient</span>
+                    <SunIcon
+                      className="size-3 text-[var(--status-ambient)] shrink-0"
+                      weight="bold"
+                    />
+                    <span className="text-[var(--status-ambient)] text-[11px]">
+                      Ambient
+                    </span>
                   </>
                 )}
               </div>
             }
           />
           <TooltipContent>
-            <span>{isChilled ? "Reefer vehicle required (0°C to 4°C cold chain)" : "Ambient dry freight compartment"}</span>
+            <span>
+              {isChilled
+                ? "Reefer vehicle required (0°C to 4°C cold chain)"
+                : "Ambient dry freight compartment"}
+            </span>
           </TooltipContent>
         </Tooltip>
       </TableCell>

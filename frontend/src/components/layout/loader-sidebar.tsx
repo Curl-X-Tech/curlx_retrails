@@ -1,5 +1,10 @@
 import { useNavigate } from "react-router-dom";
-import { TruckIcon, UserCircleIcon, ListBulletsIcon, SignOutIcon } from "@phosphor-icons/react";
+import {
+  TruckIcon,
+  UserCircleIcon,
+  ListBulletsIcon,
+  SignOutIcon,
+} from "@phosphor-icons/react";
 import { useAuth } from "@/context/auth-context";
 import {
   DropdownMenu,
@@ -23,11 +28,7 @@ export function LoaderSidebar({ isManifestsActive, isBaysActive }: LoaderSidebar
     <aside className="flex flex-col items-center justify-between border-r border-border/80 bg-sidebar py-3 w-16 shrink-0 z-30 select-none">
       <div className="flex flex-col items-center gap-3 w-full">
         <div className="flex size-10 items-center justify-center rounded-xl bg-card border border-border/60 shadow-xs overflow-hidden p-1.5">
-          <img
-            src="/icon.png"
-            alt="ReTrails Logo"
-            className="size-full object-contain"
-          />
+          <img src="/icon.png" alt="ReTrails Logo" className="size-full object-contain" />
         </div>
 
         <Separator className="w-8 bg-border/60" />
@@ -69,7 +70,11 @@ export function LoaderSidebar({ isManifestsActive, isBaysActive }: LoaderSidebar
           >
             <UserCircleIcon className="size-7" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent side="right" align="end" className="w-56 p-1.5 shadow-lg rounded-xl">
+          <DropdownMenuContent
+            side="right"
+            align="end"
+            className="w-56 p-1.5 shadow-lg rounded-xl"
+          >
             <div className="px-2 py-1.5 text-xs text-muted-foreground">
               Signed in as{" "}
               <span className="font-semibold text-foreground block truncate">

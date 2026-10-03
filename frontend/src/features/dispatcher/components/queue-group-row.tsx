@@ -22,17 +22,14 @@ export function QueueGroupHeaderRow({ group }: { group: StoreOrderGroup }) {
               Waypoint {group.brand}
             </span>
             <span className="text-muted-foreground text-xs font-normal">
-              ({group.orders.length}{" "}
-              {group.orders.length === 1 ? "order" : "orders"})
+              ({group.orders.length} {group.orders.length === 1 ? "order" : "orders"})
             </span>
           </div>
 
           <div className="flex items-center gap-3 text-xs text-muted-foreground font-normal">
             <span>{group.outletAddress}</span>
             <span>•</span>
-            <span className="capitalize">
-              {group.dockType.replace("_", " ")}
-            </span>
+            <span className="capitalize">{group.dockType.replace("_", " ")}</span>
           </div>
         </div>
       </TableCell>
@@ -45,8 +42,7 @@ export function QueueGroupTotalRow({ group }: { group: StoreOrderGroup }) {
     <TableRow className="bg-muted/20 border-b-2 border-border/80 text-xs font-semibold">
       <TableCell className="py-2 px-4 font-bold text-[11px] text-muted-foreground whitespace-nowrap">
         <span className="pl-2">
-          TOTAL ({group.totalOrders}{" "}
-          {group.totalOrders === 1 ? "order" : "orders"})
+          TOTAL ({group.totalOrders} {group.totalOrders === 1 ? "order" : "orders"})
         </span>
       </TableCell>
 

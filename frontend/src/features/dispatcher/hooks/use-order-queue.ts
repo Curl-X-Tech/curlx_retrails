@@ -5,12 +5,7 @@ import {
   getStoreGroupedOrders,
   computeOrderQueueKPIs,
 } from "@/data/mock-orders";
-import type {
-  QueuedOrder,
-  StoreOrderGroup,
-  QueueSortKey,
-  QueueViewMode,
-} from "../types";
+import type { QueuedOrder, StoreOrderGroup, QueueSortKey, QueueViewMode } from "../types";
 
 export function useOrderQueue() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -35,8 +30,12 @@ export function useOrderQueue() {
           const next = new URLSearchParams(prev);
           Object.entries(updates).forEach(([key, val]) => {
             if (
-              val === null || val === undefined || val === "" || val === "all" ||
-              (key === "view" && val === "table") || (key === "group" && val === true) ||
+              val === null ||
+              val === undefined ||
+              val === "" ||
+              val === "all" ||
+              (key === "view" && val === "table") ||
+              (key === "group" && val === true) ||
               (key === "page" && Number(val) <= 1)
             ) {
               next.delete(key);
@@ -56,19 +55,31 @@ export function useOrderQueue() {
   );
 
   const selectedOrder = React.useMemo(
-    () => (orderParam ? orders.find((o) => o.orderRef === orderParam || o.id === orderParam) || null : null),
+    () =>
+      orderParam
+        ? orders.find((o) => o.orderRef === orderParam || o.id === orderParam) || null
+        : null,
     [orderParam, orders]
   );
 
   const filteredOrders = React.useMemo(() => {
     return orders.filter((ord) => {
       const q = searchQuery.trim().toLowerCase();
-      const matchesSearch = !q || ord.orderRef.toLowerCase().includes(q) ||
-        ord.outletName.toLowerCase().includes(q) || ord.outletId.toLowerCase().includes(q) ||
-        ord.items.some((i) => i.itemName.toLowerCase().includes(q) || i.packageCode.toLowerCase().includes(q));
+      const matchesSearch =
+        !q ||
+        ord.orderRef.toLowerCase().includes(q) ||
+        ord.outletName.toLowerCase().includes(q) ||
+        ord.outletId.toLowerCase().includes(q) ||
+        ord.items.some(
+          (i) =>
+            i.itemName.toLowerCase().includes(q) ||
+            i.packageCode.toLowerCase().includes(q)
+        );
       const matchesBrand = brandFilter === "all" || ord.brand === brandFilter;
       const matchesTemp = tempFilter === "all" || ord.tempRequirement === tempFilter;
-      const matchesStatus = statusFilter === "all" || (statusFilter === "urgent" ? ord.isUrgent : ord.deferredYesterday === 1);
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "urgent" ? ord.isUrgent : ord.deferredYesterday === 1);
       const matchesDock = dockFilter === "all" || ord.dockType === dockFilter;
       return matchesSearch && matchesBrand && matchesTemp && matchesStatus && matchesDock;
     });
@@ -83,24 +94,47 @@ export function useOrderQueue() {
       else if (sortKey === "weight") cmp = a.totalWeightKg - b.totalWeightKg;
       else if (sortKey === "volume") cmp = a.totalVolumeM3 - b.totalVolumeM3;
       else if (sortKey === "value") cmp = a.totalOrderValueLkr - b.totalOrderValueLkr;
-      else if (sortKey === "window") cmp = a.deliveryWindow.localeCompare(b.deliveryWindow);
+      else if (sortKey === "window")
+        cmp = a.deliveryWindow.localeCompare(b.deliveryWindow);
       return sortDirection === "asc" ? cmp : -cmp;
     });
   }, [filteredOrders, sortKey, sortDirection]);
 
-  const storeGroups: StoreOrderGroup[] = React.useMemo(() => getStoreGroupedOrders(filteredOrders), [filteredOrders]);
-  const kpis = React.useMemo(() => computeOrderQueueKPIs(filteredOrders), [filteredOrders]);
+  const storeGroups: StoreOrderGroup[] = React.useMemo(
+    () => getStoreGroupedOrders(filteredOrders),
+    [filteredOrders]
+  );
+  const kpis = React.useMemo(
+    () => computeOrderQueueKPIs(filteredOrders),
+    [filteredOrders]
+  );
 
   const pageSize = viewMode === "grid" ? 8 : groupByStore ? 4 : 10;
-  const totalCount = viewMode === "grid" ? sortedOrders.length : groupByStore ? storeGroups.length : sortedOrders.length;
+  const totalCount =
+    viewMode === "grid"
+      ? sortedOrders.length
+      : groupByStore
+        ? storeGroups.length
+        : sortedOrders.length;
   const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
 
-  const paginatedGridOrders = React.useMemo(() => sortedOrders.slice((currentPage - 1) * 8, currentPage * 8), [sortedOrders, currentPage]);
-  const paginatedStoreGroups = React.useMemo(() => storeGroups.slice((currentPage - 1) * 4, currentPage * 4), [storeGroups, currentPage]);
-  const paginatedOrders = React.useMemo(() => sortedOrders.slice((currentPage - 1) * 10, currentPage * 10), [sortedOrders, currentPage]);
+  const paginatedGridOrders = React.useMemo(
+    () => sortedOrders.slice((currentPage - 1) * 8, currentPage * 8),
+    [sortedOrders, currentPage]
+  );
+  const paginatedStoreGroups = React.useMemo(
+    () => storeGroups.slice((currentPage - 1) * 4, currentPage * 4),
+    [storeGroups, currentPage]
+  );
+  const paginatedOrders = React.useMemo(
+    () => sortedOrders.slice((currentPage - 1) * 10, currentPage * 10),
+    [sortedOrders, currentPage]
+  );
 
   const handleExportOrders = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(filteredOrders, null, 2));
+    const dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(filteredOrders, null, 2));
     const a = document.createElement("a");
     a.setAttribute("href", dataStr);
     a.setAttribute("download", `order_queue_${Date.now()}.json`);
@@ -110,9 +144,29 @@ export function useOrderQueue() {
   };
 
   return {
-    orderParam, searchQuery, viewMode, groupByStore, brandFilter, tempFilter, statusFilter, dockFilter,
-    sortKey, sortDirection, currentPage, orders, selectedOrder, filteredOrders, sortedOrders, storeGroups,
-    kpis, pageSize, totalPages, paginatedGridOrders, paginatedStoreGroups, paginatedOrders,
-    updateQueryParams, handleExportOrders,
+    orderParam,
+    searchQuery,
+    viewMode,
+    groupByStore,
+    brandFilter,
+    tempFilter,
+    statusFilter,
+    dockFilter,
+    sortKey,
+    sortDirection,
+    currentPage,
+    orders,
+    selectedOrder,
+    filteredOrders,
+    sortedOrders,
+    storeGroups,
+    kpis,
+    pageSize,
+    totalPages,
+    paginatedGridOrders,
+    paginatedStoreGroups,
+    paginatedOrders,
+    updateQueryParams,
+    handleExportOrders,
   };
 }

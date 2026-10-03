@@ -44,7 +44,6 @@ function getSimulatedDelayMs(search?: string | URLSearchParams): number {
   return 1000; // 1 second default
 }
 
-
 /**
  * Hook to simulate loading states when filter/search/pagination dependencies change.
  */

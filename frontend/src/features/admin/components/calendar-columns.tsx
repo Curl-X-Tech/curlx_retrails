@@ -36,9 +36,7 @@ export function getCalendarColumns(
         <div>
           <span>{day.dow_name}</span>
           {day.is_weekend && (
-            <span className="ml-1.5 text-[10px] font-bold text-amber-500">
-              Weekend
-            </span>
+            <span className="ml-1.5 text-[10px] font-bold text-amber-500">Weekend</span>
           )}
         </div>
       ),

@@ -17,7 +17,6 @@ export function useAdminDemandSurge(fromDate?: string, toDate?: string) {
 
   return useQuery<DemandSurge[]>({
     queryKey: ["master", "calendar", "surge", fromDate, toDate],
-    queryFn: () =>
-      apiRequest<DemandSurge[]>("/master/calendar/surge", { params }),
+    queryFn: () => apiRequest<DemandSurge[]>("/master/calendar/surge", { params }),
   });
 }

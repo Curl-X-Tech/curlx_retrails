@@ -2,11 +2,7 @@ import { UserIcon, ArrowSquareOutIcon } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { IconButton } from "@/components/ui/icon-button";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { getReasonLabel } from "./deferrals-carryover-row";
 import { getResourceBadge } from "./deferrals-audit-filter-toolbar";
 import type { DeferralAuditRecord } from "../types";
@@ -16,10 +12,7 @@ interface DeferralsAuditRowProps {
   onSelectOrderRef: (orderRef: string) => void;
 }
 
-export function DeferralsAuditRow({
-  log,
-  onSelectOrderRef,
-}: DeferralsAuditRowProps) {
+export function DeferralsAuditRow({ log, onSelectOrderRef }: DeferralsAuditRowProps) {
   return (
     <TableRow
       key={log.id}
@@ -65,10 +58,7 @@ export function DeferralsAuditRow({
       </TableCell>
 
       <TableCell>
-        <Badge
-          variant="secondary"
-          className="text-[10px] font-semibold px-1.5 py-0.5"
-        >
+        <Badge variant="secondary" className="text-[10px] font-semibold px-1.5 py-0.5">
           {getResourceBadge(log.limitingResource)}
         </Badge>
       </TableCell>

@@ -1,5 +1,1 @@
-export {
-  useAdminDepots,
-  useAdminDistricts,
-  useAdminOutlets,
-} from "./use-admin-outlets";
+export { useAdminDepots, useAdminDistricts, useAdminOutlets } from "./use-admin-outlets";

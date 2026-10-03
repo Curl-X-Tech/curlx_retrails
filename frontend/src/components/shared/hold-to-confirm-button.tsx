@@ -91,7 +91,12 @@ export function HoldToConfirmButton({
   }, []);
 
   return (
-    <div className={cn("relative inline-block overflow-hidden rounded-md select-none touch-none", className)}>
+    <div
+      className={cn(
+        "relative inline-block overflow-hidden rounded-md select-none touch-none",
+        className
+      )}
+    >
       <Button
         type="button"
         variant={variant}

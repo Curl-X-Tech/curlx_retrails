@@ -31,7 +31,8 @@ export function OrderFormHeader({
           </Badge>
         </div>
         <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-          Compose store replenishment manifest, assign destination outlet, and dispatch for depot allocation
+          Compose store replenishment manifest, assign destination outlet, and dispatch
+          for depot allocation
         </p>
       </div>
 

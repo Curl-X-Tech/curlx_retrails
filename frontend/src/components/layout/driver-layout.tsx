@@ -48,10 +48,7 @@ export function DriverLayout() {
 
         <DriverBottomNav syncState={syncState} />
 
-        <DriverDrawer
-          isOpen={isMenuDrawerOpen}
-          onOpenChange={setIsMenuDrawerOpen}
-        />
+        <DriverDrawer isOpen={isMenuDrawerOpen} onOpenChange={setIsMenuDrawerOpen} />
 
         <DriverBreakDialog
           isOpen={isBreakModalOpen}

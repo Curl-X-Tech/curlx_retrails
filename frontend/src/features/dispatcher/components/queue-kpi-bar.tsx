@@ -18,25 +18,18 @@ export function QueueKpiBar({ kpis }: QueueKpiBarProps) {
       <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
         <PackageIcon className="size-3.5 text-primary shrink-0" />
         <span className="text-muted-foreground text-[11px]">Orders:</span>
-        <span className="font-bold text-foreground text-[11px]">
-          {kpis.totalOrders}
-        </span>
+        <span className="font-bold text-foreground text-[11px]">{kpis.totalOrders}</span>
       </div>
 
       <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
         <StorefrontIcon className="size-3.5 text-sky-600 shrink-0" />
         <span className="text-muted-foreground text-[11px]">Outlets:</span>
-        <span className="font-bold text-foreground text-[11px]">
-          {kpis.totalStores}
-        </span>
+        <span className="font-bold text-foreground text-[11px]">{kpis.totalStores}</span>
       </div>
 
       {kpis.deferredYesterdayOrders > 0 && (
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-lg shadow-2xs">
-          <WarningOctagonIcon
-            className="size-3.5 text-rose-600 shrink-0"
-            weight="bold"
-          />
+          <WarningOctagonIcon className="size-3.5 text-rose-600 shrink-0" weight="bold" />
           <span className="text-rose-700 dark:text-rose-300 text-[11px] font-bold">
             Yesterday Skips:
           </span>

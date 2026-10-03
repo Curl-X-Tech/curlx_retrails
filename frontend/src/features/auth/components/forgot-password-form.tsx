@@ -1,8 +1,5 @@
 import * as React from "react";
-import {
-  EnvelopeSimpleIcon,
-  ArrowCounterClockwiseIcon,
-} from "@phosphor-icons/react";
+import { EnvelopeSimpleIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { requestPasswordReset } from "@/lib/api";
@@ -44,9 +41,7 @@ export function ForgotPasswordForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-foreground">
-          Account Email
-        </label>
+        <label className="text-xs font-medium text-foreground">Account Email</label>
         <div className="relative">
           <EnvelopeSimpleIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input

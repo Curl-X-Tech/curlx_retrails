@@ -21,9 +21,7 @@ export function getItemColumns(
           <PackageIcon className="size-3.5 text-primary shrink-0" />
           <div>
             <div className="font-bold text-xs text-foreground">{item.name}</div>
-            <div className="text-[11px] text-muted-foreground font-mono">
-              {item.sku}
-            </div>
+            <div className="text-[11px] text-muted-foreground font-mono">{item.sku}</div>
           </div>
         </div>
       ),
@@ -78,7 +76,8 @@ export function getItemColumns(
       key: "price",
       header: "Active Price (LKR)",
       sortable: true,
-      className: "w-[130px] pr-4 text-right whitespace-nowrap font-mono text-xs font-bold text-foreground",
+      className:
+        "w-[130px] pr-4 text-right whitespace-nowrap font-mono text-xs font-bold text-foreground",
       render: (item) => {
         const price = helpers.getActivePrice(item.id);
         return price !== null ? `Rs. ${price.toLocaleString()}` : "-";

@@ -8,11 +8,7 @@ import {
   type UserUpdatePayload,
 } from "@/lib/api";
 import type { MockUserWithMeta } from "@/data/mock-users";
-import {
-  getLocalUsers,
-  saveLocalUsers,
-  createSimulatedUser,
-} from "./user-storage";
+import { getLocalUsers, saveLocalUsers, createSimulatedUser } from "./user-storage";
 
 export function useAdminUsers() {
   return useQuery<MockUserWithMeta[]>({

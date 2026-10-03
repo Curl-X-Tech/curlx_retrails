@@ -68,7 +68,10 @@ export function DataTable<T>({
               {columns.map((col) => (
                 <TableHead
                   key={col.key}
-                  className={cn(col.sortable && onSort && "cursor-pointer select-none", col.className)}
+                  className={cn(
+                    col.sortable && onSort && "cursor-pointer select-none",
+                    col.className
+                  )}
                   onClick={() => col.sortable && onSort?.(col.key)}
                 >
                   <div className="flex items-center gap-1">
@@ -104,7 +107,10 @@ export function DataTable<T>({
               ))
             ) : data.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columns.length} className="h-32 text-center text-muted-foreground text-sm">
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-32 text-center text-muted-foreground text-sm"
+                >
                   {emptyMessage}
                 </TableCell>
               </TableRow>
@@ -113,7 +119,9 @@ export function DataTable<T>({
                 <TableRow
                   key={keyExtractor ? keyExtractor(row, rowIdx) : rowIdx}
                   onClick={() => onRowClick?.(row)}
-                  className={cn(onRowClick && "cursor-pointer hover:bg-muted/50 transition-colors")}
+                  className={cn(
+                    onRowClick && "cursor-pointer hover:bg-muted/50 transition-colors"
+                  )}
                 >
                   {columns.map((col) => (
                     <TableCell key={col.key} className={col.className}>
@@ -140,14 +148,19 @@ export function DataTable<T>({
                 <PaginationPrevious
                   onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
                   disabled={pagination.currentPage <= 1}
-                  className={cn(pagination.currentPage <= 1 && "pointer-events-none opacity-50")}
+                  className={cn(
+                    pagination.currentPage <= 1 && "pointer-events-none opacity-50"
+                  )}
                 />
               </PaginationItem>
               <PaginationItem>
                 <PaginationNext
                   onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
                   disabled={pagination.currentPage >= pagination.totalPages}
-                  className={cn(pagination.currentPage >= pagination.totalPages && "pointer-events-none opacity-50")}
+                  className={cn(
+                    pagination.currentPage >= pagination.totalPages &&
+                      "pointer-events-none opacity-50"
+                  )}
                 />
               </PaginationItem>
             </PaginationContent>

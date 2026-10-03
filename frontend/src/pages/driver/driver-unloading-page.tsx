@@ -84,9 +84,7 @@ export function DriverUnloadingPage() {
 
       <UnloadingFlagModal
         isOpen={isFlagModalOpen}
-        targetLabel={
-          flaggedItemId ? `Item #${flaggedItemId}` : currentWp.outletName
-        }
+        targetLabel={flaggedItemId ? `Item #${flaggedItemId}` : currentWp.outletName}
         flagReason={flagReason}
         onSelectReason={setFlagReason}
         onConfirm={handleConfirmFlagIssue}

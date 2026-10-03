@@ -6,20 +6,21 @@ import {
 } from "@phosphor-icons/react";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { IconButton } from "@/components/ui/icon-button";
-import {
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import type { CarryoverOrder } from "../types";
 
 export function getReasonLabel(reason: string) {
   switch (reason) {
-    case "insufficient_reefer_capacity": return "Reefer Capacity Saturated";
-    case "van_access_shortage": return "Van Access Shortage";
-    case "time_budget_limit": return "Time Budget Exceeded";
-    case "fuel_quota_exceeded": return "Fleet Downtime / Maintenance";
-    default: return reason.replace(/_/g, " ");
+    case "insufficient_reefer_capacity":
+      return "Reefer Capacity Saturated";
+    case "van_access_shortage":
+      return "Van Access Shortage";
+    case "time_budget_limit":
+      return "Time Budget Exceeded";
+    case "fuel_quota_exceeded":
+      return "Fleet Downtime / Maintenance";
+    default:
+      return reason.replace(/_/g, " ");
   }
 }
 
@@ -51,9 +52,15 @@ export function DeferralsCarryoverRow({
           <TooltipTrigger
             render={
               <div className="flex items-center gap-2 pl-1 cursor-help group/ref">
-                <span className={`size-1.5 rounded-full shrink-0 ${isMandatory ? "bg-red-500" : "bg-amber-500"}`} />
-                <span className="group-hover/ref:text-primary transition-colors">#{ord.orderRef}</span>
-                {isMandatory && <LockKeyIcon className="size-3 text-red-500 shrink-0" weight="bold" />}
+                <span
+                  className={`size-1.5 rounded-full shrink-0 ${isMandatory ? "bg-red-500" : "bg-amber-500"}`}
+                />
+                <span className="group-hover/ref:text-primary transition-colors">
+                  #{ord.orderRef}
+                </span>
+                {isMandatory && (
+                  <LockKeyIcon className="size-3 text-red-500 shrink-0" weight="bold" />
+                )}
               </div>
             }
           />
@@ -77,15 +84,21 @@ export function DeferralsCarryoverRow({
 
       <TableCell>
         <div>
-          <span className="font-bold text-xs text-foreground block truncate max-w-[200px]">{ord.outletName}</span>
-          <span className="text-[10px] text-muted-foreground">{ord.outletId} • {ord.district} ({ord.dockType.replace("_", " ")})</span>
+          <span className="font-bold text-xs text-foreground block truncate max-w-[200px]">
+            {ord.outletName}
+          </span>
+          <span className="text-[10px] text-muted-foreground">
+            {ord.outletId} • {ord.district} ({ord.dockType.replace("_", " ")})
+          </span>
         </div>
       </TableCell>
 
       <TableCell>
         <span
           className={`text-[11px] font-semibold px-2 py-0.5 rounded inline-flex items-center gap-1 ${
-            isCold ? "bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300" : "bg-muted text-foreground"
+            isCold
+              ? "bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300"
+              : "bg-muted text-foreground"
           }`}
         >
           {isCold && <SnowflakeIcon className="size-2.5 shrink-0" />}

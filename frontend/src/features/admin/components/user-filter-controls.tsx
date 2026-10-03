@@ -49,10 +49,7 @@ export function UserFilterControls({
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuLabel className="text-xs">Filter by Role</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuRadioGroup
-            value={roleFilter}
-            onValueChange={onRoleFilterChange}
-          >
+          <DropdownMenuRadioGroup value={roleFilter} onValueChange={onRoleFilterChange}>
             <DropdownMenuRadioItem value="all" className="text-xs">
               All Roles
             </DropdownMenuRadioItem>

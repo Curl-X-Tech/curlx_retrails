@@ -70,7 +70,9 @@ export function StoreCreateOrderPage() {
             onRemoveRow={builder.handleRemoveRow}
             onAddRow={() =>
               builder.handleAddProduct(
-                builder.catalogProducts[builder.rows.length % builder.catalogProducts.length],
+                builder.catalogProducts[
+                  builder.rows.length % builder.catalogProducts.length
+                ],
                 10
               )
             }
@@ -82,7 +84,9 @@ export function StoreCreateOrderPage() {
             onRemoveRow={builder.handleRemoveRow}
             onAddRow={() =>
               builder.handleAddProduct(
-                builder.catalogProducts[builder.rows.length % builder.catalogProducts.length],
+                builder.catalogProducts[
+                  builder.rows.length % builder.catalogProducts.length
+                ],
                 10
               )
             }

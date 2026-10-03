@@ -35,13 +35,22 @@ export function DeferralsWave1Card({
       >
         <div className="flex items-center gap-3.5 min-w-0">
           <div className="shrink-0">
-            <CircularProgressRing value={value} size={44} strokeWidth={4} colorClassName={ringColor}>
-              <span className={`text-xs font-heading font-black ${ringColor}`}>{count}</span>
+            <CircularProgressRing
+              value={value}
+              size={44}
+              strokeWidth={4}
+              colorClassName={ringColor}
+            >
+              <span className={`text-xs font-heading font-black ${ringColor}`}>
+                {count}
+              </span>
             </CircularProgressRing>
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs font-heading font-bold text-foreground truncate">{title}</span>
+              <span className="text-xs font-heading font-bold text-foreground truncate">
+                {title}
+              </span>
               <span className={`size-1.5 rounded-full ${badgeDotColor} shrink-0`} />
             </div>
             <p className="text-[11px] text-muted-foreground truncate mt-0.5">

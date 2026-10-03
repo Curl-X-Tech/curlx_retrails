@@ -66,9 +66,7 @@ export function ActiveTripWaypointCard({
           )}
         >
           <CheckCircleIcon className="size-4" weight="fill" />
-          <span>
-            {currentWp.status === "completed" ? "View Checklist" : "Arrived"}
-          </span>
+          <span>{currentWp.status === "completed" ? "View Checklist" : "Arrived"}</span>
         </Button>
 
         <Button

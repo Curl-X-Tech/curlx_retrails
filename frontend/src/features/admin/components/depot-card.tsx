@@ -1,8 +1,4 @@
-import {
-  WarehouseIcon,
-  MapPinIcon,
-  CheckCircleIcon,
-} from "@phosphor-icons/react";
+import { WarehouseIcon, MapPinIcon, CheckCircleIcon } from "@phosphor-icons/react";
 import {
   Card,
   CardContent,

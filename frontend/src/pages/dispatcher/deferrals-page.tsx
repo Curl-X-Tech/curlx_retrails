@@ -28,9 +28,17 @@ export function DeferralsPage({
   const d = useDeferrals(viewMode);
 
   const isSimulatedLoading = useSimulatedLoading([
-    d.carryoverSearch, d.carryoverBrandFilter, d.carryoverGroupBy, d.carryoverPage,
-    d.auditSearch, d.auditReasonFilter, d.auditResourceFilter, d.auditGroupBy,
-    d.auditSortKey, d.auditSortDirection, d.auditPage,
+    d.carryoverSearch,
+    d.carryoverBrandFilter,
+    d.carryoverGroupBy,
+    d.carryoverPage,
+    d.auditSearch,
+    d.auditReasonFilter,
+    d.auditResourceFilter,
+    d.auditGroupBy,
+    d.auditSortKey,
+    d.auditSortDirection,
+    d.auditPage,
   ]);
   const effectiveLoading = isLoading || isSimulatedLoading;
 
@@ -49,7 +57,12 @@ export function DeferralsPage({
         </div>
         {d.isAuditLog && (
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="xs" className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg" onClick={d.handleExportJson}>
+            <Button
+              variant="outline"
+              size="xs"
+              className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg"
+              onClick={d.handleExportJson}
+            >
               <FileTextIcon className="size-3 text-muted-foreground" />
               <span>Export Audit Log</span>
             </Button>
@@ -57,7 +70,11 @@ export function DeferralsPage({
         )}
       </div>
 
-      {!d.isAuditLog ? <DeferralsKpiHeader kpis={d.carryoverKPIs} /> : <DeferralsAuditKpiBar totalRecords={d.auditLogsCount} />}
+      {!d.isAuditLog ? (
+        <DeferralsKpiHeader kpis={d.carryoverKPIs} />
+      ) : (
+        <DeferralsAuditKpiBar totalRecords={d.auditLogsCount} />
+      )}
 
       <div className="flex-1 min-h-0 margin-responsive py-4 sm:py-5 overflow-hidden flex flex-col">
         {!d.isAuditLog ? (
@@ -114,14 +131,26 @@ export function DeferralsPage({
               paginatedAuditLogs={d.paginatedAuditLogs}
               auditSortKey={d.auditSortKey}
               auditSortDirection={d.auditSortDirection}
-              onSort={(key) => d.updateQueryParams(d.auditSortKey === key ? (d.auditSortDirection === "asc" ? { sort: key, dir: "desc" } : { sort: null, dir: null }) : { sort: key, dir: "asc" })}
+              onSort={(key) =>
+                d.updateQueryParams(
+                  d.auditSortKey === key
+                    ? d.auditSortDirection === "asc"
+                      ? { sort: key, dir: "desc" }
+                      : { sort: null, dir: null }
+                    : { sort: key, dir: "asc" }
+                )
+              }
               onSelectOrderRef={(ref) => d.updateQueryParams({ order: ref })}
             />
           </Card>
         )}
       </div>
 
-      <OrderDetailSheet open={Boolean(d.orderParam)} order={d.selectedOrder} onOpenChange={(open) => !open && d.updateQueryParams({ order: null })} />
+      <OrderDetailSheet
+        open={Boolean(d.orderParam)}
+        order={d.selectedOrder}
+        onOpenChange={(open) => !open && d.updateQueryParams({ order: null })}
+      />
     </div>
   );
 }

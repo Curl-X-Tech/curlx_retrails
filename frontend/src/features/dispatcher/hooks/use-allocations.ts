@@ -1,9 +1,6 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
-import {
-  mockVehicleAllocations,
-  mockAllocationKPIs,
-} from "@/data/mock-allocations";
+import { mockVehicleAllocations, mockAllocationKPIs } from "@/data/mock-allocations";
 import { getManifestForAllocation } from "@/data/mock-allocation-details";
 import type {
   VehicleAllocation,
@@ -61,8 +58,7 @@ export function useAllocations() {
         alloc.driverName.toLowerCase().includes(searchQuery.toLowerCase()) ||
         alloc.plateNumber.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesStatus =
-        statusFilter === "all" || alloc.status === statusFilter;
+      const matchesStatus = statusFilter === "all" || alloc.status === statusFilter;
 
       const matchesCategory =
         categoryFilter === "all" ||

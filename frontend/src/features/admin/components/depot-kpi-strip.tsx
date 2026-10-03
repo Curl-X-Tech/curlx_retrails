@@ -1,8 +1,4 @@
-import {
-  WarehouseIcon,
-  MapTrifoldIcon,
-  StorefrontIcon,
-} from "@phosphor-icons/react";
+import { WarehouseIcon, MapTrifoldIcon, StorefrontIcon } from "@phosphor-icons/react";
 
 export interface DepotKpiStripProps {
   depotsCount: number;

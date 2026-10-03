@@ -67,66 +67,142 @@ export function QueueFilterToolbar({
 
       <div className="flex items-center gap-1.5 flex-wrap">
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="outline" size="xs" className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card" />}>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                size="xs"
+                className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card"
+              />
+            }
+          >
             <StorefrontIcon className="size-3 text-muted-foreground" />
-            <span className="capitalize">Brand: {brandFilter === "all" ? "All Brands" : brandFilter}</span>
+            <span className="capitalize">
+              Brand: {brandFilter === "all" ? "All Brands" : brandFilter}
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
             <DropdownMenuLabel className="text-xs">Filter Brand</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={brandFilter} onValueChange={(val) => onBrandChange(val ?? "all")}>
-              <DropdownMenuRadioItem value="all" className="text-xs">All Brands</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Fresh" className="text-xs">Waypoint Fresh</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Style" className="text-xs">Waypoint Style</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="Tech" className="text-xs">Waypoint Tech</DropdownMenuRadioItem>
+            <DropdownMenuRadioGroup
+              value={brandFilter}
+              onValueChange={(val) => onBrandChange(val ?? "all")}
+            >
+              <DropdownMenuRadioItem value="all" className="text-xs">
+                All Brands
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="Fresh" className="text-xs">
+                Waypoint Fresh
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="Style" className="text-xs">
+                Waypoint Style
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="Tech" className="text-xs">
+                Waypoint Tech
+              </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
 
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="outline" size="xs" className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card" />}>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                size="xs"
+                className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card"
+              />
+            }
+          >
             <SnowflakeIcon className="size-3 text-muted-foreground" />
-            <span className="capitalize">Temp: {tempFilter === "all" ? "All Zones" : tempFilter}</span>
+            <span className="capitalize">
+              Temp: {tempFilter === "all" ? "All Zones" : tempFilter}
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-36">
             <DropdownMenuLabel className="text-xs">Temperature</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={tempFilter} onValueChange={(val) => onTempChange(val ?? "all")}>
-              <DropdownMenuRadioItem value="all" className="text-xs">All Zones</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="chilled" className="text-xs">Chilled</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="ambient" className="text-xs">Ambient</DropdownMenuRadioItem>
+            <DropdownMenuRadioGroup
+              value={tempFilter}
+              onValueChange={(val) => onTempChange(val ?? "all")}
+            >
+              <DropdownMenuRadioItem value="all" className="text-xs">
+                All Zones
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="chilled" className="text-xs">
+                Chilled
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="ambient" className="text-xs">
+                Ambient
+              </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
 
         <DropdownMenu>
-          <DropdownMenuTrigger render={<Button variant="outline" size="xs" className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card" />}>
+          <DropdownMenuTrigger
+            render={
+              <Button
+                variant="outline"
+                size="xs"
+                className="h-7 text-[11px] gap-1 cursor-pointer rounded-lg bg-card"
+              />
+            }
+          >
             <FunnelIcon className="size-3 text-muted-foreground" />
-            <span className="capitalize">Status: {statusFilter === "all" ? "All Statuses" : statusFilter}</span>
+            <span className="capitalize">
+              Status: {statusFilter === "all" ? "All Statuses" : statusFilter}
+            </span>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-44">
             <DropdownMenuLabel className="text-xs">Priority & Status</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuRadioGroup value={statusFilter} onValueChange={(val) => onStatusChange(val ?? "all")}>
-              <DropdownMenuRadioItem value="all" className="text-xs">All Statuses</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="urgent" className="text-xs">Urgent Only</DropdownMenuRadioItem>
-              <DropdownMenuRadioItem value="deferred" className="text-xs">Deferred Yesterday</DropdownMenuRadioItem>
+            <DropdownMenuRadioGroup
+              value={statusFilter}
+              onValueChange={(val) => onStatusChange(val ?? "all")}
+            >
+              <DropdownMenuRadioItem value="all" className="text-xs">
+                All Statuses
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="urgent" className="text-xs">
+                Urgent Only
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem value="deferred" className="text-xs">
+                Deferred Yesterday
+              </DropdownMenuRadioItem>
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
 
         {viewMode === "table" && (
-          <Button variant={groupByStore ? "default" : "outline"} size="xs" onClick={onToggleGroupByStore} className="h-7 px-2.5 text-[11px] font-semibold cursor-pointer rounded-lg">
+          <Button
+            variant={groupByStore ? "default" : "outline"}
+            size="xs"
+            onClick={onToggleGroupByStore}
+            className="h-7 px-2.5 text-[11px] font-semibold cursor-pointer rounded-lg"
+          >
             <MapPinIcon className="size-3 mr-1" />
             Group by Store
           </Button>
         )}
 
         <div className="flex items-center border border-border/70 rounded-lg p-0.5 bg-card">
-          <IconButton variant={viewMode === "table" ? "default" : "ghost"} size="xs" onClick={() => onViewModeChange("table")} className="size-6 rounded-md cursor-pointer" title="Table View">
+          <IconButton
+            variant={viewMode === "table" ? "default" : "ghost"}
+            size="xs"
+            onClick={() => onViewModeChange("table")}
+            className="size-6 rounded-md cursor-pointer"
+            title="Table View"
+          >
             <ListBulletsIcon className="size-3.5" />
           </IconButton>
-          <IconButton variant={viewMode === "grid" ? "default" : "ghost"} size="xs" onClick={() => onViewModeChange("grid")} className="size-6 rounded-md cursor-pointer" title="Card Grid View">
+          <IconButton
+            variant={viewMode === "grid" ? "default" : "ghost"}
+            size="xs"
+            onClick={() => onViewModeChange("grid")}
+            className="size-6 rounded-md cursor-pointer"
+            title="Card Grid View"
+          >
             <SquaresFourIcon className="size-3.5" />
           </IconButton>
         </div>

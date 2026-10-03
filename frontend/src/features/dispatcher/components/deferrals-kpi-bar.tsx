@@ -1,8 +1,4 @@
-import {
-  ClockIcon,
-  ScalesIcon,
-  CubeIcon,
-} from "@phosphor-icons/react";
+import { ClockIcon, ScalesIcon, CubeIcon } from "@phosphor-icons/react";
 import { DeferralsWave1Card } from "./deferrals-wave1-card";
 import type { CarryoverSummaryKPIs } from "../types";
 

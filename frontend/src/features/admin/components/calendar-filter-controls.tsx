@@ -68,10 +68,7 @@ export function CalendarFilterControls({
         <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuLabel className="text-xs">Weather Advisory</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuRadioGroup
-            value={monsoonFilter}
-            onValueChange={onMonsoonChange}
-          >
+          <DropdownMenuRadioGroup value={monsoonFilter} onValueChange={onMonsoonChange}>
             <DropdownMenuRadioItem value="all" className="text-xs">
               All Conditions
             </DropdownMenuRadioItem>
@@ -108,10 +105,7 @@ export function CalendarFilterControls({
         <DropdownMenuContent align="end" className="w-40">
           <DropdownMenuLabel className="text-xs">Demand Multiplier</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuRadioGroup
-            value={surgeFilter}
-            onValueChange={onSurgeChange}
-          >
+          <DropdownMenuRadioGroup value={surgeFilter} onValueChange={onSurgeChange}>
             <DropdownMenuRadioItem value="all" className="text-xs">
               All Days
             </DropdownMenuRadioItem>

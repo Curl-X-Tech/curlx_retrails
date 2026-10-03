@@ -1,10 +1,7 @@
 import L from "leaflet";
 import type { DriverWaypoint } from "../types";
 
-export function createDriverWaypointPin(
-  seq: number,
-  status: DriverWaypoint["status"]
-) {
+export function createDriverWaypointPin(seq: number, status: DriverWaypoint["status"]) {
   let bg = "#0070BA";
   let extraGlow = "box-shadow: 0 2px 7px rgba(0,0,0,0.25);";
 

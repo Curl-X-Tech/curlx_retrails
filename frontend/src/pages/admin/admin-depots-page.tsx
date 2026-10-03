@@ -12,7 +12,11 @@ import {
 } from "@/features/admin";
 
 export function AdminDepotsPage() {
-  const { data: depots = [], isLoading: isDepotsLoading, refetch: refetchDepots } = useAdminDepots();
+  const {
+    data: depots = [],
+    isLoading: isDepotsLoading,
+    refetch: refetchDepots,
+  } = useAdminDepots();
   const { data: districts = [], isLoading: isDistrictsLoading } = useAdminDistricts();
   const { data: outlets = [], isLoading: isOutletsLoading } = useAdminOutlets();
 

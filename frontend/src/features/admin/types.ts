@@ -11,8 +11,10 @@ export interface UserFormData {
   is_active: boolean;
 }
 
-export type OutletSortKey = "outletId" | "name" | "brand" | "district" | "dock" | "constraint" | "window";
-export type ItemSortKey = "sku" | "name" | "brand" | "category" | "weight" | "volume" | "price";
+export type OutletSortKey =
+  "outletId" | "name" | "brand" | "district" | "dock" | "constraint" | "window";
+export type ItemSortKey =
+  "sku" | "name" | "brand" | "category" | "weight" | "volume" | "price";
 export type CalendarSortKey = "date" | "dayOfWeek" | "operating" | "surge" | "monsoon";
 
 export interface MasterDepot {

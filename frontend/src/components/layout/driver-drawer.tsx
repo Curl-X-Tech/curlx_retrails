@@ -121,7 +121,10 @@ export function DriverDrawer({ isOpen, onOpenChange }: DriverDrawerProps) {
                   <span className="truncate">{wp.outletName}</span>
                 </div>
                 {wp.status === "completed" && (
-                  <CheckCircleIcon className="size-4 text-emerald-600 shrink-0" weight="fill" />
+                  <CheckCircleIcon
+                    className="size-4 text-emerald-600 shrink-0"
+                    weight="fill"
+                  />
                 )}
               </button>
             ))}

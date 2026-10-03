@@ -1,8 +1,4 @@
-import {
-  PlusIcon,
-  MinusIcon,
-  CrosshairIcon,
-} from "@phosphor-icons/react";
+import { PlusIcon, MinusIcon, CrosshairIcon } from "@phosphor-icons/react";
 
 interface ActiveTripControlsProps {
   onZoomIn: () => void;

@@ -38,14 +38,24 @@ export function OrderListFilterDropdowns({
         >
           <CalendarBlankIcon className="size-4 text-primary shrink-0" />
           <span className="font-medium text-foreground">
-            {dateFilter === "today" ? "Today, Oct 01" : dateFilter === "tomorrow" ? "Tomorrow, Oct 02" : "All Dates"}
+            {dateFilter === "today"
+              ? "Today, Oct 01"
+              : dateFilter === "tomorrow"
+                ? "Tomorrow, Oct 02"
+                : "All Dates"}
           </span>
           <CaretDownIcon className="size-3 text-muted-foreground ml-0.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-44 text-xs">
-          <DropdownMenuItem onClick={() => onDateSelect("today")}>Today, Oct 01</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onDateSelect("tomorrow")}>Tomorrow, Oct 02</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onDateSelect("all")}>All Upcoming Runs</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onDateSelect("today")}>
+            Today, Oct 01
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onDateSelect("tomorrow")}>
+            Tomorrow, Oct 02
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onDateSelect("all")}>
+            All Upcoming Runs
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -66,12 +76,24 @@ export function OrderListFilterDropdowns({
           <CaretDownIcon className="size-3 text-muted-foreground ml-0.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-44 text-xs">
-          <DropdownMenuItem onClick={() => onStatusSelect("all")}>All Statuses</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusSelect("pending")}>Pending</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusSelect("loading")}>Loading</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusSelect("in_transit")}>In Transit</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusSelect("served")}>Served</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onStatusSelect("deferred")}>Deferred</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusSelect("all")}>
+            All Statuses
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusSelect("pending")}>
+            Pending
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusSelect("loading")}>
+            Loading
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusSelect("in_transit")}>
+            In Transit
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusSelect("served")}>
+            Served
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onStatusSelect("deferred")}>
+            Deferred
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -92,9 +114,15 @@ export function OrderListFilterDropdowns({
           <CaretDownIcon className="size-3 text-muted-foreground ml-0.5" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-44 text-xs">
-          <DropdownMenuItem onClick={() => onHubSelect("all")}>All Depots</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onHubSelect("peliyagoda")}>Peliyagoda Depot</DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onHubSelect("kandy")}>Kandy Depot</DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onHubSelect("all")}>
+            All Depots
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onHubSelect("peliyagoda")}>
+            Peliyagoda Depot
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => onHubSelect("kandy")}>
+            Kandy Depot
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

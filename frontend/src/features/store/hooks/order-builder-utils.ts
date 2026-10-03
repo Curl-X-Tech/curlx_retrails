@@ -59,7 +59,10 @@ export function saveDraftRows(rows: StoreOrderItemRow[]): void {
   }
 }
 
-export function createNewOrderRow(product: CatalogProduct, qty: number): StoreOrderItemRow {
+export function createNewOrderRow(
+  product: CatalogProduct,
+  qty: number
+): StoreOrderItemRow {
   return {
     id: `row-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
     productId: product.id,
@@ -78,7 +81,10 @@ export function createNewOrderRow(product: CatalogProduct, qty: number): StoreOr
   };
 }
 
-export function updateRowWithProduct(row: StoreOrderItemRow, product: CatalogProduct): StoreOrderItemRow {
+export function updateRowWithProduct(
+  row: StoreOrderItemRow,
+  product: CatalogProduct
+): StoreOrderItemRow {
   return {
     ...row,
     productId: product.id,
@@ -96,7 +102,10 @@ export function updateRowWithProduct(row: StoreOrderItemRow, product: CatalogPro
   };
 }
 
-export function updateRowQuantityVal(row: StoreOrderItemRow, qty: number): StoreOrderItemRow {
+export function updateRowQuantityVal(
+  row: StoreOrderItemRow,
+  qty: number
+): StoreOrderItemRow {
   const safeQty = Math.max(1, qty);
   return {
     ...row,

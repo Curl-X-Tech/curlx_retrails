@@ -62,11 +62,18 @@ export function getBreadcrumbs(pathname: string): CrumbItem[] {
   if (pathname === "/store/dashboard" || pathname === "/store/alerts") {
     return [{ label: "Dashboard" }, { label: "System alerts", isCurrent: true }];
   }
-  if (pathname === "/store/orders" || pathname === "/store/orders/" || pathname === "/store/queue") {
+  if (
+    pathname === "/store/orders" ||
+    pathname === "/store/orders/" ||
+    pathname === "/store/queue"
+  ) {
     return [{ label: "Planning" }, { label: "Order queue", isCurrent: true }];
   }
   if (pathname === "/store/orders/new" || pathname === "/store/create-order") {
-    return [{ label: "Planning" }, { label: "New Order #Draft", isCurrent: true, isCode: true }];
+    return [
+      { label: "Planning" },
+      { label: "New Order #Draft", isCurrent: true, isCode: true },
+    ];
   }
   if (pathname === "/store/deferrals/unserved" || pathname === "/store/deferrals") {
     return [
@@ -96,14 +103,21 @@ export function getBreadcrumbs(pathname: string): CrumbItem[] {
   if (pathname === "/dispatcher/orders" || pathname === "/dispatcher/orders/") {
     return [{ label: "Planning" }, { label: "Order queue", isCurrent: true }];
   }
-  if (pathname === "/dispatcher/deferrals/carryover" || pathname === "/dispatcher/deferrals" || pathname === "/dispatcher/deferrals/") {
+  if (
+    pathname === "/dispatcher/deferrals/carryover" ||
+    pathname === "/dispatcher/deferrals" ||
+    pathname === "/dispatcher/deferrals/"
+  ) {
     return [
       { label: "Planning" },
       { label: "Deferrals", path: "/dispatcher/deferrals/carryover" },
       { label: "Carryover", isCurrent: true },
     ];
   }
-  if (pathname === "/dispatcher/deferrals/audit-log" || pathname === "/dispatcher/deferrals/deferral-log") {
+  if (
+    pathname === "/dispatcher/deferrals/audit-log" ||
+    pathname === "/dispatcher/deferrals/deferral-log"
+  ) {
     return [
       { label: "Planning" },
       { label: "Deferrals", path: "/dispatcher/deferrals/carryover" },
@@ -140,7 +154,11 @@ export function AppBreadcrumbs({ pathname }: { pathname: string }) {
             <BreadcrumbItem>
               {crumb.isCurrent ? (
                 <BreadcrumbPage
-                  className={crumb.isCode ? "font-bold tracking-tight text-foreground text-xs sm:text-sm" : "text-xs sm:text-sm font-semibold"}
+                  className={
+                    crumb.isCode
+                      ? "font-bold tracking-tight text-foreground text-xs sm:text-sm"
+                      : "text-xs sm:text-sm font-semibold"
+                  }
                 >
                   {crumb.label}
                 </BreadcrumbPage>

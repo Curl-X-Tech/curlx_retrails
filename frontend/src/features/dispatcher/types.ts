@@ -49,38 +49,17 @@ export type {
 
 export type QueueViewMode = "table" | "grid";
 export type QueueSortKey =
-  | "orderRef"
-  | "outlet"
-  | "weight"
-  | "volume"
-  | "value"
-  | "window";
+  "orderRef" | "outlet" | "weight" | "volume" | "value" | "window";
 
 export type DeferralsViewMode = "carryover" | "deferral-log" | "audit-log";
 export type CarryoverGroupBy = "none" | "action" | "reason";
 export type AuditGroupBy = "none" | "action" | "reason";
 export type AuditSortKey =
-  | "orderRef"
-  | "outlet"
-  | "date"
-  | "reason"
-  | "resource"
-  | "weight"
-  | "volume"
-  | "value";
+  "orderRef" | "outlet" | "date" | "reason" | "resource" | "weight" | "volume" | "value";
 
 export type AllocationViewMode = "grid" | "table";
 export type AllocationSortKey =
-  | "plateNumber"
-  | "crates"
-  | "weight"
-  | "volume"
-  | "departure"
-  | "status";
+  "plateNumber" | "crates" | "weight" | "volume" | "departure" | "status";
 export type AllocationCategoryFilter = "all" | "van" | "lorry";
 export type AllocationStatusFilter =
-  | "all"
-  | "dispatched"
-  | "loading"
-  | "allocated"
-  | "completed";
+  "all" | "dispatched" | "loading" | "allocated" | "completed";

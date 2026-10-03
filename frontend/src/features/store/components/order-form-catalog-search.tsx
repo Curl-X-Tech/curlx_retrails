@@ -77,7 +77,9 @@ export function OrderFormCatalogSearch({
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-foreground truncate">{prod.name}</span>
+                      <span className="font-semibold text-foreground truncate">
+                        {prod.name}
+                      </span>
                       {prod.specialHandlingCode && (
                         <Badge variant="outline" className="text-[10px] px-1 py-0 h-4">
                           {prod.specialHandlingCode}
@@ -92,7 +94,10 @@ export function OrderFormCatalogSearch({
                     <span className="font-bold text-foreground">
                       LKR {prod.unitPriceLkr.toLocaleString()}
                     </span>
-                    <Button size="sm" className="h-7 text-xs px-2.5 rounded-lg gap-1 cursor-pointer">
+                    <Button
+                      size="sm"
+                      className="h-7 text-xs px-2.5 rounded-lg gap-1 cursor-pointer"
+                    >
                       <PlusIcon className="size-3 font-bold" />
                       Add
                     </Button>

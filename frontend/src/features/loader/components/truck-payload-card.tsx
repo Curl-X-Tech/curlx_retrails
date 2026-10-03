@@ -1,9 +1,18 @@
 import * as React from "react";
-import { TruckIcon, SnowflakeIcon, ArrowsLeftRightIcon, PrinterIcon } from "@phosphor-icons/react";
+import {
+  TruckIcon,
+  SnowflakeIcon,
+  ArrowsLeftRightIcon,
+  PrinterIcon,
+} from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { VehicleCargoVisualizer, type VehicleVisualizerData, SwipeToConfirm } from "@/components/shared";
+import {
+  VehicleCargoVisualizer,
+  type VehicleVisualizerData,
+  SwipeToConfirm,
+} from "@/components/shared";
 import { TruckCountdownBar } from "./truck-countdown-bar";
 import type { LoaderVehicleTrip } from "../types";
 
@@ -13,8 +22,14 @@ interface TruckPayloadCardProps {
   onConfirm?: () => void;
 }
 
-export function TruckPayloadCard({ trip, onSwitchVehicle, onConfirm }: TruckPayloadCardProps) {
-  const [visualizerMode, setVisualizerMode] = React.useState<"weight" | "volume">("weight");
+export function TruckPayloadCard({
+  trip,
+  onSwitchVehicle,
+  onConfirm,
+}: TruckPayloadCardProps) {
+  const [visualizerMode, setVisualizerMode] = React.useState<"weight" | "volume">(
+    "weight"
+  );
   const { driver, payload, imagePath, type } = trip;
   const initialMinutes = trip.departureCountdownMinutes || 38;
   const [secondsLeft, setSecondsLeft] = React.useState<number>(initialMinutes * 60);
@@ -24,7 +39,10 @@ export function TruckPayloadCard({ trip, onSwitchVehicle, onConfirm }: TruckPayl
   }, [trip.departureCountdownMinutes, trip.id]);
 
   React.useEffect(() => {
-    const timer = setInterval(() => setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0)), 1000);
+    const timer = setInterval(
+      () => setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0)),
+      1000
+    );
     return () => clearInterval(timer);
   }, []);
 
@@ -59,13 +77,16 @@ export function TruckPayloadCard({ trip, onSwitchVehicle, onConfirm }: TruckPayl
                 <span className="font-heading font-black text-sm sm:text-base text-foreground tracking-tight">
                   # {trip.regNumber}
                 </span>
-                {trip.temp === "reefer" && <SnowflakeIcon className="size-4 text-sky-500 shrink-0" />}
+                {trip.temp === "reefer" && (
+                  <SnowflakeIcon className="size-4 text-sky-500 shrink-0" />
+                )}
                 <Badge variant="secondary" className="text-[10px] font-bold px-2 py-0.5">
                   {trip.stopsCount} Stops
                 </Badge>
               </div>
               <span className="text-xs text-muted-foreground truncate">
-                {trip.modelName} · <strong className="text-foreground">{trip.depotName}</strong>
+                {trip.modelName} ·{" "}
+                <strong className="text-foreground">{trip.depotName}</strong>
               </span>
             </div>
           </div>
@@ -107,18 +128,31 @@ export function TruckPayloadCard({ trip, onSwitchVehicle, onConfirm }: TruckPayl
             {driver.avatarInitials}
           </div>
           <div className="flex items-center justify-between min-w-0 flex-1">
-            <span className="text-xs font-heading font-bold text-foreground truncate">{driver.name}</span>
-            <span className="text-[11px] font-medium text-muted-foreground truncate">{driver.licenseId}</span>
+            <span className="text-xs font-heading font-bold text-foreground truncate">
+              {driver.name}
+            </span>
+            <span className="text-[11px] font-medium text-muted-foreground truncate">
+              {driver.licenseId}
+            </span>
           </div>
         </div>
       </Card>
 
       <Card className="p-2.5 sm:p-3 bg-card rounded-2xl border border-border/80 shadow-xs flex flex-col justify-center min-w-0">
-        <VehicleCargoVisualizer vehicle={visualizerData} mode={visualizerMode} onToggleMode={setVisualizerMode} size="compact" />
+        <VehicleCargoVisualizer
+          vehicle={visualizerData}
+          mode={visualizerMode}
+          onToggleMode={setVisualizerMode}
+          size="compact"
+        />
       </Card>
 
       <div className="flex flex-col gap-2 w-full pt-0.5">
-        <SwipeToConfirm onConfirm={() => onConfirm?.()} label="Slide to Confirm Loading" confirmedLabel="Loading Confirmed" />
+        <SwipeToConfirm
+          onConfirm={() => onConfirm?.()}
+          label="Slide to Confirm Loading"
+          confirmedLabel="Loading Confirmed"
+        />
       </div>
     </div>
   );

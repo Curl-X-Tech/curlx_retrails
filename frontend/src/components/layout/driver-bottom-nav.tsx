@@ -61,7 +61,10 @@ export function DriverBottomNav({ syncState }: DriverBottomNavProps) {
             : "text-muted-foreground hover:text-foreground font-medium"
         )}
       >
-        <NavigationArrowIcon className="size-4.5" weight={isActiveRun ? "fill" : "bold"} />
+        <NavigationArrowIcon
+          className="size-4.5"
+          weight={isActiveRun ? "fill" : "bold"}
+        />
         <span className="text-[10px]">Active Run</span>
       </button>
 
@@ -74,7 +77,10 @@ export function DriverBottomNav({ syncState }: DriverBottomNavProps) {
             : "text-muted-foreground hover:text-foreground font-medium"
         )}
       >
-        <ListBulletsIcon className="size-4.5" weight={isStopsActive ? "bold" : "regular"} />
+        <ListBulletsIcon
+          className="size-4.5"
+          weight={isStopsActive ? "bold" : "regular"}
+        />
         <span className="text-[10px]">Stops ({mockDriverTrip.waypoints.length})</span>
       </button>
 
@@ -83,7 +89,11 @@ export function DriverBottomNav({ syncState }: DriverBottomNavProps) {
           <UserCircleIcon className="size-5" />
           <span className="text-[10px] font-medium">Profile</span>
         </DropdownMenuTrigger>
-        <DropdownMenuContent side="top" align="end" className="w-56 mb-2 p-1.5 shadow-lg rounded-xl">
+        <DropdownMenuContent
+          side="top"
+          align="end"
+          className="w-56 mb-2 p-1.5 shadow-lg rounded-xl"
+        >
           <div className="px-2 py-1.5 text-xs text-muted-foreground">
             Driver:{" "}
             <span className="font-semibold text-foreground block truncate">

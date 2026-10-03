@@ -49,22 +49,48 @@ export function UserFormFields({
     <>
       <div className="space-y-1">
         <label className="text-[11px] font-semibold text-foreground">Full Name</label>
-        <Input placeholder="e.g. Kasun Fernando" value={name} onChange={(e) => onNameChange(e.target.value)} className="h-8 text-xs" required />
+        <Input
+          placeholder="e.g. Kasun Fernando"
+          value={name}
+          onChange={(e) => onNameChange(e.target.value)}
+          className="h-8 text-xs"
+          required
+        />
       </div>
 
       <div className="space-y-1">
-        <label className="text-[11px] font-semibold text-foreground">Corporate Email</label>
-        <Input type="email" placeholder="e.g. kasun@retrails.com" value={email} onChange={(e) => onEmailChange(e.target.value)} className="h-8 text-xs" required />
+        <label className="text-[11px] font-semibold text-foreground">
+          Corporate Email
+        </label>
+        <Input
+          type="email"
+          placeholder="e.g. kasun@retrails.com"
+          value={email}
+          onChange={(e) => onEmailChange(e.target.value)}
+          className="h-8 text-xs"
+          required
+        />
       </div>
 
       <div className="space-y-1">
-        <label className="text-[11px] font-semibold text-foreground">{passwordLabel}</label>
-        <Input type="password" placeholder={passwordPlaceholder} value={password} onChange={(e) => onPasswordChange(e.target.value)} className="h-8 text-xs" required={passwordRequired} />
+        <label className="text-[11px] font-semibold text-foreground">
+          {passwordLabel}
+        </label>
+        <Input
+          type="password"
+          placeholder={passwordPlaceholder}
+          value={password}
+          onChange={(e) => onPasswordChange(e.target.value)}
+          className="h-8 text-xs"
+          required={passwordRequired}
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-[11px] font-semibold text-foreground">Enterprise Role</label>
+          <label className="text-[11px] font-semibold text-foreground">
+            Enterprise Role
+          </label>
           <select
             value={role}
             onChange={(e) => onRoleChange(e.target.value)}
@@ -80,26 +106,55 @@ export function UserFormFields({
 
         <div className="space-y-1">
           <label className="text-[11px] font-semibold text-foreground">Department</label>
-          <Input value={department} onChange={(e) => onDepartmentChange(e.target.value)} placeholder="Operations" className="h-8 text-xs" />
+          <Input
+            value={department}
+            onChange={(e) => onDepartmentChange(e.target.value)}
+            placeholder="Operations"
+            className="h-8 text-xs"
+          />
         </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1">
-          <label className="text-[11px] font-semibold text-foreground">Contact Phone</label>
-          <Input value={phone} onChange={(e) => onPhoneChange(e.target.value)} className="h-8 text-xs" />
+          <label className="text-[11px] font-semibold text-foreground">
+            Contact Phone
+          </label>
+          <Input
+            value={phone}
+            onChange={(e) => onPhoneChange(e.target.value)}
+            className="h-8 text-xs"
+          />
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-semibold text-foreground">Assigned Location</label>
-          <Input value={location} onChange={(e) => onLocationChange(e.target.value)} placeholder="Kelaniya Hub (HUB-01)" className="h-8 text-xs" />
+          <label className="text-[11px] font-semibold text-foreground">
+            Assigned Location
+          </label>
+          <Input
+            value={location}
+            onChange={(e) => onLocationChange(e.target.value)}
+            placeholder="Kelaniya Hub (HUB-01)"
+            className="h-8 text-xs"
+          />
         </div>
       </div>
 
       {showActiveCheckbox && onActiveChange && (
         <div className="flex items-center gap-2 pt-1">
-          <input type="checkbox" id="edit-active" checked={active} onChange={(e) => onActiveChange(e.target.checked)} className="rounded border-border" />
-          <label htmlFor="edit-active" className="text-xs text-foreground cursor-pointer font-medium">Account is Active & Enabled</label>
+          <input
+            type="checkbox"
+            id="edit-active"
+            checked={active}
+            onChange={(e) => onActiveChange(e.target.checked)}
+            className="rounded border-border"
+          />
+          <label
+            htmlFor="edit-active"
+            className="text-xs text-foreground cursor-pointer font-medium"
+          >
+            Account is Active & Enabled
+          </label>
         </div>
       )}
     </>

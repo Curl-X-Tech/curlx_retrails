@@ -47,8 +47,9 @@ export function OrderFormSuccessModal({
             Order Confirmed & Dispatched!
           </SheetTitle>
           <SheetDescription className="text-xs text-muted-foreground">
-            Order <span className="font-semibold text-foreground">{orderRef}</span> has been
-            transmitted to {selectedOutlet.depot} Distribution Center for route batching.
+            Order <span className="font-semibold text-foreground">{orderRef}</span> has
+            been transmitted to {selectedOutlet.depot} Distribution Center for route
+            batching.
           </SheetDescription>
         </SheetHeader>
 

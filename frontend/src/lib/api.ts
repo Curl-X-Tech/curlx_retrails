@@ -158,7 +158,6 @@ export async function fetchCurrentUser(
   return response.json();
 }
 
-
 export async function listUsersByAdmin(token?: string): Promise<ApiUserResponse[]> {
   const response = await fetch(`${API_URL}/users`, {
     method: "GET",
@@ -198,7 +197,6 @@ export async function createUserByAdmin(
 
   return response.json();
 }
-
 
 export async function updateUserById(
   id: string,

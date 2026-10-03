@@ -55,9 +55,7 @@ export function ResetPasswordForm({
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-foreground">
-          New Password
-        </label>
+        <label className="text-xs font-medium text-foreground">New Password</label>
         <div className="relative">
           <LockKeyIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input
@@ -72,9 +70,7 @@ export function ResetPasswordForm({
       </div>
 
       <div className="space-y-1.5">
-        <label className="text-xs font-medium text-foreground">
-          Confirm Password
-        </label>
+        <label className="text-xs font-medium text-foreground">Confirm Password</label>
         <div className="relative">
           <LockKeyIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
           <Input

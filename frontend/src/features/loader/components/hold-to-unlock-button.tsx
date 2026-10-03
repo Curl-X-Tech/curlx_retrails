@@ -90,7 +90,8 @@ export function HoldToUnlockButton({
       className={cn(
         "relative flex size-9 items-center justify-center rounded-full bg-card border border-primary/30 text-primary transition-all duration-150 select-none cursor-pointer shadow-xs hover:bg-accent focus:outline-hidden touch-none",
         isHolding && "scale-90 bg-primary/20 border-primary ring-2 ring-primary/40",
-        justUnlocked && "scale-110 bg-emerald-500/20 text-emerald-600 border-emerald-500/50",
+        justUnlocked &&
+          "scale-110 bg-emerald-500/20 text-emerald-600 border-emerald-500/50",
         isShaking &&
           "animate-lock-shake ring-2 ring-destructive/50 text-destructive border-destructive/60 bg-destructive/10",
         className
@@ -131,10 +132,16 @@ export function HoldToUnlockButton({
       </svg>
 
       {justUnlocked ? (
-        <LockSimpleOpenIcon className="size-5 animate-bounce text-emerald-500" weight="bold" />
+        <LockSimpleOpenIcon
+          className="size-5 animate-bounce text-emerald-500"
+          weight="bold"
+        />
       ) : (
         <LockSimpleIcon
-          className={cn("size-5 text-primary transition-transform", isHolding && "scale-110")}
+          className={cn(
+            "size-5 text-primary transition-transform",
+            isHolding && "scale-110"
+          )}
           weight="fill"
         />
       )}

@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-} from "@/components/ui/table";
+import { TableHeader, TableBody, TableRow, TableHead } from "@/components/ui/table";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeferralsGroupHeader } from "./deferrals-group-header";
 import { DeferralsCarryoverRow } from "./deferrals-carryover-row";

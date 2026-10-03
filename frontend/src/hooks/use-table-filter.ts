@@ -49,9 +49,7 @@ export function useTableFilter<T>({
         result = result.filter((item) =>
           searchFields.some((field) => {
             const val =
-              typeof field === "function"
-                ? field(item)
-                : String(item[field] ?? "");
+              typeof field === "function" ? field(item) : String(item[field] ?? "");
             return val.toLowerCase().includes(query);
           })
         );

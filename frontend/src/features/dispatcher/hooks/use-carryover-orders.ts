@@ -44,10 +44,13 @@ export function useCarryoverOrders(
         groups.push({
           key: "action-mandatory",
           title: "Mandatory Wave 1 Priority Injection",
-          description: "Consecutive skip protection SLA: must be dispatched in morning Wave 1",
+          description:
+            "Consecutive skip protection SLA: must be dispatched in morning Wave 1",
           items: mandatory,
           totalWeightKg: mandatory.reduce((sum, o) => sum + o.totalWeightKg, 0),
-          totalVolumeM3: Number(mandatory.reduce((sum, o) => sum + o.totalVolumeM3, 0).toFixed(1)),
+          totalVolumeM3: Number(
+            mandatory.reduce((sum, o) => sum + o.totalVolumeM3, 0).toFixed(1)
+          ),
           totalValueLkr: mandatory.reduce((sum, o) => sum + o.totalValueLkr, 0),
         });
       }
@@ -58,16 +61,32 @@ export function useCarryoverOrders(
           description: "Standard carryover allocation from previous evening shifts",
           items: standard,
           totalWeightKg: standard.reduce((sum, o) => sum + o.totalWeightKg, 0),
-          totalVolumeM3: Number(standard.reduce((sum, o) => sum + o.totalVolumeM3, 0).toFixed(1)),
+          totalVolumeM3: Number(
+            standard.reduce((sum, o) => sum + o.totalVolumeM3, 0).toFixed(1)
+          ),
           totalValueLkr: standard.reduce((sum, o) => sum + o.totalValueLkr, 0),
         });
       }
     } else if (groupBy === "reason") {
       const reasonMeta: Record<string, { title: string; description: string }> = {
-        van_access_shortage: { title: "Van Access Shortage (Street / Tight Dock)", description: "Outlet dock requires small van chassis; reefer vans were fully saturated" },
-        insufficient_reefer_capacity: { title: "Insufficient Reefer Fleet Capacity", description: "Cold-chain requirement exceeded available refrigerated vehicle fleet" },
-        time_budget_limit: { title: "Time Budget & Traffic Cutoff Limit", description: "Exceeded maximum delivery window or driver shift hours limit" },
-        fuel_quota_exceeded: { title: "Weekly Fuel Quota Threshold", description: "Vehicle weekly fuel allocation limit reached" },
+        van_access_shortage: {
+          title: "Van Access Shortage (Street / Tight Dock)",
+          description:
+            "Outlet dock requires small van chassis; reefer vans were fully saturated",
+        },
+        insufficient_reefer_capacity: {
+          title: "Insufficient Reefer Fleet Capacity",
+          description:
+            "Cold-chain requirement exceeded available refrigerated vehicle fleet",
+        },
+        time_budget_limit: {
+          title: "Time Budget & Traffic Cutoff Limit",
+          description: "Exceeded maximum delivery window or driver shift hours limit",
+        },
+        fuel_quota_exceeded: {
+          title: "Weekly Fuel Quota Threshold",
+          description: "Vehicle weekly fuel allocation limit reached",
+        },
       };
       const map = new Map<string, CarryoverOrder[]>();
       filtered.forEach((ord) => {
@@ -76,14 +95,19 @@ export function useCarryoverOrders(
         map.set(ord.deferralReason, list);
       });
       map.forEach((items, reasonKey) => {
-        const meta = reasonMeta[reasonKey] || { title: reasonKey.replace(/_/g, " "), description: "Orders deferred due to this constraint" };
+        const meta = reasonMeta[reasonKey] || {
+          title: reasonKey.replace(/_/g, " "),
+          description: "Orders deferred due to this constraint",
+        };
         groups.push({
           key: `reason-${reasonKey}`,
           title: meta.title,
           description: meta.description,
           items,
           totalWeightKg: items.reduce((sum, o) => sum + o.totalWeightKg, 0),
-          totalVolumeM3: Number(items.reduce((sum, o) => sum + o.totalVolumeM3, 0).toFixed(1)),
+          totalVolumeM3: Number(
+            items.reduce((sum, o) => sum + o.totalVolumeM3, 0).toFixed(1)
+          ),
           totalValueLkr: items.reduce((sum, o) => sum + o.totalValueLkr, 0),
         });
       });
@@ -92,7 +116,10 @@ export function useCarryoverOrders(
   }, [filtered, groupBy]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = React.useMemo(() => filtered.slice((page - 1) * pageSize, page * pageSize), [filtered, page, pageSize]);
+  const paginated = React.useMemo(
+    () => filtered.slice((page - 1) * pageSize, page * pageSize),
+    [filtered, page, pageSize]
+  );
 
   return { filtered, grouped, paginated, totalPages };
 }

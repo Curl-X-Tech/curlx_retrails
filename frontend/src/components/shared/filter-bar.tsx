@@ -52,9 +52,7 @@ export function FilterBar({
           )}
         </div>
 
-        {filters && (
-          <div className="flex items-center gap-2 flex-wrap">{filters}</div>
-        )}
+        {filters && <div className="flex items-center gap-2 flex-wrap">{filters}</div>}
 
         {onReset && (search || activeCount > 0) && (
           <Button
@@ -69,9 +67,7 @@ export function FilterBar({
         )}
       </div>
 
-      {actions && (
-        <div className="flex items-center gap-2 shrink-0">{actions}</div>
-      )}
+      {actions && <div className="flex items-center gap-2 shrink-0">{actions}</div>}
     </div>
   );
 }

@@ -57,17 +57,27 @@ export function OrderFormItemRow({
                   {row.name}
                 </span>
                 {row.specialHandlingCode && (
-                  <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-amber-500/30 text-amber-700 dark:text-amber-300">
+                  <Badge
+                    variant="outline"
+                    className="text-[10px] px-1.5 py-0 h-4 border-amber-500/30 text-amber-700 dark:text-amber-300"
+                  >
                     {row.specialHandlingCode}
                   </Badge>
                 )}
               </div>
-              <span className="text-[11px] text-muted-foreground block truncate">{row.sku} • {row.category}</span>
+              <span className="text-[11px] text-muted-foreground block truncate">
+                {row.sku} • {row.category}
+              </span>
             </div>
             <CaretDownIcon className="size-3.5 text-muted-foreground shrink-0" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-[320px] p-2 text-xs shadow-lg rounded-xl">
-            <DropdownMenuLabel className="text-xs text-muted-foreground px-2">Change Product</DropdownMenuLabel>
+          <DropdownMenuContent
+            align="start"
+            className="w-[320px] p-2 text-xs shadow-lg rounded-xl"
+          >
+            <DropdownMenuLabel className="text-xs text-muted-foreground px-2">
+              Change Product
+            </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <div className="max-h-60 overflow-y-auto space-y-1">
               {catalogProducts.map((prod) => (
@@ -77,14 +87,22 @@ export function OrderFormItemRow({
                   className="p-2 rounded-lg cursor-pointer flex flex-col items-start gap-0.5"
                 >
                   <div className="flex items-center justify-between w-full">
-                    <span className="font-semibold text-foreground truncate">{prod.name}</span>
+                    <span className="font-semibold text-foreground truncate">
+                      {prod.name}
+                    </span>
                     {prod.specialHandlingCode && (
-                      <Badge variant="outline" className="text-[9px] px-1 h-3.5">{prod.specialHandlingCode}</Badge>
+                      <Badge variant="outline" className="text-[9px] px-1 h-3.5">
+                        {prod.specialHandlingCode}
+                      </Badge>
                     )}
                   </div>
                   <div className="flex items-center justify-between w-full text-[11px] text-muted-foreground">
-                    <span>{prod.sku} • {prod.category}</span>
-                    <span className="font-medium text-foreground">LKR {prod.unitPriceLkr.toLocaleString()}</span>
+                    <span>
+                      {prod.sku} • {prod.category}
+                    </span>
+                    <span className="font-medium text-foreground">
+                      LKR {prod.unitPriceLkr.toLocaleString()}
+                    </span>
                   </div>
                 </DropdownMenuItem>
               ))}

@@ -24,7 +24,9 @@ export interface UserColumnActions {
   onDelete: (user: MockUserWithMeta) => void;
 }
 
-export function getUserColumns(actions: UserColumnActions): DataTableColumn<MockUserWithMeta>[] {
+export function getUserColumns(
+  actions: UserColumnActions
+): DataTableColumn<MockUserWithMeta>[] {
   return [
     {
       key: "name",
@@ -57,7 +59,12 @@ export function getUserColumns(actions: UserColumnActions): DataTableColumn<Mock
       render: (user) => {
         const rc = getRoleConfig(user.user_type);
         return (
-          <span className={cn("inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium tracking-tight", rc.badgeClass)}>
+          <span
+            className={cn(
+              "inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-medium tracking-tight",
+              rc.badgeClass
+            )}
+          >
             {rc.icon}
             {rc.label}
           </span>
@@ -87,7 +94,12 @@ export function getUserColumns(actions: UserColumnActions): DataTableColumn<Mock
               : "bg-zinc-500/15 text-zinc-400 border border-zinc-500/30"
           )}
         >
-          <span className={cn("size-1.5 rounded-full", user.is_active ? "bg-emerald-400" : "bg-zinc-400")} />
+          <span
+            className={cn(
+              "size-1.5 rounded-full",
+              user.is_active ? "bg-emerald-400" : "bg-zinc-400"
+            )}
+          />
           {user.is_active ? "Active" : "Disabled"}
         </span>
       ),
@@ -97,7 +109,12 @@ export function getUserColumns(actions: UserColumnActions): DataTableColumn<Mock
       header: "Created Date",
       sortable: true,
       className: "text-xs text-muted-foreground",
-      render: (user) => new Date(user.created_at).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }),
+      render: (user) =>
+        new Date(user.created_at).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
     },
     {
       key: "actions",
@@ -106,16 +123,28 @@ export function getUserColumns(actions: UserColumnActions): DataTableColumn<Mock
       render: (user) => (
         <DropdownMenu>
           <DropdownMenuTrigger
-            render={<Button variant="ghost" size="icon" className="size-7 text-muted-foreground hover:text-foreground cursor-pointer" />}
+            render={
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 text-muted-foreground hover:text-foreground cursor-pointer"
+              />
+            }
           >
             <DotsThreeVerticalIcon className="size-4" weight="bold" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem onClick={() => actions.onEdit(user)} className="text-xs gap-2">
+            <DropdownMenuItem
+              onClick={() => actions.onEdit(user)}
+              className="text-xs gap-2"
+            >
               <PencilSimpleIcon className="size-3.5 text-muted-foreground" />
               Edit Account
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => actions.onToggleActive(user)} className="text-xs gap-2">
+            <DropdownMenuItem
+              onClick={() => actions.onToggleActive(user)}
+              className="text-xs gap-2"
+            >
               {user.is_active ? (
                 <>
                   <XCircleIcon className="size-3.5 text-amber-500" />
@@ -129,7 +158,10 @@ export function getUserColumns(actions: UserColumnActions): DataTableColumn<Mock
               )}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => actions.onDelete(user)} className="text-xs gap-2 text-destructive focus:text-destructive">
+            <DropdownMenuItem
+              onClick={() => actions.onDelete(user)}
+              className="text-xs gap-2 text-destructive focus:text-destructive"
+            >
               <TrashIcon className="size-3.5" />
               Delete User
             </DropdownMenuItem>

@@ -62,13 +62,17 @@ export function OrderFormDestination({
                   {selectedOutlet.name} ({selectedOutlet.code})
                 </p>
                 <p className="text-[11px] text-muted-foreground truncate mt-0.5">
-                  {selectedOutlet.address} • {selectedOutlet.district} • {selectedOutlet.dockType.replace("_", " ")}
+                  {selectedOutlet.address} • {selectedOutlet.district} •{" "}
+                  {selectedOutlet.dockType.replace("_", " ")}
                 </p>
               </div>
             </div>
             <CaretDownIcon className="size-4 text-muted-foreground shrink-0 ml-2" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="start" className="w-[340px] sm:w-[420px] p-2 text-xs shadow-lg rounded-xl">
+          <DropdownMenuContent
+            align="start"
+            className="w-[340px] sm:w-[420px] p-2 text-xs shadow-lg rounded-xl"
+          >
             <div className="p-1 mb-1">
               <Input
                 placeholder="Search outlets or districts..."
@@ -125,7 +129,9 @@ export function OrderFormDestination({
             />
             <span>Flag as Priority / Urgent Delivery</span>
           </label>
-          <span className="text-[10px] text-muted-foreground">Shortcuts: Press Enter in search to add</span>
+          <span className="text-[10px] text-muted-foreground">
+            Shortcuts: Press Enter in search to add
+          </span>
         </div>
       </div>
     </div>

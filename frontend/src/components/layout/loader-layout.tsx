@@ -22,10 +22,7 @@ export function LoaderLayout() {
 
   return (
     <div className="flex h-dvh max-h-dvh w-screen overflow-hidden bg-background text-foreground font-sans">
-      <LoaderSidebar
-        isManifestsActive={isManifestsActive}
-        isBaysActive={isBaysActive}
-      />
+      <LoaderSidebar isManifestsActive={isManifestsActive} isBaysActive={isBaysActive} />
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4 sm:px-5">

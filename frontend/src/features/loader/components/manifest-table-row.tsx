@@ -17,7 +17,11 @@ interface ManifestTableRowProps {
   onOpenBay: (tripId: string) => void;
 }
 
-export function ManifestTableRow({ trip, onInspectTrip, onOpenBay }: ManifestTableRowProps) {
+export function ManifestTableRow({
+  trip,
+  onInspectTrip,
+  onOpenBay,
+}: ManifestTableRowProps) {
   const isDispatched = trip.status === "dispatched";
   const isReady = trip.status === "ready";
   const isFlagged = trip.status === "flagged";
@@ -50,22 +54,32 @@ export function ManifestTableRow({ trip, onInspectTrip, onOpenBay }: ManifestTab
 
       <TableCell className="py-2.5 align-middle">
         <div className="flex flex-col min-w-0">
-          <span className="font-heading font-black text-sm text-foreground leading-tight">{trip.tripCode}</span>
-          <span className="text-[11px] font-medium text-muted-foreground truncate">Seal #{trip.sealNumber}</span>
+          <span className="font-heading font-black text-sm text-foreground leading-tight">
+            {trip.tripCode}
+          </span>
+          <span className="text-[11px] font-medium text-muted-foreground truncate">
+            Seal #{trip.sealNumber}
+          </span>
         </div>
       </TableCell>
 
       <TableCell className="py-2.5 align-middle">
         <div className="flex flex-col min-w-0">
-          <span className="font-heading font-bold text-xs text-foreground truncate">#{trip.regNumber}</span>
-          <span className="text-[11px] font-medium text-muted-foreground truncate">{trip.driver.name}</span>
+          <span className="font-heading font-bold text-xs text-foreground truncate">
+            #{trip.regNumber}
+          </span>
+          <span className="text-[11px] font-medium text-muted-foreground truncate">
+            {trip.driver.name}
+          </span>
         </div>
       </TableCell>
 
       <TableCell className="py-2.5 align-middle">
         {isDispatched ? (
           <div className="flex flex-col">
-            <span className="text-xs font-bold text-foreground">Departed {trip.dispatchedAt || trip.plannedDepartureTime}</span>
+            <span className="text-xs font-bold text-foreground">
+              Departed {trip.dispatchedAt || trip.plannedDepartureTime}
+            </span>
             <span className="text-[10px] text-muted-foreground">Completed Run</span>
           </div>
         ) : (
@@ -74,7 +88,14 @@ export function ManifestTableRow({ trip, onInspectTrip, onOpenBay }: ManifestTab
               <ClockIcon className="size-3.5 text-primary" weight="bold" />
               <span>{trip.plannedDepartureTime}</span>
             </div>
-            <span className={cn("text-[11px] font-semibold", trip.departureCountdownMinutes < 15 ? "text-rose-600 dark:text-rose-400 font-bold" : "text-muted-foreground")}>
+            <span
+              className={cn(
+                "text-[11px] font-semibold",
+                trip.departureCountdownMinutes < 15
+                  ? "text-rose-600 dark:text-rose-400 font-bold"
+                  : "text-muted-foreground"
+              )}
+            >
               {trip.departureCountdownMinutes}m remaining
             </span>
           </div>
@@ -91,7 +112,8 @@ export function ManifestTableRow({ trip, onInspectTrip, onOpenBay }: ManifestTab
           ) : isReady ? (
             <span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
               <CheckCircleIcon className="size-3.5 text-emerald-600" weight="fill" />
-              Ready for Rollout ({trip.verifiedItemsCount ?? 0}/{trip.totalItemsCount ?? 0})
+              Ready for Rollout ({trip.verifiedItemsCount ?? 0}/
+              {trip.totalItemsCount ?? 0})
             </span>
           ) : isFlagged ? (
             <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-600 dark:text-amber-400">
@@ -105,7 +127,8 @@ export function ManifestTableRow({ trip, onInspectTrip, onOpenBay }: ManifestTab
             </span>
           )}
           <span className="text-[11px] text-muted-foreground">
-            {trip.payload.currentKg} kg ({trip.payload.percentage}%) · {trip.stopsCount} Stops
+            {trip.payload.currentKg} kg ({trip.payload.percentage}%) · {trip.stopsCount}{" "}
+            Stops
           </span>
         </div>
       </TableCell>

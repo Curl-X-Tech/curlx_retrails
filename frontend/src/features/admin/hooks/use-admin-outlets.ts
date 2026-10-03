@@ -1,11 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/api-request";
-import type {
-  MasterOutlet,
-  MasterBrand,
-  MasterDepot,
-  MasterDistrict,
-} from "../types";
+import type { MasterOutlet, MasterBrand, MasterDepot, MasterDistrict } from "../types";
 
 export function useAdminOutlets() {
   return useQuery<MasterOutlet[]>({

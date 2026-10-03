@@ -12,7 +12,8 @@ export interface StoreOrderFilterOptions {
 export function useStoreOrders() {
   const [orders, setOrders] = React.useState<StoreOrderRecord[]>(() => getStoreOrders());
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
-  const [activeDetailOrder, setActiveDetailOrder] = React.useState<StoreOrderRecord | null>(null);
+  const [activeDetailOrder, setActiveDetailOrder] =
+    React.useState<StoreOrderRecord | null>(null);
 
   const refreshOrders = React.useCallback(() => {
     setOrders([...getStoreOrders()]);
@@ -33,7 +34,10 @@ export function useStoreOrders() {
         if (statusFilter !== "all" && order.status !== statusFilter) {
           return false;
         }
-        if (hubFilter !== "all" && order.depot.toLowerCase() !== hubFilter.toLowerCase()) {
+        if (
+          hubFilter !== "all" &&
+          order.depot.toLowerCase() !== hubFilter.toLowerCase()
+        ) {
           return false;
         }
         return true;

@@ -71,12 +71,20 @@ export function OrderListFilterBar({
         </div>
 
         <div className="flex items-center gap-1.5 shrink-0">
-          <Button variant="outline" size="sm" className="h-9 px-2.5 text-xs gap-1.5 rounded-lg border-border font-medium cursor-pointer">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 px-2.5 text-xs gap-1.5 rounded-lg border-border font-medium cursor-pointer"
+          >
             <SlidersHorizontalIcon className="size-4 text-muted-foreground" />
             <span className="hidden sm:inline">Advanced</span>
           </Button>
 
-          <Button variant="outline" size="sm" className="h-9 px-2.5 text-xs gap-1.5 rounded-lg border-border font-medium cursor-pointer">
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 px-2.5 text-xs gap-1.5 rounded-lg border-border font-medium cursor-pointer"
+          >
             <ColumnsIcon className="size-4 text-muted-foreground" />
             <span className="hidden sm:inline">Columns</span>
           </Button>

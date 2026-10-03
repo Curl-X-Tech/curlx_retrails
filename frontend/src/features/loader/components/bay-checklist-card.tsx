@@ -51,7 +51,9 @@ export function BayChecklistCard({
           <div
             className={cn(
               "flex size-9 shrink-0 items-center justify-center rounded-xl font-heading font-black text-sm transition-colors",
-              isLocked ? "bg-emerald-500 text-white" : "bg-primary text-primary-foreground"
+              isLocked
+                ? "bg-emerald-500 text-white"
+                : "bg-primary text-primary-foreground"
             )}
           >
             {waypoint.seq}
@@ -78,10 +80,16 @@ export function BayChecklistCard({
         <div className="flex items-center gap-3 shrink-0">
           {isLocked ? (
             <div onClick={(e) => e.stopPropagation()} className="flex items-center">
-              <HoldToUnlockButton isShaking={isShaking} onUnlock={() => onUnlock(waypoint.seq)} />
+              <HoldToUnlockButton
+                isShaking={isShaking}
+                onUnlock={() => onUnlock(waypoint.seq)}
+              />
             </div>
           ) : isAllLoaded ? (
-            <CheckCircleIcon className="size-7 text-primary fill-primary drop-shadow-xs" weight="fill" />
+            <CheckCircleIcon
+              className="size-7 text-primary fill-primary drop-shadow-xs"
+              weight="fill"
+            />
           ) : (
             <span className="text-xs font-bold text-muted-foreground bg-muted/80 px-2.5 py-1 rounded-lg">
               {verifiedItems}/{totalItems} Checked
@@ -97,8 +105,13 @@ export function BayChecklistCard({
 
       <div className="h-1 w-full bg-muted/40 overflow-hidden">
         <div
-          className={cn("h-full transition-all duration-300", isLocked ? "bg-emerald-500" : "bg-primary")}
-          style={{ width: totalItems > 0 ? `${(verifiedItems / totalItems) * 100}%` : "0%" }}
+          className={cn(
+            "h-full transition-all duration-300",
+            isLocked ? "bg-emerald-500" : "bg-primary"
+          )}
+          style={{
+            width: totalItems > 0 ? `${(verifiedItems / totalItems) * 100}%` : "0%",
+          }}
         />
       </div>
 

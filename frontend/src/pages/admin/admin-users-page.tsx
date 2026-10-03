@@ -42,11 +42,20 @@ export function AdminUsersPage() {
       if (statusFilter === "inactive" && u.is_active) return false;
       if (!searchQuery.trim()) return true;
       const q = searchQuery.toLowerCase();
-      return u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q) || u.department?.toLowerCase().includes(q) || u.location?.toLowerCase().includes(q) || u.user_type.toLowerCase().includes(q);
+      return (
+        u.name.toLowerCase().includes(q) ||
+        u.email.toLowerCase().includes(q) ||
+        u.department?.toLowerCase().includes(q) ||
+        u.location?.toLowerCase().includes(q) ||
+        u.user_type.toLowerCase().includes(q)
+      );
     });
   }, [users, roleFilter, statusFilter, searchQuery]);
 
-  const sortedUsers = React.useMemo(() => sortUsers(filteredUsers, sortKey, sortDirection), [filteredUsers, sortKey, sortDirection]);
+  const sortedUsers = React.useMemo(
+    () => sortUsers(filteredUsers, sortKey, sortDirection),
+    [filteredUsers, sortKey, sortDirection]
+  );
 
   const totalPages = Math.max(1, Math.ceil(sortedUsers.length / pageSize));
   const paginatedUsers = React.useMemo(() => {
@@ -58,7 +67,8 @@ export function AdminUsersPage() {
     () =>
       getUserColumns({
         onEdit: (u) => setEditingUser(u),
-        onToggleActive: (u) => updateMutation.mutate({ id: u.id, payload: { is_active: !u.is_active } }),
+        onToggleActive: (u) =>
+          updateMutation.mutate({ id: u.id, payload: { is_active: !u.is_active } }),
         onDelete: (u) => setDeletingUser(u),
       }),
     [updateMutation]
@@ -69,37 +79,72 @@ export function AdminUsersPage() {
       <div className="border-b border-border/40 bg-card/40 px-6 py-4">
         <PageHeader
           className="mb-0"
-          title={<span className="flex items-center gap-2"><UsersIcon className="size-6 text-primary" weight="duotone" />Staff & User Directory</span>}
+          title={
+            <span className="flex items-center gap-2">
+              <UsersIcon className="size-6 text-primary" weight="duotone" />
+              Staff & User Directory
+            </span>
+          }
           description="Enterprise Role-Based Access Control (RBAC), Identity Management & API Guard Verification"
           actions={
             <div className="flex items-center gap-2.5">
-              <Button variant="outline" size="sm" onClick={() => refetch()} disabled={isLoading || isRefetching} className="text-xs gap-1.5 h-8">
-                <ArrowsClockwiseIcon className={cn("size-3.5", isRefetching && "animate-spin")} />Sync
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => refetch()}
+                disabled={isLoading || isRefetching}
+                className="text-xs gap-1.5 h-8"
+              >
+                <ArrowsClockwiseIcon
+                  className={cn("size-3.5", isRefetching && "animate-spin")}
+                />
+                Sync
               </Button>
-              <Button size="sm" onClick={() => setIsCreateOpen(true)} className="text-xs gap-1.5 h-8 bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-xs">
-                <UserPlusIcon className="size-4" weight="bold" />Add User
+              <Button
+                size="sm"
+                onClick={() => setIsCreateOpen(true)}
+                className="text-xs gap-1.5 h-8 bg-primary text-primary-foreground hover:bg-primary/90 font-medium shadow-xs"
+              >
+                <UserPlusIcon className="size-4" weight="bold" />
+                Add User
               </Button>
             </div>
           }
         />
       </div>
 
-      <div className="px-6 pt-4"><UserMetrics users={users} /></div>
+      <div className="px-6 pt-4">
+        <UserMetrics users={users} />
+      </div>
 
       <div className="flex-1 p-6 flex flex-col min-h-0 space-y-4">
         <FilterBar
           search={searchQuery}
-          onSearchChange={(val) => { setSearchQuery(val); setCurrentPage(1); }}
+          onSearchChange={(val) => {
+            setSearchQuery(val);
+            setCurrentPage(1);
+          }}
           placeholder="Search staff by name, email, department..."
           filters={
             <UserFilterControls
               roleFilter={roleFilter}
-              onRoleFilterChange={(val) => { setRoleFilter(val); setCurrentPage(1); }}
+              onRoleFilterChange={(val) => {
+                setRoleFilter(val);
+                setCurrentPage(1);
+              }}
               statusFilter={statusFilter}
-              onStatusFilterChange={(val) => { setStatusFilter(val); setCurrentPage(1); }}
+              onStatusFilterChange={(val) => {
+                setStatusFilter(val);
+                setCurrentPage(1);
+              }}
             />
           }
-          onReset={() => { setSearchQuery(""); setRoleFilter("all"); setStatusFilter("all"); setCurrentPage(1); }}
+          onReset={() => {
+            setSearchQuery("");
+            setRoleFilter("all");
+            setStatusFilter("all");
+            setCurrentPage(1);
+          }}
           activeCount={(roleFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0)}
         />
 
@@ -110,8 +155,12 @@ export function AdminUsersPage() {
           sortKey={sortKey || undefined}
           sortDirection={sortDirection}
           onSort={(key) => {
-            if (sortKey === key) setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-            else { setSortKey(key as UserSortKey); setSortDirection("asc"); }
+            if (sortKey === key)
+              setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+            else {
+              setSortKey(key as UserSortKey);
+              setSortDirection("asc");
+            }
           }}
           pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
           emptyMessage="No personnel records match the current filters."

@@ -54,16 +54,27 @@ export function useDeferralAuditLogs(
     const groups: AuditGroup[] = [];
 
     if (groupBy === "action") {
-      const priority = filtered.filter((l) => l.deferralReason === "van_access_shortage" || l.deferralReason === "insufficient_reefer_capacity");
-      const standard = filtered.filter((l) => l.deferralReason !== "van_access_shortage" && l.deferralReason !== "insufficient_reefer_capacity");
+      const priority = filtered.filter(
+        (l) =>
+          l.deferralReason === "van_access_shortage" ||
+          l.deferralReason === "insufficient_reefer_capacity"
+      );
+      const standard = filtered.filter(
+        (l) =>
+          l.deferralReason !== "van_access_shortage" &&
+          l.deferralReason !== "insufficient_reefer_capacity"
+      );
       if (priority.length > 0) {
         groups.push({
           key: "audit-action-priority",
           title: "Action: Priority Solver Injection (Wave 1)",
-          description: "Pre-allocated to Wave 1 solver runs with high priority penalty weight",
+          description:
+            "Pre-allocated to Wave 1 solver runs with high priority penalty weight",
           items: priority,
           totalWeightKg: priority.reduce((sum, l) => sum + l.totalWeightKg, 0),
-          totalVolumeM3: Number(priority.reduce((sum, l) => sum + l.totalVolumeM3, 0).toFixed(1)),
+          totalVolumeM3: Number(
+            priority.reduce((sum, l) => sum + l.totalVolumeM3, 0).toFixed(1)
+          ),
           totalValueLkr: priority.reduce((sum, l) => sum + l.totalValueLkr, 0),
         });
       }
@@ -74,7 +85,9 @@ export function useDeferralAuditLogs(
           description: "Re-allocated into standard next-day route dispatch windows",
           items: standard,
           totalWeightKg: standard.reduce((sum, l) => sum + l.totalWeightKg, 0),
-          totalVolumeM3: Number(standard.reduce((sum, l) => sum + l.totalVolumeM3, 0).toFixed(1)),
+          totalVolumeM3: Number(
+            standard.reduce((sum, l) => sum + l.totalVolumeM3, 0).toFixed(1)
+          ),
           totalValueLkr: standard.reduce((sum, l) => sum + l.totalValueLkr, 0),
         });
       }
@@ -97,7 +110,9 @@ export function useDeferralAuditLogs(
           title: reasonTitleMap[reasonKey] || reasonKey.replace(/_/g, " "),
           items,
           totalWeightKg: items.reduce((sum, l) => sum + l.totalWeightKg, 0),
-          totalVolumeM3: Number(items.reduce((sum, l) => sum + l.totalVolumeM3, 0).toFixed(1)),
+          totalVolumeM3: Number(
+            items.reduce((sum, l) => sum + l.totalVolumeM3, 0).toFixed(1)
+          ),
           totalValueLkr: items.reduce((sum, l) => sum + l.totalValueLkr, 0),
         });
       });
@@ -106,7 +121,10 @@ export function useDeferralAuditLogs(
   }, [filtered, groupBy]);
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = React.useMemo(() => filtered.slice((page - 1) * pageSize, page * pageSize), [filtered, page, pageSize]);
+  const paginated = React.useMemo(
+    () => filtered.slice((page - 1) * pageSize, page * pageSize),
+    [filtered, page, pageSize]
+  );
 
   return { filtered, grouped, paginated, totalPages };
 }

@@ -40,8 +40,12 @@ export function QueueTableHeader({
           </TableHead>
         )}
 
-        <TableHead className="w-[100px] font-bold text-foreground text-xs">Temp Zone</TableHead>
-        <TableHead className="w-[85px] text-center font-bold text-foreground text-xs">Packages</TableHead>
+        <TableHead className="w-[100px] font-bold text-foreground text-xs">
+          Temp Zone
+        </TableHead>
+        <TableHead className="w-[85px] text-center font-bold text-foreground text-xs">
+          Packages
+        </TableHead>
 
         <TableHead
           className="w-[120px] text-right cursor-pointer hover:text-primary select-none transition-colors font-bold text-foreground text-xs"
@@ -83,7 +87,9 @@ export function QueueTableHeader({
           </div>
         </TableHead>
 
-        <TableHead className="w-[50px] text-right font-bold text-foreground text-xs">Action</TableHead>
+        <TableHead className="w-[50px] text-right font-bold text-foreground text-xs">
+          Action
+        </TableHead>
       </TableRow>
     </TableHeader>
   );

@@ -43,20 +43,34 @@ export function OrderDetailSheet({ order, onClose }: OrderDetailSheetProps) {
             <div className="flex-1 overflow-y-auto p-6 space-y-6">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <div className="bg-muted/40 p-3 rounded-xl border border-border">
-                  <span className="text-[11px] text-muted-foreground block">Order Date</span>
-                  <span className="text-xs font-semibold text-foreground">{order.orderDate}</span>
+                  <span className="text-[11px] text-muted-foreground block">
+                    Order Date
+                  </span>
+                  <span className="text-xs font-semibold text-foreground">
+                    {order.orderDate}
+                  </span>
                 </div>
                 <div className="bg-muted/40 p-3 rounded-xl border border-border">
                   <span className="text-[11px] text-muted-foreground block">ETA</span>
-                  <span className="text-xs font-semibold text-foreground">{order.eta || "Pending"}</span>
+                  <span className="text-xs font-semibold text-foreground">
+                    {order.eta || "Pending"}
+                  </span>
                 </div>
                 <div className="bg-muted/40 p-3 rounded-xl border border-border">
-                  <span className="text-[11px] text-muted-foreground block">Gross Weight</span>
-                  <span className="text-xs font-semibold text-foreground">{order.totalWeightKg.toFixed(1)} kg</span>
+                  <span className="text-[11px] text-muted-foreground block">
+                    Gross Weight
+                  </span>
+                  <span className="text-xs font-semibold text-foreground">
+                    {order.totalWeightKg.toFixed(1)} kg
+                  </span>
                 </div>
                 <div className="bg-muted/40 p-3 rounded-xl border border-border">
-                  <span className="text-[11px] text-muted-foreground block">Total LKR</span>
-                  <span className="text-xs font-semibold text-primary">LKR {order.totalOrderValueLkr.toLocaleString()}</span>
+                  <span className="text-[11px] text-muted-foreground block">
+                    Total LKR
+                  </span>
+                  <span className="text-xs font-semibold text-primary">
+                    LKR {order.totalOrderValueLkr.toLocaleString()}
+                  </span>
                 </div>
               </div>
 
@@ -72,9 +86,14 @@ export function OrderDetailSheet({ order, onClose }: OrderDetailSheetProps) {
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="font-semibold text-foreground truncate">{item.name}</span>
+                          <span className="font-semibold text-foreground truncate">
+                            {item.name}
+                          </span>
                           {item.specialHandlingCode && (
-                            <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4">
+                            <Badge
+                              variant="outline"
+                              className="text-[10px] px-1.5 py-0 h-4"
+                            >
                               {item.specialHandlingCode}
                             </Badge>
                           )}

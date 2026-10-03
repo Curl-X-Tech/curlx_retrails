@@ -17,7 +17,11 @@ interface ManifestInspectSheetProps {
   onOpenBayStation: (tripId: string) => void;
 }
 
-export function ManifestInspectSheet({ trip, onClose, onOpenBayStation }: ManifestInspectSheetProps) {
+export function ManifestInspectSheet({
+  trip,
+  onClose,
+  onOpenBayStation,
+}: ManifestInspectSheetProps) {
   return (
     <Sheet open={Boolean(trip)} onOpenChange={(open) => !open && onClose()}>
       <SheetContent side="right" className="sm:max-w-md w-full p-0 flex flex-col bg-card">
@@ -53,27 +57,38 @@ export function ManifestInspectSheet({ trip, onClose, onOpenBayStation }: Manife
                 </div>
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/60 text-xs">
                   <div>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase block">Weight</span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase block">
+                      Weight
+                    </span>
                     <span className="font-heading font-bold text-foreground">
                       {trip.payload.currentKg} / {trip.weightCapKg} kg
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase block">Volume</span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase block">
+                      Volume
+                    </span>
                     <span className="font-heading font-bold text-foreground">
                       {trip.payload.currentVolumeM3} / {trip.volumeCapM3} m³
                     </span>
                   </div>
                   <div>
-                    <span className="text-[10px] font-bold text-muted-foreground uppercase block">Departure</span>
-                    <span className="font-heading font-bold text-foreground">{trip.plannedDepartureTime}</span>
+                    <span className="text-[10px] font-bold text-muted-foreground uppercase block">
+                      Departure
+                    </span>
+                    <span className="font-heading font-bold text-foreground">
+                      {trip.plannedDepartureTime}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {trip.flagReason && (
                 <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-xs font-semibold text-amber-800 dark:text-amber-200 flex items-start gap-2">
-                  <WarningCircleIcon className="size-4.5 text-amber-600 shrink-0 mt-0.5" weight="fill" />
+                  <WarningCircleIcon
+                    className="size-4.5 text-amber-600 shrink-0 mt-0.5"
+                    weight="fill"
+                  />
                   <div>
                     <span className="font-bold block">Flagged Discrepancy Logged:</span>
                     <span>{trip.flagReason}</span>
@@ -84,7 +99,11 @@ export function ManifestInspectSheet({ trip, onClose, onOpenBayStation }: Manife
               <ManifestWaypointsList waypoints={trip.waypoints} />
 
               <div className="pt-1 flex items-center gap-2">
-                <Button variant="outline" onClick={onClose} className="flex-1 h-9 rounded-xl text-xs font-semibold cursor-pointer">
+                <Button
+                  variant="outline"
+                  onClick={onClose}
+                  className="flex-1 h-9 rounded-xl text-xs font-semibold cursor-pointer"
+                >
                   Close
                 </Button>
                 <Button

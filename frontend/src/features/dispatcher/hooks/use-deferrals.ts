@@ -1,15 +1,14 @@
 import * as React from "react";
 import { useSearchParams, useLocation } from "react-router-dom";
-import {
-  mockCarryoverKPIs,
-  mockDeferralAuditLogs,
-} from "@/data/mock-deferrals";
+import { mockCarryoverKPIs, mockDeferralAuditLogs } from "@/data/mock-deferrals";
 import { mockQueuedOrders } from "@/data/mock-orders";
 import { useCarryoverOrders } from "./use-carryover-orders";
 import { useDeferralAuditLogs } from "./use-deferral-audit-logs";
 import type { CarryoverGroupBy, AuditGroupBy, QueuedOrder } from "../types";
 
-export function useDeferrals(viewMode: "carryover" | "deferral-log" | "audit-log" = "carryover") {
+export function useDeferrals(
+  viewMode: "carryover" | "deferral-log" | "audit-log" = "carryover"
+) {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
@@ -45,8 +44,12 @@ export function useDeferrals(viewMode: "carryover" | "deferral-log" | "audit-log
           const next = new URLSearchParams(prev);
           Object.entries(updates).forEach(([key, val]) => {
             if (
-              val === null || val === undefined || val === "" || val === "all" ||
-              val === "none" || (key === "page" && Number(val) <= 1)
+              val === null ||
+              val === undefined ||
+              val === "" ||
+              val === "all" ||
+              val === "none" ||
+              (key === "page" && Number(val) <= 1)
             ) {
               next.delete(key);
             } else {
@@ -86,7 +89,9 @@ export function useDeferrals(viewMode: "carryover" | "deferral-log" | "audit-log
   );
 
   const handleExportJson = () => {
-    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(mockDeferralAuditLogs, null, 2));
+    const dataStr =
+      "data:text/json;charset=utf-8," +
+      encodeURIComponent(JSON.stringify(mockDeferralAuditLogs, null, 2));
     const a = document.createElement("a");
     a.setAttribute("href", dataStr);
     a.setAttribute("download", "deferral_audit_log_export.json");

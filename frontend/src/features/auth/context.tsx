@@ -8,15 +8,9 @@ import {
   removeStoredToken,
 } from "@/lib/api";
 import type { AuthContextType, LoginCredentials, StaffUser } from "./types";
-import {
-  getStoredUser,
-  mapApiUserToStaffUser,
-  persistUser,
-} from "./auth-helpers";
+import { getStoredUser, mapApiUserToStaffUser, persistUser } from "./auth-helpers";
 
-export const AuthContext = React.createContext<AuthContextType | undefined>(
-  undefined
-);
+export const AuthContext = React.createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = React.useState<StaffUser | null>(() => getStoredUser());

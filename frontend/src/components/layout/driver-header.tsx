@@ -1,4 +1,9 @@
-import { ListIcon, CoffeeIcon, CloudSlashIcon, ArrowsClockwiseIcon } from "@phosphor-icons/react";
+import {
+  ListIcon,
+  CoffeeIcon,
+  CloudSlashIcon,
+  ArrowsClockwiseIcon,
+} from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { mockDriverTrip } from "@/data/mock-driver-trips";
 
@@ -90,7 +95,10 @@ export function DriverHeader({
       {isOnline && (syncState === "syncing" || pendingCount > 0) && (
         <div className="bg-sky-600 text-white text-xs font-semibold px-3.5 py-1.5 flex items-center justify-between shadow-xs shrink-0 z-20">
           <div className="flex items-center gap-2">
-            <ArrowsClockwiseIcon className="size-3.5 shrink-0 animate-spin" weight="bold" />
+            <ArrowsClockwiseIcon
+              className="size-3.5 shrink-0 animate-spin"
+              weight="bold"
+            />
             <span>Syncing offline actions with server...</span>
           </div>
           <span className="text-[11px] bg-sky-800/90 text-white px-2 py-0.5 rounded-md font-bold">

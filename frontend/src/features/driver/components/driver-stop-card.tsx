@@ -1,7 +1,4 @@
-import {
-  NavigationArrowIcon,
-  CheckCircleIcon,
-} from "@phosphor-icons/react";
+import { NavigationArrowIcon, CheckCircleIcon } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -37,11 +34,7 @@ export function DriverStopCard({
           <span
             className={cn(
               "size-7 rounded-xl flex items-center justify-center font-heading font-black text-xs text-white shrink-0 shadow-xs",
-              isCompleted
-                ? "bg-emerald-600"
-                : isActive
-                  ? "bg-primary"
-                  : "bg-sky-700"
+              isCompleted ? "bg-emerald-600" : isActive ? "bg-primary" : "bg-sky-700"
             )}
           >
             {wp.seq}

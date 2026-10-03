@@ -28,14 +28,10 @@ export function PageHeader({
             </h1>
             {badge && <div className="shrink-0">{badge}</div>}
           </div>
-          {description && (
-            <p className="text-sm text-muted-foreground">{description}</p>
-          )}
+          {description && <p className="text-sm text-muted-foreground">{description}</p>}
         </div>
         {actions && (
-          <div className="flex items-center gap-2 shrink-0 flex-wrap">
-            {actions}
-          </div>
+          <div className="flex items-center gap-2 shrink-0 flex-wrap">{actions}</div>
         )}
       </div>
       {children}

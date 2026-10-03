@@ -46,7 +46,8 @@ export function BayChecklistItem({
           <span
             className={cn(
               "font-heading font-bold text-sm sm:text-base text-foreground leading-snug truncate",
-              isVerified && "text-muted-foreground line-through decoration-muted-foreground/50"
+              isVerified &&
+                "text-muted-foreground line-through decoration-muted-foreground/50"
             )}
           >
             {item.itemTitle}
@@ -67,7 +68,9 @@ export function BayChecklistItem({
             {item.stagingBay}
           </span>
           <span>·</span>
-          <span className="font-bold text-foreground text-sm font-sans">{item.crateCount} Crates</span>
+          <span className="font-bold text-foreground text-sm font-sans">
+            {item.crateCount} Crates
+          </span>
           <span>·</span>
           <span className="font-medium text-foreground/80">{item.weightKg} kg</span>
           <span>·</span>
@@ -108,7 +111,8 @@ export function BayChecklistItem({
           onClick={() => onReport(stopSeq, item)}
           className={cn(
             "h-8 px-2.5 rounded-lg text-xs font-semibold gap-1 text-muted-foreground hover:text-foreground hover:bg-accent border border-transparent hover:border-border cursor-pointer",
-            isFlagged && "text-amber-600 bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20"
+            isFlagged &&
+              "text-amber-600 bg-amber-500/10 border-amber-500/30 hover:bg-amber-500/20"
           )}
           title="Report discrepancy or shortage for this item"
         >

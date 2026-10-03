@@ -46,9 +46,7 @@ export function FormDialog({
         <form onSubmit={handleSubmit} className="space-y-4">
           <DialogHeader>
             <DialogTitle>{title}</DialogTitle>
-            {description && (
-              <DialogDescription>{description}</DialogDescription>
-            )}
+            {description && <DialogDescription>{description}</DialogDescription>}
           </DialogHeader>
 
           <div className="py-2 space-y-4 max-h-[70vh] overflow-y-auto px-1">

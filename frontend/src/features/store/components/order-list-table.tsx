@@ -54,21 +54,38 @@ export function OrderListTable({
                 className="size-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
               />
             </TableHead>
-            <TableHead className="text-xs font-semibold text-foreground">Trip ID</TableHead>
+            <TableHead className="text-xs font-semibold text-foreground">
+              Trip ID
+            </TableHead>
             <TableHead className="text-xs font-semibold text-foreground">Order</TableHead>
-            <TableHead className="text-xs font-semibold text-foreground">Outlet</TableHead>
-            <TableHead className="text-xs font-semibold text-foreground">District</TableHead>
+            <TableHead className="text-xs font-semibold text-foreground">
+              Outlet
+            </TableHead>
+            <TableHead className="text-xs font-semibold text-foreground">
+              District
+            </TableHead>
             <TableHead className="text-xs font-semibold text-foreground">ETA</TableHead>
-            <TableHead className="text-xs font-semibold text-foreground text-right">Weight</TableHead>
-            <TableHead className="text-xs font-semibold text-foreground text-right">Volume</TableHead>
-            <TableHead className="text-xs font-semibold text-foreground text-center">Status</TableHead>
-            <TableHead className="text-xs font-semibold text-foreground text-right pr-4">Actions</TableHead>
+            <TableHead className="text-xs font-semibold text-foreground text-right">
+              Weight
+            </TableHead>
+            <TableHead className="text-xs font-semibold text-foreground text-right">
+              Volume
+            </TableHead>
+            <TableHead className="text-xs font-semibold text-foreground text-center">
+              Status
+            </TableHead>
+            <TableHead className="text-xs font-semibold text-foreground text-right pr-4">
+              Actions
+            </TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {orders.length === 0 ? (
             <TableRow>
-              <TableCell colSpan={10} className="h-48 text-center text-muted-foreground text-xs">
+              <TableCell
+                colSpan={10}
+                className="h-48 text-center text-muted-foreground text-xs"
+              >
                 No orders found matching the filter criteria.
               </TableCell>
             </TableRow>
@@ -96,10 +113,16 @@ export function OrderListTable({
                 <TableCell className="font-semibold text-primary hover:underline">
                   {order.tripId || "-"}
                 </TableCell>
-                <TableCell className="font-medium text-foreground">{order.orderRef}</TableCell>
-                <TableCell className="text-foreground font-medium">{order.outletName}</TableCell>
+                <TableCell className="font-medium text-foreground">
+                  {order.orderRef}
+                </TableCell>
+                <TableCell className="text-foreground font-medium">
+                  {order.outletName}
+                </TableCell>
                 <TableCell className="text-muted-foreground">{order.district}</TableCell>
-                <TableCell className="text-muted-foreground font-medium">{order.eta || "-"}</TableCell>
+                <TableCell className="text-muted-foreground font-medium">
+                  {order.eta || "-"}
+                </TableCell>
                 <TableCell className="text-right font-medium text-foreground">
                   {order.totalWeightKg.toFixed(1)} kg
                 </TableCell>
@@ -109,7 +132,10 @@ export function OrderListTable({
                 <TableCell className="text-center">
                   <OrderStatusBadge status={order.status} />
                 </TableCell>
-                <TableCell className="text-right pr-4" onClick={(e) => e.stopPropagation()}>
+                <TableCell
+                  className="text-right pr-4"
+                  onClick={(e) => e.stopPropagation()}
+                >
                   <DropdownMenu>
                     <DropdownMenuTrigger
                       render={
@@ -121,16 +147,28 @@ export function OrderListTable({
                     >
                       <DotsThreeVerticalIcon className="size-4" weight="bold" />
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-48 text-xs shadow-lg rounded-xl">
-                      <DropdownMenuItem onClick={() => onSelectOrder(order)} className="gap-2 cursor-pointer">
+                    <DropdownMenuContent
+                      align="end"
+                      className="w-48 text-xs shadow-lg rounded-xl"
+                    >
+                      <DropdownMenuItem
+                        onClick={() => onSelectOrder(order)}
+                        className="gap-2 cursor-pointer"
+                      >
                         <EyeIcon className="size-4 text-muted-foreground" />
                         View Order Details
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => window.print()} className="gap-2 cursor-pointer">
+                      <DropdownMenuItem
+                        onClick={() => window.print()}
+                        className="gap-2 cursor-pointer"
+                      >
                         <PrinterIcon className="size-4 text-muted-foreground" />
                         Print Manifest Receipt
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/dispatcher/live-map")} className="gap-2 cursor-pointer">
+                      <DropdownMenuItem
+                        onClick={() => navigate("/dispatcher/live-map")}
+                        className="gap-2 cursor-pointer"
+                      >
                         <TruckIcon className="size-4 text-muted-foreground" />
                         Track in Live Map
                       </DropdownMenuItem>

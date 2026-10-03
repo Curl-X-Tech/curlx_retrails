@@ -1,6 +1,11 @@
 import { useNavigate } from "react-router-dom";
 import { SignOutIcon, CaretRightIcon } from "@phosphor-icons/react";
-import { SidebarFooter, SidebarMenu, SidebarMenuItem, useSidebar } from "@/components/ui/sidebar";
+import {
+  SidebarFooter,
+  SidebarMenu,
+  SidebarMenuItem,
+  useSidebar,
+} from "@/components/ui/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,

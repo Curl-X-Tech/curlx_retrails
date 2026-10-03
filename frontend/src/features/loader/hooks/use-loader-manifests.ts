@@ -22,10 +22,13 @@ export function useLoaderManifests() {
 
   const [statusFilter, setStatusFilter] = React.useState<ManifestStatusFilter>("loading");
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [vehicleTypeFilter, setVehicleTypeFilter] = React.useState<VehicleTypeFilter>("all");
+  const [vehicleTypeFilter, setVehicleTypeFilter] =
+    React.useState<VehicleTypeFilter>("all");
   const [tempFilter, setTempFilter] = React.useState<TempFilter>("all");
   const [viewMode, setViewMode] = React.useState<ManifestViewMode>("table");
-  const [inspectingTrip, setInspectingTrip] = React.useState<LoaderVehicleTrip | null>(null);
+  const [inspectingTrip, setInspectingTrip] = React.useState<LoaderVehicleTrip | null>(
+    null
+  );
 
   const isLoading = useSimulatedLoading([statusFilter, vehicleTypeFilter, tempFilter]);
 
@@ -42,7 +45,13 @@ export function useLoaderManifests() {
         const matchesDriver = trip.driver.name.toLowerCase().includes(q);
         const matchesBay = trip.dockBay.toLowerCase().includes(q);
         const matchesSeal = trip.sealNumber.toLowerCase().includes(q);
-        if (!matchesReg && !matchesTrip && !matchesDriver && !matchesBay && !matchesSeal) {
+        if (
+          !matchesReg &&
+          !matchesTrip &&
+          !matchesDriver &&
+          !matchesBay &&
+          !matchesSeal
+        ) {
           return false;
         }
       }

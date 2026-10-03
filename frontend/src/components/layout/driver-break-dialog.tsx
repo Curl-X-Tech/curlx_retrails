@@ -45,7 +45,9 @@ export function DriverBreakDialog({
               className="h-10 rounded-xl font-bold flex flex-col justify-center cursor-pointer"
             >
               <span>15 Mins</span>
-              <span className="text-[10px] text-muted-foreground font-normal">Quick Rest</span>
+              <span className="text-[10px] text-muted-foreground font-normal">
+                Quick Rest
+              </span>
             </Button>
             <Button
               variant="outline"
@@ -53,7 +55,9 @@ export function DriverBreakDialog({
               className="h-10 rounded-xl font-bold flex flex-col justify-center cursor-pointer"
             >
               <span>30 Mins</span>
-              <span className="text-[10px] text-muted-foreground font-normal">Meal Break</span>
+              <span className="text-[10px] text-muted-foreground font-normal">
+                Meal Break
+              </span>
             </Button>
             <Button
               variant="outline"
@@ -61,7 +65,9 @@ export function DriverBreakDialog({
               className="h-10 rounded-xl font-bold flex flex-col justify-center cursor-pointer"
             >
               <span>45 Mins</span>
-              <span className="text-[10px] text-muted-foreground font-normal">Mandatory</span>
+              <span className="text-[10px] text-muted-foreground font-normal">
+                Mandatory
+              </span>
             </Button>
           </div>
 

@@ -47,9 +47,7 @@ export async function apiRequest<T>(
 
   if (body !== undefined) {
     requestInit.body =
-      body instanceof FormData || typeof body === "string"
-        ? body
-        : JSON.stringify(body);
+      body instanceof FormData || typeof body === "string" ? body : JSON.stringify(body);
   }
 
   const response = await fetch(url, requestInit);

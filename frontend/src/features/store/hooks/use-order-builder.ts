@@ -1,5 +1,9 @@
 import * as React from "react";
-import { CATALOG_PRODUCTS, STORE_OUTLETS, createStoreOrder } from "@/data/mock-store-orders";
+import {
+  CATALOG_PRODUCTS,
+  STORE_OUTLETS,
+  createStoreOrder,
+} from "@/data/mock-store-orders";
 import type { CatalogProduct, StoreOrderItemRow, StoreOutletOption } from "../types";
 import {
   DRAFT_STORAGE_KEY,
@@ -12,8 +16,12 @@ import {
 } from "./order-builder-utils";
 
 export function useOrderBuilder() {
-  const [orderRef] = React.useState(() => `ORD-2026-${Math.floor(100 + Math.random() * 900)}`);
-  const [selectedOutlet, setSelectedOutlet] = React.useState<StoreOutletOption>(STORE_OUTLETS[0]);
+  const [orderRef] = React.useState(
+    () => `ORD-2026-${Math.floor(100 + Math.random() * 900)}`
+  );
+  const [selectedOutlet, setSelectedOutlet] = React.useState<StoreOutletOption>(
+    STORE_OUTLETS[0]
+  );
   const [selectedDate, setSelectedDate] = React.useState<string>("2026-10-02");
   const [isUrgent, setIsUrgent] = React.useState<boolean>(false);
   const [outletSearch, setOutletSearch] = React.useState<string>("");
@@ -41,11 +49,15 @@ export function useOrderBuilder() {
   };
 
   const handleUpdateProduct = (rowId: string, product: CatalogProduct) => {
-    setRows((prev) => prev.map((r) => (r.id === rowId ? updateRowWithProduct(r, product) : r)));
+    setRows((prev) =>
+      prev.map((r) => (r.id === rowId ? updateRowWithProduct(r, product) : r))
+    );
   };
 
   const handleUpdateQuantity = (rowId: string, qty: number) => {
-    setRows((prev) => prev.map((r) => (r.id === rowId ? updateRowQuantityVal(r, qty) : r)));
+    setRows((prev) =>
+      prev.map((r) => (r.id === rowId ? updateRowQuantityVal(r, qty) : r))
+    );
   };
 
   const handleRemoveRow = (rowId: string) => {
@@ -59,12 +71,15 @@ export function useOrderBuilder() {
   };
 
   const toggleSelectAllRows = () => {
-    const allSelected = rows.length > 0 && rows.every((r) => selectedRowIds.includes(r.id));
+    const allSelected =
+      rows.length > 0 && rows.every((r) => selectedRowIds.includes(r.id));
     setSelectedRowIds(allSelected ? [] : rows.map((r) => r.id));
   };
 
   const toggleSelectRow = (rowId: string) => {
-    setSelectedRowIds((prev) => (prev.includes(rowId) ? prev.filter((id) => id !== rowId) : [...prev, rowId]));
+    setSelectedRowIds((prev) =>
+      prev.includes(rowId) ? prev.filter((id) => id !== rowId) : [...prev, rowId]
+    );
   };
 
   const metrics = calculateOrderMetrics(rows);

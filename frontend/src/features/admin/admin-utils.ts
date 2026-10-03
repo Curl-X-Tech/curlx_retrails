@@ -46,11 +46,15 @@ export function sortOutlets(
     let cmp = 0;
     if (sortKey === "outletId") cmp = a.outlet_id.localeCompare(b.outlet_id);
     else if (sortKey === "name") cmp = a.name.localeCompare(b.name);
-    else if (sortKey === "brand") cmp = getBrandCode(a.brand_id).localeCompare(getBrandCode(b.brand_id));
-    else if (sortKey === "district") cmp = getDistrictName(a.district_id).localeCompare(getDistrictName(b.district_id));
+    else if (sortKey === "brand")
+      cmp = getBrandCode(a.brand_id).localeCompare(getBrandCode(b.brand_id));
+    else if (sortKey === "district")
+      cmp = getDistrictName(a.district_id).localeCompare(getDistrictName(b.district_id));
     else if (sortKey === "dock") cmp = a.dock_type.localeCompare(b.dock_type);
-    else if (sortKey === "constraint") cmp = (a.parking_constraint || "").localeCompare(b.parking_constraint || "");
-    else if (sortKey === "window") cmp = a.window_open_time.localeCompare(b.window_open_time);
+    else if (sortKey === "constraint")
+      cmp = (a.parking_constraint || "").localeCompare(b.parking_constraint || "");
+    else if (sortKey === "window")
+      cmp = a.window_open_time.localeCompare(b.window_open_time);
     return sortDirection === "asc" ? cmp : -cmp;
   });
 }
@@ -67,7 +71,8 @@ export function sortItems(
     let cmp = 0;
     if (sortKey === "sku") cmp = a.sku.localeCompare(b.sku);
     else if (sortKey === "name") cmp = a.name.localeCompare(b.name);
-    else if (sortKey === "brand") cmp = getBrandCode(a.brand_id).localeCompare(getBrandCode(b.brand_id));
+    else if (sortKey === "brand")
+      cmp = getBrandCode(a.brand_id).localeCompare(getBrandCode(b.brand_id));
     else if (sortKey === "category") cmp = a.category.localeCompare(b.category);
     else if (sortKey === "weight") cmp = a.unit_weight_kg - b.unit_weight_kg;
     else if (sortKey === "volume") cmp = a.unit_volume_m3 - b.unit_volume_m3;
@@ -90,9 +95,12 @@ export function sortCalendarDays(
   return [...days].sort((a, b) => {
     let cmp = 0;
     if (sortKey === "date") cmp = a.date.localeCompare(b.date);
-    else if (sortKey === "dayOfWeek") cmp = (a.dow_name || "").localeCompare(b.dow_name || "");
-    else if (sortKey === "operating") cmp = (a.is_operating ? 1 : 0) - (b.is_operating ? 1 : 0);
-    else if (sortKey === "surge") cmp = getSurgeMultiplier(a.date) - getSurgeMultiplier(b.date);
+    else if (sortKey === "dayOfWeek")
+      cmp = (a.dow_name || "").localeCompare(b.dow_name || "");
+    else if (sortKey === "operating")
+      cmp = (a.is_operating ? 1 : 0) - (b.is_operating ? 1 : 0);
+    else if (sortKey === "surge")
+      cmp = getSurgeMultiplier(a.date) - getSurgeMultiplier(b.date);
     else if (sortKey === "monsoon") cmp = (a.monsoon ? 1 : 0) - (b.monsoon ? 1 : 0);
     return sortDirection === "asc" ? cmp : -cmp;
   });
