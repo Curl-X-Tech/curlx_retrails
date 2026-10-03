@@ -72,13 +72,18 @@ async def list_orders(
 
 
 @router.get("/{id}", response_model=OrderDetail, summary="Get order detail with line items")
-async def get_order(id: uuid.UUID, _user: AuthDep, session: SessionDep) -> OrderDetail:
-    order = await _get_order(session, id)
+async def get_order(id: str, _user: AuthDep, session: SessionDep) -> OrderDetail:
+    try:
+        order = await _get_order(session, uuid.UUID(id))
+    except ValueError:
+        order = (await session.execute(select(CustomerOrder).where(CustomerOrder.order_ref == id))).scalar_one_or_none()
+        if order is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ORDER_NOT_FOUND") from None
     [header] = await order_reads(session, [order])
     rows = await session.execute(
         select(OrderItem, Item.name, Item.category)
         .join(Item, Item.id == OrderItem.item_id)
-        .where(OrderItem.order_id == id)
+        .where(OrderItem.order_id == order.id)
         .order_by(OrderItem.package_code.asc())
     )
     items = [

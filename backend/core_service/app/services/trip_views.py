@@ -145,6 +145,9 @@ def trip_read(trip: Trip) -> dict[str, Any]:
         "total_trip_duration_min": trip.total_trip_duration_min,
         "total_distance_km": trip.total_distance_km,
         "seal_number": trip.seal_number,
+        "planned_start_time": iso(trip.planned_start_time),
+        "actual_start_time": iso(trip.actual_start_time),
+        "actual_end_time": iso(trip.actual_end_time),
         "created_at": iso(trip.created_at),
         "updated_at": iso(trip.updated_at),
     }
@@ -229,6 +232,8 @@ def allocation_detail(ctx: TripContext) -> dict[str, Any]:
                 "outlet_name": outlet.name,
                 "outlet_code": outlet.outlet_id,
                 "address": outlet.name,
+                "latitude": outlet.latitude,
+                "longitude": outlet.longitude,
                 "dock_type": getattr(outlet.dock_type, "value", outlet.dock_type),
                 "parking_constraint": getattr(outlet.parking_constraint, "value", outlet.parking_constraint),
                 "window_open_time": tstr(outlet.window_open_time),

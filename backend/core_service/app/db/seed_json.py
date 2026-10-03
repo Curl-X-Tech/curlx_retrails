@@ -183,6 +183,12 @@ class SeedData:
     orders: list[dict[str, Any]] = field(default_factory=list)
     trips: list[dict[str, Any]] = field(default_factory=list)
     logs: list[dict[str, Any]] = field(default_factory=list)
+    staff: list[dict[str, Any]] = field(default_factory=list)
+    dispatch_trips: list[dict[str, Any]] = field(default_factory=list)
+    checklist: list[dict[str, Any]] = field(default_factory=list)
+    pods: list[dict[str, Any]] = field(default_factory=list)
+    discrepancies: list[dict[str, Any]] = field(default_factory=list)
+    telemetry: list[dict[str, Any]] = field(default_factory=list)
 
 
 def resolve_depot(label: str, depots: list[dict[str, Any]]) -> str | None:
@@ -389,6 +395,10 @@ def load_seed_data(include_demo: bool) -> SeedData:
 
     load_operations(d, errors, include_demo)
     cross_check(d, errors)
+    if include_demo and not errors:
+        from app.db.seed_dispatch_json import load_dispatch
+
+        load_dispatch(d, errors)
     if errors:
         raise SeedValidationError(errors)
     return d

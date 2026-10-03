@@ -80,9 +80,14 @@ export function useDeferrals(
     [setSearchParams]
   );
 
-  const { data: detailOrder } = useOrder(orderParam ?? "", {
+  const { data: detailOrder, isError: detailMissing } = useOrder(orderParam ?? "", {
     enabled: Boolean(orderParam),
+    retry: false,
   });
+
+  React.useEffect(() => {
+    if (detailMissing) updateQueryParams({ order: null });
+  }, [detailMissing, updateQueryParams]);
 
   const selectedOrder: QueuedOrder | null = React.useMemo(() => {
     if (!orderParam || !detailOrder) return null;

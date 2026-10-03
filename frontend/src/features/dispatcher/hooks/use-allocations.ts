@@ -1,16 +1,17 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
 import {
-  mockAllocationKPIs,
-  mockVehicleAllocations,
-  getManifestForAllocation,
-} from "@/api/allocations/mock-data";
-import type {
-  VehicleAllocation,
-  AllocationSortKey,
-  AllocationViewMode,
-  AllocationManifestDetail,
-} from "../types";
+  useAllocationDetail,
+  useAllocationKpis,
+  useAllocations as useAllocationTrips,
+} from "@/api/allocations";
+import { toKpis, toManifest, toVehicleAllocation } from "../lib/allocation-adapters";
+import type { AllocationSortKey, AllocationViewMode } from "../types";
+
+export function useAllocationManifest(id: string) {
+  const { data } = useAllocationDetail(id);
+  return React.useMemo(() => (data ? toManifest(data) : null), [data]);
+}
 
 export function useAllocations() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -24,7 +25,17 @@ export function useAllocations() {
   const currentPage = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = 5;
 
-  const [allocations] = React.useState<VehicleAllocation[]>(mockVehicleAllocations);
+  const { data: trips = [], isLoading } = useAllocationTrips({ limit: 500 });
+  const dispatchDate = searchParams.get("date") || trips[0]?.dispatch_date;
+  const { data: kpiData } = useAllocationKpis({ dispatch_date: dispatchDate });
+
+  const allocations = React.useMemo(
+    () =>
+      trips
+        .filter((trip) => trip.dispatch_date === dispatchDate)
+        .map(toVehicleAllocation),
+    [trips, dispatchDate]
+  );
 
   const updateQueryParams = React.useCallback(
     (updates: Record<string, string | number | null | undefined>) => {
@@ -110,13 +121,6 @@ export function useAllocations() {
     return sortedAllocations.slice(start, start + pageSize);
   }, [sortedAllocations, currentPage, pageSize]);
 
-  const getManifest = React.useCallback(
-    (allocation: VehicleAllocation): AllocationManifestDetail => {
-      return getManifestForAllocation(allocation);
-    },
-    []
-  );
-
   return {
     allocations,
     searchQuery,
@@ -128,11 +132,12 @@ export function useAllocations() {
     currentPage,
     pageSize,
     totalPages,
-    kpis: mockAllocationKPIs,
+    kpis: toKpis(kpiData),
+    dispatchDate,
+    isLoading,
     filteredAllocations,
     sortedAllocations,
     paginatedAllocations,
     updateQueryParams,
-    getManifest,
   };
 }

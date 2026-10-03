@@ -21,6 +21,9 @@ export interface Trip {
   total_trip_duration_min: number;
   total_distance_km?: number;
   seal_number?: string | null;
+  planned_start_time?: string | null;
+  actual_start_time?: string | null;
+  actual_end_time?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -82,6 +85,8 @@ export interface AllocationDetailLeg extends RouteLeg {
   outlet_name: string;
   outlet_code?: string;
   address?: string;
+  latitude?: number | null;
+  longitude?: number | null;
   dock_type?: string;
   parking_constraint?: string;
   window_open_time: string; // TIME string

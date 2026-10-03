@@ -25,7 +25,7 @@ export function useAllocationDetail(id: string) {
 
 export function useAllocationKpis(filters: AllocationFilters = {}) {
   return useQuery({
-    queryKey: allocationsKeys.summary(),
+    queryKey: allocationsKeys.summary(filters as Record<string, unknown>),
     queryFn: ({ signal }) => getAllocationKpis(filters, signal),
   });
 }

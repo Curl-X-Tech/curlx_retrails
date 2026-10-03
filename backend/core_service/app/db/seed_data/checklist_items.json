@@ -1,0 +1,3062 @@
+[
+  {
+    "trip_code": "TRP-260622-KDY01",
+    "package_code": "ORD-20260622-OUT112-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T18:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY01",
+    "package_code": "ORD-20260622-OUT110-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T18:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY01",
+    "package_code": "ORD-20260622-OUT113-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T18:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL14",
+    "package_code": "ORD-20260622-OUT073-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T18:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL14",
+    "package_code": "ORD-20260622-OUT075-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T18:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL14",
+    "package_code": "ORD-20260622-OUT074-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T18:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY09",
+    "package_code": "ORD-20260622-OUT105-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T19:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY09",
+    "package_code": "ORD-20260622-OUT108-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T19:51:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY09",
+    "package_code": "ORD-20260622-OUT104-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T19:52:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY09",
+    "package_code": "ORD-20260622-OUT107-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T19:53:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY09",
+    "package_code": "ORD-20260622-OUT106-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T19:54:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL12",
+    "package_code": "ORD-20260622-OUT061-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T20:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL12",
+    "package_code": "ORD-20260622-OUT059-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T20:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL12",
+    "package_code": "ORD-20260622-OUT060-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T20:32:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL10",
+    "package_code": "ORD-20260622-OUT067-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T20:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL10",
+    "package_code": "ORD-20260622-OUT066-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T20:36:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL10",
+    "package_code": "ORD-20260622-OUT068-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T20:37:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL05",
+    "package_code": "ORD-20260622-OUT052-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T21:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL05",
+    "package_code": "ORD-20260622-OUT055-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T21:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL05",
+    "package_code": "ORD-20260622-OUT051-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T21:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL05",
+    "package_code": "ORD-20260622-OUT053-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T21:03:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY06",
+    "package_code": "ORD-20260622-OUT116-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY06",
+    "package_code": "ORD-20260622-OUT117-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T21:46:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY06",
+    "package_code": "ORD-20260622-OUT118-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T21:47:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL08",
+    "package_code": "ORD-20260622-OUT043-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL08",
+    "package_code": "ORD-20260622-OUT046-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T21:46:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL08",
+    "package_code": "ORD-20260622-OUT042-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T21:47:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY02",
+    "package_code": "ORD-20260622-OUT115-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T22:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL07",
+    "package_code": "ORD-20260622-OUT027-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL07",
+    "package_code": "ORD-20260622-OUT034-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:06:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL07",
+    "package_code": "ORD-20260622-OUT032-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:07:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL07",
+    "package_code": "ORD-20260622-OUT030-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:08:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL07",
+    "package_code": "ORD-20260622-OUT025-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:09:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY08",
+    "package_code": "ORD-20260622-OUT101-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T22:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL01",
+    "package_code": "ORD-20260622-OUT013-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL01",
+    "package_code": "ORD-20260622-OUT005-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL01",
+    "package_code": "ORD-20260622-OUT006-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:22:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL01",
+    "package_code": "ORD-20260622-OUT011-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:23:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL01",
+    "package_code": "ORD-20260622-OUT004-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:24:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL01",
+    "package_code": "ORD-20260622-OUT007-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:25:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL03",
+    "package_code": "ORD-20260622-OUT003-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL03",
+    "package_code": "ORD-20260622-OUT002-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY04",
+    "package_code": "ORD-20260622-OUT077-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T22:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY04",
+    "package_code": "ORD-20260622-OUT079-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T22:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY04",
+    "package_code": "ORD-20260622-OUT076-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T22:32:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY04",
+    "package_code": "ORD-20260622-OUT078-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T22:33:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY04",
+    "package_code": "ORD-20260622-OUT080-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T22:34:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL02",
+    "package_code": "ORD-20260622-OUT012-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL02",
+    "package_code": "ORD-20260622-OUT014-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-21T22:51:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY03",
+    "package_code": "ORD-20260622-OUT084-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-21T23:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL13",
+    "package_code": "ORD-20260622-OUT063-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T00:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL11",
+    "package_code": "ORD-20260622-OUT070-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T00:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL06",
+    "package_code": "ORD-20260622-OUT057-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T01:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY07",
+    "package_code": "ORD-20260622-OUT120-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL09",
+    "package_code": "ORD-20260622-OUT049-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL04",
+    "package_code": "ORD-20260622-OUT019-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T02:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-PEL04",
+    "package_code": "ORD-20260622-OUT020-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T02:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260622-KDY05",
+    "package_code": "ORD-20260622-OUT091-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T02:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY01",
+    "package_code": "ORD-20260623-OUT112-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T18:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY01",
+    "package_code": "ORD-20260623-OUT110-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T18:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY01",
+    "package_code": "ORD-20260623-OUT111-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T18:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL15",
+    "package_code": "ORD-20260623-OUT073-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T18:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL15",
+    "package_code": "ORD-20260623-OUT075-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T18:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL15",
+    "package_code": "ORD-20260623-OUT074-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T18:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL13",
+    "package_code": "ORD-20260623-OUT059-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T19:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL12",
+    "package_code": "ORD-20260623-OUT066-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T19:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL12",
+    "package_code": "ORD-20260623-OUT065-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T19:36:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL12",
+    "package_code": "ORD-20260623-OUT069-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T19:37:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY09",
+    "package_code": "ORD-20260623-OUT105-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T19:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY09",
+    "package_code": "ORD-20260623-OUT108-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T19:51:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY09",
+    "package_code": "ORD-20260623-OUT107-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T19:52:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY07",
+    "package_code": "ORD-20260623-OUT097-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T20:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY07",
+    "package_code": "ORD-20260623-OUT098-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T20:11:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY07",
+    "package_code": "ORD-20260623-OUT100-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T20:12:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY07",
+    "package_code": "ORD-20260623-OUT096-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T20:13:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY03",
+    "package_code": "ORD-20260623-OUT086-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T20:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY03",
+    "package_code": "ORD-20260623-OUT087-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T20:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL05",
+    "package_code": "ORD-20260623-OUT052-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T21:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL05",
+    "package_code": "ORD-20260623-OUT055-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T21:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL05",
+    "package_code": "ORD-20260623-OUT050-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T21:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY04",
+    "package_code": "ORD-20260623-OUT083-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T21:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY04",
+    "package_code": "ORD-20260623-OUT076-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T21:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY04",
+    "package_code": "ORD-20260623-OUT081-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T21:32:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY04",
+    "package_code": "ORD-20260623-OUT082-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T21:33:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY06",
+    "package_code": "ORD-20260623-OUT116-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY06",
+    "package_code": "ORD-20260623-OUT119-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T21:46:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL10",
+    "package_code": "ORD-20260623-OUT041-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL10",
+    "package_code": "ORD-20260623-OUT040-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T21:46:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL10",
+    "package_code": "ORD-20260623-OUT042-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T21:47:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL10",
+    "package_code": "ORD-20260623-OUT044-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T21:48:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY02",
+    "package_code": "ORD-20260623-OUT115-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T22:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL07",
+    "package_code": "ORD-20260623-OUT027-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL07",
+    "package_code": "ORD-20260623-OUT034-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:06:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL07",
+    "package_code": "ORD-20260623-OUT026-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:07:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL07",
+    "package_code": "ORD-20260623-OUT028-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:08:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL07",
+    "package_code": "ORD-20260623-OUT030-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:09:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL07",
+    "package_code": "ORD-20260623-OUT031-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL01",
+    "package_code": "ORD-20260623-OUT010-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL01",
+    "package_code": "ORD-20260623-OUT005-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL01",
+    "package_code": "ORD-20260623-OUT009-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:22:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL01",
+    "package_code": "ORD-20260623-OUT011-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:23:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL01",
+    "package_code": "ORD-20260623-OUT004-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:24:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL01",
+    "package_code": "ORD-20260623-OUT014-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:25:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL02",
+    "package_code": "ORD-20260623-OUT001-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL02",
+    "package_code": "ORD-20260623-OUT002-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL08",
+    "package_code": "ORD-20260623-OUT025-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL08",
+    "package_code": "ORD-20260623-OUT029-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:36:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL08",
+    "package_code": "ORD-20260623-OUT033-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-22T22:37:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY10",
+    "package_code": "ORD-20260623-OUT109-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-22T23:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL14",
+    "package_code": "ORD-20260623-OUT063-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T00:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL06",
+    "package_code": "ORD-20260623-OUT057-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T01:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL11",
+    "package_code": "ORD-20260623-OUT048-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL09",
+    "package_code": "ORD-20260623-OUT038-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T02:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY08",
+    "package_code": "ORD-20260623-OUT102-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T02:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL03",
+    "package_code": "ORD-20260623-OUT015-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T02:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL03",
+    "package_code": "ORD-20260623-OUT018-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T02:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-PEL04",
+    "package_code": "ORD-20260623-OUT023-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T02:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260623-KDY05",
+    "package_code": "ORD-20260623-OUT092-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T02:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY01",
+    "package_code": "ORD-20260624-OUT112-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T18:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY01",
+    "package_code": "ORD-20260624-OUT110-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T18:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL15",
+    "package_code": "ORD-20260624-OUT073-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T18:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL12",
+    "package_code": "ORD-20260624-OUT068-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T18:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL12",
+    "package_code": "ORD-20260624-OUT069-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T18:36:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY08",
+    "package_code": "ORD-20260624-OUT106-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T20:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY02",
+    "package_code": "ORD-20260624-OUT086-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T20:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY02",
+    "package_code": "ORD-20260624-OUT087-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T20:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY02",
+    "package_code": "ORD-20260624-OUT084-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T20:32:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL13",
+    "package_code": "ORD-20260624-OUT061-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T20:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL13",
+    "package_code": "ORD-20260624-OUT059-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T20:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL06",
+    "package_code": "ORD-20260624-OUT052-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL06",
+    "package_code": "ORD-20260624-OUT055-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL06",
+    "package_code": "ORD-20260624-OUT051-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL06",
+    "package_code": "ORD-20260624-OUT050-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:03:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY03",
+    "package_code": "ORD-20260624-OUT083-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T21:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY03",
+    "package_code": "ORD-20260624-OUT076-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T21:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY03",
+    "package_code": "ORD-20260624-OUT078-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T21:32:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY03",
+    "package_code": "ORD-20260624-OUT081-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T21:33:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY03",
+    "package_code": "ORD-20260624-OUT082-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T21:34:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY06",
+    "package_code": "ORD-20260624-OUT116-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY06",
+    "package_code": "ORD-20260624-OUT117-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T21:46:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY06",
+    "package_code": "ORD-20260624-OUT118-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T21:47:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY06",
+    "package_code": "ORD-20260624-OUT119-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T21:48:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL09",
+    "package_code": "ORD-20260624-OUT041-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL09",
+    "package_code": "ORD-20260624-OUT043-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:46:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL09",
+    "package_code": "ORD-20260624-OUT040-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:47:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL09",
+    "package_code": "ORD-20260624-OUT042-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:48:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL09",
+    "package_code": "ORD-20260624-OUT044-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:49:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL09",
+    "package_code": "ORD-20260624-OUT045-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T21:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL07",
+    "package_code": "ORD-20260624-OUT027-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL07",
+    "package_code": "ORD-20260624-OUT032-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:06:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL07",
+    "package_code": "ORD-20260624-OUT028-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:07:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL07",
+    "package_code": "ORD-20260624-OUT030-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:08:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL07",
+    "package_code": "ORD-20260624-OUT031-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:09:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL07",
+    "package_code": "ORD-20260624-OUT033-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY07",
+    "package_code": "ORD-20260624-OUT099-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T22:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY07",
+    "package_code": "ORD-20260624-OUT101-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T22:11:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY07",
+    "package_code": "ORD-20260624-OUT098-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T22:12:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY07",
+    "package_code": "ORD-20260624-OUT100-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T22:13:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY07",
+    "package_code": "ORD-20260624-OUT096-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T22:14:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL01",
+    "package_code": "ORD-20260624-OUT008-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL01",
+    "package_code": "ORD-20260624-OUT010-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL01",
+    "package_code": "ORD-20260624-OUT013-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:22:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL01",
+    "package_code": "ORD-20260624-OUT005-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:23:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL01",
+    "package_code": "ORD-20260624-OUT009-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:24:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL01",
+    "package_code": "ORD-20260624-OUT006-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:25:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL03",
+    "package_code": "ORD-20260624-OUT001-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL03",
+    "package_code": "ORD-20260624-OUT003-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL03",
+    "package_code": "ORD-20260624-OUT002-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:22:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL02",
+    "package_code": "ORD-20260624-OUT004-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL02",
+    "package_code": "ORD-20260624-OUT012-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-23T22:51:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY09",
+    "package_code": "ORD-20260624-OUT109-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-23T23:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL14",
+    "package_code": "ORD-20260624-OUT064-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T00:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL10",
+    "package_code": "ORD-20260624-OUT047-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL11",
+    "package_code": "ORD-20260624-OUT049-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL08",
+    "package_code": "ORD-20260624-OUT037-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T02:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL04",
+    "package_code": "ORD-20260624-OUT020-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T02:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-PEL05",
+    "package_code": "ORD-20260624-OUT016-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T02:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY05",
+    "package_code": "ORD-20260624-OUT095-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T02:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260624-KDY04",
+    "package_code": "ORD-20260624-OUT090-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T04:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY01",
+    "package_code": "ORD-20260625-OUT112-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T18:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY01",
+    "package_code": "ORD-20260625-OUT110-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T18:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL16",
+    "package_code": "ORD-20260625-OUT075-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T18:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL16",
+    "package_code": "ORD-20260625-OUT074-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T18:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY09",
+    "package_code": "ORD-20260625-OUT105-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T19:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY09",
+    "package_code": "ORD-20260625-OUT108-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T19:51:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY09",
+    "package_code": "ORD-20260625-OUT107-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T19:52:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY03",
+    "package_code": "ORD-20260625-OUT078-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T20:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY03",
+    "package_code": "ORD-20260625-OUT081-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T20:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY03",
+    "package_code": "ORD-20260625-OUT080-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T20:32:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL15",
+    "package_code": "ORD-20260625-OUT061-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T20:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL13",
+    "package_code": "ORD-20260625-OUT067-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T20:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL13",
+    "package_code": "ORD-20260625-OUT068-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T20:36:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL13",
+    "package_code": "ORD-20260625-OUT065-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T20:37:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL13",
+    "package_code": "ORD-20260625-OUT069-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T20:38:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL05",
+    "package_code": "ORD-20260625-OUT052-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL05",
+    "package_code": "ORD-20260625-OUT054-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL05",
+    "package_code": "ORD-20260625-OUT055-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL05",
+    "package_code": "ORD-20260625-OUT053-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:03:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL05",
+    "package_code": "ORD-20260625-OUT050-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:04:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY06",
+    "package_code": "ORD-20260625-OUT116-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL10",
+    "package_code": "ORD-20260625-OUT041-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL10",
+    "package_code": "ORD-20260625-OUT043-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:46:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL10",
+    "package_code": "ORD-20260625-OUT046-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:47:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL10",
+    "package_code": "ORD-20260625-OUT044-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:48:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL10",
+    "package_code": "ORD-20260625-OUT045-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T21:49:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL07",
+    "package_code": "ORD-20260625-OUT027-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL07",
+    "package_code": "ORD-20260625-OUT034-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:06:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL07",
+    "package_code": "ORD-20260625-OUT026-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:07:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL07",
+    "package_code": "ORD-20260625-OUT028-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:08:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL07",
+    "package_code": "ORD-20260625-OUT030-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:09:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL07",
+    "package_code": "ORD-20260625-OUT031-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY08",
+    "package_code": "ORD-20260625-OUT099-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T22:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY08",
+    "package_code": "ORD-20260625-OUT101-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T22:11:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY08",
+    "package_code": "ORD-20260625-OUT097-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T22:12:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY08",
+    "package_code": "ORD-20260625-OUT100-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T22:13:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL01",
+    "package_code": "ORD-20260625-OUT008-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL01",
+    "package_code": "ORD-20260625-OUT010-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL01",
+    "package_code": "ORD-20260625-OUT005-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:22:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL01",
+    "package_code": "ORD-20260625-OUT006-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:23:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL01",
+    "package_code": "ORD-20260625-OUT012-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:24:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL01",
+    "package_code": "ORD-20260625-OUT014-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:25:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY02",
+    "package_code": "ORD-20260625-OUT085-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T22:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY02",
+    "package_code": "ORD-20260625-OUT087-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T22:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY02",
+    "package_code": "ORD-20260625-OUT084-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-24T22:32:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL08",
+    "package_code": "ORD-20260625-OUT025-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL08",
+    "package_code": "ORD-20260625-OUT033-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:36:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL02",
+    "package_code": "ORD-20260625-OUT002-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-24T22:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL14",
+    "package_code": "ORD-20260625-OUT072-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T00:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL06",
+    "package_code": "ORD-20260625-OUT057-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T01:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY07",
+    "package_code": "ORD-20260625-OUT120-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL11",
+    "package_code": "ORD-20260625-OUT047-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL12",
+    "package_code": "ORD-20260625-OUT049-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL09",
+    "package_code": "ORD-20260625-OUT038-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T02:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY04",
+    "package_code": "ORD-20260625-OUT091-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T02:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL04",
+    "package_code": "ORD-20260625-OUT022-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T03:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-PEL03",
+    "package_code": "ORD-20260625-OUT018-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T03:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260625-KDY05",
+    "package_code": "ORD-20260625-OUT089-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T04:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY01",
+    "package_code": "ORD-20260626-OUT112-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T18:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY01",
+    "package_code": "ORD-20260626-OUT110-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T18:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY01",
+    "package_code": "ORD-20260626-OUT113-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T18:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY09",
+    "package_code": "ORD-20260626-OUT108-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T18:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY09",
+    "package_code": "ORD-20260626-OUT104-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T18:51:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY09",
+    "package_code": "ORD-20260626-OUT107-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T18:52:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL16",
+    "package_code": "ORD-20260626-OUT059-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T19:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL16",
+    "package_code": "ORD-20260626-OUT060-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T19:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL16",
+    "package_code": "ORD-20260626-OUT062-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T19:32:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL14",
+    "package_code": "ORD-20260626-OUT066-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T19:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL14",
+    "package_code": "ORD-20260626-OUT068-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T19:36:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL14",
+    "package_code": "ORD-20260626-OUT065-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T19:37:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL14",
+    "package_code": "ORD-20260626-OUT069-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T19:38:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY07",
+    "package_code": "ORD-20260626-OUT098-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T20:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY07",
+    "package_code": "ORD-20260626-OUT100-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T20:11:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY07",
+    "package_code": "ORD-20260626-OUT096-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T20:12:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL06",
+    "package_code": "ORD-20260626-OUT052-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T21:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL06",
+    "package_code": "ORD-20260626-OUT054-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T21:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL06",
+    "package_code": "ORD-20260626-OUT055-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T21:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL06",
+    "package_code": "ORD-20260626-OUT053-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T21:03:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY06",
+    "package_code": "ORD-20260626-OUT116-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY06",
+    "package_code": "ORD-20260626-OUT117-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T21:46:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY06",
+    "package_code": "ORD-20260626-OUT119-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T21:47:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL11",
+    "package_code": "ORD-20260626-OUT041-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T21:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL11",
+    "package_code": "ORD-20260626-OUT043-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T21:46:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL11",
+    "package_code": "ORD-20260626-OUT046-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T21:47:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL11",
+    "package_code": "ORD-20260626-OUT044-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T21:48:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL11",
+    "package_code": "ORD-20260626-OUT045-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T21:49:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL08",
+    "package_code": "ORD-20260626-OUT027-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL08",
+    "package_code": "ORD-20260626-OUT034-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:06:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL08",
+    "package_code": "ORD-20260626-OUT026-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:07:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL08",
+    "package_code": "ORD-20260626-OUT028-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:08:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL08",
+    "package_code": "ORD-20260626-OUT030-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:09:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL08",
+    "package_code": "ORD-20260626-OUT031-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL01",
+    "package_code": "ORD-20260626-OUT008-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL01",
+    "package_code": "ORD-20260626-OUT010-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL01",
+    "package_code": "ORD-20260626-OUT005-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:22:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL01",
+    "package_code": "ORD-20260626-OUT004-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:23:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL01",
+    "package_code": "ORD-20260626-OUT007-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:24:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL01",
+    "package_code": "ORD-20260626-OUT012-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:25:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL03",
+    "package_code": "ORD-20260626-OUT003-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL03",
+    "package_code": "ORD-20260626-OUT002-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY02",
+    "package_code": "ORD-20260626-OUT085-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T22:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY02",
+    "package_code": "ORD-20260626-OUT087-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T22:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY03",
+    "package_code": "ORD-20260626-OUT077-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T22:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY03",
+    "package_code": "ORD-20260626-OUT079-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T22:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY03",
+    "package_code": "ORD-20260626-OUT083-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T22:32:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY03",
+    "package_code": "ORD-20260626-OUT081-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T22:33:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY03",
+    "package_code": "ORD-20260626-OUT080-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-25T22:34:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL09",
+    "package_code": "ORD-20260626-OUT025-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL09",
+    "package_code": "ORD-20260626-OUT033-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:36:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL02",
+    "package_code": "ORD-20260626-OUT014-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-25T22:50:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL17",
+    "package_code": "ORD-20260626-OUT064-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T00:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL15",
+    "package_code": "ORD-20260626-OUT070-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T00:35:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL15",
+    "package_code": "ORD-20260626-OUT071-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T00:36:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL07",
+    "package_code": "ORD-20260626-OUT058-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T01:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL12",
+    "package_code": "ORD-20260626-OUT047-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL13",
+    "package_code": "ORD-20260626-OUT049-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T01:45:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL10",
+    "package_code": "ORD-20260626-OUT039-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T02:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY08",
+    "package_code": "ORD-20260626-OUT103-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T02:10:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL04",
+    "package_code": "ORD-20260626-OUT020-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T02:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL05",
+    "package_code": "ORD-20260626-OUT015-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T02:20:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-PEL05",
+    "package_code": "ORD-20260626-OUT018-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T02:21:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY04",
+    "package_code": "ORD-20260626-OUT091-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T02:30:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY04",
+    "package_code": "ORD-20260626-OUT092-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T02:31:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY05",
+    "package_code": "ORD-20260626-OUT089-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T04:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260626-KDY05",
+    "package_code": "ORD-20260626-OUT090-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T04:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY01",
+    "package_code": "ORD-20260627-OUT110-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T23:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY01",
+    "package_code": "ORD-20260627-OUT112-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T23:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY01",
+    "package_code": "ORD-20260627-OUT113-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T23:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT076-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T23:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT077-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT078-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT079-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT080-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT081-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT082-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT085-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT086-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY02",
+    "package_code": "ORD-20260627-OUT087-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-KDY03",
+    "package_code": "ORD-20260627-OUT118-01",
+    "status": "verified",
+    "verified_by_email": "loader02@curlx.tech",
+    "verified_at": "2026-06-26T23:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT001-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT002-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:01:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT004-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:02:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT005-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:03:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT006-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:04:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT009-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:05:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT010-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:06:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT011-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:07:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT013-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:08:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL01",
+    "package_code": "ORD-20260627-OUT014-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:09:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL02",
+    "package_code": "ORD-20260627-OUT050-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL02",
+    "package_code": "ORD-20260627-OUT053-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL02",
+    "package_code": "ORD-20260627-OUT055-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL03",
+    "package_code": "ORD-20260627-OUT025-01",
+    "status": "verified",
+    "verified_by_email": "loader@curlx.tech",
+    "verified_at": "2026-06-26T23:00:00+00:00",
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL03",
+    "package_code": "ORD-20260627-OUT026-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL03",
+    "package_code": "ORD-20260627-OUT027-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL03",
+    "package_code": "ORD-20260627-OUT028-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL03",
+    "package_code": "ORD-20260627-OUT029-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL03",
+    "package_code": "ORD-20260627-OUT031-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL03",
+    "package_code": "ORD-20260627-OUT032-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL03",
+    "package_code": "ORD-20260627-OUT033-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  },
+  {
+    "trip_code": "TRP-260627-PEL03",
+    "package_code": "ORD-20260627-OUT034-01",
+    "status": "pending",
+    "verified_by_email": null,
+    "verified_at": null,
+    "shortfall_qty": 0,
+    "notes": null
+  }
+]

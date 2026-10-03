@@ -14,11 +14,11 @@ async def test_allocation_reads_and_loader_flow(
     client: AsyncClient, session: AsyncSession, user_token_headers: dict[str, str]
 ) -> None:
     await seed_database(session)
-    allocations = (await client.get("/api/v1/allocations", headers=user_token_headers)).json()
+    allocations = (await client.get("/api/v1/allocations?dispatch_date=2026-06-27", headers=user_token_headers)).json()
     assert allocations
     assert {"weight_utilization_pct", "cargo_value_lkr", "driver_name"} <= allocations[0].keys()
 
-    kpis = (await client.get("/api/v1/allocations/summary", headers=user_token_headers)).json()
+    kpis = (await client.get("/api/v1/allocations/summary?dispatch_date=2026-06-27", headers=user_token_headers)).json()
     assert kpis["total_trips"] == len(allocations)
 
     loading = next(a for a in allocations if a["status"] == "loading")
@@ -31,7 +31,7 @@ async def test_allocation_reads_and_loader_flow(
     checklist = (await client.get(f"/api/v1/loader/trips/{loading['id']}/checklist", headers=user_token_headers)).json()
     assert checklist["summary"]["total_items"] > 0
     assert (await client.get("/api/v1/allocations/engine/status", headers=user_token_headers)).status_code == 200
-    assert (await client.get("/api/v1/fleet/telemetry/live", headers=user_token_headers)).json() == []
+    assert (await client.get("/api/v1/fleet/telemetry/live", headers=user_token_headers)).json()
 
 
 @pytest.mark.asyncio
