@@ -6,6 +6,7 @@ import {
   computeOrderQueueKPIs,
 } from "@/data/mock-orders";
 import type { QueuedOrder, StoreOrderGroup, QueueSortKey, QueueViewMode } from "../types";
+import { filterQueuedOrders, sortQueuedOrders } from "./order-queue-filter-utils";
 
 export function useOrderQueue() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -62,43 +63,23 @@ export function useOrderQueue() {
     [orderParam, orders]
   );
 
-  const filteredOrders = React.useMemo(() => {
-    return orders.filter((ord) => {
-      const q = searchQuery.trim().toLowerCase();
-      const matchesSearch =
-        !q ||
-        ord.orderRef.toLowerCase().includes(q) ||
-        ord.outletName.toLowerCase().includes(q) ||
-        ord.outletId.toLowerCase().includes(q) ||
-        ord.items.some(
-          (i) =>
-            i.itemName.toLowerCase().includes(q) ||
-            i.packageCode.toLowerCase().includes(q)
-        );
-      const matchesBrand = brandFilter === "all" || ord.brand === brandFilter;
-      const matchesTemp = tempFilter === "all" || ord.tempRequirement === tempFilter;
-      const matchesStatus =
-        statusFilter === "all" ||
-        (statusFilter === "urgent" ? ord.isUrgent : ord.deferredYesterday === 1);
-      const matchesDock = dockFilter === "all" || ord.dockType === dockFilter;
-      return matchesSearch && matchesBrand && matchesTemp && matchesStatus && matchesDock;
-    });
-  }, [orders, searchQuery, brandFilter, tempFilter, statusFilter, dockFilter]);
+  const filteredOrders = React.useMemo(
+    () =>
+      filterQueuedOrders(
+        orders,
+        searchQuery,
+        brandFilter,
+        tempFilter,
+        statusFilter,
+        dockFilter
+      ),
+    [orders, searchQuery, brandFilter, tempFilter, statusFilter, dockFilter]
+  );
 
-  const sortedOrders = React.useMemo(() => {
-    if (!sortKey) return filteredOrders;
-    return [...filteredOrders].sort((a, b) => {
-      let cmp = 0;
-      if (sortKey === "orderRef") cmp = a.orderRef.localeCompare(b.orderRef);
-      else if (sortKey === "outlet") cmp = a.outletName.localeCompare(b.outletName);
-      else if (sortKey === "weight") cmp = a.totalWeightKg - b.totalWeightKg;
-      else if (sortKey === "volume") cmp = a.totalVolumeM3 - b.totalVolumeM3;
-      else if (sortKey === "value") cmp = a.totalOrderValueLkr - b.totalOrderValueLkr;
-      else if (sortKey === "window")
-        cmp = a.deliveryWindow.localeCompare(b.deliveryWindow);
-      return sortDirection === "asc" ? cmp : -cmp;
-    });
-  }, [filteredOrders, sortKey, sortDirection]);
+  const sortedOrders = React.useMemo(
+    () => sortQueuedOrders(filteredOrders, sortKey, sortDirection),
+    [filteredOrders, sortKey, sortDirection]
+  );
 
   const storeGroups: StoreOrderGroup[] = React.useMemo(
     () => getStoreGroupedOrders(filteredOrders),

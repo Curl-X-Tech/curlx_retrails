@@ -34,6 +34,3 @@ export const useStoreUIState = create<StoreUIState>((set) => ({
   setIsPrintPreviewOpen: (open) => set({ isPrintPreviewOpen: open }),
   setIsSuccessModalOpen: (open) => set({ isSuccessModalOpen: open }),
 }));
-
-export const useActiveDetailOrder = () => useStoreUIState((s) => s.activeDetailOrder);
-export const useSelectedStoreOrderIds = () => useStoreUIState((s) => s.selectedOrderIds);

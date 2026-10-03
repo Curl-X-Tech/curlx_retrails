@@ -5,43 +5,9 @@ import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
 import { CircularProgressRing } from "@/components/shared/circular-progress-ring";
 import type { VehicleAllocation } from "../types";
+import { getAllocationStatusBadge } from "./allocation-status-badge";
 
-export function getAllocationStatusBadge(status: VehicleAllocation["status"]) {
-  switch (status) {
-    case "dispatched":
-      return (
-        <Badge variant="default" className="text-[10px] h-5 px-2 font-semibold">
-          Dispatched
-        </Badge>
-      );
-    case "loading":
-      return (
-        <Badge variant="warning" className="text-[10px] h-5 px-2 font-semibold">
-          Loading Bay
-        </Badge>
-      );
-    case "allocated":
-      return (
-        <Badge variant="secondary" className="text-[10px] h-5 px-2 font-semibold">
-          Allocated
-        </Badge>
-      );
-    case "completed":
-      return (
-        <Badge variant="success" className="text-[10px] h-5 px-2 font-semibold">
-          Completed
-        </Badge>
-      );
-    case "delayed":
-      return (
-        <Badge variant="destructive" className="text-[10px] h-5 px-2 font-semibold">
-          Delayed
-        </Badge>
-      );
-    default:
-      return null;
-  }
-}
+export { getAllocationStatusBadge };
 
 interface AllocationTableRowProps {
   alloc: VehicleAllocation;

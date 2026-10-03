@@ -1,8 +1,4 @@
-import type {
-  SpecialHandlingCode,
-  DockType,
-  ParkingConstraint,
-} from "@/data/mock-loader-bays";
+import type { SpecialHandlingCode, DockType, ParkingConstraint } from "@/types/domain";
 import type {
   LocalTripSummary,
   LocalTripDetail,

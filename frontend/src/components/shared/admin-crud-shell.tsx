@@ -4,9 +4,10 @@ import { FilterBar } from "./filter-bar";
 import { cn } from "@/lib/utils";
 
 export interface AdminCrudShellProps {
-  title: string;
-  description?: string;
+  title: React.ReactNode;
+  description?: React.ReactNode;
   badge?: React.ReactNode;
+  kpi?: React.ReactNode;
   search?: string;
   onSearchChange?: (val: string) => void;
   searchPlaceholder?: string;
@@ -16,12 +17,14 @@ export interface AdminCrudShellProps {
   actions?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
+  contentClassName?: string;
 }
 
 export function AdminCrudShell({
   title,
   description,
   badge,
+  kpi,
   search,
   onSearchChange,
   searchPlaceholder,
@@ -31,31 +34,51 @@ export function AdminCrudShell({
   actions,
   children,
   className,
+  contentClassName,
 }: AdminCrudShellProps) {
   const showFilterBar = search !== undefined && onSearchChange !== undefined;
 
   return (
-    <div className={cn("page-container-desktop py-6 space-y-6", className)}>
-      <PageHeader
-        title={title}
-        description={description}
-        badge={badge}
-        actions={!showFilterBar ? actions : undefined}
-      />
-
-      {showFilterBar && (
-        <FilterBar
-          search={search}
-          onSearchChange={onSearchChange}
-          placeholder={searchPlaceholder}
-          filters={filters}
-          onReset={onResetFilters}
-          activeCount={activeFilterCount}
+    <div
+      className={cn(
+        "flex-1 flex flex-col h-full overflow-hidden bg-background",
+        className
+      )}
+    >
+      <div className="px-4 sm:px-6 py-2.5 border-b border-border/60 bg-card">
+        <PageHeader
+          className="mb-0"
+          title={title}
+          description={description}
+          badge={badge}
           actions={actions}
         />
+      </div>
+
+      {kpi && (
+        <div className="px-4 sm:px-6 py-2 border-b border-border/50 bg-muted/20">
+          {kpi}
+        </div>
       )}
 
-      <div>{children}</div>
+      <div
+        className={cn(
+          "flex-1 p-4 sm:p-6 flex flex-col min-h-0 space-y-3 overflow-hidden",
+          contentClassName
+        )}
+      >
+        {showFilterBar && (
+          <FilterBar
+            search={search}
+            onSearchChange={onSearchChange}
+            placeholder={searchPlaceholder}
+            filters={filters}
+            onReset={onResetFilters}
+            activeCount={activeFilterCount}
+          />
+        )}
+        {children}
+      </div>
     </div>
   );
 }

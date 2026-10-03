@@ -63,7 +63,7 @@ export function QueueTableView({
                 {Math.min(currentPage * pageSize, storeGroups.length)}
               </strong>{" "}
               of <strong className="text-foreground">{storeGroups.length}</strong> retail
-              destinations ({filteredCount} total orders)
+              destinations ({filteredCount} orders)
             </span>
           ) : (
             <span>

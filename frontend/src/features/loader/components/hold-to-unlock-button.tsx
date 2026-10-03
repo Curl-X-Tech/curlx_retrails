@@ -1,6 +1,6 @@
-import * as React from "react";
 import { LockSimpleIcon, LockSimpleOpenIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { useHoldGesture } from "@/components/shared";
 
 interface HoldToUnlockButtonProps {
   onUnlock: () => void;
@@ -15,64 +15,14 @@ export function HoldToUnlockButton({
   durationMs = 550,
   className,
 }: HoldToUnlockButtonProps) {
-  const [isHolding, setIsHolding] = React.useState(false);
-  const [justUnlocked, setJustUnlocked] = React.useState(false);
-  const unlockTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const startHold = (e: React.PointerEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-
-    try {
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-    } catch {
-      // Ignore
-    }
-
-    setIsHolding(true);
-
-    if (unlockTimerRef.current) {
-      clearTimeout(unlockTimerRef.current);
-    }
-
-    unlockTimerRef.current = setTimeout(() => {
-      if (typeof navigator !== "undefined" && navigator.vibrate) {
-        try {
-          navigator.vibrate([30, 40, 30]);
-        } catch {
-          // Ignore
-        }
-      }
-      setJustUnlocked(true);
-      setTimeout(() => setJustUnlocked(false), 350);
-      onUnlock();
-      setIsHolding(false);
-      unlockTimerRef.current = null;
-    }, durationMs);
-  };
-
-  const cancelHold = (e?: React.PointerEvent) => {
-    if (unlockTimerRef.current) {
-      clearTimeout(unlockTimerRef.current);
-      unlockTimerRef.current = null;
-    }
-    setIsHolding(false);
-    if (e) {
-      try {
-        (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
-      } catch {
-        // Ignore
-      }
-    }
-  };
-
-  React.useEffect(() => {
-    return () => {
-      if (unlockTimerRef.current) {
-        clearTimeout(unlockTimerRef.current);
-      }
-    };
-  }, []);
+  const {
+    isHolding,
+    justTriggered: justUnlocked,
+    handlers,
+  } = useHoldGesture({
+    durationMs,
+    onTrigger: onUnlock,
+  });
 
   const size = 36;
   const strokeWidth = 3;
@@ -82,11 +32,7 @@ export function HoldToUnlockButton({
   return (
     <button
       type="button"
-      onPointerDown={startHold}
-      onPointerUp={cancelHold}
-      onPointerLeave={cancelHold}
-      onPointerCancel={cancelHold}
-      onContextMenu={(e) => e.preventDefault()}
+      {...handlers}
       className={cn(
         "relative flex size-9 items-center justify-center rounded-full bg-card border border-primary/30 text-primary transition-all duration-150 select-none cursor-pointer shadow-xs hover:bg-accent focus:outline-hidden touch-none",
         isHolding && "scale-90 bg-primary/20 border-primary ring-2 ring-primary/40",

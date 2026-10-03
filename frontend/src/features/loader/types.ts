@@ -1,6 +1,6 @@
-export type SpecialHandlingCode = "COL" | "FRG" | "MAL" | "HAZ";
-export type DockType = "rear_dock" | "street" | "mall_bay";
-export type ParkingConstraint = "normal" | "van_only" | "mall_dock";
+import type { SpecialHandlingCode, DockType, ParkingConstraint } from "@/types/domain";
+
+export type { SpecialHandlingCode, DockType, ParkingConstraint };
 
 export interface BayCoordinates {
   bayX: number;

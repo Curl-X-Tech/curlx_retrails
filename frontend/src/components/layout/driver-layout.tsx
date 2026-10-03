@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Outlet } from "react-router-dom";
-import { useSyncState } from "@/hooks/use-offline-trip";
+import { useSyncState } from "@/features/driver";
 import { mockDriverTrip } from "@/data/mock-driver-trips";
 import { DriverHeader } from "./driver-header";
 import { DriverBottomNav } from "./driver-bottom-nav";

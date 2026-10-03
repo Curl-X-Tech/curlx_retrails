@@ -1,6 +1,6 @@
-import * as React from "react";
 import { CheckCircleIcon, CircleIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import { useHoldGesture } from "@/components/shared";
 
 interface HoldToVerifyButtonProps {
   isVerified: boolean;
@@ -21,60 +21,12 @@ export function HoldToVerifyButton({
   className,
   ariaLabel,
 }: HoldToVerifyButtonProps) {
-  const [isHolding, setIsHolding] = React.useState(false);
-  const [justTriggered, setJustTriggered] = React.useState(false);
-  const holdTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const startHold = (e: React.PointerEvent) => {
-    if (disabled) {
-      onDisabledAttempt?.();
-      return;
-    }
-    e.stopPropagation();
-    e.preventDefault();
-    try {
-      (e.target as HTMLElement).setPointerCapture?.(e.pointerId);
-    } catch {
-      // Ignore
-    }
-    setIsHolding(true);
-    if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
-    holdTimerRef.current = setTimeout(() => {
-      if (typeof navigator !== "undefined" && navigator.vibrate) {
-        try {
-          navigator.vibrate(35);
-        } catch {
-          // Ignore
-        }
-      }
-      setJustTriggered(true);
-      setTimeout(() => setJustTriggered(false), 300);
-      onToggle();
-      setIsHolding(false);
-      holdTimerRef.current = null;
-    }, durationMs);
-  };
-
-  const cancelHold = (e?: React.PointerEvent) => {
-    if (holdTimerRef.current) {
-      clearTimeout(holdTimerRef.current);
-      holdTimerRef.current = null;
-    }
-    setIsHolding(false);
-    if (e) {
-      try {
-        (e.target as HTMLElement).releasePointerCapture?.(e.pointerId);
-      } catch {
-        // Ignore
-      }
-    }
-  };
-
-  React.useEffect(() => {
-    return () => {
-      if (holdTimerRef.current) clearTimeout(holdTimerRef.current);
-    };
-  }, []);
+  const { isHolding, justTriggered, handlers } = useHoldGesture({
+    durationMs,
+    disabled,
+    onTrigger: onToggle,
+    onDisabledAttempt,
+  });
 
   const size = 46;
   const strokeWidth = 3.5;
@@ -85,11 +37,7 @@ export function HoldToVerifyButton({
     <button
       type="button"
       disabled={disabled}
-      onPointerDown={startHold}
-      onPointerUp={cancelHold}
-      onPointerLeave={cancelHold}
-      onPointerCancel={cancelHold}
-      onContextMenu={(e) => e.preventDefault()}
+      {...handlers}
       className={cn(
         "relative flex size-12 items-center justify-center rounded-full select-none transition-all duration-150 shrink-0 cursor-pointer focus:outline-hidden touch-none",
         isHolding

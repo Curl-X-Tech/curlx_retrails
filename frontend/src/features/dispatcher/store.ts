@@ -19,8 +19,3 @@ export const useDispatcherUIStore = create<DispatcherUIState>((set) => ({
   setSelectedAllocationId: (id) => set({ selectedAllocationId: id }),
   setIsCargoListOpen: (open) => set({ isCargoListOpen: open }),
 }));
-
-export const useSelectedOrderRef = () => useDispatcherUIStore((s) => s.selectedOrderRef);
-export const useSelectedAllocationId = () =>
-  useDispatcherUIStore((s) => s.selectedAllocationId);
-export const useIsCargoListOpen = () => useDispatcherUIStore((s) => s.isCargoListOpen);

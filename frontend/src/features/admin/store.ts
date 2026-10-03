@@ -35,8 +35,3 @@ export const useAdminStore = create<AdminState>((set) => ({
     set({ isQuickActionModalOpen: true, activeQuickAction: action }),
   closeQuickAction: () => set({ isQuickActionModalOpen: false, activeQuickAction: null }),
 }));
-
-export const useAdminHub = () => useAdminStore((state) => state.selectedHub);
-export const useAdminBrand = () => useAdminStore((state) => state.selectedBrand);
-export const useAdminSearch = () => useAdminStore((state) => state.searchQuery);
-export const useAdminDate = () => useAdminStore((state) => state.selectedDate);

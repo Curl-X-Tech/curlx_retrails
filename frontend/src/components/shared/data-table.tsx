@@ -7,16 +7,15 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CaretUpDownIcon, CaretUpIcon, CaretDownIcon } from "@phosphor-icons/react";
 import { cn } from "@/lib/utils";
+import {
+  DataTablePagination,
+  type DataTablePaginationProps,
+} from "./data-table-pagination";
+
+export type { DataTablePaginationProps };
 
 export interface DataTableColumn<T> {
   key: string;
@@ -24,12 +23,6 @@ export interface DataTableColumn<T> {
   render?: (row: T, index: number) => React.ReactNode;
   className?: string;
   sortable?: boolean;
-}
-
-export interface DataTablePaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
 }
 
 export interface DataTableProps<T> {
@@ -137,35 +130,12 @@ export function DataTable<T>({
         </Table>
       </div>
 
-      {pagination && pagination.totalPages > 1 && (
-        <div className="flex items-center justify-between px-2">
-          <div className="text-xs text-muted-foreground">
-            Page {pagination.currentPage} of {pagination.totalPages}
-          </div>
-          <Pagination className="justify-end w-auto mx-0">
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  onClick={() => pagination.onPageChange(pagination.currentPage - 1)}
-                  disabled={pagination.currentPage <= 1}
-                  className={cn(
-                    pagination.currentPage <= 1 && "pointer-events-none opacity-50"
-                  )}
-                />
-              </PaginationItem>
-              <PaginationItem>
-                <PaginationNext
-                  onClick={() => pagination.onPageChange(pagination.currentPage + 1)}
-                  disabled={pagination.currentPage >= pagination.totalPages}
-                  className={cn(
-                    pagination.currentPage >= pagination.totalPages &&
-                      "pointer-events-none opacity-50"
-                  )}
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </div>
+      {pagination && (
+        <DataTablePagination
+          currentPage={pagination.currentPage}
+          totalPages={pagination.totalPages}
+          onPageChange={pagination.onPageChange}
+        />
       )}
     </div>
   );

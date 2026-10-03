@@ -113,9 +113,7 @@ export function QueueTableRow({
           />
           <TooltipContent>
             <span>
-              {isChilled
-                ? "Reefer vehicle required (0°C to 4°C cold chain)"
-                : "Ambient dry freight compartment"}
+              {isChilled ? "Reefer vehicle (0°C to 4°C)" : "Ambient compartment"}
             </span>
           </TooltipContent>
         </Tooltip>

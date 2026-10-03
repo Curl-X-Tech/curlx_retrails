@@ -38,9 +38,9 @@ export function useOrderBuilder() {
   }, [rows]);
 
   const handleAddProduct = (product: CatalogProduct, qty: number = 10) => {
-    const existingIndex = rows.findIndex((r) => r.productId === product.id);
-    if (existingIndex >= 0) {
-      handleUpdateQuantity(rows[existingIndex].id, rows[existingIndex].quantity + qty);
+    const idx = rows.findIndex((r) => r.productId === product.id);
+    if (idx >= 0) {
+      handleUpdateQuantity(rows[idx].id, rows[idx].quantity + qty);
     } else {
       setRows((prev) => [...prev, createNewOrderRow(product, qty)]);
     }
@@ -71,9 +71,8 @@ export function useOrderBuilder() {
   };
 
   const toggleSelectAllRows = () => {
-    const allSelected =
-      rows.length > 0 && rows.every((r) => selectedRowIds.includes(r.id));
-    setSelectedRowIds(allSelected ? [] : rows.map((r) => r.id));
+    const all = rows.length > 0 && rows.every((r) => selectedRowIds.includes(r.id));
+    setSelectedRowIds(all ? [] : rows.map((r) => r.id));
   };
 
   const toggleSelectRow = (rowId: string) => {

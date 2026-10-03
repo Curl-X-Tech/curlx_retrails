@@ -1,5 +1,5 @@
 import { db, type MutationRecord } from "./dexie-db";
-import { getStoredToken } from "./api";
+import { syncSingleMutation } from "./sync-mutation-handler";
 
 export type SyncState = "online" | "offline" | "syncing" | "synced" | "error";
 
@@ -17,7 +17,6 @@ class OfflineSyncEngine {
       window.addEventListener("online", this.handleOnline);
       window.addEventListener("offline", this.handleOffline);
 
-      // Periodic sync attempt every 15 seconds when online
       this.syncIntervalId = window.setInterval(() => {
         if (this.isOnlineState && !this.isSyncing) {
           this.drainMutationQueue();
@@ -77,9 +76,6 @@ class OfflineSyncEngine {
     this.listeners.forEach((listener) => listener(currentState, pendingCount));
   }
 
-  /**
-   * Enqueues an offline mutation into IndexedDB mutationQueue.
-   */
   public async queueMutation(
     tripId: string,
     entityType: MutationRecord["entityType"],
@@ -98,7 +94,6 @@ class OfflineSyncEngine {
 
     this.notify();
 
-    // Trigger sync attempt immediately if online
     if (this.isOnlineState && !this.isSyncing) {
       this.drainMutationQueue();
     }
@@ -106,9 +101,6 @@ class OfflineSyncEngine {
     return id;
   }
 
-  /**
-   * Drains pending mutations in FIFO order.
-   */
   public async drainMutationQueue(): Promise<void> {
     if (this.isSyncing || !this.isOnlineState) return;
 
@@ -125,7 +117,7 @@ class OfflineSyncEngine {
         if (!this.isOnlineState) break;
 
         try {
-          await this.syncSingleMutation(mutation);
+          await syncSingleMutation(mutation);
           await db.mutationQueue.update(mutation.id!, {
             syncStatus: "synced",
           });
@@ -142,59 +134,6 @@ class OfflineSyncEngine {
     } finally {
       this.isSyncing = false;
       this.notify();
-    }
-  }
-
-  /**
-   * Sends individual mutation to backend API or simulates when endpoint is mocked.
-   */
-  private async syncSingleMutation(mutation: MutationRecord): Promise<void> {
-    const token = getStoredToken();
-    const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1";
-
-    let endpoint = "";
-    if (
-      mutation.actionType === "ARRIVE_STOP" ||
-      mutation.actionType === "COMPLETE_STOP"
-    ) {
-      endpoint = `/trips/${mutation.tripId}/stops/${mutation.payload.seq}`;
-    } else if (mutation.actionType === "VERIFY_ITEM") {
-      endpoint = `/trips/${mutation.tripId}/items/${mutation.payload.packageCode}`;
-    } else if (mutation.actionType === "RECORD_BREAK") {
-      endpoint = `/trips/${mutation.tripId}/break`;
-    } else if (mutation.actionType === "TELEMETRY_PING") {
-      endpoint = `/fleet/telemetry/report`;
-    }
-
-    if (!endpoint) {
-      // If no endpoint defined, mark locally resolved
-      return;
-    }
-
-    try {
-      const res = await fetch(`${API_URL}${endpoint}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify(mutation.payload),
-      });
-
-      // If backend endpoint is 404/not implemented yet, treat as simulated success
-      if (res.status === 404 || res.status === 405) {
-        return;
-      }
-
-      if (!res.ok) {
-        throw new Error(`Server returned ${res.status}`);
-      }
-    } catch (error: unknown) {
-      // If network error, throw to keep pending
-      if (error instanceof TypeError && error.message.includes("fetch")) {
-        throw error;
-      }
-      // Non-network 404 fallback: succeed gracefully
     }
   }
 }

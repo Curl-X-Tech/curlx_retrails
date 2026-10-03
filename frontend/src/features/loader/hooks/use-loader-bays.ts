@@ -1,7 +1,8 @@
 import * as React from "react";
 import { mockLoaderTrips } from "@/data/mock-loader-bays";
 import { useSimulatedLoading } from "@/lib/simulated-delay";
-import type { LoaderVehicleTrip, LoaderOrderItem, DiscrepancyType } from "../types";
+import type { LoaderVehicleTrip } from "../types";
+import { useLoaderBayMutations } from "./use-loader-bay-mutations";
 
 export function useLoaderBays(urlTripId: string | null) {
   const [trips, setTrips] = React.useState<LoaderVehicleTrip[]>(mockLoaderTrips);
@@ -19,13 +20,6 @@ export function useLoaderBays(urlTripId: string | null) {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [expandedStopSeq, setExpandedStopSeq] = React.useState<number>(9);
   const [isVehicleDrawerOpen, setIsVehicleDrawerOpen] = React.useState<boolean>(false);
-  const [reportingItem, setReportingItem] = React.useState<{
-    stopSeq: number;
-    item: LoaderOrderItem;
-  } | null>(null);
-  const [discrepancyType, setDiscrepancyType] =
-    React.useState<DiscrepancyType>("shortage");
-  const [discrepancyNotes, setDiscrepancyNotes] = React.useState("");
   const [shakingWaypointSeq, setShakingWaypointSeq] = React.useState<number | null>(null);
 
   const [lockedWaypoints, setLockedWaypoints] = React.useState<Set<number>>(() => {
@@ -36,6 +30,18 @@ export function useLoaderBays(urlTripId: string | null) {
     });
     return initialLocked;
   });
+
+  const {
+    reportingItem,
+    setReportingItem,
+    discrepancyType,
+    setDiscrepancyType,
+    discrepancyNotes,
+    setDiscrepancyNotes,
+    handleToggleItemStatus,
+    handleUnlockWaypoint,
+    handleConfirmDiscrepancy,
+  } = useLoaderBayMutations(selectedTripId, setTrips, setLockedWaypoints);
 
   const handleLockedAttempt = React.useCallback((seq: number) => {
     setShakingWaypointSeq(seq);
@@ -62,73 +68,6 @@ export function useLoaderBays(urlTripId: string | null) {
         t.depotName.toLowerCase().includes(q)
     );
   }, [trips, searchQuery]);
-
-  const handleToggleItemStatus = React.useCallback(
-    (stopSeq: number, itemId: string) => {
-      setTrips((prevTrips) =>
-        prevTrips.map((trip) => {
-          if (trip.id !== selectedTripId) return trip;
-          const updatedWaypoints = trip.waypoints.map((wp) => {
-            if (wp.seq !== stopSeq) return wp;
-            const updatedItems = wp.items.map((item) => {
-              if (item.id !== itemId) return item;
-              return {
-                ...item,
-                status: (item.status === "verified" ? "pending" : "verified") as
-                  "pending" | "verified",
-              };
-            });
-            const allVerified =
-              updatedItems.length > 0 &&
-              updatedItems.every((i) => i.status === "verified");
-            setLockedWaypoints((prev) => {
-              const next = new Set(prev);
-              if (allVerified) next.add(stopSeq);
-              else next.delete(stopSeq);
-              return next;
-            });
-            return { ...wp, items: updatedItems };
-          });
-          return { ...trip, waypoints: updatedWaypoints };
-        })
-      );
-    },
-    [selectedTripId]
-  );
-
-  const handleUnlockWaypoint = React.useCallback((stopSeq: number) => {
-    setLockedWaypoints((prev) => {
-      const next = new Set(prev);
-      next.delete(stopSeq);
-      return next;
-    });
-  }, []);
-
-  const handleConfirmDiscrepancy = React.useCallback(() => {
-    if (!reportingItem) return;
-    const { stopSeq, item } = reportingItem;
-    setTrips((prevTrips) =>
-      prevTrips.map((trip) => {
-        if (trip.id !== selectedTripId) return trip;
-        const updatedWaypoints = trip.waypoints.map((wp) => {
-          if (wp.seq !== stopSeq) return wp;
-          const updatedItems = wp.items.map((i) =>
-            i.id === item.id
-              ? {
-                  ...i,
-                  status: "flagged" as const,
-                  notes: discrepancyNotes || `Reported ${discrepancyType}`,
-                }
-              : i
-          );
-          return { ...wp, items: updatedItems };
-        });
-        return { ...trip, waypoints: updatedWaypoints };
-      })
-    );
-    setReportingItem(null);
-    setDiscrepancyNotes("");
-  }, [reportingItem, selectedTripId, discrepancyNotes, discrepancyType]);
 
   const handleToggleExpandWaypoint = React.useCallback(
     (seq: number) => {

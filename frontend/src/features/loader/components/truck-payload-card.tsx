@@ -14,6 +14,7 @@ import {
   SwipeToConfirm,
 } from "@/components/shared";
 import { TruckCountdownBar } from "./truck-countdown-bar";
+import { useTruckCountdown } from "../hooks/use-truck-countdown";
 import type { LoaderVehicleTrip } from "../types";
 
 interface TruckPayloadCardProps {
@@ -32,25 +33,10 @@ export function TruckPayloadCard({
   );
   const { driver, payload, imagePath, type } = trip;
   const initialMinutes = trip.departureCountdownMinutes || 38;
-  const [secondsLeft, setSecondsLeft] = React.useState<number>(initialMinutes * 60);
-
-  React.useEffect(() => {
-    setSecondsLeft((trip.departureCountdownMinutes || 38) * 60);
-  }, [trip.departureCountdownMinutes, trip.id]);
-
-  React.useEffect(() => {
-    const timer = setInterval(
-      () => setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0)),
-      1000
-    );
-    return () => clearInterval(timer);
-  }, []);
-
-  const totalMinutes = Math.floor(secondsLeft / 60);
-  const seconds = secondsLeft % 60;
-  const isCritical = totalMinutes < 10;
-  const isWarning = totalMinutes >= 10 && totalMinutes <= 30;
-  const timeString = `${totalMinutes}m ${seconds < 10 ? "0" : ""}${seconds}s`;
+  const { timeString, isCritical, isWarning } = useTruckCountdown(
+    initialMinutes,
+    trip.id
+  );
 
   const visualizerData: VehicleVisualizerData = {
     vehicleCategory: type === "van" ? "van" : "lorry",
