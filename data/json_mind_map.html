@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JSON Interactive Mind Map</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#f7f8fc;color:#172033}
+#app{width:100vw;height:100vh;position:relative}
+svg{width:100%;height:100%;display:block;cursor:grab}
+svg.dragging{cursor:grabbing}
+.edge{fill:none;stroke:#b8c2d3;stroke-width:2;opacity:.9}
+.node{cursor:grab}
+.node:active{cursor:grabbing}
+.node rect,.node circle{stroke:#fff;stroke-width:2}
+.node text{pointer-events:none;user-select:none}
+.node-name{font-size:13px;font-weight:650}
+.node-meta{font-size:10px;opacity:.7}
+.node-order{font-size:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+.root rect{fill:#172033}
+.root text{fill:white}
+.level1 rect{fill:#5b6ee1}
+.level2 rect{fill:#6d9ee8}
+.level3 rect{fill:#68b894}
+.level4 rect{fill:#e4a74f}
+.order rect{fill:#f0f2f7;stroke:#c8d0de}
+.order text{fill:#374151}
+.hidden{display:none}
+#toolbar{
+ position:absolute;top:14px;left:14px;right:14px;z-index:20;
+ display:flex;gap:8px;align-items:center;flex-wrap:wrap;
+ padding:10px;background:rgba(255,255,255,.95);border:1px solid #dce2ec;
+ border-radius:10px;box-shadow:0 5px 20px rgba(25,35,55,.08)
+}
+button,input{font:inherit}
+button{border:1px solid #ccd4e2;background:white;border-radius:7px;padding:7px 11px;cursor:pointer}
+button:hover{background:#eef2f8}
+input{min-width:240px;flex:1;border:1px solid #ccd4e2;border-radius:7px;padding:8px 10px;outline:none}
+#hint{font-size:12px;color:#687386;margin-left:auto}
+#legend{
+ position:absolute;bottom:14px;left:14px;z-index:20;background:rgba(255,255,255,.94);
+ border:1px solid #dce2ec;border-radius:9px;padding:9px 11px;font-size:11px;color:#5f6b7d
+}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 0 8px}
+.d1{background:#5b6ee1}.d2{background:#6d9ee8}.d3{background:#68b894}.d4{background:#e4a74f}.do{background:#f0f2f7;border:1px solid #c8d0de}
+</style>
+</head>
+<body>
+<div id="app">
+<div id="toolbar">
+ <button onclick="expandAll()">Expand all</button>
+ <button onclick="collapseAll()">Collapse all</button>
+ <button onclick="resetView()">Reset view</button>
+ <button onclick="resetPositions()">Reset positions</button>
+ <button onclick="document.getElementById('jsonFile').click()">Load JSON</button>
+ <input type="file" id="jsonFile" accept=".json,application/json" class="hidden" onchange="loadJsonFile(this.files[0])">
+ <input id="search" placeholder="Search node or order...">
+ <button onclick="clearSearch()">Clear</button>
+ <span id="hint"></span>
+</div>
+<div id="legend">
+ <span class="dot d1"></span>Level 1
+ <span class="dot d2"></span>Level 2
+ <span class="dot d3"></span>Level 3
+ <span class="dot d4"></span>Level 4
+ <span class="dot do"></span>Order
+ &nbsp; • &nbsp; Load JSON to swap data (same format) • Drag a node to move it • Click to expand/collapse • Drag background to pan • Wheel to zoom
+</div>
+<svg id="map">
+ <g id="viewport">
+  <g id="edges"></g>
+  <g id="nodes"></g>
+ </g>
+</svg>
+</div>
+
+<script>
+let DATA = {"name":"root","orders":[],"children":[{"name":"Peliyagoda","orders":[],"children":[{"name":"Colombo","orders":[],"children":[{"name":"Tech","orders":[],"children":[{"name":"mall_dock","orders":[],"children":[{"name":"ambient","orders":["ORD001"],"children":[]}]},{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD010"],"children":[]},{"name":"chilled","orders":["ORD097"],"children":[]}]}]},{"name":"Style","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"ambient","orders":["ORD004"],"children":[]},{"name":"frozen","orders":["ORD028"],"children":[]},{"name":"chilled","orders":["ORD051"],"children":[]}]},{"name":"mall_dock","orders":[],"children":[{"name":"frozen","orders":["ORD022"],"children":[]}]}]},{"name":"Fresh","orders":[],"children":[{"name":"van_only","orders":[],"children":[{"name":"frozen","orders":["ORD005"],"children":[]}]},{"name":"normal","orders":[],"children":[{"name":"ambient","orders":["ORD021","ORD077","ORD088","ORD093"],"children":[]},{"name":"chilled","orders":["ORD035","ORD067"],"children":[]},{"name":"frozen","orders":["ORD079","ORD081","ORD085"],"children":[]}]}]}]},{"name":"Puttalam","orders":[],"children":[{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD002"],"children":[]},{"name":"chilled","orders":["ORD042"],"children":[]}]}]}]},{"name":"Galle","orders":[],"children":[{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD003","ORD015","ORD016"],"children":[]},{"name":"chilled","orders":["ORD020","ORD041","ORD055","ORD057"],"children":[]},{"name":"ambient","orders":["ORD063","ORD086","ORD098"],"children":[]}]}]},{"name":"Style","orders":[],"children":[{"name":"mall_dock","orders":[],"children":[{"name":"chilled","orders":["ORD018"],"children":[]},{"name":"frozen","orders":["ORD030"],"children":[]},{"name":"ambient","orders":["ORD037"],"children":[]}]},{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD058"],"children":[]}]}]},{"name":"Tech","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD019"],"children":[]},{"name":"chilled","orders":["ORD073"],"children":[]}]}]}]},{"name":"Kalutara","orders":[],"children":[{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"ambient","orders":["ORD006","ORD034","ORD056","ORD094"],"children":[]},{"name":"chilled","orders":["ORD012","ORD080","ORD096"],"children":[]},{"name":"frozen","orders":["ORD083"],"children":[]}]}]},{"name":"Tech","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD040"],"children":[]}]}]}]},{"name":"Gampaha","orders":[],"children":[{"name":"Tech","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"ambient","orders":["ORD009","ORD048"],"children":[]}]}]},{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"chilled","orders":["ORD013","ORD044","ORD061"],"children":[]},{"name":"ambient","orders":["ORD017"],"children":[]},{"name":"frozen","orders":["ORD024","ORD050","ORD066"],"children":[]}]}]},{"name":"Style","orders":[],"children":[{"name":"mall_dock","orders":[],"children":[{"name":"frozen","orders":["ORD014"],"children":[]}]}]}]},{"name":"Matara","orders":[],"children":[{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD011"],"children":[]},{"name":"chilled","orders":["ORD025"],"children":[]},{"name":"ambient","orders":["ORD095"],"children":[]}]}]},{"name":"Style","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD043"],"children":[]},{"name":"ambient","orders":["ORD087"],"children":[]}]}]}]},{"name":"Kurunegala","orders":[],"children":[{"name":"Tech","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD033"],"children":[]}]}]},{"name":"Style","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"ambient","orders":["ORD045"],"children":[]}]}]},{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"ambient","orders":["ORD092"],"children":[]}]}]}]}]},{"name":"Kandy","orders":[],"children":[{"name":"Kegalle","orders":[],"children":[{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD007","ORD039"],"children":[]}]}]}]},{"name":"Matale","orders":[],"children":[{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"chilled","orders":["ORD008","ORD029","ORD046"],"children":[]},{"name":"frozen","orders":["ORD100"],"children":[]}]}]},{"name":"Tech","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"chilled","orders":["ORD049"],"children":[]},{"name":"ambient","orders":["ORD054"],"children":[]}]}]}]},{"name":"Nuwara Eliya","orders":[],"children":[{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD023"],"children":[]},{"name":"ambient","orders":["ORD031"],"children":[]}]}]},{"name":"Style","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"chilled","orders":["ORD036"],"children":[]},{"name":"ambient","orders":["ORD070"],"children":[]}]}]}]},{"name":"Kandy","orders":[],"children":[{"name":"Fresh","orders":[],"children":[{"name":"van_only","orders":[],"children":[{"name":"chilled","orders":["ORD026","ORD090"],"children":[]},{"name":"frozen","orders":["ORD027","ORD052","ORD075","ORD082"],"children":[]},{"name":"ambient","orders":["ORD078"],"children":[]}]},{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD068"],"children":[]},{"name":"chilled","orders":["ORD069"],"children":[]},{"name":"ambient","orders":["ORD076","ORD089"],"children":[]}]}]},{"name":"Tech","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD032"],"children":[]},{"name":"ambient","orders":["ORD053"],"children":[]},{"name":"chilled","orders":["ORD060"],"children":[]}]}]},{"name":"Style","orders":[],"children":[{"name":"mall_dock","orders":[],"children":[{"name":"ambient","orders":["ORD047"],"children":[]},{"name":"chilled","orders":["ORD064"],"children":[]},{"name":"frozen","orders":["ORD084"],"children":[]}]},{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD072"],"children":[]},{"name":"ambient","orders":["ORD074"],"children":[]}]}]}]},{"name":"Badulla","orders":[],"children":[{"name":"Tech","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD038","ORD071"],"children":[]}]}]},{"name":"Fresh","orders":[],"children":[{"name":"normal","orders":[],"children":[{"name":"frozen","orders":["ORD059"],"children":[]},{"name":"chilled","orders":["ORD062","ORD065","ORD091"],"children":[]},{"name":"ambient","orders":["ORD099"],"children":[]}]}]}]}]}]};
+
+const svg=document.getElementById("map");
+const viewport=document.getElementById("viewport");
+const edgesLayer=document.getElementById("edges");
+const nodesLayer=document.getElementById("nodes");
+const search=document.getElementById("search");
+
+let scale=1, tx=window.innerWidth/2, ty=window.innerHeight/2;
+let dragging=false, startX=0,startY=0,startTX=0,startTY=0;
+
+const collapsed=new Set();
+const positions=new Map();
+const manualPositions=new Map(); // key -> {x,y} for nodes the user has dragged
+const nodeElByKey=new Map();
+let edgeEls=[];
+let nodeDrag=null;      // active node-drag state
+let suppressClick=null; // key of a node whose upcoming click should be ignored (it was a drag)
+
+function childrenOf(n){
+  const a=[];
+  (n.children||[]).forEach(c=>a.push(c));
+  (n.orders||[]).forEach(o=>a.push({_order:o,name:o,orders:[],children:[],isOrder:true}));
+  return a;
+}
+
+function key(n,path){return path.join("/") + "/" + (n.name??"");}
+
+function collect(n,path=[],out=[]){
+  const k=key(n,path);
+  out.push({n,path,k});
+  (n.children||[]).forEach((c,i)=>collect(c,path.concat(i),out));
+  return out;
+}
+
+function visibleTree(){
+  const nodes=[], edges=[];
+  const root={n:DATA,path:[],k:key(DATA,[])};
+  nodes.push(root);
+
+  function walk(item,depth){
+    const {n,path,k}=item;
+    if(collapsed.has(k)) return;
+    childrenOf(n).forEach((c,i)=>{
+      const ck=k+"/"+(c.name??"")+"/"+i;
+      const child={n:c,path:path.concat(i),k:ck,parent:k,depth:depth+1};
+      nodes.push(child);
+      edges.push({a:k,b:ck});
+      walk(child,depth+1);
+    });
+  }
+  walk(root,0);
+  return {nodes,edges};
+}
+
+function depthClass(depth,isOrder){
+  if(isOrder) return "order";
+  return "level"+Math.min(depth,4);
+}
+
+function sizeFor(n){
+  if(n.isOrder) return {w:76,h:28};
+  const label=String(n.name??"");
+  return {w:Math.max(90,Math.min(190,label.length*8+34)),h:42};
+}
+
+function layout(){
+  const {nodes,edges}=visibleTree();
+  const byParent=new Map();
+  nodes.forEach(x=>{
+    const p=x.parent||null;
+    if(!byParent.has(p))byParent.set(p,[]);
+    byParent.get(p).push(x);
+  });
+
+  const root=nodes[0];
+  const rootOverride=manualPositions.get(root.k);
+  positions.set(root.k,{x:rootOverride?rootOverride.x:0,y:rootOverride?rootOverride.y:0,w:sizeFor(root.n).w,h:sizeFor(root.n).h});
+
+  // Radial mind-map layout. Each subtree receives an angular sector.
+  const children=byParent.get(root.k)||[];
+  const radiusStep=155;
+
+  function place(item, angle, spread, radius){
+    const s=sizeFor(item.n);
+    const override=manualPositions.get(item.k);
+    const p=override
+      ? {x:override.x,y:override.y,w:s.w,h:s.h}
+      : {x:Math.cos(angle)*radius,y:Math.sin(angle)*radius,w:s.w,h:s.h};
+    positions.set(item.k,p);
+
+    const kids=byParent.get(item.k)||[];
+    if(!kids.length)return;
+
+    const total=Math.max(spread,.45);
+    const step=total/kids.length;
+    const start=angle-total/2+step/2;
+
+    kids.forEach((kid,i)=>{
+      place(kid,start+i*step,Math.max(.34,step*.82),radius+radiusStep);
+    });
+  }
+
+  const totalAngle=Math.PI*2;
+  children.forEach((child,i)=>{
+    const angle=-Math.PI/2 + i*(totalAngle/children.length);
+    place(child,angle,Math.min(1.55,totalAngle/Math.max(children.length,1)*.9),radiusStep);
+  });
+
+  draw(nodes,edges);
+}
+
+function draw(nodes,edges){
+  edgesLayer.innerHTML="";
+  nodesLayer.innerHTML="";
+  nodeElByKey.clear();
+  edgeEls=[];
+
+  edges.forEach(e=>{
+    const a=positions.get(e.a),b=positions.get(e.b);
+    if(!a||!b)return;
+    const line=document.createElementNS("http://www.w3.org/2000/svg","path");
+    const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+    line.setAttribute("d",`M ${a.x} ${a.y} Q ${mx} ${my} ${b.x} ${b.y}`);
+    line.setAttribute("class","edge");
+    edgesLayer.appendChild(line);
+    edgeEls.push({a:e.a,b:e.b,el:line});
+  });
+
+  nodes.forEach(item=>{
+    const p=positions.get(item.k); if(!p)return;
+    const g=document.createElementNS("http://www.w3.org/2000/svg","g");
+    g.setAttribute("class","node "+(item.n.isOrder?"order":item.depth===0?"root":"level"+Math.min(item.depth,4)));
+    g.dataset.key=item.k;
+    g.setAttribute("transform",`translate(${p.x},${p.y})`);
+
+    const rect=document.createElementNS("http://www.w3.org/2000/svg","rect");
+    rect.setAttribute("x",-p.w/2);rect.setAttribute("y",-p.h/2);
+    rect.setAttribute("width",p.w);rect.setAttribute("height",p.h);
+    rect.setAttribute("rx",item.n.isOrder?14:10);
+    g.appendChild(rect);
+
+    const text=document.createElementNS("http://www.w3.org/2000/svg","text");
+    text.setAttribute("text-anchor","middle");
+    text.setAttribute("dominant-baseline","central");
+    text.setAttribute("class",item.n.isOrder?"node-order":"node-name");
+    text.textContent=String(item.n.name??"");
+    g.appendChild(text);
+
+    if(!item.n.isOrder){
+      const count=(item.n.children||[]).length;
+      if(count){
+        const meta=document.createElementNS("http://www.w3.org/2000/svg","text");
+        meta.setAttribute("text-anchor","middle");
+        meta.setAttribute("y","14");
+        meta.setAttribute("class","node-meta");
+        meta.textContent=collapsed.has(item.k)?`▶ ${count}`:`▼ ${count}`;
+        g.appendChild(meta);
+      }
+    }
+
+    g.addEventListener("mousedown",e=>{
+      e.stopPropagation();
+      const pos=positions.get(item.k);
+      nodeDrag={key:item.k,startClientX:e.clientX,startClientY:e.clientY,origX:pos.x,origY:pos.y,moved:false};
+    });
+
+    g.addEventListener("click",e=>{
+      e.stopPropagation();
+      if(suppressClick===item.k){suppressClick=null;return;}
+      if(!item.n.isOrder && (item.n.children||[]).length){
+        if(collapsed.has(item.k))collapsed.delete(item.k);
+        else collapsed.add(item.k);
+        layout();
+      }
+    });
+    nodeElByKey.set(item.k,g);
+    nodesLayer.appendChild(g);
+  });
+
+  applyTransform();
+  updateStats(nodes.length);
+  applySearch();
+}
+
+function updateNodeAndEdges(key){
+  const p=positions.get(key);
+  const g=nodeElByKey.get(key);
+  if(g)g.setAttribute("transform",`translate(${p.x},${p.y})`);
+  edgeEls.forEach(edge=>{
+    if(edge.a!==key && edge.b!==key)return;
+    const a=positions.get(edge.a),b=positions.get(edge.b);
+    if(!a||!b)return;
+    const mx=(a.x+b.x)/2,my=(a.y+b.y)/2;
+    edge.el.setAttribute("d",`M ${a.x} ${a.y} Q ${mx} ${my} ${b.x} ${b.y}`);
+  });
+}
+
+function applyTransform(){
+  viewport.setAttribute("transform",`translate(${tx},${ty}) scale(${scale})`);
+}
+
+function updateStats(n){
+  document.getElementById("hint").textContent=`${n} visible nodes`;
+}
+
+function expandAll(){
+  collapsed.clear();
+  layout();
+}
+function collapseAll(){
+  collect(DATA).forEach(x=>{
+    if((x.n.children||[]).length)collapsed.add(x.k);
+  });
+  layout();
+}
+function resetView(){
+  scale=1;tx=window.innerWidth/2;ty=window.innerHeight/2;layout();
+}
+function resetPositions(){
+  manualPositions.clear();
+  layout();
+}
+function loadJsonFile(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=()=>{
+    let parsed;
+    try{
+      parsed=JSON.parse(reader.result);
+    }catch(err){
+      alert("That file isn't valid JSON:\n"+err.message);
+      return;
+    }
+    if(!parsed || typeof parsed!=="object" || !("name" in parsed)){
+      alert("Expected the same shape as before: an object with \"name\", \"orders\", and \"children\".");
+      return;
+    }
+    DATA=parsed;
+    collapsed.clear();
+    manualPositions.clear();
+    positions.clear();
+    document.getElementById("jsonFile").value="";
+    resetView();
+  };
+  reader.onerror=()=>alert("Couldn't read that file.");
+  reader.readAsText(file);
+}
+function clearSearch(){
+  search.value="";
+  applySearch();
+}
+
+function applySearch(){
+  const q=search.value.trim().toLowerCase();
+  const nodes=document.querySelectorAll(".node");
+  let matches=0;
+  nodes.forEach(el=>{
+    const isMatch=!q||el.textContent.toLowerCase().includes(q);
+    if(q&&isMatch)matches++;
+    el.style.opacity=isMatch?"1":".18";
+    el.style.filter=q&&isMatch?"drop-shadow(0 0 8px #f0b400)":"none";
+  });
+  document.getElementById("hint").textContent=q
+    ? `${matches} search matches · ${nodes.length} visible nodes`
+    : `${nodes.length} visible nodes`;
+}
+search.addEventListener("input",applySearch);
+
+svg.addEventListener("mousedown",e=>{
+  if(e.target.closest(".node"))return;
+  dragging=true;svg.classList.add("dragging");
+  startX=e.clientX;startY=e.clientY;startTX=tx;startTY=ty;
+});
+window.addEventListener("mousemove",e=>{
+  if(nodeDrag){
+    const dx=(e.clientX-nodeDrag.startClientX)/scale;
+    const dy=(e.clientY-nodeDrag.startClientY)/scale;
+    if(Math.abs(dx)>3||Math.abs(dy)>3)nodeDrag.moved=true;
+    const p=positions.get(nodeDrag.key);
+    p.x=nodeDrag.origX+dx;p.y=nodeDrag.origY+dy;
+    manualPositions.set(nodeDrag.key,{x:p.x,y:p.y});
+    updateNodeAndEdges(nodeDrag.key);
+    return;
+  }
+  if(!dragging)return;
+  tx=startTX+(e.clientX-startX);ty=startTY+(e.clientY-startY);applyTransform();
+});
+window.addEventListener("mouseup",()=>{
+  if(nodeDrag){
+    if(nodeDrag.moved)suppressClick=nodeDrag.key;
+    nodeDrag=null;
+  }
+  dragging=false;svg.classList.remove("dragging");
+});
+
+svg.addEventListener("wheel",e=>{
+  e.preventDefault();
+  const factor=e.deltaY<0?1.12:.89;
+  const mx=e.clientX,my=e.clientY;
+  tx=mx-(mx-tx)*factor;ty=my-(my-ty)*factor;
+  scale=Math.max(.15,Math.min(3,scale*factor));
+  applyTransform();
+},{passive:false});
+
+window.addEventListener("resize",()=>{
+  if(!dragging && Math.abs(scale-1)<.01){tx=window.innerWidth/2;ty=window.innerHeight/2}
+  applyTransform();
+});
+
+layout();
+</script>
+</body>
+</html>

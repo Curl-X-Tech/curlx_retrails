@@ -25,6 +25,7 @@ from app.routers import (
     vehicles_quota,
     vehicles_status,
     vehicles_tree,
+    sync,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -97,6 +98,10 @@ for prefix in ("/dispatch/v1", "/dispatch"):
     app.include_router(trips.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
     app.include_router(drivers.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
     app.include_router(plan_ingest.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
+
+# --- Sync ---
+app.include_router(sync.router, prefix=settings.API_V1_STR)
+app.include_router(sync.router, prefix="")
 
 
 @app.get("/")

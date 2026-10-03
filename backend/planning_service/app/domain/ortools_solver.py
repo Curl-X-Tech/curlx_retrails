@@ -23,7 +23,10 @@ This module provides two complementary OR-Tools solvers:
 from __future__ import annotations
 
 
-from ortools.sat.python import cp_model
+try:
+    from ortools.sat.python import cp_model
+except ImportError:
+    cp_model = None
 
 from app.domain.Trip import Trip
 from app.domain.Vehicle import Vehicle
@@ -56,6 +59,19 @@ class ORToolsAllocationSolver:
         Executes CP-SAT allocation and returns the list of allocated trips
         with vehicles, days, and sequenced timelines assigned.
         """
+        if cp_model is None:
+            # ponytail: fallback to heuristic allocation if ortools is not installed
+            from app.domain.Planner import HeuristicAllocationSolver
+
+            solver = HeuristicAllocationSolver(
+                trips=self.trips,
+                vehicles=self.vehicles,
+                outlets=self.outlets,
+                service_allowances=self.service_allowances,
+                max_days=self.max_days,
+            )
+            return solver.solve()
+
         # Step 1: Pre-process trip requirements and ensure feasible order splits
         effective_trips = self._prepare_feasible_trips(self.trips)
 
