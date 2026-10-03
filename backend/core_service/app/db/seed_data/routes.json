@@ -1,0 +1,14 @@
+[
+{"ID": "Peliyagoda_Colombo", "district": "Colombo", "depot": "Peliyagoda", "road_class": "urban", "free_flow_kmh": 30, "depot_to_district_km": 12, "depot_to_district_freeflow_min": 24.0, "inter_stop_km": 2.5, "inter_stop_freeflow_min": 5.0},
+{"ID": "Peliyagoda_Gampaha", "district": "Gampaha", "depot": "Peliyagoda", "road_class": "suburban", "free_flow_kmh": 40, "depot_to_district_km": 25, "depot_to_district_freeflow_min": 37.5, "inter_stop_km": 4, "inter_stop_freeflow_min": 6.0},
+{"ID": "Peliyagoda_Kalutara", "district": "Kalutara", "depot": "Peliyagoda", "road_class": "a_road", "free_flow_kmh": 50, "depot_to_district_km": 45, "depot_to_district_freeflow_min": 54.0, "inter_stop_km": 6, "inter_stop_freeflow_min": 7.2},
+{"ID": "Peliyagoda_Galle", "district": "Galle", "depot": "Peliyagoda", "road_class": "highway", "free_flow_kmh": 80, "depot_to_district_km": 125, "depot_to_district_freeflow_min": 93.8, "inter_stop_km": 7, "inter_stop_freeflow_min": 5.2},
+{"ID": "Peliyagoda_Matara", "district": "Matara", "depot": "Peliyagoda", "road_class": "highway", "free_flow_kmh": 80, "depot_to_district_km": 160, "depot_to_district_freeflow_min": 120.0, "inter_stop_km": 7, "inter_stop_freeflow_min": 5.2},
+{"ID": "Peliyagoda_Kurunegala", "district": "Kurunegala", "depot": "Peliyagoda", "road_class": "a_road", "free_flow_kmh": 50, "depot_to_district_km": 95, "depot_to_district_freeflow_min": 114.0, "inter_stop_km": 6, "inter_stop_freeflow_min": 7.2},
+{"ID": "Peliyagoda_Puttalam", "district": "Puttalam", "depot": "Peliyagoda", "road_class": "a_road", "free_flow_kmh": 50, "depot_to_district_km": 130, "depot_to_district_freeflow_min": 156.0, "inter_stop_km": 6, "inter_stop_freeflow_min": 7.2},
+{"ID": "Kandy_Kandy", "district": "Kandy", "depot": "Kandy", "road_class": "urban", "free_flow_kmh": 30, "depot_to_district_km": 8, "depot_to_district_freeflow_min": 16.0, "inter_stop_km": 2.5, "inter_stop_freeflow_min": 5.0},
+{"ID": "Kandy_Matale", "district": "Matale", "depot": "Kandy", "road_class": "a_road", "free_flow_kmh": 50, "depot_to_district_km": 28, "depot_to_district_freeflow_min": 33.6, "inter_stop_km": 6, "inter_stop_freeflow_min": 7.2},
+{"ID": "Kandy_Nuwara Eliya", "district": "Nuwara Eliya", "depot": "Kandy", "road_class": "hill", "free_flow_kmh": 30, "depot_to_district_km": 78, "depot_to_district_freeflow_min": 156.0, "inter_stop_km": 5, "inter_stop_freeflow_min": 10.0},
+{"ID": "Kandy_Badulla", "district": "Badulla", "depot": "Kandy", "road_class": "hill", "free_flow_kmh": 30, "depot_to_district_km": 125, "depot_to_district_freeflow_min": 250.0, "inter_stop_km": 5, "inter_stop_freeflow_min": 10.0},
+{"ID": "Kandy_Kegalle", "district": "Kegalle", "depot": "Kandy", "road_class": "a_road", "free_flow_kmh": 50, "depot_to_district_km": 45, "depot_to_district_freeflow_min": 54.0, "inter_stop_km": 6, "inter_stop_freeflow_min": 7.2}
+]

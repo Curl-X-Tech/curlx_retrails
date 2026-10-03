@@ -1,0 +1,5 @@
+[
+{"code": "FRESH", "name": "Waypoint Fresh", "delivery_window_type": "morning_strict", "requires_cold_chain": true, "daily_time_budget_min": 270},
+{"code": "STYLE", "name": "Waypoint Style", "delivery_window_type": "standard_retail", "requires_cold_chain": false, "daily_time_budget_min": 480},
+{"code": "TECH", "name": "Waypoint Tech", "delivery_window_type": "mall_bay_restricted", "requires_cold_chain": false, "daily_time_budget_min": 480}
+]

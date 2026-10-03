@@ -31,13 +31,13 @@ def test_base_metadata():
 
 
 @pytest.mark.asyncio
-async def test_seed_initial_users(session):
+async def test_seed_database_users(session):
     from sqlalchemy import select
 
-    from app.core.seed import seed_initial_users
+    from app.db.seed import seed_database
     from app.entities.user import User
 
-    await seed_initial_users(session)
+    await seed_database(session)
     result = await session.execute(select(User))
     users = result.scalars().all()
     emails = [u.email for u in users]
