@@ -2,13 +2,14 @@ import logging
 from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
 from app.routers.main import api_router
 from app.core.config import settings
 from app.core.db import init_db
+from app.guards import require_authenticated_user
 from app.routers import (
     drivers,
     orders,
@@ -75,9 +76,24 @@ app.include_router(api_router, include_in_schema=False)
 
 # --- Orders ---
 for prefix in ("/orders/v1", "/orders"):
-    app.include_router(orders_status.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
-    app.include_router(orders_analytics.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
-    app.include_router(orders.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
+    app.include_router(
+        orders_status.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/orders/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        orders_analytics.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/orders/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        orders.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/orders/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
 
 # --- Routes ---
 for prefix in ("/routes/v1", "/routes"):
@@ -86,19 +102,69 @@ for prefix in ("/routes/v1", "/routes"):
 
 # --- Vehicles ---
 for prefix in ("/vehicles/v1", "/vehicles"):
-    app.include_router(vehicles_tree.router, prefix=prefix, include_in_schema=(prefix == "/vehicles/v1"))
-    app.include_router(vehicles_eligibility.router, prefix=prefix, include_in_schema=(prefix == "/vehicles/v1"))
-    app.include_router(vehicles_quota.router, prefix=prefix, include_in_schema=(prefix == "/vehicles/v1"))
-    app.include_router(vehicles_status.router, prefix=prefix, include_in_schema=(prefix == "/vehicles/v1"))
-    app.include_router(vehicles.router, prefix=prefix, include_in_schema=(prefix == "/vehicles/v1"))
+    app.include_router(
+        vehicles_tree.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/vehicles/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        vehicles_eligibility.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/vehicles/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        vehicles_quota.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/vehicles/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        vehicles_status.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/vehicles/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        vehicles.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/vehicles/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
 
 # --- Dispatch ---
 for prefix in ("/dispatch/v1", "/dispatch"):
-    app.include_router(runsheets.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
-    app.include_router(trips_manual.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
-    app.include_router(trips.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
-    app.include_router(drivers.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
-    app.include_router(plan_ingest.router, prefix=prefix, include_in_schema=(prefix == "/dispatch/v1"))
+    app.include_router(
+        runsheets.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/dispatch/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        trips_manual.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/dispatch/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        trips.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/dispatch/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        drivers.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/dispatch/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
+    app.include_router(
+        plan_ingest.router,
+        prefix=prefix,
+        include_in_schema=(prefix == "/dispatch/v1"),
+        dependencies=[Depends(require_authenticated_user)],
+    )
 
 # --- Sync ---
 app.include_router(sync.router, prefix=settings.API_V1_STR)
