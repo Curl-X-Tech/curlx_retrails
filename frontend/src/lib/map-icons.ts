@@ -1,9 +1,6 @@
 import L from "leaflet";
-import {
-  type StoreLocation,
-  type VehicleTrackingData,
-  getVehicleConfig,
-} from "@/data/mock-live-map";
+import { getVehicleConfig } from "@/lib/map-themes";
+import type { StoreLocation, VehicleTrackingData } from "@/types";
 
 export function createHubIcon() {
   return L.divIcon({

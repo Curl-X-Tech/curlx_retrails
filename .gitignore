@@ -58,6 +58,8 @@ coverage.xml
 # Vite / Frontend Build
 frontend/dist/
 frontend/dist-ssr/
+frontend/dev-dist/
+dev-dist/
 *.local
 
 # React Email

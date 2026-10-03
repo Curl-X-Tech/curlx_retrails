@@ -18,6 +18,12 @@ export type VehicleStatus =
 export type DockType = "rear_dock" | "street" | "mall_bay";
 export type ParkingConstraint = "normal" | "van_only" | "mall_dock";
 
+export interface BayCoordinates {
+  bayX: number;
+  bayY: number;
+  bayZ: number;
+}
+
 export type BrandCode = "FRESH" | "STYLE" | "TECH";
 export type BrandName = "Fresh" | "Style" | "Tech";
 

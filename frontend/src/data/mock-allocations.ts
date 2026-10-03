@@ -1,10 +1,4 @@
-import type {
-  AllocatedStoreStop,
-  AllocationSummaryKPIs,
-  VehicleAllocation,
-} from "@/types";
-
-export type { AllocatedStoreStop, AllocationSummaryKPIs, VehicleAllocation };
+import type { AllocationSummaryKPIs, VehicleAllocation } from "@/types";
 
 export const mockVehicleAllocations: VehicleAllocation[] = [
   {

@@ -1,13 +1,4 @@
-import type { ApiUserResponse } from "@/lib/api";
-
-export interface MockUserWithMeta extends ApiUserResponse {
-  department: string;
-  phone: string;
-  location: string;
-  avatarUrl?: string;
-  assignedVehicle?: string;
-  assignedHub?: string;
-}
+import type { MockUserWithMeta } from "@/features/admin/types";
 
 export const MOCK_USERS_SEED: MockUserWithMeta[] = [
   {

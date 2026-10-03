@@ -5,7 +5,7 @@ import {
   CubeIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
-import type { AllocationVehicleSpec } from "@/data/mock-allocation-details";
+import type { AllocationVehicleSpec } from "@/types";
 
 interface AllocationVehicleSpecCardProps {
   specs: AllocationVehicleSpec;
