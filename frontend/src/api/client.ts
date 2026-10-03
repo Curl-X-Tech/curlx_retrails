@@ -1,7 +1,14 @@
 import { ENDPOINTS, type ApiDomain, type EndpointStatus } from "./endpoints";
+import {
+  TOKEN_KEY,
+  getStoredToken,
+  setStoredToken,
+  removeStoredToken,
+} from "./auth/tokens";
+
+export { TOKEN_KEY, getStoredToken, setStoredToken, removeStoredToken };
 
 export const API_URL = import.meta.env.VITE_API_URL || "/api/v1";
-export const TOKEN_KEY = "curlx_retrails_auth_token";
 
 export class ApiError extends Error {
   readonly status: number;
@@ -12,30 +19,6 @@ export class ApiError extends Error {
     this.status = status;
     this.data = data;
     this.name = "ApiError";
-  }
-}
-
-export function getStoredToken(): string | null {
-  try {
-    return localStorage.getItem(TOKEN_KEY);
-  } catch {
-    return null;
-  }
-}
-
-export function setStoredToken(token: string): void {
-  try {
-    localStorage.setItem(TOKEN_KEY, token);
-  } catch {
-    // Ignore storage errors
-  }
-}
-
-export function removeStoredToken(): void {
-  try {
-    localStorage.removeItem(TOKEN_KEY);
-  } catch {
-    // Ignore storage errors
   }
 }
 

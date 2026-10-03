@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { Role } from "@/api/users";
 import { WarningCircleIcon } from "@phosphor-icons/react";
 import { FormDialog } from "@/components/shared";
 import { UserFormFields } from "./user-form-fields";
@@ -10,7 +11,7 @@ export interface UserCreateDialogProps {
     name: string;
     email: string;
     password: string;
-    user_type: string;
+    user_type: Role;
     department: string;
     phone: string;
     location: string;
@@ -28,7 +29,7 @@ export function UserCreateDialog({
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [role, setRole] = React.useState("dispatcher");
+  const [role, setRole] = React.useState<Role>("dispatcher");
   const [department, setDepartment] = React.useState("Operations");
   const [phone, setPhone] = React.useState("+94 77 ");
   const [location, setLocation] = React.useState("Kelaniya Hub (HUB-01)");
@@ -40,6 +41,7 @@ export function UserCreateDialog({
       setEmail("");
       setPassword("");
       setRole("dispatcher");
+
       setDepartment("Operations");
       setPhone("+94 77 ");
       setLocation("Kelaniya Hub (HUB-01)");

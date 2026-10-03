@@ -1,4 +1,5 @@
 import * as React from "react";
+import type { Role } from "@/api/users";
 import { WarningCircleIcon } from "@phosphor-icons/react";
 import { FormDialog } from "@/components/shared";
 import type { MockUserWithMeta } from "@/data/mock-users";
@@ -11,7 +12,7 @@ export interface UserEditDialogProps {
     name: string;
     email: string;
     password?: string;
-    user_type: string;
+    user_type: Role;
     department: string;
     phone: string;
     location: string;
@@ -29,7 +30,7 @@ export function UserEditDialog({
   const [name, setName] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  const [role, setRole] = React.useState("dispatcher");
+  const [role, setRole] = React.useState<Role>("dispatcher");
   const [department, setDepartment] = React.useState("Operations");
   const [phone, setPhone] = React.useState("+94 77 ");
   const [location, setLocation] = React.useState("Kelaniya Hub (HUB-01)");
@@ -42,6 +43,7 @@ export function UserEditDialog({
       setEmail(user.email);
       setPassword("");
       setRole(user.user_type);
+
       setDepartment(user.department);
       setPhone(user.phone);
       setLocation(user.location);

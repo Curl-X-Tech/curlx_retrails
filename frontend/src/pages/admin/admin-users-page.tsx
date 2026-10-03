@@ -57,6 +57,21 @@ export function AdminUsersPage() {
     [updateMutation]
   );
 
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setRoleFilter("all");
+    setStatusFilter("all");
+    setCurrentPage(1);
+  };
+
+  const handleSort = (key: string) => {
+    if (sortKey === key) setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+    else {
+      setSortKey(key as UserSortKey);
+      setSortDirection("asc");
+    }
+  };
+
   return (
     <AdminCrudShell
       title={
@@ -111,12 +126,7 @@ export function AdminUsersPage() {
           }}
         />
       }
-      onResetFilters={() => {
-        setSearchQuery("");
-        setRoleFilter("all");
-        setStatusFilter("all");
-        setCurrentPage(1);
-      }}
+      onResetFilters={handleResetFilters}
       activeFilterCount={
         (roleFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0)
       }
@@ -127,14 +137,7 @@ export function AdminUsersPage() {
         isLoading={isLoading}
         sortKey={sortKey || undefined}
         sortDirection={sortDirection}
-        onSort={(key) => {
-          if (sortKey === key)
-            setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-          else {
-            setSortKey(key as UserSortKey);
-            setSortDirection("asc");
-          }
-        }}
+        onSort={handleSort}
         pagination={{ currentPage, totalPages, onPageChange: setCurrentPage }}
         emptyMessage="No personnel records match the current filters."
         keyExtractor={(u) => u.id}

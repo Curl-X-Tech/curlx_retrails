@@ -1,5 +1,5 @@
 import type { StaffRole } from "@/types/domain";
-import type { ApiUserResponse } from "@/lib/api";
+import type { UserProfile } from "@/api/auth";
 import type { StaffUser } from "./types";
 
 export const USER_STORAGE_KEY = "retrails_user";
@@ -18,14 +18,14 @@ export function normalizeRole(roleStr: string): StaffRole {
   return "dispatcher";
 }
 
-export function mapApiUserToStaffUser(apiUser: ApiUserResponse): StaffUser {
+export function mapApiUserToStaffUser(apiUser: UserProfile): StaffUser {
   return {
     id: apiUser.id,
     name: apiUser.name || apiUser.email.split("@")[0],
     email: apiUser.email,
-    role: normalizeRole(apiUser.user_type),
-    depotId: "depot-peliyagoda",
-    depotName: "Peliyagoda Hub",
+    role: normalizeRole(apiUser.user_type || apiUser.role),
+    depotId: apiUser.depotId || "depot-peliyagoda",
+    depotName: apiUser.depotName || "Peliyagoda Hub",
   };
 }
 

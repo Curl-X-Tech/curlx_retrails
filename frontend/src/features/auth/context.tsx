@@ -1,12 +1,13 @@
 import * as React from "react";
 import type { StaffRole } from "@/types/domain";
+import { ApiError } from "@/api/client";
 import {
-  ApiError,
-  fetchCurrentUser,
+  getCurrentUser,
   getStoredToken,
-  loginWithCredentials,
+  login as loginApi,
+  logout as logoutApi,
   removeStoredToken,
-} from "@/lib/api";
+} from "@/api/auth";
 import type { AuthContextType, LoginCredentials, StaffUser } from "./types";
 import { getStoredUser, mapApiUserToStaffUser, persistUser } from "./auth-helpers";
 
@@ -45,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const timeoutId = window.setTimeout(() => controller.abort(), 3500);
 
     try {
-      const apiUser = await fetchCurrentUser(token, controller.signal);
+      const apiUser = await getCurrentUser(controller.signal);
       window.clearTimeout(timeoutId);
       const mapped = mapApiUserToStaffUser(apiUser);
       setUser(mapped);
@@ -76,8 +77,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (typeof param === "object" && "email" in param && "password" in param) {
         setIsLoading(true);
         try {
-          await loginWithCredentials(param.email, param.password);
-          const apiUser = await fetchCurrentUser();
+          await loginApi({ username: param.email, password: param.password });
+          const apiUser = await getCurrentUser();
           const mapped = mapApiUserToStaffUser(apiUser);
           setUser(mapped);
           persistUser(mapped);
@@ -111,7 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   );
 
   const logout = React.useCallback(() => {
-    removeStoredToken();
+    logoutApi().catch(() => {});
     persistUser(null);
     try {
       sessionStorage.clear();

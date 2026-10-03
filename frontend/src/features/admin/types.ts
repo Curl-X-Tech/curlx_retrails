@@ -1,10 +1,12 @@
+import type { Role } from "@/api/users";
+
 export type UserSortKey = "name" | "email" | "user_type" | "status" | "created_at";
 
 export interface UserFormData {
   name: string;
   email: string;
   password?: string;
-  user_type: string;
+  user_type: Role;
   department: string;
   phone: string;
   location: string;

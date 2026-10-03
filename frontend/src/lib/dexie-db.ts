@@ -91,6 +91,19 @@ export interface LocalTelemetryRecord {
   syncStatus: "pending" | "synced";
 }
 
+export interface UserSessionRecord {
+  id: string;
+  email: string;
+  name: string;
+  role: "system_admin" | "dispatcher" | "loader" | "driver" | "store_manager";
+  depotId?: string;
+  depotName?: string;
+  userType?: string;
+  isActive?: boolean;
+  isVerified?: boolean;
+  cachedAt: string;
+}
+
 export class RetrailsDriverDatabase extends Dexie {
   trips!: Table<LocalTripSummary, string>;
   tripDetails!: Table<LocalTripDetail, string>;
@@ -98,6 +111,7 @@ export class RetrailsDriverDatabase extends Dexie {
   stopItems!: Table<LocalStopItem, string>;
   mutationQueue!: Table<MutationRecord, number>;
   driverTelemetry!: Table<LocalTelemetryRecord, number>;
+  userSessions!: Table<UserSessionRecord, string>;
 
   constructor() {
     super("curlx_retrails_driver_db");
@@ -109,6 +123,10 @@ export class RetrailsDriverDatabase extends Dexie {
       stopItems: "id, tripId, stopSeq, packageCode, status",
       mutationQueue: "++id, tripId, syncStatus, timestamp, actionType",
       driverTelemetry: "++id, tripId, syncStatus, recordedAt",
+    });
+
+    this.version(2).stores({
+      userSessions: "id, email, role",
     });
   }
 }

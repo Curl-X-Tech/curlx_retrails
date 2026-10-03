@@ -1,3 +1,4 @@
+import type { Role } from "@/api/users";
 import { Input } from "@/components/ui/input";
 import { UserRoleOrgFields } from "./user-role-org-fields";
 
@@ -11,8 +12,8 @@ export interface UserFormFieldsProps {
   passwordPlaceholder?: string;
   passwordRequired?: boolean;
   passwordLabel?: string;
-  role: string;
-  onRoleChange: (val: string) => void;
+  role: Role;
+  onRoleChange: (val: Role) => void;
   department: string;
   onDepartmentChange: (val: string) => void;
   phone: string;

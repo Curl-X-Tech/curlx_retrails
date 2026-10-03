@@ -1,21 +1,22 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  listUsersByAdmin,
-  createUserByAdmin,
-  updateUserById,
-  deleteUserById,
-  type UserCreatePayload,
-  type UserUpdatePayload,
-} from "@/lib/api";
+  listUsers,
+  createUser,
+  updateUser,
+  deactivateUser,
+  type UserCreate,
+  type UserUpdate,
+} from "@/api/users";
+import { queryKeys } from "@/api/keys";
 import type { MockUserWithMeta } from "@/data/mock-users";
 import { getLocalUsers, saveLocalUsers, createSimulatedUser } from "./user-storage";
 
 export function useAdminUsers() {
   return useQuery<MockUserWithMeta[]>({
-    queryKey: ["admin", "users"],
+    queryKey: queryKeys.users.all,
     queryFn: async () => {
       try {
-        const apiUsers = await listUsersByAdmin();
+        const apiUsers = await listUsers();
         if (apiUsers && apiUsers.length > 0) {
           const localMap = new Map(getLocalUsers().map((u) => [u.email, u]));
           const merged: MockUserWithMeta[] = apiUsers.map((u) => {
@@ -45,14 +46,14 @@ export function useCreateAdminUser() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (
-      payload: UserCreatePayload & {
+      payload: UserCreate & {
         department?: string;
         phone?: string;
         location?: string;
       }
     ) => {
       try {
-        const res = await createUserByAdmin(payload);
+        const res = await createUser(payload);
         const newUser: MockUserWithMeta = {
           ...res,
           department: payload.department || "Operations",
@@ -68,7 +69,7 @@ export function useCreateAdminUser() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
     },
   });
 }
@@ -82,11 +83,11 @@ export function useUpdateAdminUser() {
       meta,
     }: {
       id: string;
-      payload: UserUpdatePayload;
+      payload: UserUpdate;
       meta?: { department?: string; phone?: string; location?: string };
     }) => {
       try {
-        await updateUserById(id, payload);
+        await updateUser(id, payload);
       } catch {
         // Fallback local
       }
@@ -110,7 +111,7 @@ export function useUpdateAdminUser() {
       return updated.find((u) => u.id === id);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
     },
   });
 }
@@ -120,7 +121,7 @@ export function useDeleteAdminUser() {
   return useMutation({
     mutationFn: async (id: string) => {
       try {
-        await deleteUserById(id);
+        await deactivateUser(id);
       } catch {
         // Fallback local
       }
@@ -128,7 +129,7 @@ export function useDeleteAdminUser() {
       return id;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.users.all });
     },
   });
 }

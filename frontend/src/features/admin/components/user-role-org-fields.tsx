@@ -1,3 +1,4 @@
+import type { Role } from "@/api/users";
 import { Input } from "@/components/ui/input";
 
 export function UserRoleOrgFields({
@@ -10,8 +11,8 @@ export function UserRoleOrgFields({
   location,
   onLocationChange,
 }: {
-  role: string;
-  onRoleChange: (val: string) => void;
+  role: Role;
+  onRoleChange: (val: Role) => void;
   department: string;
   onDepartmentChange: (val: string) => void;
   phone: string;
@@ -28,7 +29,7 @@ export function UserRoleOrgFields({
           </label>
           <select
             value={role}
-            onChange={(e) => onRoleChange(e.target.value)}
+            onChange={(e) => onRoleChange(e.target.value as Role)}
             className="w-full h-8 text-xs rounded-md border border-input bg-background px-2.5 text-foreground focus:outline-none focus:ring-1 focus:ring-ring"
           >
             <option value="dispatcher">Dispatcher</option>

@@ -1,6 +1,6 @@
-import type { ApiUserResponse } from "@/lib/api";
+import type { UserRead } from "@/api/users";
 
-export interface MockUserWithMeta extends ApiUserResponse {
+export interface MockUserWithMeta extends UserRead {
   department: string;
   phone: string;
   location: string;

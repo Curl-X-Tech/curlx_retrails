@@ -2,7 +2,7 @@ import * as React from "react";
 import { EnvelopeSimpleIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { requestPasswordReset } from "@/lib/api";
+import { useForgotPassword } from "@/api/auth";
 
 interface ForgotPasswordFormProps {
   onBackToLogin: () => void;
@@ -16,7 +16,7 @@ export function ForgotPasswordForm({
   onSuccess,
 }: ForgotPasswordFormProps) {
   const [email, setEmail] = React.useState("");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const forgotPasswordMutation = useForgotPassword();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,18 +25,17 @@ export function ForgotPasswordForm({
       return;
     }
     onError(null);
-    setIsSubmitting(true);
     try {
-      await requestPasswordReset(email);
+      await forgotPasswordMutation.mutateAsync({ email });
       onSuccess(
         "Password reset instructions have been generated. Check your inbox or dev outbox."
       );
     } catch {
       onError("Unable to dispatch password reset request.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
+  const isSubmitting = forgotPasswordMutation.isPending;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

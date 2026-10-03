@@ -2,7 +2,7 @@ import * as React from "react";
 import { LockKeyIcon, ArrowCounterClockwiseIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { submitPasswordReset } from "@/lib/api";
+import { useResetPassword } from "@/api/auth";
 
 interface ResetPasswordFormProps {
   resetToken: string | null;
@@ -19,7 +19,7 @@ export function ResetPasswordForm({
 }: ResetPasswordFormProps) {
   const [newPassword, setNewPassword] = React.useState("");
   const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const resetPasswordMutation = useResetPassword();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,9 +36,11 @@ export function ResetPasswordForm({
       return;
     }
     onError(null);
-    setIsSubmitting(true);
     try {
-      await submitPasswordReset(resetToken, newPassword);
+      await resetPasswordMutation.mutateAsync({
+        token: resetToken,
+        password: newPassword,
+      });
       onSuccess("Password reset successfully. You may now log in.");
       setTimeout(() => {
         onBackToLogin();
@@ -47,10 +49,10 @@ export function ResetPasswordForm({
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : "Password reset failed.";
       onError(message);
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
+  const isSubmitting = resetPasswordMutation.isPending;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">

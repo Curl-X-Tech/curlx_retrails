@@ -1,5 +1,5 @@
 import { MOCK_USERS_SEED, type MockUserWithMeta } from "@/data/mock-users";
-import type { UserCreatePayload } from "@/lib/api";
+import type { UserCreate } from "@/api/users";
 
 const LOCAL_USERS_KEY = "retrails_cached_users_v1";
 
@@ -22,7 +22,7 @@ export function saveLocalUsers(users: MockUserWithMeta[]): void {
 }
 
 export function createSimulatedUser(
-  payload: UserCreatePayload & {
+  payload: UserCreate & {
     department?: string;
     phone?: string;
     location?: string;
@@ -31,8 +31,8 @@ export function createSimulatedUser(
   return {
     id: `u-${Date.now()}`,
     email: payload.email,
-    name: payload.name,
-    user_type: payload.user_type,
+    name: payload.name || payload.email.split("@")[0],
+    user_type: payload.user_type || "dispatcher",
     is_active: payload.is_active ?? true,
     is_verified: payload.is_verified ?? true,
     is_superuser: payload.user_type === "system_admin",

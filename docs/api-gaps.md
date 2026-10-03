@@ -51,3 +51,15 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 | `MOCK_HUBS` | `src/data/mock-hubs.ts` | Depot Coordinates | `GET /api/v1/master/depots` (Implemented) |
 | `MAP_THEMES` | `src/data/mock-live-map.ts` | UI Map Styles | Client-side visual styling (No endpoint needed) |
 | `CENTRAL_HUB` | `src/data/mock-live-map.ts` | Map Center Coordinate | Client-side visual center (No endpoint needed) |
+
+---
+
+## 3. Type Mismatches & Domain Alignments (M1 - Auth & Users)
+
+| Field / Concept | Frontend Type (`@/api/auth`, `@/api/users`) | Backend / Database Schema (`schema.sql`, `app/entities/user.py`) | Alignment Strategy |
+| :--- | :--- | :--- | :--- |
+| User Role Property | `user_type` / `role` (`Role` union) | `users.user_type` (`UserType` enum) | Canonical 5 enterprise roles (`system_admin`, `dispatcher`, `loader`, `driver`, `store_manager`). Frontend maps `user_type` to `role`. |
+| Personnel Metadata | `department`, `phone`, `location`, `assignedHub` | Base `users` table (No direct metadata columns) | Stored in client UI layer / mock metadata until profile extensions table is implemented. |
+| Token Refresh | `POST /auth/refresh` (`useRefreshToken`) | Planned endpoint (Issue #6) | Mock adapter handles token rotation in client until live backend endpoint is delivered. |
+| Offline Session Cache | `UserSessionRecord` in Dexie IndexedDB | Server-side JWT validation | Client caches active profile upon successful auth/fetch for uninterrupted offline startup. |
+
