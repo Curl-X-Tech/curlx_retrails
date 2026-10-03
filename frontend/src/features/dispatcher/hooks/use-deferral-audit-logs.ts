@@ -1,6 +1,5 @@
 import * as React from "react";
-import { mockDeferralAuditLogs } from "@/data/mock-deferrals";
-import type { DeferralAuditRecord, AuditGroupBy } from "../types";
+import type { AuditGroupBy, DeferralAuditRecord } from "../types";
 
 export interface AuditGroup {
   key: string;
@@ -13,6 +12,7 @@ export interface AuditGroup {
 }
 
 export function useDeferralAuditLogs(
+  logs: DeferralAuditRecord[],
   search: string,
   reason: string,
   resource: string,
@@ -23,7 +23,7 @@ export function useDeferralAuditLogs(
   pageSize: number = 5
 ) {
   const filtered = React.useMemo(() => {
-    let list = mockDeferralAuditLogs.filter((log) => {
+    let list = logs.filter((log) => {
       const q = search.trim().toLowerCase();
       const matchesSearch =
         !q ||
@@ -47,7 +47,7 @@ export function useDeferralAuditLogs(
       });
     }
     return list;
-  }, [search, reason, resource, sortKey, sortDirection]);
+  }, [logs, search, reason, resource, sortKey, sortDirection]);
 
   const grouped = React.useMemo(() => {
     if (groupBy === "none") return null;

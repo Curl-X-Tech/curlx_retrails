@@ -1,6 +1,5 @@
 import * as React from "react";
-import { mockCarryoverOrders } from "@/data/mock-deferrals";
-import type { CarryoverOrder, CarryoverGroupBy } from "../types";
+import type { CarryoverGroupBy, CarryoverOrder } from "../types";
 
 export interface CarryoverGroup {
   key: string;
@@ -13,6 +12,7 @@ export interface CarryoverGroup {
 }
 
 export function useCarryoverOrders(
+  orders: CarryoverOrder[],
   search: string,
   brand: string,
   groupBy: CarryoverGroupBy,
@@ -20,7 +20,7 @@ export function useCarryoverOrders(
   pageSize: number = 5
 ) {
   const filtered = React.useMemo(() => {
-    return mockCarryoverOrders.filter((ord) => {
+    return orders.filter((ord) => {
       const q = search.trim().toLowerCase();
       const matchesSearch =
         !q ||
@@ -31,7 +31,7 @@ export function useCarryoverOrders(
       const matchesBrand = brand === "all" || ord.brand === brand;
       return matchesSearch && matchesBrand;
     });
-  }, [search, brand]);
+  }, [orders, search, brand]);
 
   const grouped = React.useMemo(() => {
     if (groupBy === "none") return null;

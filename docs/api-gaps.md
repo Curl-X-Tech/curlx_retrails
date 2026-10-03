@@ -103,5 +103,17 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 | Special Handling Codes | `special_handling_code` (`COL`, `FRG`, `MAL`, `HAZ`, `GEN`) | `order_item.special_handling_code` `TEXT` | Canonical 4 codes + generic handling mapped and aligned with master items catalog. |
 | Status Transition Mutations | `useUpdateOrderStatus` (`PATCH /api/v1/orders/{id}/status`) | Planned backend endpoint (Issue #10) | In-memory mock adapter handles status transitions with lifecycle audit log and invalidates allocation/order queries. |
 
+---
+
+## 7. Type Mismatches & Domain Alignments (M5 - Order Deferrals & Audit Queue)
+
+| Field / Concept | Frontend Type (`@/api/deferrals`) | Backend / Database Schema (`schema.sql`, `app/models/deferral.py`) | Alignment Strategy |
+| :--- | :--- | :--- | :--- |
+| Deferral Summary Gap | `useDeferralSummary` (`GET /deferrals/summary`) | Planned analytics endpoint (No backend issue assigned) | Registered as pending gap endpoint with `issue: null`. Mock adapter computes aggregate KPIs dynamically from active deferred orders. |
+| Store Manager RBAC Gap | `useStoreDeferrals` (`GET /deferrals` with `outlet_id` filter) | Backend `GET /deferrals` access guard restricted to `dispatcher`, `system_admin` | Documented backend RBAC gap. Frontend mock adapter allows store managers to query deferrals scoped to their assigned outlet until backend adds role permission or dedicated store endpoint. |
+| Fairness Priority Ordering | `DeferredOrder` (`days_since_last_served`, `deferred_yesterday`) | `deferral_audit_log` joined with `customer_order` | Default query ordering prioritizes highest `days_since_last_served` and `deferred_yesterday = 1` for consecutive skip protection. |
+| Deferral State Machine | `useDeferOrder` (`POST /orders/{id}/defer`), `useRequeueDeferral` (`POST /deferrals/{id}/re-queue`) | Transitions order between `pending` and `deferred` lifecycle states | Mutations update in-memory orders store, insert/preserve `deferral_audit_log` records, and trigger cache invalidation for deferrals, orders, and allocations query keys. |
+
+
 
 
