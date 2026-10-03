@@ -1,0 +1,11 @@
+# Rules
+- Package manager: bun only. Use `bun add`, `bun run`, `bunx`. Never npm/npx/yarn/pnpm.
+- Be terse. No explanations or summaries. After edits, reply only: "Done: <files>".
+- Behavior must stay identical. No new features.
+- Files <150 lines, one responsibility each. Pages stay thin.
+- Structure: features/<name>/{components,hooks,repo.ts,store.ts,types.ts}
+- UI: shadcn components in @/components/ui. Never edit them; wrap them in components/shared.
+- Zustand = UI state only, with selectors. TanStack Query = server data. Dexie = local data, accessed only through repo files.
+- Ignore: components/ui/*, types/domain.ts.
+- After each change run `bunx tsc --noEmit`. Fix errors before reporting.
+- Read REFACTOR_PLAN.md before starting any phase.
