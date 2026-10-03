@@ -1,33 +1,16 @@
 """
-Tests for core_service.
+Tests for core_service routes and OpenAPI schema.
 """
-
-import sys
-from pathlib import Path
 
 import pytest
 from fastapi.testclient import TestClient
 
-CORE_SERVICE_DIR = Path(__file__).resolve().parent.parent / "core_service"
+from app.main import app as _core_app
 
 
 @pytest.fixture
 def core_app():
-    saved_modules = {k: v for k, v in list(sys.modules.items()) if k == "app" or k.startswith("app.")}
-    for k in list(saved_modules.keys()):
-        del sys.modules[k]
-    sys.path.insert(0, str(CORE_SERVICE_DIR))
-    try:
-        from app.main import app as _app
-
-        yield _app
-    finally:
-        for k in list(sys.modules.keys()):
-            if k == "app" or k.startswith("app."):
-                del sys.modules[k]
-        if str(CORE_SERVICE_DIR) in sys.path:
-            sys.path.remove(str(CORE_SERVICE_DIR))
-        sys.modules.update(saved_modules)
+    return _core_app
 
 
 @pytest.fixture
@@ -67,6 +50,15 @@ def test_core_service_routes_registered(core_app):
     assert "/api/v1/auth/reset-password" in openapi_paths
     assert "/api/v1/users" in openapi_paths
 
+    # Verify master domain endpoints
+    assert "/api/v1/master/brands" in openapi_paths
+    assert "/api/v1/master/depots" in openapi_paths
+    assert "/api/v1/master/districts" in openapi_paths
+    assert "/api/v1/master/items" in openapi_paths
+    assert "/api/v1/master/outlets" in openapi_paths
+    assert "/api/v1/master/prices" in openapi_paths
+    assert "/api/v1/master/calendar/operating-days" in openapi_paths
+
 
 def test_core_service_openapi_schema(core_app):
     openapi = core_app.openapi()
@@ -77,3 +69,4 @@ def test_core_service_openapi_schema(core_app):
     assert "/vehicles/v1/vehicles" in openapi["paths"]
     assert "/dispatch/v1/trips" in openapi["paths"]
     assert "/api/v1/auth/jwt/login" in openapi["paths"]
+    assert "/api/v1/master/brands" in openapi["paths"]

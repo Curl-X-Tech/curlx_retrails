@@ -45,11 +45,15 @@ async def prepare_test_db() -> AsyncGenerator[None, None]:
         table.indexes.clear()
         table.indexes.update(deduped_idx)
 
+    from app.core.database import Base
+
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
     yield
     settings.SMTP_HOST = orig_smtp_host
     async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(SQLModel.metadata.drop_all)
 
 

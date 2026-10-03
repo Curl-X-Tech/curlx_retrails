@@ -1,4 +1,6 @@
-"""Re-exports entities, schemas, and enums for backward compatibility."""
+"""
+Re-exports entities, operational models, schemas, and enums for backward compatibility.
+"""
 
 from app.entities.base import BaseEntity, utc_now
 from app.entities.brand import Brand
@@ -11,6 +13,14 @@ from app.entities.price_list import PriceList
 from app.entities.user import User
 from app.enums.master import DeliveryWindowType, DockType, ParkingConstraint
 from app.enums.roles import RoleType, UserType
+from app.models.audit import DispatchAuditLogModel
+from app.models.dispatch import LiveTripModel
+from app.models.driver import DriverModel
+from app.models.order import OrderModel
+from app.models.outlet import OutletModel
+from app.models.route import RouteModel
+from app.models.service_allowance import ServiceAllowanceModel
+from app.models.vehicle import VehicleModel
 from app.schemas.brand import BrandCreate, BrandRead, BrandUpdate
 from app.schemas.calendar_day import (
     CalendarDayCreate,
@@ -47,17 +57,22 @@ __all__ = [
     "DepotCreate",
     "DepotRead",
     "DepotUpdate",
+    "DispatchAuditLogModel",
     "District",
     "DistrictCreate",
     "DistrictRead",
     "DistrictUpdate",
     "DockType",
+    "DriverModel",
     "Item",
     "ItemCreate",
     "ItemRead",
     "ItemUpdate",
+    "LiveTripModel",
+    "OrderModel",
     "Outlet",
     "OutletCreate",
+    "OutletModel",
     "OutletRead",
     "OutletUpdate",
     "ParkingConstraint",
@@ -66,10 +81,13 @@ __all__ = [
     "PriceListRead",
     "PriceListUpdate",
     "RoleType",
+    "RouteModel",
+    "ServiceAllowanceModel",
     "User",
     "UserCreate",
     "UserRead",
     "UserType",
     "UserUpdate",
+    "VehicleModel",
     "utc_now",
 ]

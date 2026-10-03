@@ -29,6 +29,12 @@ class Settings(BaseSettings):
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str | None = None
 
+    DATABASE_URL: str | None = None
+    OUTLET_SERVICE_URL: str = "http://localhost:8000"
+    ORDER_SERVICE_URL: str = "http://localhost:8000"
+    ROUTE_SERVICE_URL: str = "http://localhost:8000"
+    VEHICLE_SERVICE_URL: str = "http://localhost:8000"
+
     USE_SQLITE: bool = False
     SQLITE_DB_PATH: str = "./app.db"
 
@@ -57,6 +63,13 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def ASYNC_DATABASE_URI(self) -> str:
+        if self.DATABASE_URL:
+            url = self.DATABASE_URL
+            if url.startswith("postgresql://"):
+                return url.replace("postgresql://", "postgresql+asyncpg://", 1)
+            if url.startswith("postgres://"):
+                return url.replace("postgres://", "postgresql+asyncpg://", 1)
+            return url
         if self.USE_SQLITE:
             return f"sqlite+aiosqlite:///{self.SQLITE_DB_PATH}"
         password = f":{self.POSTGRES_PASSWORD}" if self.POSTGRES_PASSWORD else ""
@@ -68,6 +81,13 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def SYNC_DATABASE_URI(self) -> str:
+        if self.DATABASE_URL:
+            url = self.DATABASE_URL
+            if url.startswith("postgresql://"):
+                return url.replace("postgresql://", "postgresql+psycopg://", 1)
+            if url.startswith("postgres://"):
+                return url.replace("postgres://", "postgresql+psycopg://", 1)
+            return url
         if self.USE_SQLITE:
             return f"sqlite:///{self.SQLITE_DB_PATH}"
         password = f":{self.POSTGRES_PASSWORD}" if self.POSTGRES_PASSWORD else ""
@@ -84,3 +104,7 @@ class Settings(BaseSettings):
 
 
 settings = Settings()
+
+
+def get_settings() -> Settings:
+    return settings

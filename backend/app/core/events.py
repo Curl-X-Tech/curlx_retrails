@@ -1,5 +1,5 @@
 """
-Core Service — Event emission handler.
+Event emission handler for operational domain logging.
 """
 
 from __future__ import annotations
@@ -17,7 +17,7 @@ async def emit_event(
     payload: dict[str, Any],
     exchange_name: str = "trip.events",
 ) -> None:
-    """Log event emission within core_service."""
+    """Log event emission within core service."""
     event_envelope = {
         "event": routing_key,
         "exchange": exchange_name,

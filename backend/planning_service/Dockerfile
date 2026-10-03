@@ -1,8 +1,18 @@
-FROM python:3.13-slim
+FROM python:3.11-slim
+
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Install uv binary from official image
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
+
+ENV UV_COMPILE_BYTECODE=1
+ENV UV_LINK_MODE=copy
+
+COPY requirements.txt ./
+RUN uv pip install --system --no-cache -r requirements.txt
+
 COPY app/ ./app/
+
 EXPOSE 8005
-# Run the API server
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8005", "--reload"]
+
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8005"]

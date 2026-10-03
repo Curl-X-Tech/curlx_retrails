@@ -1,10 +1,11 @@
 name: retrails
 
-# Waypoint Group -- Service-Based Architecture Platform Stack
+# Waypoint Group — Service-Based Architecture Platform Stack
 # Run: docker compose up --build
 #
 # Port Registry:
-#   8000  -- Core Service (Orders, Outlets, Routes, Vehicles, Dispatch)
+#   5173  -- Frontend (React PWA via Nginx)
+#   8000  -- Core Service (Auth, Users, Master Domain, Orders, Routes, Vehicles, Dispatch)
 #   8005  -- Planning Engine Service
 #   5432  -- PostgreSQL
 #   5050  -- pgAdmin 4 Web UI
@@ -77,17 +78,24 @@ services:
       timeout: 5s
       retries: 5
 
-  # -- Services -------------------------------------------------------------- #
+  # -- Application Services -------------------------------------------------- #
 
   core-service:
     build:
-      context: ./backend/core_service
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: waypoint-core
     restart: unless-stopped
     ports:
       - "8000:8000"
     environment:
       DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/general_db
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-super-secure-waypoint-curlx}
+    networks:
+      default:
+        aliases:
+          - backend
+          - core-service
     depends_on:
       postgres:
         condition: service_healthy
@@ -95,6 +103,7 @@ services:
   planning-service:
     build:
       context: ./backend/planning_service
+      dockerfile: Dockerfile
     container_name: waypoint-planning
     restart: unless-stopped
     ports:
@@ -117,6 +126,7 @@ services:
   planning-celery-worker:
     build:
       context: ./backend/planning_service
+      dockerfile: Dockerfile
     container_name: waypoint-planning-worker
     restart: unless-stopped
     command: celery -A app.core.job_worker worker --loglevel=info --concurrency=4
@@ -130,6 +140,20 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_MAP_TILE_URL: https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png
+        VITE_APP_NAME: ReTrails
+    container_name: waypoint-frontend
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    depends_on:
+      - core-service
 
 volumes:
   postgres_data:
