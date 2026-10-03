@@ -65,7 +65,9 @@ async def process_sync_batch(
             order_id = entity_id or f"ORD-{uuid.uuid4().hex[:8].upper()}"
             existing = await db.get(OrderModel, order_id)
             if existing:
-                results.append(MutationResult(idempotency_key=m.idempotency_key, status="duplicate_ignored", entity_id=order_id))
+                results.append(
+                    MutationResult(idempotency_key=m.idempotency_key, status="duplicate_ignored", entity_id=order_id)
+                )
             else:
                 now = datetime.utcnow()
                 new_order = OrderModel(
@@ -76,7 +78,9 @@ async def process_sync_batch(
                     UpdatedBy=m.user_id or "OFFLINE_SYNC",
                     IsActive=True,
                     outlet_id=m.payload.get("outlet_id", "OUT001"),
-                    order_date=datetime.fromisoformat(m.payload.get("order_date", now.date().isoformat())).date() if isinstance(m.payload.get("order_date"), str) else now.date(),
+                    order_date=datetime.fromisoformat(m.payload.get("order_date", now.date().isoformat())).date()
+                    if isinstance(m.payload.get("order_date"), str)
+                    else now.date(),
                     order_time=m.payload.get("order_time", "08:00"),
                     weight_kg=float(m.payload.get("weight_kg", m.payload.get("total_weight_kg", 10.0))),
                     volume_m3=float(m.payload.get("volume_m3", m.payload.get("total_volume_m3", 0.1))),

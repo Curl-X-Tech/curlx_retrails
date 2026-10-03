@@ -62,6 +62,7 @@ class ORToolsAllocationSolver:
         if cp_model is None:
             # ponytail: fallback to heuristic allocation if ortools is not installed
             from app.domain.Planner import HeuristicAllocationSolver
+
             solver = HeuristicAllocationSolver(
                 trips=self.trips,
                 vehicles=self.vehicles,
