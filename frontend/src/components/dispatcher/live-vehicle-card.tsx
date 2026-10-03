@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
-import type { VehicleTrackingData } from "@/data/mock-live-map";
+import type { VehicleTrackingData } from "@/types";
 import { VehicleCargoVisualizer } from "@/components/shared";
 import { LiveVehicleDriverInfo } from "./live-vehicle-driver-info";
 

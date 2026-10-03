@@ -4,7 +4,7 @@ import type {
   AllocationWaypoint,
   AllocationVehiclePosition,
 } from "@/data/mock-allocation-details";
-import { buildTileUrl } from "@/data/mock-live-map";
+import { buildTileUrl } from "@/lib/map-themes";
 import {
   getWaypointCategory,
   createWaypointPin,

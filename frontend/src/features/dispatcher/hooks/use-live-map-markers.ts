@@ -1,6 +1,6 @@
 import * as React from "react";
 import L from "leaflet";
-import type { StoreLocation, VehicleTrackingData } from "@/data/mock-live-map";
+import type { StoreLocation, VehicleTrackingData } from "@/types";
 import { createStoreIcon, createTopViewVehicleIcon } from "@/lib/map-icons";
 
 export function useLiveMapMarkers(

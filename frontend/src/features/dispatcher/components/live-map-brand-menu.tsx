@@ -9,7 +9,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import type { StoreLocation } from "@/data/mock-live-map";
+import type { StoreLocation } from "@/types";
 
 interface LiveMapBrandMenuProps {
   stores: StoreLocation[];

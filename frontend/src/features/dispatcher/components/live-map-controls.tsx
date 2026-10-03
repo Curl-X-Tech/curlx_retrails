@@ -16,11 +16,8 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
 } from "@/components/ui/dropdown-menu";
-import {
-  type StoreLocation,
-  type VehicleTrackingData,
-  MAP_THEMES,
-} from "@/data/mock-live-map";
+import { MAP_THEMES } from "@/lib/map-themes";
+import type { StoreLocation, VehicleTrackingData } from "@/types";
 import { LiveMapFleetMenu } from "./live-map-fleet-menu";
 import { LiveMapBrandMenu } from "./live-map-brand-menu";
 

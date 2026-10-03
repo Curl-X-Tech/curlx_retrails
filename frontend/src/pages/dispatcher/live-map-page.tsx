@@ -1,18 +1,25 @@
 import * as React from "react";
-import { type VehicleTrackingData, MOCK_VEHICLES } from "@/data/mock-live-map";
+import { WarningIcon, CircleNotchIcon } from "@phosphor-icons/react";
+import { useLiveMapVehicles } from "@/api/telemetry";
 import { LiveVehicleCard } from "@/components/dispatcher/live-vehicle-card";
 import { LiveMapControls } from "@/features/dispatcher/components/live-map-controls";
 import { useLiveMap } from "@/features/dispatcher/hooks/use-live-map";
 import { useLiveMapStores } from "@/features/dispatcher/hooks/use-live-map-stores";
+import type { VehicleTrackingData } from "@/types";
 
 export function LiveMapPage() {
   const mapContainerRef = React.useRef<HTMLDivElement>(null);
 
-  const [vehicles] = React.useState<VehicleTrackingData[]>(MOCK_VEHICLES);
+  const {
+    data: vehicles = [],
+    isLoading,
+    error,
+    isRefetchError,
+    refetch,
+  } = useLiveMapVehicles();
   const { stores } = useLiveMapStores();
 
-  const [selectedVehicle, setSelectedVehicle] =
-    React.useState<VehicleTrackingData | null>(MOCK_VEHICLES[0]);
+  const [selectedVehicleId, setSelectedVehicleId] = React.useState<string | null>(null);
   const [showVehicleCard, setShowVehicleCard] = React.useState<boolean>(true);
   const [searchQuery, setSearchQuery] = React.useState<string>("");
   const [selectedThemeId, setSelectedThemeId] = React.useState<string>("carto-positron");
@@ -27,8 +34,20 @@ export function LiveMapPage() {
     ("Fresh" | "Style" | "Tech")[]
   >(["Fresh", "Style", "Tech"]);
 
+  const selectedVehicle = React.useMemo(() => {
+    if (!vehicles.length) return null;
+    if (selectedVehicleId) {
+      return (
+        vehicles.find(
+          (v) => v.id === selectedVehicleId || v.vehicleId === selectedVehicleId
+        ) ?? vehicles[0]
+      );
+    }
+    return vehicles[0];
+  }, [vehicles, selectedVehicleId]);
+
   const handleSelectVehicle = React.useCallback((vehicle: VehicleTrackingData) => {
-    setSelectedVehicle(vehicle);
+    setSelectedVehicleId(vehicle.id);
     setShowVehicleCard(true);
   }, []);
 
@@ -52,7 +71,7 @@ export function LiveMapPage() {
         v.code.toLowerCase().includes(query) || v.driverName.toLowerCase().includes(query)
     );
     if (matchedVehicle) {
-      setSelectedVehicle(matchedVehicle);
+      setSelectedVehicleId(matchedVehicle.id);
       setShowVehicleCard(true);
       mapInstance.flyTo(matchedVehicle.currentLocation, 15, { duration: 1.0 });
       vehicleMarkersRef.current[matchedVehicle.id]?.openPopup();
@@ -100,6 +119,30 @@ export function LiveMapPage() {
     <div className="relative w-full h-[calc(100vh-4rem)] overflow-hidden bg-background">
       <div ref={mapContainerRef} className="w-full h-full" />
 
+      {isLoading && vehicles.length === 0 && (
+        <div className="absolute inset-0 z-500 bg-background/60 backdrop-blur-xs flex items-center justify-center">
+          <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-border shadow-lg text-xs font-mono text-foreground">
+            <CircleNotchIcon className="size-4 animate-spin text-primary" />
+            <span>Connecting to live telematics feed...</span>
+          </div>
+        </div>
+      )}
+
+      {(isRefetchError || (error && vehicles.length > 0)) && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-500">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-700 dark:text-amber-400 text-xs font-medium shadow-md backdrop-blur-md">
+            <WarningIcon className="size-3.5" />
+            <span>Telemetry update failed. Displaying cached positions.</span>
+            <button
+              onClick={() => refetch()}
+              className="underline font-semibold ml-1 cursor-pointer hover:text-amber-900 dark:hover:text-amber-200"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      )}
+
       <LiveMapControls
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
@@ -123,7 +166,7 @@ export function LiveMapPage() {
             vehicle={selectedVehicle}
             allVehicles={vehicles}
             onSelectVehicle={(v) => {
-              setSelectedVehicle(v);
+              setSelectedVehicleId(v.id);
               if (mapInstance) {
                 mapInstance.flyTo(v.currentLocation, 14, { duration: 0.8 });
                 vehicleMarkersRef.current[v.id]?.openPopup();

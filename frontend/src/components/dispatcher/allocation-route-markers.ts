@@ -1,6 +1,6 @@
 import L from "leaflet";
 import type { AllocationWaypoint } from "@/data/mock-allocation-details";
-import { getVehicleConfig } from "@/data/mock-live-map";
+import { getVehicleConfig } from "@/lib/map-themes";
 
 export type WaypointCategory = "completed" | "upcoming" | "newly_added";
 

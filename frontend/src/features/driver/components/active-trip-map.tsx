@@ -1,6 +1,6 @@
 import * as React from "react";
 import L from "leaflet";
-import { buildTileUrl } from "@/data/mock-live-map";
+import { buildTileUrl } from "@/lib/map-themes";
 import { cn } from "@/lib/utils";
 import type { DriverWaypoint } from "../types";
 import { createDriverWaypointPin } from "./active-trip-pin";

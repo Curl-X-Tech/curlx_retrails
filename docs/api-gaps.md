@@ -77,4 +77,18 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 | Master Entity Cache | `masterCache` table in Dexie IndexedDB | Server-side master relational tables | Dexie cache with `staleTime: 1 hour` and `networkMode: "offlineFirst"` ensures seamless offline operation for store order pickers, drivers, and loaders. |
 | Pending Master Mutations | `useCreateOutlet`, `useUpdateOutlet`, `useDeleteOutlet`, `useCreateItem`, `useUpdateItem`, `useDeleteItem`, `useUpdatePrice`, `useUpdateDepot`, `useUpdateCalendarDay` | Planned backend mutation endpoints | In-memory overlay store in `mock.ts` provides immediate optimistic updates for admin UI. |
 
+---
+
+## 5. Type Mismatches & Domain Alignments (M3 - Fleet & Telemetry)
+
+| Field / Concept | Frontend Type (`@/api/fleet`, `@/api/telemetry`) | Backend / Database Schema (`schema.sql`, `app/models/telemetry.py`) | Alignment Strategy |
+| :--- | :--- | :--- | :--- |
+| Vehicle Status | `VehicleStatus` (`available`, `docked_loading`, `in_transit`, `in_workshop`) | PostgreSQL `status` (`available`, `loading`, `in_transit`, `in_workshop`, `breakdown`) | Frontend normalized to canonical 4 states (`available`, `docked_loading`, `in_transit`, `in_workshop`). |
+| Fleet Capacity | `weight_cap_kg`, `volume_cap_m3`, `fuel_type`, `km_per_l`, `weekly_fuel_quota_l` | PostgreSQL `NUMERIC(10,2)` / `NUMERIC(8,2)` | Strictly matched numeric types and units adhering to Challenge Booklet fleet profiles. |
+| Driver Profile Mapping | `Driver` (`user_id`, `license_number`, `phone_number`, `assigned_depot_id`) | `staff_profile` joined with `users` | Mapped to driver entity schema with user reference for authentication linkage. |
+| Live Telemetry Enriched Feed | `LiveVehicleTelemetry` (`GET /fleet/telemetry/live`) | `vehicle_telemetry` + active `trip` join | Live feed joins telemetry breadcrumb with active trip and vehicle metadata for map presentation. |
+| Offline Telemetry Mutation Queue | `useReportTelemetry` (`POST /fleet/telemetry/report`) | `sync_mutation_audit_log` (`entity_name = 'telemetry'`) | Offline driver mutation generates UUID v4 idempotency key, enqueues to Dexie, and defers backend network drain to M9 universal sync. |
+| Event Timestamps | `recorded_at` (`TIMESTAMPTZ` string) | PostgreSQL `TIMESTAMPTZ` (`timestamp`) | All GPS readings and status logs recorded in UTC ISO-8601 strings and rendered in local client time. |
+
+
 

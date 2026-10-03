@@ -6,6 +6,7 @@ import {
   type LocalStopItem,
 } from "@/lib/dexie-db";
 import { syncEngine } from "@/lib/sync-engine";
+import { reportTelemetry, type TelemetryReportPayload } from "@/api/telemetry";
 import { executeDownloadTrip } from "./download-trip-helper";
 import type { DriverTrip } from "./types";
 
@@ -102,5 +103,9 @@ export const driverRepo = {
       discrepancyReason,
       verifiedAt,
     });
+  },
+
+  async reportTelemetryPing(payload: TelemetryReportPayload): Promise<void> {
+    await reportTelemetry(payload);
   },
 };

@@ -1,6 +1,6 @@
 import { PhoneIcon, UserIcon, MapPinIcon, CheckCircleIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import type { VehicleTrackingData } from "@/data/mock-live-map";
+import type { VehicleTrackingData } from "@/types";
 
 interface LiveVehicleDriverInfoProps {
   vehicle: VehicleTrackingData;

@@ -8,7 +8,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
-import type { VehicleTrackingData } from "@/data/mock-live-map";
+import type { VehicleTrackingData } from "@/types";
 
 interface LiveMapFleetMenuProps {
   vehicles: VehicleTrackingData[];

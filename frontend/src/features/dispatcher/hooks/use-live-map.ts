@@ -1,12 +1,7 @@
 import * as React from "react";
 import L from "leaflet";
-import {
-  type StoreLocation,
-  type VehicleTrackingData,
-  CENTRAL_HUB,
-  MAP_THEMES,
-  buildTileUrl,
-} from "@/data/mock-live-map";
+import { CENTRAL_HUB, MAP_THEMES, buildTileUrl } from "@/lib/map-themes";
+import type { StoreLocation, VehicleTrackingData } from "@/types";
 import { createHubIcon } from "@/lib/map-icons";
 import { useLiveMapMarkers } from "./use-live-map-markers";
 
