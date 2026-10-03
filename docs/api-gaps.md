@@ -125,6 +125,17 @@ This document identifies frontend hooks, functions, and mock datasets in `fronte
 | Offline Mutation Queueing | `useVerifyItem`, `useSealWaypoint`, `useConfirmDeparture` | `sync_mutation_audit_log` (`entity_name = 'loading_checklist'`) | Writes UUID v4 idempotency keys to Dexie `mutationQueue` for silent background batch sync (M9) while applying immediate optimistic checklist updates. |
 | Departure Seal Validation | `useConfirmDeparture` (`POST /loader/trips/{trip_id}/confirm-departure`) | `trip.seal_number` & `cargo_bay_allocation.dock_status` | Departure mutation verifies all waypoints are sealed, updates trip status to `dispatched`, sets bay status to `departed`, and invalidates driver active route queries. |
 
+---
+
+## 9. Type Mismatches & Domain Alignments (M9 - Universal Offline Sync Engine)
+
+| Field / Concept | Frontend Type (`@/api/sync`, `@/sync`) | Backend / Database Schema (`schema.sql`, `app/models/sync.py`) | Alignment Strategy |
+| :--- | :--- | :--- | :--- |
+| Entity Type Union | `EntityType` (`loading_checklist`, `route_leg`, `proof_of_delivery`, `telemetry`, `order`) | `SyncMutationAuditLog.entity_type` in Issue #15 (`loading_checklist`, `route_leg`, `proof_of_delivery`, `telemetry`) | Note: `"order"` is required by M4 offline store order creation. Backend Issue #15 schema must include `"order"` (or `customer_order`) in `entity_type` enum for full idempotency replay. |
+| Single IndexedDB Table | `QueuedMutation` stored in Dexie `mutationQueue` | Ingested via `POST /api/v1/sync/batch` | Unified IndexedDB queue table with Dexie v4 upgrade function migrating legacy items into canonical `QueuedMutation` shape with UUID v4 idempotency keys and monotonic FIFO sequence numbers. |
+| Batch Drain Adapter | `useSyncStatus`, `drainMutationQueue` | Planned backend `POST /api/v1/sync/batch` endpoint | Pending endpoint served by mock adapter in `@/api/sync/mock.ts` until backend endpoint is deployed. |
+
+
 
 
 

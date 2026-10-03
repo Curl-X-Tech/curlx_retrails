@@ -1,3 +1,5 @@
+import type { QueuedMutation } from "@/api/sync/types";
+
 export interface ProofOfDelivery {
   id: string;
   route_leg_id: string;
@@ -45,18 +47,7 @@ export interface SubmitPodRequest {
   discrepancies?: LogDiscrepancyRequest[];
 }
 
-export interface OfflineMutationRecord {
-  id?: number;
-  idempotency_key: string;
-  entity_type:
-    "route_leg" | "proof_of_delivery" | "telemetry" | "order" | "loading_checklist";
-  action: "create" | "update" | "verify" | string;
-  payload: Record<string, unknown>;
-  client_timestamp: string;
-  user_id: string;
-  sync_status: "pending" | "syncing" | "synced" | "failed";
-  error_message?: string;
-}
+export type OfflineMutationRecord = QueuedMutation;
 
 export interface TelemetryRecord {
   id?: number;
@@ -71,5 +62,5 @@ export interface TelemetryRecord {
   sync_status: "pending" | "synced";
 }
 
-export type MutationRecord = OfflineMutationRecord;
+export type MutationRecord = QueuedMutation;
 export type LocalTelemetryRecord = TelemetryRecord;

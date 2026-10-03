@@ -1,5 +1,6 @@
-import { db, type MutationRecord } from "./dexie-db";
-import { syncSingleMutation } from "./sync-mutation-handler";
+import { count, enqueue } from "@/sync/queue";
+import { drainMutationQueue, isSyncingActive } from "@/sync/drain";
+import type { EntityType, MutationAction } from "@/api/sync/types";
 
 export type SyncState = "online" | "offline" | "syncing" | "synced" | "error";
 
@@ -8,7 +9,6 @@ type SyncListener = (state: SyncState, pendingCount: number) => void;
 class OfflineSyncEngine {
   private isOnlineState: boolean =
     typeof navigator !== "undefined" ? navigator.onLine : true;
-  private isSyncing: boolean = false;
   private listeners: Set<SyncListener> = new Set();
   private syncIntervalId: number | null = null;
 
@@ -18,7 +18,7 @@ class OfflineSyncEngine {
       window.addEventListener("offline", this.handleOffline);
 
       this.syncIntervalId = window.setInterval(() => {
-        if (this.isOnlineState && !this.isSyncing) {
+        if (this.isOnlineState && !isSyncingActive()) {
           this.drainMutationQueue();
         }
       }, 15000);
@@ -60,14 +60,12 @@ class OfflineSyncEngine {
   };
 
   private async notify() {
-    const pendingCount = await db.mutationQueue
-      .where("syncStatus")
-      .equals("pending")
-      .count();
+    const pendingCount = await count();
+    const isSyncing = isSyncingActive();
 
     const currentState: SyncState = !this.isOnlineState
       ? "offline"
-      : this.isSyncing
+      : isSyncing
         ? "syncing"
         : pendingCount > 0
           ? "online"
@@ -78,23 +76,39 @@ class OfflineSyncEngine {
 
   public async queueMutation(
     tripId: string,
-    entityType: MutationRecord["entityType"],
+    entityType: string,
     actionType: string,
     payload: Record<string, unknown>
   ): Promise<number> {
-    const id = await db.mutationQueue.add({
-      tripId,
-      entityType,
-      actionType,
-      payload,
-      timestamp: new Date().toISOString(),
-      syncStatus: "pending",
-      retryCount: 0,
+    const entity_type: EntityType =
+      entityType === "item"
+        ? "loading_checklist"
+        : entityType === "stop" || entityType === "trip"
+          ? "route_leg"
+          : entityType === "telemetry"
+            ? "telemetry"
+            : entityType === "order"
+              ? "order"
+              : "route_leg";
+
+    const action: MutationAction =
+      actionType === "VERIFY_ITEM"
+        ? "verify"
+        : actionType === "CREATE_ORDER" || actionType === "TELEMETRY_PING"
+          ? "create"
+          : "update";
+
+    const id = await enqueue({
+      idempotency_key: (payload.idempotency_key as string) || crypto.randomUUID(),
+      entity_type,
+      action,
+      payload: { trip_id: tripId, ...payload },
+      client_timestamp: new Date().toISOString(),
     });
 
     this.notify();
 
-    if (this.isOnlineState && !this.isSyncing) {
+    if (this.isOnlineState && !isSyncingActive()) {
       this.drainMutationQueue();
     }
 
@@ -102,37 +116,12 @@ class OfflineSyncEngine {
   }
 
   public async drainMutationQueue(): Promise<void> {
-    if (this.isSyncing || !this.isOnlineState) return;
+    if (!this.isOnlineState) return;
 
-    this.isSyncing = true;
     this.notify();
-
     try {
-      const pendingMutations = await db.mutationQueue
-        .where("syncStatus")
-        .equals("pending")
-        .sortBy("timestamp");
-
-      for (const mutation of pendingMutations) {
-        if (!this.isOnlineState) break;
-
-        try {
-          await syncSingleMutation(mutation);
-          await db.mutationQueue.update(mutation.id!, {
-            syncStatus: "synced",
-          });
-        } catch (err: unknown) {
-          const errorMsg = err instanceof Error ? err.message : String(err);
-          const newRetryCount = (mutation.retryCount || 0) + 1;
-          await db.mutationQueue.update(mutation.id!, {
-            retryCount: newRetryCount,
-            errorMessage: errorMsg,
-            syncStatus: newRetryCount > 5 ? "failed" : "pending",
-          });
-        }
-      }
+      await drainMutationQueue();
     } finally {
-      this.isSyncing = false;
       this.notify();
     }
   }

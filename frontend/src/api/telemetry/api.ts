@@ -1,6 +1,6 @@
 import { apiClient, shouldUseMock } from "@/api/client";
 import { ENDPOINTS } from "@/api/endpoints";
-import { db } from "@/lib/dexie-db";
+import { enqueue } from "@/sync/queue";
 import { getLiveTelemetryMock, getVehicleLatestTelemetryMock } from "./mock";
 import type {
   LiveVehicleTelemetry,
@@ -47,21 +47,19 @@ export async function reportTelemetry(
   payload: TelemetryReportRequest
 ): Promise<{ status: "queued"; idempotency_key: string }> {
   const idempotency_key = crypto.randomUUID();
-  const timestamp = new Date().toISOString();
+  const client_timestamp = new Date().toISOString();
   const pings: TelemetryReportPayload[] = Array.isArray(payload) ? payload : [payload];
 
-  await db.mutationQueue.add({
-    tripId: pings[0]?.trip_id || "",
-    entityType: "telemetry",
-    actionType: "TELEMETRY_PING",
+  await enqueue({
+    idempotency_key,
+    entity_type: "telemetry",
+    action: "create",
     payload: {
       idempotency_key,
-      action: "create",
       pings,
     },
-    timestamp,
-    syncStatus: "pending",
-    retryCount: 0,
+    client_timestamp,
+    user_id: "",
   });
 
   return { status: "queued", idempotency_key };

@@ -1,6 +1,10 @@
 import { apiClient, shouldUseMock } from "@/api/client";
 import { ENDPOINTS } from "@/api/endpoints";
-import { logDiscrepancyMock, recordArrivalMock, submitPodMock } from "./mock";
+import {
+  arriveWaypointMock as recordArrivalMock,
+  logDiscrepancyMock,
+  submitPodMock,
+} from "./mock";
 import type {
   ArriveRequest,
   DiscrepancyReport,
@@ -20,7 +24,7 @@ export async function recordArrival(
   const path = ep.path.replace("{waypoint_id}", encodeURIComponent(waypointId));
   return apiClient<{ success: boolean; waypoint_id: string; status: string }>(path, {
     method: ep.method,
-    body: payload,
+    body: payload as unknown as Record<string, unknown>,
   });
 }
 
@@ -35,7 +39,7 @@ export async function submitPod(
   const path = ep.path.replace("{waypoint_id}", encodeURIComponent(waypointId));
   return apiClient<ProofOfDelivery>(path, {
     method: ep.method,
-    body: payload,
+    body: payload as unknown as Record<string, unknown>,
   });
 }
 
@@ -50,6 +54,6 @@ export async function logDiscrepancy(
   const path = ep.path.replace("{waypoint_id}", encodeURIComponent(waypointId));
   return apiClient<DiscrepancyReport>(path, {
     method: ep.method,
-    body: payload,
+    body: payload as unknown as Record<string, unknown>,
   });
 }

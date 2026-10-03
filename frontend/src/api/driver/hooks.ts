@@ -21,7 +21,7 @@ export function useCurrentRoute() {
 export function useTripProgress(): TripProgressSummary {
   const { data: route } = useCurrentRoute();
   const queuedMutations = useLiveQuery(
-    () => db.mutationQueue.where("syncStatus").equals("pending").toArray(),
+    () => db.mutationQueue.where("status").anyOf(["queued", "sending"]).toArray(),
     []
   );
 

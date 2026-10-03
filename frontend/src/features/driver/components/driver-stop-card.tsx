@@ -45,7 +45,7 @@ export function DriverStopCard({
     String(wp.seq);
 
   const queuedMutations = useLiveQuery(
-    () => db.mutationQueue.where("syncStatus").equals("pending").toArray(),
+    () => db.mutationQueue.where("status").anyOf(["queued", "sending"]).toArray(),
     []
   );
 

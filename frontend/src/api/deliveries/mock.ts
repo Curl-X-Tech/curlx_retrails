@@ -1,6 +1,6 @@
 import { getInMemoryCurrentRoute, updateInMemoryCurrentRoute } from "@/api/driver/mock";
 import { updateOrderStatusMock } from "@/api/orders/mock";
-import { db } from "@/lib/dexie-db";
+import { enqueue } from "@/sync/queue";
 import type {
   ArriveRequest,
   DiscrepancyReport,
@@ -22,16 +22,16 @@ function getActiveUserId(): string {
       const parsed = JSON.parse(session);
       return parsed.user?.id || "driver-01";
     }
-  } catch (err) {
+  } catch {
     // Fallback
   }
   return "driver-01";
 }
 
-export async function recordArrivalMock(
+export async function arriveWaypointMock(
   waypointId: string,
   payload: ArriveRequest
-): Promise<{ success: boolean; waypoint_id: string; status: string }> {
+): Promise<{ success: boolean; waypoint_id: string; status: "arrived" }> {
   const currentRoute = getInMemoryCurrentRoute();
   const waypoint = currentRoute.waypoints.find(
     (w) =>
@@ -39,11 +39,11 @@ export async function recordArrivalMock(
   );
 
   if (!waypoint) {
-    throw new Error(`Waypoint ${waypointId} not found in current route`);
+    throw new Error(`Waypoint ${waypointId} not found in current active route`);
   }
 
   const prevPending = currentRoute.waypoints.find(
-    (w) => w.seq < waypoint.seq && w.status === "pending"
+    (w) => w.seq < waypoint.seq && w.status !== "completed"
   );
   if (prevPending) {
     throw new Error(
@@ -58,16 +58,20 @@ export async function recordArrivalMock(
   updateInMemoryCurrentRoute(currentRoute);
 
   const idempotencyKey = crypto.randomUUID();
-  await db.mutationQueue.put({
-    idempotencyKey,
-    tripId: currentRoute.trip.id,
-    entityType: "route_leg",
-    actionType: "UPDATE_ARRIVE",
-    payload: { waypoint_id: waypoint.route_leg_id, ...payload, arrived_at: arrivedAt },
-    timestamp: arrivedAt,
-    syncStatus: "pending",
-    retryCount: 0,
-  } as unknown as Parameters<typeof db.mutationQueue.put>[0]);
+  await enqueue({
+    idempotency_key: idempotencyKey,
+    entity_type: "route_leg",
+    action: "update",
+    payload: {
+      waypoint_id: waypoint.route_leg_id,
+      trip_id: currentRoute.trip.id,
+      seq: waypoint.seq,
+      ...payload,
+      arrived_at: arrivedAt,
+    },
+    client_timestamp: arrivedAt,
+    user_id: getActiveUserId(),
+  });
 
   return { success: true, waypoint_id: waypoint.route_leg_id, status: "arrived" };
 }
@@ -83,12 +87,12 @@ export async function submitPodMock(
   );
 
   if (!waypoint) {
-    throw new Error(`Waypoint ${waypointId} not found in current route`);
+    throw new Error(`Waypoint ${waypointId} not found in current active route`);
   }
 
-  if (waypoint.status !== "arrived" && !waypoint.arrived_at) {
+  if (waypoint.status !== "arrived" && waypoint.status !== "pending") {
     throw new Error(
-      `Must record arrival at stop #${waypoint.seq} before submitting Proof of Delivery`
+      `Cannot submit EPOD for waypoint #${waypoint.seq} when status is '${waypoint.status}'`
     );
   }
 
@@ -96,15 +100,17 @@ export async function submitPodMock(
     payload.signature_data_url &&
     payload.signature_data_url.length > MAX_SIGNATURE_SIZE_BYTES
   ) {
-    throw new Error(
-      `Signature payload size exceeds max limit of ${MAX_SIGNATURE_SIZE_BYTES / 1024} KB`
-    );
+    throw new Error("Signature image payload exceeds maximum allowed size of 100 KB");
   }
 
   if (payload.photo_proof_url && payload.photo_proof_url.length > MAX_PHOTO_SIZE_BYTES) {
-    throw new Error(
-      `Photo proof payload size exceeds max limit of ${MAX_PHOTO_SIZE_BYTES / 1024} KB`
-    );
+    throw new Error("Photo proof payload exceeds maximum allowed size of 200 KB");
+  }
+
+  if (payload.discrepancies && payload.discrepancies.length > 0) {
+    for (const disc of payload.discrepancies) {
+      await logDiscrepancyMock(waypointId, disc);
+    }
   }
 
   const completedAt = payload.completed_at || new Date().toISOString();
@@ -115,64 +121,41 @@ export async function submitPodMock(
     recipient_name: payload.recipient_name,
     signature_data_url: payload.signature_data_url,
     photo_proof_url: payload.photo_proof_url,
-    arrived_at: waypoint.arrived_at || payload.arrived_at,
+    arrived_at: payload.arrived_at || waypoint.arrived_at || completedAt,
     completed_at: completedAt,
   };
-  podStore.push(pod);
 
+  podStore.push(pod);
   waypoint.status = "completed";
   waypoint.completed_at = completedAt;
-  waypoint.order_summary.items.forEach((item) => {
-    item.status = "delivered";
+
+  updateOrderStatusMock(waypoint.order_summary.order_id, {
+    status: "delivered",
   });
 
-  if (payload.discrepancies && payload.discrepancies.length > 0) {
-    payload.discrepancies.forEach((disc) => {
-      discrepancyStore.push({
-        id: `disc-${Date.now()}-${disc.item_id}`,
-        pod_id: pod.id,
-        item_id: disc.item_id,
-        issue_type: disc.issue_type,
-        reported_qty: disc.reported_qty,
-        notes: disc.notes,
-      });
-      const targetItem = waypoint.order_summary.items.find((i) => i.id === disc.item_id);
-      if (targetItem) {
-        targetItem.status = "discrepancy";
-      }
-    });
-  }
-
-  const allCompleted = currentRoute.waypoints.every((w) => w.status === "completed");
-  if (allCompleted) {
+  const nextWaypoint = currentRoute.waypoints.find((w) => w.seq === waypoint.seq + 1);
+  if (nextWaypoint && nextWaypoint.status === "pending") {
+    nextWaypoint.status = "arrived";
+    currentRoute.active_waypoint_seq = nextWaypoint.seq;
+  } else if (!nextWaypoint) {
     currentRoute.trip.status = "completed";
-    currentRoute.waypoints.forEach((w) => {
-      void updateOrderStatusMock(w.order_summary.order_id, {
-        status: "delivered",
-        notes: `Trip ${currentRoute.trip.trip_code} completed`,
-      }).catch(() => {});
-    });
-  } else {
-    const nextWp = currentRoute.waypoints.find((w) => w.status === "pending");
-    if (nextWp) {
-      currentRoute.active_waypoint_seq = nextWp.seq;
-    }
   }
 
   updateInMemoryCurrentRoute(currentRoute);
 
   const idempotencyKey = crypto.randomUUID();
-  await db.mutationQueue.put({
-    idempotencyKey,
-    tripId: currentRoute.trip.id,
-    entityType: "proof_of_delivery",
-    actionType: "CREATE_POD",
-    payload: { ...pod, discrepancies: payload.discrepancies },
-    timestamp: completedAt,
-    syncStatus: "pending",
-    retryCount: 0,
-    userId: getActiveUserId(),
-  } as unknown as Parameters<typeof db.mutationQueue.put>[0]);
+  await enqueue({
+    idempotency_key: idempotencyKey,
+    entity_type: "proof_of_delivery",
+    action: "create",
+    payload: {
+      ...pod,
+      trip_id: currentRoute.trip.id,
+      discrepancies: payload.discrepancies,
+    },
+    client_timestamp: completedAt,
+    user_id: getActiveUserId(),
+  });
 
   return pod;
 }
@@ -207,17 +190,18 @@ export async function logDiscrepancyMock(
   }
 
   const idempotencyKey = crypto.randomUUID();
-  await db.mutationQueue.put({
-    idempotencyKey,
-    tripId: currentRoute?.trip.id || "trip-unknown",
-    entityType: "proof_of_delivery",
-    actionType: "LOG_DISCREPANCY",
-    payload: { waypoint_id: waypointId, ...report },
-    timestamp: new Date().toISOString(),
-    syncStatus: "pending",
-    retryCount: 0,
-    userId: getActiveUserId(),
-  } as unknown as Parameters<typeof db.mutationQueue.put>[0]);
+  await enqueue({
+    idempotency_key: idempotencyKey,
+    entity_type: "proof_of_delivery",
+    action: "create",
+    payload: {
+      waypoint_id: waypointId,
+      trip_id: currentRoute?.trip.id || "trip-unknown",
+      ...report,
+    },
+    client_timestamp: new Date().toISOString(),
+    user_id: getActiveUserId(),
+  });
 
   return report;
 }

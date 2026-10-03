@@ -1,9 +1,10 @@
-import { db } from "@/lib/dexie-db";
+import { enqueue } from "@/sync/queue";
 import { MOCK_CARGO_BAYS, MOCK_TRIP_CHECKLISTS } from "./mock-data";
 import type {
   BayWithManifest,
   ConfirmDepartureRequest,
   ConfirmDepartureResponse,
+  LoadingChecklistItem,
   SealWaypointRequest,
   SealWaypointResponse,
   TripChecklist,
@@ -32,37 +33,36 @@ export async function getTripChecklistMock(tripId: string): Promise<TripChecklis
 
 export async function verifyItemMock(
   itemId: string,
-  payload: VerifyItemRequest
+  payload: VerifyItemRequest,
+  targetTripId = "trip-1"
 ): Promise<VerifyItemResponse> {
-  let targetTripId: string | null = null;
-  let targetItem: any = null;
-
-  for (const tripId in tripChecklistsState) {
-    const checklist = tripChecklistsState[tripId];
-    if (checklist.trip.status !== "loading" && checklist.trip.status !== "scheduled") {
-      continue;
-    }
-    for (const wp of checklist.waypoints) {
-      const found = wp.items.find((i) => i.id === itemId);
-      if (found) {
-        targetTripId = tripId;
-        targetItem = found;
-        break;
-      }
-    }
-    if (targetItem) break;
-  }
-
-  if (!targetItem || !targetTripId) {
-    throw new Error("Item can be verified only on a trip in active loading state.");
-  }
-
-  targetItem.verification_status = payload.status;
-  targetItem.verified_at = new Date().toISOString();
-  if (payload.shortfall_qty) targetItem.shortfall_qty = payload.shortfall_qty;
-  if (payload.note) targetItem.note = payload.note;
-
   const checklist = tripChecklistsState[targetTripId];
+  if (!checklist) {
+    throw new Error(`Trip ${targetTripId} not found`);
+  }
+
+  let foundItem: LoadingChecklistItem | null = null;
+  for (const wp of checklist.waypoints) {
+    const item = wp.items.find(
+      (i) => i.id === itemId || i.order_item_id === itemId || i.package_code === itemId
+    );
+    if (item) {
+      item.verification_status = payload.status;
+      if (payload.shortfall_qty !== undefined) {
+        item.shortfall_qty = payload.shortfall_qty;
+      }
+      if (payload.note !== undefined) {
+        item.note = payload.note;
+      }
+      foundItem = item;
+      break;
+    }
+  }
+
+  if (!foundItem) {
+    throw new Error(`Item ${itemId} not found in trip ${targetTripId}`);
+  }
+
   let verifiedCount = 0;
   let totalCount = 0;
   checklist.waypoints.forEach((wp) => {
@@ -81,23 +81,23 @@ export async function verifyItemMock(
 
   const idempotencyKey = crypto.randomUUID();
   try {
-    await db.mutationQueue.add({
-      tripId: targetTripId,
-      entityType: "item",
-      actionType: "VERIFY_ITEM",
+    await enqueue({
+      idempotency_key: idempotencyKey,
+      entity_type: "loading_checklist",
+      action: "verify",
       payload: {
         idempotency_key: idempotencyKey,
         entity_type: "loading_checklist",
         action: "verify",
+        trip_id: targetTripId,
         item_id: itemId,
         status: payload.status,
         shortfall_qty: payload.shortfall_qty,
         note: payload.note,
         client_timestamp: new Date().toISOString(),
       },
-      timestamp: new Date().toISOString(),
-      syncStatus: "pending",
-      retryCount: 0,
+      client_timestamp: new Date().toISOString(),
+      user_id: "",
     });
   } catch (err) {
     console.warn("Dexie mutation queue insert fallback:", err);
@@ -145,6 +145,21 @@ export async function sealWaypointMock(
     bay.bay.dock_status = "verified_sealed";
   }
 
+  const idempotencyKey = crypto.randomUUID();
+  await enqueue({
+    idempotency_key: idempotencyKey,
+    entity_type: "loading_checklist",
+    action: "update",
+    payload: {
+      idempotency_key: idempotencyKey,
+      action: "seal_waypoint",
+      trip_id: tripId,
+      seq,
+      sealed_at: waypoint.sealed_at,
+    },
+    client_timestamp: new Date().toISOString(),
+  });
+
   return {
     success: true,
     trip_id: tripId,
@@ -177,6 +192,20 @@ export async function confirmDepartureMock(
     bay.bay.completed_at = new Date().toISOString();
     bay.trip.status = "dispatched";
   }
+
+  const idempotencyKey = crypto.randomUUID();
+  await enqueue({
+    idempotency_key: idempotencyKey,
+    entity_type: "loading_checklist",
+    action: "update",
+    payload: {
+      idempotency_key: idempotencyKey,
+      action: "confirm_departure",
+      trip_id: tripId,
+      seal_number: payload.seal_number,
+    },
+    client_timestamp: new Date().toISOString(),
+  });
 
   return {
     success: true,
