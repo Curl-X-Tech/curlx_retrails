@@ -47,25 +47,25 @@ async def list_items(
 
 
 @router.get(
-    "/{identifier}",
+    "/{id}",
     response_model=ItemRead,
     summary="Get item details by UUID or SKU code",
 )
 async def get_item(
-    identifier: str,
+    id: str,
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> Item:
     """Retrieve detailed item record by UUID primary key or SKU string."""
     parsed_uuid = None
     try:
-        parsed_uuid = uuid.UUID(identifier)
+        parsed_uuid = uuid.UUID(id)
     except ValueError:
         pass
 
     if parsed_uuid:
-        query = select(Item).where(or_(Item.id == parsed_uuid, Item.sku == identifier.upper()))
+        query = select(Item).where(or_(Item.id == parsed_uuid, Item.sku == id.upper()))
     else:
-        query = select(Item).where(Item.sku == identifier.upper())
+        query = select(Item).where(Item.sku == id.upper())
 
     result = await session.execute(query)
     item = result.scalar_one_or_none()
@@ -122,12 +122,17 @@ async def create_item(
 
 
 @router.patch(
-    "/{identifier}",
+    "/{id}",
+    response_model=ItemRead,
+    summary="Update catalog item details (Admin only)",
+)
+@router.put(
+    "/{id}",
     response_model=ItemRead,
     summary="Update catalog item details (Admin only)",
 )
 async def update_item(
-    identifier: str,
+    id: str,
     item_in: ItemUpdate,
     admin: Annotated[User, Depends(require_system_admin)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
@@ -135,14 +140,14 @@ async def update_item(
     """Update item attributes."""
     parsed_uuid = None
     try:
-        parsed_uuid = uuid.UUID(identifier)
+        parsed_uuid = uuid.UUID(id)
     except ValueError:
         pass
 
     if parsed_uuid:
-        query = select(Item).where(or_(Item.id == parsed_uuid, Item.sku == identifier.upper()))
+        query = select(Item).where(or_(Item.id == parsed_uuid, Item.sku == id.upper()))
     else:
-        query = select(Item).where(Item.sku == identifier.upper())
+        query = select(Item).where(Item.sku == id.upper())
 
     result = await session.execute(query)
     item = result.scalar_one_or_none()
@@ -180,26 +185,26 @@ async def update_item(
 
 
 @router.delete(
-    "/{identifier}",
+    "/{id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a catalog item (Admin only)",
 )
 async def delete_item(
-    identifier: str,
+    id: str,
     admin: Annotated[User, Depends(require_system_admin)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> None:
     """Delete an item record."""
     parsed_uuid = None
     try:
-        parsed_uuid = uuid.UUID(identifier)
+        parsed_uuid = uuid.UUID(id)
     except ValueError:
         pass
 
     if parsed_uuid:
-        query = select(Item).where(or_(Item.id == parsed_uuid, Item.sku == identifier.upper()))
+        query = select(Item).where(or_(Item.id == parsed_uuid, Item.sku == id.upper()))
     else:
-        query = select(Item).where(Item.sku == identifier.upper())
+        query = select(Item).where(Item.sku == id.upper())
 
     result = await session.execute(query)
     item = result.scalar_one_or_none()

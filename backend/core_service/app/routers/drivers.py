@@ -23,6 +23,7 @@ from app.schemas.dispatch_schemas import (
 )
 
 router = APIRouter(prefix="/drivers", tags=["Drivers"])
+endpoint_router = APIRouter(prefix="/fleet/drivers", tags=["Drivers"])
 
 
 @router.post(
@@ -63,6 +64,7 @@ async def create_driver(
     return driver
 
 
+@endpoint_router.get("")
 @router.get(
     "",
     response_model=DriverListResponse,

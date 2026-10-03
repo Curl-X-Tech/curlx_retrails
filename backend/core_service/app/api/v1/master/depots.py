@@ -91,6 +91,11 @@ async def create_depot(
     response_model=DepotRead,
     summary="Update distribution center details (Admin only)",
 )
+@router.put(
+    "/{id}",
+    response_model=DepotRead,
+    summary="Update distribution center details (Admin only)",
+)
 async def update_depot(
     id: uuid.UUID,
     depot_in: DepotUpdate,

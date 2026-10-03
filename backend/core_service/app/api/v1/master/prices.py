@@ -106,12 +106,12 @@ async def list_active_prices(
 
 
 @router.get(
-    "/items/{item_identifier}/active",
+    "/items/{item_id}/active",
     response_model=ActivePriceRead,
     summary="Get current active price for a specific item",
 )
 async def get_active_price_for_item(
-    item_identifier: str,
+    item_id: str,
     session: Annotated[AsyncSession, Depends(get_async_session)],
     as_of: Annotated[
         date | None,
@@ -123,14 +123,14 @@ async def get_active_price_for_item(
 
     parsed_uuid = None
     try:
-        parsed_uuid = uuid.UUID(item_identifier)
+        parsed_uuid = uuid.UUID(item_id)
     except ValueError:
         pass
 
     if parsed_uuid:
-        item_query = select(Item).where(or_(Item.id == parsed_uuid, Item.sku == item_identifier.upper()))
+        item_query = select(Item).where(or_(Item.id == parsed_uuid, Item.sku == item_id.upper()))
     else:
-        item_query = select(Item).where(Item.sku == item_identifier.upper())
+        item_query = select(Item).where(Item.sku == item_id.upper())
 
     item_res = await session.execute(item_query)
     item = item_res.scalar_one_or_none()
@@ -238,6 +238,11 @@ async def create_price_entry(
 
 
 @router.patch(
+    "/{id}",
+    response_model=PriceListRead,
+    summary="Update price list entry (Admin only)",
+)
+@router.put(
     "/{id}",
     response_model=PriceListRead,
     summary="Update price list entry (Admin only)",

@@ -241,18 +241,23 @@ async def bulk_generate_calendar(
 
 
 @router.patch(
-    "/{day_date}",
+    "/{date}",
+    response_model=CalendarDayRead,
+    summary="Update calendar day attributes (Admin only)",
+)
+@router.put(
+    "/{date}",
     response_model=CalendarDayRead,
     summary="Update calendar day attributes (Admin only)",
 )
 async def update_calendar_day(
-    day_date: date,
+    date: date,
     day_in: CalendarDayUpdate,
     admin: Annotated[User, Depends(require_system_admin)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> CalendarDay:
     """Update calendar day attributes (e.g. override operating status or mark holiday)."""
-    calendar_day = await session.get(CalendarDay, day_date)
+    calendar_day = await session.get(CalendarDay, date)
     if not calendar_day:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

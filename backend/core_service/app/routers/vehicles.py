@@ -18,8 +18,10 @@ from app.schemas.vehicle_schemas import (
 )
 
 router = APIRouter(prefix="/vehicles", tags=["Vehicles"])
+endpoint_router = APIRouter(prefix="/fleet/vehicles", tags=["Vehicles"])
 
 
+@endpoint_router.post("")
 @router.post(
     "",
     response_model=VehicleResponse,
@@ -60,6 +62,7 @@ async def create_vehicle(
     return vehicle
 
 
+@endpoint_router.get("")
 @router.get(
     "",
     response_model=VehicleListResponse,
@@ -103,40 +106,42 @@ async def list_vehicles(
     )
 
 
+@endpoint_router.get("/{id}")
 @router.get(
-    "/{vehicle_id}",
+    "/{id}",
     response_model=VehicleResponse,
     summary="Get vehicle by ID",
 )
 async def get_vehicle(
-    vehicle_id: str = Path(...),
+    id: str = Path(...),
     db: AsyncSession = Depends(get_db),
 ):
-    vehicle = await db.get(VehicleModel, vehicle_id)
+    vehicle = await db.get(VehicleModel, id)
     if not vehicle or not vehicle.IsActive:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Vehicle '{vehicle_id}' not found.",
+            detail=f"Vehicle '{id}' not found.",
         )
     return vehicle
 
 
+@endpoint_router.patch("/{id}")
 @router.patch(
-    "/{vehicle_id}",
+    "/{id}",
     response_model=VehicleResponse,
     summary="Update mutable vehicle specs",
     description="Allowed: weight_cap_kg, volume_cap_m3, km_per_l, weekly_fuel_quota. Role: DEPOT_MANAGER+",
 )
 async def update_vehicle(
-    vehicle_id: str = Path(...),
+    id: str = Path(...),
     payload: VehicleUpdate = ...,
     db: AsyncSession = Depends(get_db),
 ):
-    vehicle = await db.get(VehicleModel, vehicle_id)
+    vehicle = await db.get(VehicleModel, id)
     if not vehicle or not vehicle.IsActive:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Vehicle '{vehicle_id}' not found.",
+            detail=f"Vehicle '{id}' not found.",
         )
 
     if payload.weight_cap_kg is not None:

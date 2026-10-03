@@ -55,25 +55,25 @@ async def list_outlets(
 
 
 @router.get(
-    "/{identifier}",
+    "/{id}",
     response_model=OutletRead,
     summary="Get outlet details by UUID or Outlet Code (e.g. OUT001)",
 )
 async def get_outlet(
-    identifier: str,
+    id: str,
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> Outlet:
     """Retrieve detailed outlet record by UUID primary key or outlet_id code."""
     parsed_uuid = None
     try:
-        parsed_uuid = uuid.UUID(identifier)
+        parsed_uuid = uuid.UUID(id)
     except ValueError:
         pass
 
     if parsed_uuid:
-        query = select(Outlet).where(or_(Outlet.id == parsed_uuid, Outlet.outlet_id == identifier.upper()))
+        query = select(Outlet).where(or_(Outlet.id == parsed_uuid, Outlet.outlet_id == id.upper()))
     else:
-        query = select(Outlet).where(Outlet.outlet_id == identifier.upper())
+        query = select(Outlet).where(Outlet.outlet_id == id.upper())
 
     result = await session.execute(query)
     outlet = result.scalar_one_or_none()
@@ -145,12 +145,17 @@ async def create_outlet(
 
 
 @router.patch(
-    "/{identifier}",
+    "/{id}",
+    response_model=OutletRead,
+    summary="Update outlet details (Admin only)",
+)
+@router.put(
+    "/{id}",
     response_model=OutletRead,
     summary="Update outlet details (Admin only)",
 )
 async def update_outlet(
-    identifier: str,
+    id: str,
     outlet_in: OutletUpdate,
     admin: Annotated[User, Depends(require_system_admin)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
@@ -158,14 +163,14 @@ async def update_outlet(
     """Update outlet attributes."""
     parsed_uuid = None
     try:
-        parsed_uuid = uuid.UUID(identifier)
+        parsed_uuid = uuid.UUID(id)
     except ValueError:
         pass
 
     if parsed_uuid:
-        query = select(Outlet).where(or_(Outlet.id == parsed_uuid, Outlet.outlet_id == identifier.upper()))
+        query = select(Outlet).where(or_(Outlet.id == parsed_uuid, Outlet.outlet_id == id.upper()))
     else:
-        query = select(Outlet).where(Outlet.outlet_id == identifier.upper())
+        query = select(Outlet).where(Outlet.outlet_id == id.upper())
 
     result = await session.execute(query)
     outlet = result.scalar_one_or_none()
@@ -213,26 +218,26 @@ async def update_outlet(
 
 
 @router.delete(
-    "/{identifier}",
+    "/{id}",
     status_code=status.HTTP_204_NO_CONTENT,
     summary="Delete a retail outlet (Admin only)",
 )
 async def delete_outlet(
-    identifier: str,
+    id: str,
     admin: Annotated[User, Depends(require_system_admin)],
     session: Annotated[AsyncSession, Depends(get_async_session)],
 ) -> None:
     """Delete an outlet record."""
     parsed_uuid = None
     try:
-        parsed_uuid = uuid.UUID(identifier)
+        parsed_uuid = uuid.UUID(id)
     except ValueError:
         pass
 
     if parsed_uuid:
-        query = select(Outlet).where(or_(Outlet.id == parsed_uuid, Outlet.outlet_id == identifier.upper()))
+        query = select(Outlet).where(or_(Outlet.id == parsed_uuid, Outlet.outlet_id == id.upper()))
     else:
-        query = select(Outlet).where(Outlet.outlet_id == identifier.upper())
+        query = select(Outlet).where(Outlet.outlet_id == id.upper())
 
     result = await session.execute(query)
     outlet = result.scalar_one_or_none()

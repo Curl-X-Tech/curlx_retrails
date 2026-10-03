@@ -22,6 +22,7 @@ from app.schemas.order_schemas import (
 )
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
+endpoint_router = APIRouter(prefix="/orders", tags=["Orders"])
 
 
 DEPOT_CODES = {"Peliyagoda": "PEL", "Kandy": "KDY"}
@@ -37,6 +38,7 @@ async def _get_outlets_for_depot(db: AsyncSession, depot: str) -> list[str]:
     return list(result.scalars().all())
 
 
+@endpoint_router.post("")
 @router.post(
     "",
     response_model=OrderResponse,
@@ -115,6 +117,7 @@ async def bulk_create_orders(
     return created_orders
 
 
+@endpoint_router.get("")
 @router.get(
     "",
     response_model=OrderListResponse,
@@ -172,20 +175,21 @@ async def list_orders(
     )
 
 
+@endpoint_router.get("/{id}")
 @router.get(
-    "/{order_id}",
+    "/{id}",
     response_model=OrderResponse,
     summary="Get a single order by ID",
 )
 async def get_order(
-    order_id: str = Path(...),
+    id: str = Path(...),
     db: AsyncSession = Depends(get_db),
 ):
-    order = await db.get(OrderModel, order_id)
+    order = await db.get(OrderModel, id)
     if not order or not order.IsActive:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Order '{order_id}' not found.",
+            detail=f"Order '{id}' not found.",
         )
     return order
 
