@@ -110,7 +110,7 @@ run_backend() {
     check_prerequisites
     ensure_env
     log_info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
-    cd "$ROOT_DIR/backend"
+    cd "$ROOT_DIR/backend/core_service"
     exec uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 }
 
@@ -180,7 +180,7 @@ run_dev() {
     # Handle graceful exit on SIGINT/SIGTERM
     trap 'echo ""; log_info "Shutting down development processes..."; kill $(jobs -p) 2>/dev/null || true; exit 0' SIGINT SIGTERM EXIT
 
-    (cd "$ROOT_DIR/backend" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
+    (cd "$ROOT_DIR/backend/core_service" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
     BACKEND_PID=$!
 
     (cd "$ROOT_DIR/frontend" && bun run dev) &

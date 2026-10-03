@@ -6,19 +6,18 @@ WORKDIR /app
 # Install uv binary from official image
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /bin/uv
 
-# Compile bytecode for faster startup and copy dependencies rather than symlinks
 ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 # Install dependencies in a cached layer
-COPY pyproject.toml uv.lock* ./
-RUN uv sync --frozen --no-install-project --no-dev || uv sync --no-install-project --no-dev
+COPY pyproject.toml ./
+RUN uv sync --no-install-project --no-dev
 
 # Copy application source code
-COPY . .
+COPY app/ ./app/
 
 # Final project installation
-RUN uv sync --frozen --no-dev || uv sync --no-dev
+RUN uv sync --no-dev
 
 # Stage 2: Minimal runtime image
 FROM python:3.11-slim AS runner

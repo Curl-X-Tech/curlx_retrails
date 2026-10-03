@@ -84,7 +84,7 @@ services:
 
   core-service:
     build:
-      context: ./backend
+      context: ./backend/core_service
       dockerfile: Dockerfile
     container_name: waypoint-core
     restart: unless-stopped

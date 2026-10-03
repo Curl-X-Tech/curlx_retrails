@@ -19,6 +19,7 @@ from sqlalchemy import text
 
 PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BACKEND_DIR = os.path.join(PROJECT_ROOT, "backend")
+CORE_SERVICE_DIR = os.path.join(BACKEND_DIR, "core_service")
 DATA_DIR = os.path.join(PROJECT_ROOT, "data")
 
 DB_USER = os.getenv("POSTGRES_USER", "waypoint")
@@ -72,8 +73,8 @@ async def seed_vehicles():
         return
 
     _clear_app_modules()
-    if BACKEND_DIR not in sys.path:
-        sys.path.insert(0, BACKEND_DIR)
+    if CORE_SERVICE_DIR not in sys.path:
+        sys.path.insert(0, CORE_SERVICE_DIR)
     from app.core.database import Base, engine
     import app.models.vehicle  # noqa: F401
 
@@ -148,8 +149,8 @@ async def seed_outlets():
         return
 
     _clear_app_modules()
-    if BACKEND_DIR not in sys.path:
-        sys.path.insert(0, BACKEND_DIR)
+    if CORE_SERVICE_DIR not in sys.path:
+        sys.path.insert(0, CORE_SERVICE_DIR)
     from app.core.database import Base, engine
     import app.models.outlet  # noqa: F401
 
@@ -217,8 +218,8 @@ async def seed_outlets():
 async def seed_routes_and_allowances():
     """Seed district_travel.csv and service_allowance.csv into general_db."""
     _clear_app_modules()
-    if BACKEND_DIR not in sys.path:
-        sys.path.insert(0, BACKEND_DIR)
+    if CORE_SERVICE_DIR not in sys.path:
+        sys.path.insert(0, CORE_SERVICE_DIR)
     from app.core.database import Base, engine
     import app.models.route  # noqa: F401
     import app.models.service_allowance  # noqa: F401

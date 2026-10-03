@@ -124,7 +124,7 @@ function Invoke-Backend {
     Assert-Prerequisites
     Ensure-Env
     Write-Info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
-    Push-Location (Join-Path $ROOT_DIR "backend")
+    Push-Location (Join-Path $ROOT_DIR "backend/core_service")
     uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
     Pop-Location
 }
@@ -201,7 +201,7 @@ function Invoke-Dev {
 
     # Launch all three processes in separate windows so each gets its own console
     $backendJob = Start-Process -FilePath "powershell.exe" `
-        -ArgumentList "-NoExit", "-Command", "Push-Location '$ROOT_DIR\backend'; uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" `
+        -ArgumentList "-NoExit", "-Command", "Push-Location '$ROOT_DIR\backend\core_service'; uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" `
         -PassThru
 
     $frontendJob = Start-Process -FilePath "powershell.exe" `
