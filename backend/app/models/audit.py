@@ -15,7 +15,10 @@ class DispatchAuditLogModel(Base):
     __tablename__ = "dispatch_audit_logs"
 
     timestamp: Mapped[datetime.datetime] = mapped_column(
-        DateTime, default=datetime.datetime.utcnow, nullable=False, index=True
+        DateTime(timezone=True),
+        default=lambda: datetime.datetime.now(datetime.timezone.utc),
+        nullable=False,
+        index=True,
     )
     actor: Mapped[str] = mapped_column(String(64), nullable=False)
     action: Mapped[str] = mapped_column(String(50), nullable=False, index=True)

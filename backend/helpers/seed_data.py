@@ -72,8 +72,8 @@ async def seed_vehicles():
         return
 
     _clear_app_modules()
-    svc_dir = os.path.join(BACKEND_DIR, "core_service")
-    sys.path.insert(0, svc_dir)
+    if BACKEND_DIR not in sys.path:
+        sys.path.insert(0, BACKEND_DIR)
     from app.core.database import Base, engine
     import app.models.vehicle  # noqa: F401
 
@@ -137,8 +137,6 @@ async def seed_vehicles():
 
     print(f"[Vehicles] Successfully seeded {len(records)} vehicles into general_db.")
     await engine.dispose()
-    if svc_dir in sys.path:
-        sys.path.remove(svc_dir)
     _clear_app_modules()
 
 
@@ -150,8 +148,8 @@ async def seed_outlets():
         return
 
     _clear_app_modules()
-    svc_dir = os.path.join(BACKEND_DIR, "core_service")
-    sys.path.insert(0, svc_dir)
+    if BACKEND_DIR not in sys.path:
+        sys.path.insert(0, BACKEND_DIR)
     from app.core.database import Base, engine
     import app.models.outlet  # noqa: F401
 
@@ -213,16 +211,14 @@ async def seed_outlets():
 
     print(f"[Outlets] Successfully seeded {len(records)} outlets into general_db.")
     await engine.dispose()
-    if svc_dir in sys.path:
-        sys.path.remove(svc_dir)
     _clear_app_modules()
 
 
 async def seed_routes_and_allowances():
     """Seed district_travel.csv and service_allowance.csv into general_db."""
     _clear_app_modules()
-    svc_dir = os.path.join(BACKEND_DIR, "core_service")
-    sys.path.insert(0, svc_dir)
+    if BACKEND_DIR not in sys.path:
+        sys.path.insert(0, BACKEND_DIR)
     from app.core.database import Base, engine
     import app.models.route  # noqa: F401
     import app.models.service_allowance  # noqa: F401
@@ -323,8 +319,6 @@ async def seed_routes_and_allowances():
         print(f"[ServiceAllowances] Successfully seeded {len(sa_records)} service allowances into general_db.")
 
     await engine.dispose()
-    if svc_dir in sys.path:
-        sys.path.remove(svc_dir)
     _clear_app_modules()
 
 

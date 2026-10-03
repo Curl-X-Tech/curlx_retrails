@@ -72,6 +72,8 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -96,6 +98,12 @@ services:
         aliases:
           - backend
           - core-service
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
       postgres:
         condition: service_healthy
@@ -113,6 +121,12 @@ services:
       REDIS_URL: redis://redis:6379/0
       RABBITMQ_URL: amqp://waypoint:waypoint@rabbitmq:5672/
       CORE_SERVICE_URL: http://core-service:8000
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     depends_on:
       postgres:
         condition: service_healthy
@@ -121,7 +135,7 @@ services:
       rabbitmq:
         condition: service_healthy
       core-service:
-        condition: service_started
+        condition: service_healthy
 
   planning-celery-worker:
     build:
@@ -153,7 +167,9 @@ services:
     ports:
       - "5173:80"
     depends_on:
-      - core-service
+      core-service:
+        condition: service_healthy
 
 volumes:
   postgres_data:
+  redis_data:

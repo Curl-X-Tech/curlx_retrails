@@ -1,5 +1,6 @@
 import logging
 import secrets
+from urllib.parse import urlparse
 
 from pydantic import EmailStr, Field, computed_field, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -95,6 +96,25 @@ class Settings(BaseSettings):
             f"postgresql+psycopg://{self.POSTGRES_USER}{password}@"
             f"{self.POSTGRES_SERVER}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"
         )
+
+    @model_validator(mode="after")
+    def parse_database_url_components(self) -> "Settings":
+        if self.DATABASE_URL:
+            try:
+                parsed = urlparse(self.DATABASE_URL)
+                if parsed.hostname:
+                    self.POSTGRES_SERVER = parsed.hostname
+                if parsed.port:
+                    self.POSTGRES_PORT = parsed.port
+                if parsed.username:
+                    self.POSTGRES_USER = parsed.username
+                if parsed.password:
+                    self.POSTGRES_PASSWORD = parsed.password
+                if parsed.path and parsed.path != "/":
+                    self.POSTGRES_DB = parsed.path.lstrip("/")
+            except Exception as e:
+                logger.warning("Failed to parse DATABASE_URL components: %s", e)
+        return self
 
     @model_validator(mode="after")
     def check_secret_key(self) -> "Settings":

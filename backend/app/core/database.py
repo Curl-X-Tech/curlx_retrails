@@ -22,13 +22,17 @@ def _generate_default_id() -> str:
     return f"WAY-{uuid.uuid4().hex[:8].upper()}"
 
 
+def _utc_now() -> datetime.datetime:
+    return datetime.datetime.now(datetime.timezone.utc)
+
+
 class Base(DeclarativeBase):
     """Shared declarative base for operational domain models."""
 
     ID: Mapped[str] = mapped_column(String(64), primary_key=True, default=_generate_default_id)
-    CreateTime: Mapped[datetime.datetime] = mapped_column(DateTime, default=datetime.datetime.utcnow, nullable=False)
+    CreateTime: Mapped[datetime.datetime] = mapped_column(DateTime(timezone=True), default=_utc_now, nullable=False)
     UpdateTime: Mapped[datetime.datetime] = mapped_column(
-        DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow, nullable=False
+        DateTime(timezone=True), default=_utc_now, onupdate=_utc_now, nullable=False
     )
     CreatedBy: Mapped[str | None] = mapped_column(String(64), nullable=True)
     UpdatedBy: Mapped[str | None] = mapped_column(String(64), nullable=True)
