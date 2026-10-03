@@ -3,7 +3,6 @@ Waypoint Group — Seed Existing Data into PostgreSQL.
 
 Seeds:
 - data/vehicles.csv          ──► general_db (vehicles table)
-- data/outlets.csv           ──► general_db (outlets table)
 - data/district_travel.csv   ──► general_db (routes table)
 - data/service_allowance.csv ──► general_db (service_allowances table)
 """
@@ -141,80 +140,6 @@ async def seed_vehicles():
     _clear_app_modules()
 
 
-async def seed_outlets():
-    """Seed outlets.csv into general_db."""
-    csv_file = os.path.join(DATA_DIR, "outlets.csv")
-    if not os.path.exists(csv_file):
-        print(f"[Outlets] File not found: {csv_file}")
-        return
-
-    _clear_app_modules()
-    if CORE_SERVICE_DIR not in sys.path:
-        sys.path.insert(0, CORE_SERVICE_DIR)
-    from app.core.database import Base, engine
-    import app.models.outlet  # noqa: F401
-
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
-
-    now = datetime.now(timezone.utc).replace(tzinfo=None)
-    records = []
-    with open(csv_file, mode="r", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            mall_window = row.get("mall_window")
-            if not mall_window or mall_window.strip() == "":
-                mall_window = None
-
-            records.append(
-                {
-                    "ID": row["outlet_id"],
-                    "CreateTime": now,
-                    "UpdateTime": now,
-                    "CreatedBy": "SYSTEM_SEED",
-                    "UpdatedBy": "SYSTEM_SEED",
-                    "IsActive": True,
-                    "brand": row["brand"],
-                    "district": row["district"],
-                    "depot": row["depot"],
-                    "dock_type": row["dock_type"],
-                    "parking_constraint": row["parking_constraint"],
-                    "mall_window": mall_window,
-                    "window_open_time": row["window_open_time"],
-                    "window_close_time": row["window_close_time"],
-                }
-            )
-
-    async with engine.begin() as conn:
-        for r in records:
-            stmt = text("""
-                INSERT INTO outlets (
-                    "ID", "CreateTime", "UpdateTime", "CreatedBy", "UpdatedBy", "IsActive",
-                    "brand", "district", "depot", "dock_type", "parking_constraint",
-                    "mall_window", "window_open_time", "window_close_time"
-                ) VALUES (
-                    :ID, :CreateTime, :UpdateTime, :CreatedBy, :UpdatedBy, :IsActive,
-                    :brand, :district, :depot, :dock_type, :parking_constraint,
-                    :mall_window, :window_open_time, :window_close_time
-                )
-                ON CONFLICT ("ID") DO UPDATE SET
-                    "brand" = EXCLUDED."brand",
-                    "district" = EXCLUDED."district",
-                    "depot" = EXCLUDED."depot",
-                    "dock_type" = EXCLUDED."dock_type",
-                    "parking_constraint" = EXCLUDED."parking_constraint",
-                    "mall_window" = EXCLUDED."mall_window",
-                    "window_open_time" = EXCLUDED."window_open_time",
-                    "window_close_time" = EXCLUDED."window_close_time",
-                    "UpdateTime" = EXCLUDED."UpdateTime";
-            """)
-            await conn.execute(stmt, r)
-
-    print(f"[Outlets] Successfully seeded {len(records)} outlets into general_db.")
-    await engine.dispose()
-    _clear_app_modules()
-
-
 async def seed_routes_and_allowances():
     """Seed district_travel.csv and service_allowance.csv into general_db."""
     _clear_app_modules()
@@ -325,11 +250,10 @@ async def seed_routes_and_allowances():
 
 async def main():
     print("=" * 60)
-    print("Starting Waypoint Data Seeder (Vehicles, Outlets, Routes, Allowances)")
+    print("Starting Waypoint Data Seeder (Vehicles, Routes, Allowances)")
     print("=" * 60)
     await ensure_databases()
     await seed_vehicles()
-    await seed_outlets()
     await seed_routes_and_allowances()
     print("=" * 60)
     print("Database seeding completed successfully!")

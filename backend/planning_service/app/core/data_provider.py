@@ -58,21 +58,74 @@ async def _db_fetch(db_name: str, query: str, *args) -> list[dict[str, Any]]:
 # ── Outlets ───────────────────────────────────────────────────────────────── #
 
 
+DEPOT_NAMES = {"PEL": "Peliyagoda", "KDY": "Kandy"}
+
+OUTLET_DB_QUERY = """
+    SELECT o.outlet_id, b.code AS brand, d.name AS district, dp.code AS depot,
+           o.dock_type, o.parking_constraint, o.mall_window,
+           o.window_open_time, o.window_close_time, o.is_active
+    FROM outlet o
+    JOIN brand b ON o.brand_id = b.id
+    JOIN district d ON o.district_id = d.id
+    JOIN depot dp ON o.depot_id = dp.id
+    WHERE o.is_active = true;
+"""
+
+
+def _planning_outlet_row(row: dict[str, Any]) -> dict[str, Any]:
+    """Map a master outlet row (brand/depot codes) to the planning domain naming."""
+    return {
+        "ID": row["outlet_id"],
+        "brand": str(row["brand"]).capitalize(),
+        "district": row["district"],
+        "depot": DEPOT_NAMES.get(row["depot"], row["depot"]),
+        "dock_type": row["dock_type"],
+        "parking_constraint": row["parking_constraint"],
+        "mall_window": row.get("mall_window"),
+        "window_open_time": row["window_open_time"],
+        "window_close_time": row["window_close_time"],
+        "IsActive": row.get("is_active", True),
+    }
+
+
+async def _fetch_outlets_from_core() -> list[dict[str, Any]]:
+    base = f"{settings.CORE_SERVICE_URL}/api/v1/master"
+    async with httpx.AsyncClient(timeout=2.0) as client:
+        responses = [
+            await client.get(f"{base}/outlets", params={"is_active": "true", "limit": 500}),
+            await client.get(f"{base}/brands"),
+            await client.get(f"{base}/depots"),
+            await client.get(f"{base}/districts"),
+        ]
+    if any(resp.status_code != 200 for resp in responses):
+        return []
+    outlets, brands, depots, districts = (resp.json() for resp in responses)
+    brand_codes = {b["id"]: b["code"] for b in brands}
+    depot_codes = {d["id"]: d["code"] for d in depots}
+    district_names = {d["id"]: d["name"] for d in districts}
+    return [
+        {
+            **o,
+            "brand": brand_codes[o["brand_id"]],
+            "district": district_names[o["district_id"]],
+            "depot": depot_codes[o["depot_id"]],
+        }
+        for o in outlets
+    ]
+
+
 async def fetch_outlets() -> list[Outlet]:
     """Fetch all active outlets."""
     data = []
     # 1. Try HTTP
     try:
-        async with httpx.AsyncClient(timeout=2.0) as client:
-            resp = await client.get(f"{settings.CORE_SERVICE_URL}/outlets/v1/outlets?limit=500")
-            if resp.status_code == 200:
-                data = resp.json().get("items", [])
+        data = [_planning_outlet_row(r) for r in await _fetch_outlets_from_core()]
     except Exception:
         pass
 
     # 2. Fallback to DB
     if not data:
-        data = await _db_fetch("general_db", 'SELECT * FROM outlets WHERE "IsActive" = true;')
+        data = [_planning_outlet_row(r) for r in await _db_fetch("general_db", OUTLET_DB_QUERY)]
 
     # 3. Fallback to CSV
     if not data:

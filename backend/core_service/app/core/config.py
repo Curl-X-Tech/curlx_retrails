@@ -31,7 +31,6 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str | None = None
 
     DATABASE_URL: str | None = None
-    OUTLET_SERVICE_URL: str = "http://localhost:8000"
     ORDER_SERVICE_URL: str = "http://localhost:8000"
     ROUTE_SERVICE_URL: str = "http://localhost:8000"
     VEHICLE_SERVICE_URL: str = "http://localhost:8000"

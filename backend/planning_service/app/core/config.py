@@ -39,7 +39,6 @@ class Settings(BaseSettings):
     # routes, and vehicles.
     CORE_SERVICE_URL: str = "http://localhost:8000"
     ORDER_SERVICE_URL: str = "http://localhost:8000"
-    OUTLET_SERVICE_URL: str = "http://localhost:8000"
     ROUTE_SERVICE_URL: str = "http://localhost:8000"
     VEHICLE_SERVICE_URL: str = "http://localhost:8000"
 

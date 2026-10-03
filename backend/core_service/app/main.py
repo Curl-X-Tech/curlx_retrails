@@ -14,9 +14,6 @@ from app.routers import (
     orders,
     orders_analytics,
     orders_status,
-    outlets,
-    outlets_lookup,
-    outlets_windows,
     plan_ingest,
     routes,
     runsheets,
@@ -79,12 +76,6 @@ for prefix in ("/orders/v1", "/orders"):
     app.include_router(orders_status.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
     app.include_router(orders_analytics.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
     app.include_router(orders.router, prefix=prefix, include_in_schema=(prefix == "/orders/v1"))
-
-# --- Outlets ---
-for prefix in ("/outlets/v1", "/outlets"):
-    app.include_router(outlets_lookup.router, prefix=prefix, include_in_schema=(prefix == "/outlets/v1"))
-    app.include_router(outlets_windows.router, prefix=prefix, include_in_schema=(prefix == "/outlets/v1"))
-    app.include_router(outlets.router, prefix=prefix, include_in_schema=(prefix == "/outlets/v1"))
 
 # --- Routes ---
 for prefix in ("/routes/v1", "/routes"):

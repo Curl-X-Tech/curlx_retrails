@@ -32,6 +32,8 @@ async def list_outlets(
     dock_type: Annotated[DockType | None, Query(description="Filter by Dock Type")] = None,
     parking_constraint: Annotated[ParkingConstraint | None, Query(description="Filter by Parking Constraint")] = None,
     is_active: Annotated[bool | None, Query(description="Filter by active status")] = None,
+    offset: Annotated[int, Query(ge=0, description="Number of outlets to skip")] = 0,
+    limit: Annotated[int, Query(ge=1, le=500, description="Maximum number of outlets to return")] = 500,
 ) -> list[Outlet]:
     """Retrieve all retail outlets with delivery windows, dock types, and parking constraints."""
     query = select(Outlet).order_by(Outlet.outlet_id.asc())
@@ -48,7 +50,7 @@ async def list_outlets(
     if is_active is not None:
         query = query.where(Outlet.is_active == is_active)
 
-    result = await session.execute(query)
+    result = await session.execute(query.offset(offset).limit(limit))
     return list(result.scalars().all())
 
 

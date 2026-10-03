@@ -3,12 +3,12 @@
 from datetime import date, datetime
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, Path, Query, status
-import httpx
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import get_settings
 from app.core.database import get_db
+from app.entities.depot import Depot as DepotEntity
+from app.entities.outlet import Outlet
 from app.models.order import OrderModel
 from app.schemas.order_schemas import (
     OrderCreate,
@@ -22,23 +22,19 @@ from app.schemas.order_schemas import (
 )
 
 router = APIRouter(prefix="/orders", tags=["Orders"])
-settings = get_settings()
 
 
-async def _get_outlets_for_depot(depot: str) -> list[str]:
-    """Fetch outlet IDs for a given depot from Outlet Service."""
-    try:
-        async with httpx.AsyncClient(timeout=3.0) as client:
-            resp = await client.get(
-                f"{settings.OUTLET_SERVICE_URL}/outlets/v1/outlets/lookup/by-depot",
-                params={"depot": depot, "limit": 500},
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                return [item["ID"] for item in data.get("items", [])]
-    except Exception as e:
-        print(f"[order-service] Warning: Could not reach outlet-service for depot filter: {e}")
-    return []
+DEPOT_CODES = {"Peliyagoda": "PEL", "Kandy": "KDY"}
+
+
+async def _get_outlets_for_depot(db: AsyncSession, depot: str) -> list[str]:
+    """Return outlet codes of active outlets served by the given depot."""
+    result = await db.execute(
+        select(Outlet.outlet_id)
+        .join(DepotEntity, Outlet.depot_id == DepotEntity.id)
+        .where(DepotEntity.code == DEPOT_CODES.get(depot, depot), Outlet.is_active.is_(True))
+    )
+    return list(result.scalars().all())
 
 
 @router.post(
@@ -146,7 +142,7 @@ async def list_orders(
     if status_filter:
         query = query.where(OrderModel.status == status_filter.value)
     if depot:
-        outlet_ids = await _get_outlets_for_depot(depot.value)
+        outlet_ids = await _get_outlets_for_depot(db, depot.value)
         if outlet_ids:
             query = query.where(OrderModel.outlet_id.in_(outlet_ids))
         else:

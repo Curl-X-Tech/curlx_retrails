@@ -17,7 +17,6 @@ from app.models.audit import DispatchAuditLogModel
 from app.models.dispatch import LiveTripModel
 from app.models.driver import DriverModel
 from app.models.order import OrderModel
-from app.models.outlet import OutletModel
 from app.models.route import RouteModel
 from app.models.service_allowance import ServiceAllowanceModel
 from app.models.vehicle import VehicleModel
@@ -72,7 +71,6 @@ __all__ = [
     "OrderModel",
     "Outlet",
     "OutletCreate",
-    "OutletModel",
     "OutletRead",
     "OutletUpdate",
     "ParkingConstraint",
