@@ -9,7 +9,7 @@ export interface StoreOrderFilterOptions {
   dateFilter?: string;
 }
 
-export function useStoreOrders(initialFilters?: StoreOrderFilterOptions) {
+export function useStoreOrders() {
   const [orders, setOrders] = React.useState<StoreOrderRecord[]>(() => getStoreOrders());
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [activeDetailOrder, setActiveDetailOrder] = React.useState<StoreOrderRecord | null>(null);

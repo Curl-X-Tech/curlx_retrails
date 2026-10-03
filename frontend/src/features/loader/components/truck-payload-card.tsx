@@ -1,21 +1,11 @@
 import * as React from "react";
-import {
-  TruckIcon,
-  SnowflakeIcon,
-  ArrowsLeftRightIcon,
-  TimerIcon,
-  PrinterIcon,
-} from "@phosphor-icons/react";
+import { TruckIcon, SnowflakeIcon, ArrowsLeftRightIcon, PrinterIcon } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  VehicleCargoVisualizer,
-  type VehicleVisualizerData,
-  SwipeToConfirm,
-} from "@/components/shared";
-import type { LoaderVehicleTrip } from "@/data/mock-loader-bays";
-import { cn } from "@/lib/utils";
+import { VehicleCargoVisualizer, type VehicleVisualizerData, SwipeToConfirm } from "@/components/shared";
+import { TruckCountdownBar } from "./truck-countdown-bar";
+import type { LoaderVehicleTrip } from "../types";
 
 interface TruckPayloadCardProps {
   trip: LoaderVehicleTrip;
@@ -23,17 +13,9 @@ interface TruckPayloadCardProps {
   onConfirm?: () => void;
 }
 
-export function TruckPayloadCard({
-  trip,
-  onSwitchVehicle,
-  onConfirm,
-}: TruckPayloadCardProps) {
-  const [visualizerMode, setVisualizerMode] = React.useState<"weight" | "volume">(
-    "weight"
-  );
+export function TruckPayloadCard({ trip, onSwitchVehicle, onConfirm }: TruckPayloadCardProps) {
+  const [visualizerMode, setVisualizerMode] = React.useState<"weight" | "volume">("weight");
   const { driver, payload, imagePath, type } = trip;
-
-  // Live countdown timer state
   const initialMinutes = trip.departureCountdownMinutes || 38;
   const [secondsLeft, setSecondsLeft] = React.useState<number>(initialMinutes * 60);
 
@@ -42,9 +24,7 @@ export function TruckPayloadCard({
   }, [trip.departureCountdownMinutes, trip.id]);
 
   React.useEffect(() => {
-    const timer = setInterval(() => {
-      setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
+    const timer = setInterval(() => setSecondsLeft((prev) => (prev > 0 ? prev - 1 : 0)), 1000);
     return () => clearInterval(timer);
   }, []);
 
@@ -52,7 +32,6 @@ export function TruckPayloadCard({
   const seconds = secondsLeft % 60;
   const isCritical = totalMinutes < 10;
   const isWarning = totalMinutes >= 10 && totalMinutes <= 30;
-
   const timeString = `${totalMinutes}m ${seconds < 10 ? "0" : ""}${seconds}s`;
 
   const visualizerData: VehicleVisualizerData = {
@@ -69,9 +48,7 @@ export function TruckPayloadCard({
 
   return (
     <div className="flex flex-col gap-3 w-full">
-      {/* 1. Vehicle Info & Live Departure Countdown Card */}
       <Card className="flex flex-col p-3.5 sm:p-4 rounded-2xl border border-border/80 bg-card shadow-xs gap-3">
-        {/* Top: Vehicle Reg, Print Icon Button & Switch Button */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3 min-w-0">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -82,16 +59,13 @@ export function TruckPayloadCard({
                 <span className="font-heading font-black text-sm sm:text-base text-foreground tracking-tight">
                   # {trip.regNumber}
                 </span>
-                {trip.temp === "reefer" && (
-                  <SnowflakeIcon className="size-4 text-sky-500 shrink-0" />
-                )}
+                {trip.temp === "reefer" && <SnowflakeIcon className="size-4 text-sky-500 shrink-0" />}
                 <Badge variant="secondary" className="text-[10px] font-bold px-2 py-0.5">
                   {trip.stopsCount} Stops
                 </Badge>
               </div>
               <span className="text-xs text-muted-foreground truncate">
-                {trip.modelName} ·{" "}
-                <strong className="text-foreground">{trip.depotName}</strong>
+                {trip.modelName} · <strong className="text-foreground">{trip.depotName}</strong>
               </span>
             </div>
           </div>
@@ -107,7 +81,6 @@ export function TruckPayloadCard({
             >
               <PrinterIcon className="size-4 text-foreground" />
             </Button>
-
             {onSwitchVehicle && (
               <Button
                 variant="outline"
@@ -122,80 +95,30 @@ export function TruckPayloadCard({
           </div>
         </div>
 
-        {/* Live Rollout Countdown Bar */}
-        <div
-          className={cn(
-            "flex items-center justify-between px-3 py-2 rounded-xl border transition-colors",
-            isCritical
-              ? "border-rose-500/30 bg-rose-500/10 text-rose-950 dark:text-rose-100"
-              : isWarning
-                ? "border-amber-500/30 bg-amber-500/10 text-amber-950 dark:text-amber-100"
-                : "border-primary/20 bg-primary/5 text-foreground"
-          )}
-        >
-          <div className="flex items-center gap-1.5 min-w-0">
-            <TimerIcon
-              className={cn(
-                "size-4 shrink-0",
-                isCritical
-                  ? "text-rose-600 dark:text-rose-400"
-                  : isWarning
-                    ? "text-amber-600 dark:text-amber-400"
-                    : "text-primary"
-              )}
-              weight="bold"
-            />
-            <span className="text-xs text-muted-foreground font-medium">
-              Rollout {trip.plannedDepartureTime}
-            </span>
-          </div>
-          <span
-            className={cn(
-              "text-xs sm:text-sm font-heading font-black tracking-tight",
-              isCritical
-                ? "text-rose-600 dark:text-rose-400"
-                : isWarning
-                  ? "text-amber-600 dark:text-amber-400"
-                  : "text-primary"
-            )}
-          >
-            {timeString} left
-          </span>
-        </div>
+        <TruckCountdownBar
+          departureTime={trip.plannedDepartureTime}
+          timeString={timeString}
+          isCritical={isCritical}
+          isWarning={isWarning}
+        />
 
-        {/* Inline Driver Details */}
         <div className="flex items-center gap-2.5 pt-1 border-t border-border/60">
           <div className="flex size-6.5 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-heading font-black text-[11px]">
             {driver.avatarInitials}
           </div>
           <div className="flex items-center justify-between min-w-0 flex-1">
-            <span className="text-xs font-heading font-bold text-foreground truncate">
-              {driver.name}
-            </span>
-            <span className="text-[11px] font-medium text-muted-foreground truncate">
-              {driver.licenseId}
-            </span>
+            <span className="text-xs font-heading font-bold text-foreground truncate">{driver.name}</span>
+            <span className="text-[11px] font-medium text-muted-foreground truncate">{driver.licenseId}</span>
           </div>
         </div>
       </Card>
 
-      {/* 2. Responsive Compact Cargo Visualizer Card */}
       <Card className="p-2.5 sm:p-3 bg-card rounded-2xl border border-border/80 shadow-xs flex flex-col justify-center min-w-0">
-        <VehicleCargoVisualizer
-          vehicle={visualizerData}
-          mode={visualizerMode}
-          onToggleMode={setVisualizerMode}
-          size="compact"
-        />
+        <VehicleCargoVisualizer vehicle={visualizerData} mode={visualizerMode} onToggleMode={setVisualizerMode} size="compact" />
       </Card>
 
-      {/* 3. Primary Action Control: Swipe to Confirm Loading */}
       <div className="flex flex-col gap-2 w-full pt-0.5">
-        <SwipeToConfirm
-          onConfirm={() => onConfirm?.()}
-          label="Slide to Confirm Loading"
-          confirmedLabel="Loading Confirmed"
-        />
+        <SwipeToConfirm onConfirm={() => onConfirm?.()} label="Slide to Confirm Loading" confirmedLabel="Loading Confirmed" />
       </div>
     </div>
   );
