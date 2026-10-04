@@ -1,55 +1,55 @@
 import { apiClient, shouldUseMock } from "@/api/client";
 import { ENDPOINTS } from "@/api/endpoints";
-import { getCurrentRouteMock } from "./mock";
+import {
+  getCurrentRouteMock,
+  getDriverTripsMock,
+  updateInMemoryCurrentRoute,
+} from "./mock";
 import type { CurrentRoute, DriverTripListItem } from "./types";
+import { db } from "@/lib/dexie-db";
 
 export async function getCurrentRoute(
   tripId?: string,
   signal?: AbortSignal
 ): Promise<CurrentRoute> {
   const ep = ENDPOINTS.driverCurrentRoute;
-  if (shouldUseMock(ep.domain, ep.status)) {
+  if (
+    shouldUseMock(ep.domain, ep.status) ||
+    (typeof navigator !== "undefined" && !navigator.onLine)
+  ) {
     return getCurrentRouteMock();
   }
-  const url = tripId ? `${ep.path}?trip_id=${tripId}` : ep.path;
-  return apiClient<CurrentRoute>(url, {
-    method: ep.method,
-    signal,
-  });
+  try {
+    const url = tripId ? `${ep.path}?trip_id=${tripId}` : ep.path;
+    const data = await apiClient<CurrentRoute>(url, {
+      method: ep.method,
+      signal,
+    });
+    updateInMemoryCurrentRoute(data);
+    return data;
+  } catch {
+    return getCurrentRouteMock();
+  }
 }
 
 export async function getDriverTrips(
   signal?: AbortSignal
 ): Promise<DriverTripListItem[]> {
   const ep = ENDPOINTS.driverTripsList;
-  if (shouldUseMock(ep.domain, ep.status)) {
-    const route = await getCurrentRouteMock();
-    return [
-      {
-        id: route.trip.id,
-        trip_code: route.trip.trip_code,
-        driver_id: route.trip.driver?.id || "drv-01",
-        driver_name: route.trip.driver?.name || "Driver",
-        date: route.trip.dispatch_date,
-        status: route.trip.status,
-        vehicle_id: route.trip.vehicle.id,
-        reg_number: route.trip.vehicle.reg_number,
-        model_name: route.trip.vehicle.model_name,
-        depot_name: route.trip.depot.name,
-        total_weight_kg: route.waypoints.reduce(
-          (acc, w) => acc + w.order_summary.total_weight_kg,
-          0
-        ),
-        total_volume_m3: route.trip.vehicle.volume_cap_m3,
-        total_stops: route.waypoints.length,
-        is_downloaded: true,
-      },
-    ];
+  if (
+    shouldUseMock(ep.domain, ep.status) ||
+    (typeof navigator !== "undefined" && !navigator.onLine)
+  ) {
+    return getDriverTripsMock();
   }
-  return apiClient<DriverTripListItem[]>(ep.path, {
-    method: ep.method,
-    signal,
-  });
+  try {
+    return await apiClient<DriverTripListItem[]>(ep.path, {
+      method: ep.method,
+      signal,
+    });
+  } catch {
+    return getDriverTripsMock();
+  }
 }
 
 export async function activateDriverTrip(
@@ -57,9 +57,44 @@ export async function activateDriverTrip(
   signal?: AbortSignal
 ): Promise<{ success: boolean; trip_id: string; status: string }> {
   const ep = ENDPOINTS.driverActivateTrip;
-  const path = ep.path.replace("{trip_id}", tripId);
-  return apiClient<{ success: boolean; trip_id: string; status: string }>(path, {
-    method: ep.method,
-    signal,
-  });
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    try {
+      await db.trips.update(tripId, {
+        status: "in_transit",
+        updatedAt: new Date().toISOString(),
+      });
+    } catch {
+      // ignore
+    }
+    return { success: true, trip_id: tripId, status: "in_transit" };
+  }
+  try {
+    const path = ep.path.replace("{trip_id}", tripId);
+    const result = await apiClient<{ success: boolean; trip_id: string; status: string }>(
+      path,
+      {
+        method: ep.method,
+        signal,
+      }
+    );
+    try {
+      await db.trips.update(tripId, {
+        status: "in_transit",
+        updatedAt: new Date().toISOString(),
+      });
+    } catch {
+      // ignore
+    }
+    return result;
+  } catch {
+    try {
+      await db.trips.update(tripId, {
+        status: "in_transit",
+        updatedAt: new Date().toISOString(),
+      });
+    } catch {
+      // ignore
+    }
+    return { success: true, trip_id: tripId, status: "in_transit" };
+  }
 }

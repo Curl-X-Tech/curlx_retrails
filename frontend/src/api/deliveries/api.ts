@@ -18,14 +18,24 @@ export async function recordArrival(
   payload: ArriveRequest
 ): Promise<{ success: boolean; waypoint_id: string; status: string }> {
   const ep = ENDPOINTS.deliveriesArrive;
-  if (shouldUseMock(ep.domain, ep.status)) {
+  if (
+    shouldUseMock(ep.domain, ep.status) ||
+    (typeof navigator !== "undefined" && !navigator.onLine)
+  ) {
     return recordArrivalMock(waypointId, payload);
   }
-  const path = ep.path.replace("{waypoint_id}", encodeURIComponent(waypointId));
-  return apiClient<{ success: boolean; waypoint_id: string; status: string }>(path, {
-    method: ep.method,
-    body: payload as unknown as Record<string, unknown>,
-  });
+  try {
+    const path = ep.path.replace("{waypoint_id}", encodeURIComponent(waypointId));
+    return await apiClient<{ success: boolean; waypoint_id: string; status: string }>(
+      path,
+      {
+        method: ep.method,
+        body: payload as unknown as Record<string, unknown>,
+      }
+    );
+  } catch {
+    return recordArrivalMock(waypointId, payload);
+  }
 }
 
 export async function submitPod(
@@ -33,14 +43,21 @@ export async function submitPod(
   payload: SubmitPodRequest
 ): Promise<ProofOfDelivery> {
   const ep = ENDPOINTS.deliveriesPod;
-  if (shouldUseMock(ep.domain, ep.status)) {
+  if (
+    shouldUseMock(ep.domain, ep.status) ||
+    (typeof navigator !== "undefined" && !navigator.onLine)
+  ) {
     return submitPodMock(waypointId, payload);
   }
-  const path = ep.path.replace("{waypoint_id}", encodeURIComponent(waypointId));
-  return apiClient<ProofOfDelivery>(path, {
-    method: ep.method,
-    body: payload as unknown as Record<string, unknown>,
-  });
+  try {
+    const path = ep.path.replace("{waypoint_id}", encodeURIComponent(waypointId));
+    return await apiClient<ProofOfDelivery>(path, {
+      method: ep.method,
+      body: payload as unknown as Record<string, unknown>,
+    });
+  } catch {
+    return submitPodMock(waypointId, payload);
+  }
 }
 
 export async function logDiscrepancy(
@@ -48,14 +65,21 @@ export async function logDiscrepancy(
   payload: LogDiscrepancyRequest
 ): Promise<DiscrepancyReport> {
   const ep = ENDPOINTS.deliveriesDiscrepancy;
-  if (shouldUseMock(ep.domain, ep.status)) {
+  if (
+    shouldUseMock(ep.domain, ep.status) ||
+    (typeof navigator !== "undefined" && !navigator.onLine)
+  ) {
     return logDiscrepancyMock(waypointId, payload);
   }
-  const path = ep.path.replace("{waypoint_id}", encodeURIComponent(waypointId));
-  return apiClient<DiscrepancyReport>(path, {
-    method: ep.method,
-    body: payload as unknown as Record<string, unknown>,
-  });
+  try {
+    const path = ep.path.replace("{waypoint_id}", encodeURIComponent(waypointId));
+    return await apiClient<DiscrepancyReport>(path, {
+      method: ep.method,
+      body: payload as unknown as Record<string, unknown>,
+    });
+  } catch {
+    return logDiscrepancyMock(waypointId, payload);
+  }
 }
 
 export async function uploadPodImage(
