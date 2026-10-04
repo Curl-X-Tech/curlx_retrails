@@ -139,7 +139,8 @@ export function LoaderExceptionsPage() {
               Zero Active Discrepancies
             </span>
             <p className="text-xs text-muted-foreground max-w-sm">
-              All loaded and dispatched trips have completed full checklist verification with zero outstanding shortfalls.
+              All loaded and dispatched trips have completed full checklist verification
+              with zero outstanding shortfalls.
             </p>
           </Card>
         ) : (
@@ -169,7 +170,8 @@ export function LoaderExceptionsPage() {
                       </span>
                     </div>
                     <span className="text-[11px] text-muted-foreground mt-0.5">
-                      {b.driver.name} · {b.progress.verified_items_count}/{b.progress.total_items_count} Items
+                      {b.driver.name} · {b.progress.verified_items_count}/
+                      {b.progress.total_items_count} Items
                     </span>
                   </div>
                 </div>

@@ -3,6 +3,7 @@ import { AppLayout } from "@/components/layout/app-layout";
 import { ProtectedRoute } from "@/features/auth";
 import { StoreOrdersPage } from "@/pages/store/store-orders-page";
 import { StoreCreateOrderPage } from "@/pages/store/store-create-order-page";
+import { StoreReceivingPage } from "@/pages/store/store-receiving-page";
 import { StoreDeferralsPage } from "@/pages/store/store-deferrals-page";
 import { StoreDashboardPage } from "@/pages/store/store-dashboard-page";
 import { StoreReportsPage } from "@/pages/store/store-reports-page";
@@ -26,6 +27,16 @@ export function StoreRoutes() {
         <Route path="/store/orders" element={<StoreOrdersPage />} />
         <Route path="/store/queue" element={<Navigate to="/store/orders" replace />} />
         <Route path="/store/orders/new" element={<StoreCreateOrderPage />} />
+        <Route path="/store/receiving" element={<StoreReceivingPage />} />
+        <Route
+          path="/store/inbound"
+          element={<Navigate to="/store/receiving" replace />}
+        />
+        <Route
+          path="/store/inbound-receiving"
+          element={<Navigate to="/store/receiving" replace />}
+        />
+
         <Route
           path="/store/create-order"
           element={<Navigate to="/store/orders/new" replace />}

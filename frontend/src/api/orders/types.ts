@@ -29,6 +29,7 @@ export interface CustomerOrder {
   dock_type?: string;
   parking_constraint?: string;
   delivery_window?: string;
+  depot?: string;
   total_packages?: number;
   total_items?: number;
 }

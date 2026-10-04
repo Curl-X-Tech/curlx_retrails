@@ -33,7 +33,10 @@ router = APIRouter(prefix="/orders", tags=["orders"])
 SessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 AuthDep = Annotated[User, Depends(current_active_user)]
 CreatorDep = Annotated[User, Depends(RoleGuard(RoleType.STORE_MANAGER, RoleType.DISPATCHER))]
-StatusEditorDep = Annotated[User, Depends(RoleGuard(RoleType.DISPATCHER, RoleType.LOADER, RoleType.DRIVER))]
+StatusEditorDep = Annotated[
+    User,
+    Depends(RoleGuard(RoleType.DISPATCHER, RoleType.LOADER, RoleType.DRIVER, RoleType.STORE_MANAGER)),
+]
 
 
 async def _get_order(session: AsyncSession, id: uuid.UUID) -> CustomerOrder:

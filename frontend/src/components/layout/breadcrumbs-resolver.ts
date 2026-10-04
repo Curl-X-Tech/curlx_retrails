@@ -61,6 +61,14 @@ export function getBreadcrumbs(pathname: string): CrumbItem[] {
   ) {
     return [{ label: "Planning" }, { label: "Order queue", isCurrent: true }];
   }
+  if (
+    pathname === "/store/receiving" ||
+    pathname.startsWith("/store/receiving") ||
+    pathname === "/store/inbound"
+  ) {
+    return [{ label: "Planning" }, { label: "Inbound receiving", isCurrent: true }];
+  }
+
   if (pathname === "/store/orders/new" || pathname === "/store/create-order") {
     return [
       { label: "Planning" },

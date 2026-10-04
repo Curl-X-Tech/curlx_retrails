@@ -1,15 +1,17 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
-import { QueryState } from "@/components/shared";
-import { Skeleton } from "@/components/ui/skeleton";
+import { TableSkeleton } from "@/components/skeletons/table-skeleton";
+import { CardGridSkeleton } from "@/components/skeletons/card-grid-skeleton";
 import {
   useStoreOrders,
-  OrderListFilterBar,
+  StoreOrderHeader,
+  StoreOrderKpiBar,
+  StoreOrderFilterToolbar,
   OrderListTable,
   OrderListCards,
-  OrderListPagination,
   OrderDetailSheet,
   type StoreOrderRecord,
+  type StoreViewMode,
 } from "@/features/store";
 
 export function StoreOrdersPage() {
@@ -19,103 +21,142 @@ export function StoreOrdersPage() {
   const statusFilter = searchParams.get("status") || "all";
   const hubFilter = searchParams.get("hub") || "all";
   const dateFilter = searchParams.get("date") || "today";
+  const viewMode = (searchParams.get("view") as StoreViewMode) || "table";
+  const orderRefParam = searchParams.get("order");
 
   const {
+    orders,
+    kpis,
     selectedIds,
     activeDetailOrder,
     setActiveDetailOrder,
-    refreshOrders,
+    currentPage,
+    setCurrentPage,
+    pageSize,
     getFilteredOrders,
+    cancelOrder,
+    reorderOrder,
+    exportOrders,
     toggleSelectRow,
     toggleSelectAll,
     isLoading,
-    error,
   } = useStoreOrders();
 
   const filteredOrders = React.useMemo(() => {
     return getFilteredOrders({ searchQuery, statusFilter, hubFilter, dateFilter });
   }, [getFilteredOrders, searchQuery, statusFilter, hubFilter, dateFilter]);
 
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / pageSize));
+  const paginatedOrders = React.useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return filteredOrders.slice(start, start + pageSize);
+  }, [filteredOrders, currentPage, pageSize]);
+
   const allSelected =
-    filteredOrders.length > 0 && filteredOrders.every((o) => selectedIds.includes(o.id));
+    paginatedOrders.length > 0 &&
+    paginatedOrders.every((o) => selectedIds.includes(o.id));
 
-  const handleSearchChange = (val: string) => {
+  // Sync active order with URL query param if present
+  React.useEffect(() => {
+    if (orderRefParam && !activeDetailOrder) {
+      const match = orders.find(
+        (o) => o.orderRef === orderRefParam || o.id === orderRefParam
+      );
+      if (match) setActiveDetailOrder(match);
+    }
+  }, [orderRefParam, orders, activeDetailOrder, setActiveDetailOrder]);
+
+  const updateParam = (key: string, val: string | null) => {
     const next = new URLSearchParams(searchParams);
-    if (val) next.set("q", val);
-    else next.delete("q");
+    if (val && val !== "all") next.set(key, val);
+    else next.delete(key);
+    setSearchParams(next, { replace: true });
+    setCurrentPage(1);
+  };
+
+  const handleSelectOrder = (order: StoreOrderRecord) => {
+    setActiveDetailOrder(order);
+    const next = new URLSearchParams(searchParams);
+    next.set("order", order.orderRef);
     setSearchParams(next, { replace: true });
   };
 
-  const handleStatusSelect = (status: string) => {
+  const handleCloseDetail = () => {
+    setActiveDetailOrder(null);
     const next = new URLSearchParams(searchParams);
-    if (status === "all") next.delete("status");
-    else next.set("status", status);
-    setSearchParams(next, { replace: true });
-  };
-
-  const handleHubSelect = (hub: string) => {
-    const next = new URLSearchParams(searchParams);
-    if (hub === "all") next.delete("hub");
-    else next.set("hub", hub);
-    setSearchParams(next, { replace: true });
-  };
-
-  const handleDateSelect = (date: string) => {
-    const next = new URLSearchParams(searchParams);
-    next.set("date", date);
+    next.delete("order");
     setSearchParams(next, { replace: true });
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-background font-sans">
-      <OrderListFilterBar
-        searchQuery={searchQuery}
-        onSearchChange={handleSearchChange}
-        dateFilter={dateFilter}
-        onDateSelect={handleDateSelect}
-        statusFilter={statusFilter}
-        onStatusSelect={handleStatusSelect}
-        hubFilter={hubFilter}
-        onHubSelect={handleHubSelect}
-        onRefresh={refreshOrders}
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-background font-sans">
+      <StoreOrderHeader
+        onExportOrders={() => exportOrders(filteredOrders)}
+        onPrintManifests={() => window.print()}
       />
 
-      <div className="flex-1 overflow-auto p-4">
-        <QueryState
-          isLoading={isLoading}
-          error={error}
-          isEmpty={filteredOrders.length === 0}
-          onRetry={refreshOrders}
-          emptyMessage="No orders found matching the filter criteria."
-          loading={
-            <div className="space-y-3">
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-              <Skeleton className="h-12 w-full" />
-            </div>
-          }
-        >
+      <StoreOrderKpiBar kpis={kpis} />
+
+      <StoreOrderFilterToolbar
+        searchQuery={searchQuery}
+        onSearchChange={(val) => updateParam("q", val || null)}
+        dateFilter={dateFilter}
+        onDateSelect={(val) => updateParam("date", val)}
+        statusFilter={statusFilter}
+        onStatusSelect={(val) => updateParam("status", val)}
+        hubFilter={hubFilter}
+        onHubSelect={(val) => updateParam("hub", val)}
+        viewMode={viewMode}
+        onViewModeChange={(val) => updateParam("view", val === "table" ? null : val)}
+      />
+
+      <div
+        className={`flex-1 min-h-0 margin-responsive py-4 sm:py-5 ${
+          viewMode === "grid" ? "overflow-y-auto" : "overflow-hidden flex flex-col"
+        }`}
+      >
+        {isLoading ? (
+          viewMode === "grid" ? (
+            <CardGridSkeleton count={8} />
+          ) : (
+            <TableSkeleton columns={9} rowCount={6} />
+          )
+        ) : viewMode === "grid" ? (
+          <OrderListCards
+            orders={paginatedOrders}
+            totalCount={filteredOrders.length}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onSelectOrder={handleSelectOrder}
+            onReorder={reorderOrder}
+            onCancelOrder={cancelOrder}
+          />
+        ) : (
           <OrderListTable
-            orders={filteredOrders}
+            orders={paginatedOrders}
             selectedIds={selectedIds}
             allSelected={allSelected}
-            onToggleSelectAll={() => toggleSelectAll(filteredOrders)}
+            totalCount={filteredOrders.length}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+            onToggleSelectAll={() => toggleSelectAll(paginatedOrders)}
             onToggleSelectRow={toggleSelectRow}
-            onSelectOrder={(order: StoreOrderRecord) => setActiveDetailOrder(order)}
+            onSelectOrder={handleSelectOrder}
+            onReorder={reorderOrder}
+            onCancelOrder={cancelOrder}
           />
-
-          <OrderListCards
-            orders={filteredOrders}
-            onSelectOrder={(order: StoreOrderRecord) => setActiveDetailOrder(order)}
-          />
-        </QueryState>
+        )}
       </div>
-
-      <OrderListPagination totalCount={filteredOrders.length} />
 
       <OrderDetailSheet
         order={activeDetailOrder}
-        onClose={() => setActiveDetailOrder(null)}
+        onClose={handleCloseDetail}
+        onReorder={reorderOrder}
+        onCancelOrder={cancelOrder}
       />
     </div>
   );

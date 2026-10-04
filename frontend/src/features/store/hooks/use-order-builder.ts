@@ -44,8 +44,7 @@ export function useOrderBuilder({
   const [catalogSearch, setCatalogSearch] = React.useState<string>("");
   const [isSearchingCatalog, setIsSearchingCatalog] = React.useState<boolean>(false);
   const [rows, setRows] = React.useState<StoreOrderItemRow[]>(() => {
-    const catalogIds = new Set(products.map((p) => p.id));
-    return loadSavedDraftRows().filter((r) => catalogIds.has(r.productId));
+    return loadSavedDraftRows();
   });
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
   const [showSuccessModal, setShowSuccessModal] = React.useState<boolean>(false);
