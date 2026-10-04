@@ -1,9 +1,20 @@
 import { useState, useMemo } from "react";
-import { useVehicles, useUpdateVehicle, type Vehicle, type VehicleStatus } from "@/api/fleet";
+import {
+  useVehicles,
+  useUpdateVehicle,
+  type Vehicle,
+  type VehicleStatus,
+} from "@/api/fleet";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import {
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
 import { TablePagination } from "@/components/shared/table-pagination";
 import {
   TruckIcon,
@@ -57,7 +68,9 @@ export function DispatcherVehiclesPage() {
 
   const availableCount = vehicles.filter((v) => v.status === "available").length;
   const inTransitCount = vehicles.filter((v) => v.status === "in_transit").length;
-  const workshopCount = vehicles.filter((v) => v.status === "in_workshop" || v.status === "breakdown").length;
+  const workshopCount = vehicles.filter(
+    (v) => v.status === "in_workshop" || v.status === "breakdown"
+  ).length;
   const totalWeight = vehicles.reduce((sum, v) => sum + v.weight_cap_kg, 0);
   const totalVolume = vehicles.reduce((sum, v) => sum + v.volume_cap_m3, 0);
 
@@ -65,8 +78,12 @@ export function DispatcherVehiclesPage() {
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
       <div className="px-4 sm:px-6 py-2.5 border-b border-border/60 bg-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
         <div>
-          <h1 className="text-lg font-heading font-black tracking-tight text-foreground">Fleet Vehicles</h1>
-          <p className="text-[11px] text-muted-foreground">Commercial vehicle roster, temperature ratings, and maintenance states</p>
+          <h1 className="text-lg font-heading font-black tracking-tight text-foreground">
+            Fleet Vehicles
+          </h1>
+          <p className="text-[11px] text-muted-foreground">
+            Commercial vehicle roster, temperature ratings, and maintenance states
+          </p>
         </div>
       </div>
 
@@ -74,32 +91,44 @@ export function DispatcherVehiclesPage() {
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <TruckIcon className="size-3.5 text-primary shrink-0" />
           <span className="text-muted-foreground text-[11px]">Vehicles:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{vehicles.length}</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {vehicles.length}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <CheckCircleIcon className="size-3.5 text-emerald-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Available:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{availableCount}</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {availableCount}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <NavigationArrowIcon className="size-3.5 text-sky-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">In Transit:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{inTransitCount}</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {inTransitCount}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <WrenchIcon className="size-3.5 text-amber-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">In Workshop:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{workshopCount}</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {workshopCount}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <ScalesIcon className="size-3.5 text-emerald-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Capacity:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{(totalWeight / 1000).toFixed(1)} t</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {(totalWeight / 1000).toFixed(1)} t
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <CubeIcon className="size-3.5 text-purple-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Volume:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{totalVolume.toFixed(1)} m³</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {totalVolume.toFixed(1)} m³
+          </span>
         </div>
       </div>
 
@@ -151,9 +180,17 @@ export function DispatcherVehiclesPage() {
         <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
           <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
             <div className="text-muted-foreground text-[11px] tabular-nums">
-              Showing <span className="font-bold text-foreground">{filteredVehicles.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
-              <span className="font-bold text-foreground">{Math.min(currentPage * PAGE_SIZE, filteredVehicles.length)}</span> of{" "}
-              <span className="font-bold text-foreground">{filteredVehicles.length}</span> units
+              Showing{" "}
+              <span className="font-bold text-foreground">
+                {filteredVehicles.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-bold text-foreground">
+                {Math.min(currentPage * PAGE_SIZE, filteredVehicles.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold text-foreground">{filteredVehicles.length}</span>{" "}
+              units
             </div>
 
             {!groupByType && (
@@ -169,33 +206,68 @@ export function DispatcherVehiclesPage() {
             <table className="w-full caption-bottom text-sm">
               <TableHeader className="sticky top-0 z-20 bg-card shadow-2xs border-b border-border/80">
                 <TableRow className="border-b border-border/80 hover:bg-transparent">
-                  <TableHead className="w-[180px] font-bold text-foreground text-xs">Plate & Model</TableHead>
-                  <TableHead className="w-[140px] font-bold text-foreground text-xs">Type & Mode</TableHead>
-                  <TableHead className="w-[160px] font-bold text-foreground text-xs">Payload Capacity</TableHead>
-                  <TableHead className="w-[160px] font-bold text-foreground text-xs">Fuel & Quota</TableHead>
-                  <TableHead className="w-[120px] font-bold text-foreground text-xs">Status</TableHead>
-                  <TableHead className="w-[120px] text-right font-bold text-foreground text-xs">Dispatch Actions</TableHead>
+                  <TableHead className="w-[180px] font-bold text-foreground text-xs">
+                    Plate & Model
+                  </TableHead>
+                  <TableHead className="w-[140px] font-bold text-foreground text-xs">
+                    Type & Mode
+                  </TableHead>
+                  <TableHead className="w-[160px] font-bold text-foreground text-xs">
+                    Payload Capacity
+                  </TableHead>
+                  <TableHead className="w-[160px] font-bold text-foreground text-xs">
+                    Fuel & Quota
+                  </TableHead>
+                  <TableHead className="w-[120px] font-bold text-foreground text-xs">
+                    Status
+                  </TableHead>
+                  <TableHead className="w-[120px] text-right font-bold text-foreground text-xs">
+                    Dispatch Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Loading fleet units...</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      Loading fleet units...
+                    </TableCell>
+                  </TableRow>
                 ) : filteredVehicles.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No vehicles matching filter criteria.</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      No vehicles matching filter criteria.
+                    </TableCell>
+                  </TableRow>
                 ) : groups ? (
                   groups.map(([groupName, groupVehicles]) => (
                     <div key={groupName} className="contents">
                       <TableRow className="bg-muted/40 border-b border-border/60">
-                        <TableCell colSpan={6} className="py-2 px-4 font-bold text-foreground text-xs">
+                        <TableCell
+                          colSpan={6}
+                          className="py-2 px-4 font-bold text-foreground text-xs"
+                        >
                           <span dangerouslySetInnerHTML={{ __html: groupName }} />
-                          <span className="ml-2 font-normal text-muted-foreground">({groupVehicles.length} units)</span>
+                          <span className="ml-2 font-normal text-muted-foreground">
+                            ({groupVehicles.length} units)
+                          </span>
                         </TableCell>
                       </TableRow>
-                      {groupVehicles.map((v) => renderVehicleRow(v, updateVehicle.mutate, updateVehicle.isPending))}
+                      {groupVehicles.map((v) =>
+                        renderVehicleRow(v, updateVehicle.mutate, updateVehicle.isPending)
+                      )}
                     </div>
                   ))
                 ) : (
-                  paginatedVehicles.map((v) => renderVehicleRow(v, updateVehicle.mutate, updateVehicle.isPending))
+                  paginatedVehicles.map((v) =>
+                    renderVehicleRow(v, updateVehicle.mutate, updateVehicle.isPending)
+                  )
                 )}
               </TableBody>
             </table>
@@ -227,7 +299,9 @@ function renderVehicleRow(
       </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap">
         <div className="font-medium capitalize text-foreground">{v.type}</div>
-        <div className="text-muted-foreground uppercase text-[10px] font-semibold">{v.temp} Mode</div>
+        <div className="text-muted-foreground uppercase text-[10px] font-semibold">
+          {v.temp} Mode
+        </div>
       </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap text-foreground font-medium">
         {v.weight_cap_kg.toLocaleString()} kg &bull; {v.volume_cap_m3} m³
@@ -236,7 +310,11 @@ function renderVehicleRow(
         {v.km_per_l} km/L &bull; {v.weekly_fuel_quota_l} L/wk
       </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap">
-        <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded ${colors[v.status]}`}>{v.status}</span>
+        <span
+          className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded ${colors[v.status]}`}
+        >
+          {v.status}
+        </span>
       </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap text-right">
         <div className="flex items-center justify-end gap-1.5">
@@ -264,7 +342,9 @@ function renderVehicleRow(
               <span>Release</span>
             </Button>
           )}
-          {v.status === "in_transit" && <span className="text-xs text-muted-foreground">On Route</span>}
+          {v.status === "in_transit" && (
+            <span className="text-xs text-muted-foreground">On Route</span>
+          )}
         </div>
       </TableCell>
     </TableRow>

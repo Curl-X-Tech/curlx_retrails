@@ -4,7 +4,13 @@ import type { Outlet } from "@/api/master/entities";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import {
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
 import { TablePagination } from "@/components/shared/table-pagination";
 import {
   ClockIcon,
@@ -60,8 +66,12 @@ export function DispatcherOutletsPage() {
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
       <div className="px-4 sm:px-6 py-2.5 border-b border-border/60 bg-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
         <div>
-          <h1 className="text-lg font-heading font-black tracking-tight text-foreground">Retail Outlets & Windows</h1>
-          <p className="text-[11px] text-muted-foreground">Directory of retail stores, wall-clock delivery windows, and bay constraints</p>
+          <h1 className="text-lg font-heading font-black tracking-tight text-foreground">
+            Retail Outlets & Windows
+          </h1>
+          <p className="text-[11px] text-muted-foreground">
+            Directory of retail stores, wall-clock delivery windows, and bay constraints
+          </p>
         </div>
       </div>
 
@@ -69,17 +79,23 @@ export function DispatcherOutletsPage() {
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <StorefrontIcon className="size-3.5 text-primary shrink-0" />
           <span className="text-muted-foreground text-[11px]">Total Outlets:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{outlets.length}</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {outlets.length}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <ClockIcon className="size-3.5 text-sky-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Window Adherence:</span>
-          <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] tabular-nums">100%</span>
+          <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] tabular-nums">
+            100%
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <MapPinIcon className="size-3.5 text-amber-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Mall Bays:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{mallBaysCount}</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {mallBaysCount}
+          </span>
         </div>
       </div>
 
@@ -117,9 +133,17 @@ export function DispatcherOutletsPage() {
         <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
           <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
             <div className="text-muted-foreground text-[11px] tabular-nums">
-              Showing <span className="font-bold text-foreground">{filteredOutlets.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
-              <span className="font-bold text-foreground">{Math.min(currentPage * PAGE_SIZE, filteredOutlets.length)}</span> of{" "}
-              <span className="font-bold text-foreground">{filteredOutlets.length}</span> stores
+              Showing{" "}
+              <span className="font-bold text-foreground">
+                {filteredOutlets.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-bold text-foreground">
+                {Math.min(currentPage * PAGE_SIZE, filteredOutlets.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold text-foreground">{filteredOutlets.length}</span>{" "}
+              stores
             </div>
 
             {!groupByDock && (
@@ -135,24 +159,54 @@ export function DispatcherOutletsPage() {
             <table className="w-full caption-bottom text-sm">
               <TableHeader className="sticky top-0 z-20 bg-card shadow-2xs border-b border-border/80">
                 <TableRow className="border-b border-border/80 hover:bg-transparent">
-                  <TableHead className="w-[200px] font-bold text-foreground text-xs">Outlet Code & Name</TableHead>
-                  <TableHead className="w-[180px] font-bold text-foreground text-xs">Dock & Parking</TableHead>
-                  <TableHead className="w-[180px] font-bold text-foreground text-xs">Operating Window</TableHead>
-                  <TableHead className="w-[150px] font-bold text-foreground text-xs">Handling</TableHead>
-                  <TableHead className="w-[120px] text-right font-bold text-foreground text-xs">Contact</TableHead>
+                  <TableHead className="w-[200px] font-bold text-foreground text-xs">
+                    Outlet Code & Name
+                  </TableHead>
+                  <TableHead className="w-[180px] font-bold text-foreground text-xs">
+                    Dock & Parking
+                  </TableHead>
+                  <TableHead className="w-[180px] font-bold text-foreground text-xs">
+                    Operating Window
+                  </TableHead>
+                  <TableHead className="w-[150px] font-bold text-foreground text-xs">
+                    Handling
+                  </TableHead>
+                  <TableHead className="w-[120px] text-right font-bold text-foreground text-xs">
+                    Contact
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">Loading retail outlets...</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      Loading retail outlets...
+                    </TableCell>
+                  </TableRow>
                 ) : filteredOutlets.length === 0 ? (
-                  <TableRow><TableCell colSpan={5} className="text-center py-8 text-muted-foreground">No retail outlets found matching criteria.</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={5}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      No retail outlets found matching criteria.
+                    </TableCell>
+                  </TableRow>
                 ) : groups ? (
                   groups.map(([groupName, groupOutlets]) => (
                     <div key={groupName} className="contents">
                       <TableRow className="bg-muted/40 border-b border-border/60">
-                        <TableCell colSpan={5} className="py-2 px-4 font-bold text-foreground text-xs">
-                          {groupName} <span className="ml-2 font-normal text-muted-foreground">({groupOutlets.length} stores)</span>
+                        <TableCell
+                          colSpan={5}
+                          className="py-2 px-4 font-bold text-foreground text-xs"
+                        >
+                          {groupName}{" "}
+                          <span className="ml-2 font-normal text-muted-foreground">
+                            ({groupOutlets.length} stores)
+                          </span>
                         </TableCell>
                       </TableRow>
                       {groupOutlets.map(renderOutletRow)}
@@ -181,14 +235,18 @@ function renderOutletRow(o: Outlet) {
       <TableCell className="py-2 px-4 whitespace-nowrap">
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <MapPinIcon className="size-3.5 text-primary shrink-0" />
-          <span className="capitalize font-medium text-foreground">{o.dock_type.replace("_", " ")}</span>
+          <span className="capitalize font-medium text-foreground">
+            {o.dock_type.replace("_", " ")}
+          </span>
           <span className="text-[11px]">({o.parking_constraint})</span>
         </div>
       </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap">
         <div className="flex items-center gap-1.5 text-foreground">
           <ClockIcon className="size-3.5 text-sky-500 shrink-0" />
-          <span className="font-medium">{o.window_open_time} &ndash; {o.window_close_time}</span>
+          <span className="font-medium">
+            {o.window_open_time} &ndash; {o.window_close_time}
+          </span>
         </div>
       </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap">

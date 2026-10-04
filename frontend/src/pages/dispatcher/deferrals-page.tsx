@@ -44,7 +44,7 @@ export function DeferralsPage({
       {!d.isAuditLog ? (
         <>
           <DeferralsKpiHeader kpis={d.carryoverKPIs} />
-          <DeferralsKpiBar />
+          <DeferralsKpiBar orders={d.carryoverOrders} />
           <DeferralsFilterToolbar
             searchQuery={d.carryoverSearch}
             brandFilter={d.carryoverBrandFilter}
@@ -78,9 +78,14 @@ export function DeferralsPage({
             <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
               <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
                 <div className="text-muted-foreground text-[11px] tabular-nums">
-                  Showing <span className="font-bold text-foreground">{carryoverFromCount}</span> to{" "}
-                  <span className="font-bold text-foreground">{carryoverToCount}</span> of{" "}
-                  <span className="font-bold text-foreground">{d.filteredCarryover.length}</span> orders
+                  Showing{" "}
+                  <span className="font-bold text-foreground">{carryoverFromCount}</span>{" "}
+                  to <span className="font-bold text-foreground">{carryoverToCount}</span>{" "}
+                  of{" "}
+                  <span className="font-bold text-foreground">
+                    {d.filteredCarryover.length}
+                  </span>{" "}
+                  orders
                 </div>
 
                 {d.carryoverGroupBy === "none" && (
@@ -106,9 +111,21 @@ export function DeferralsPage({
           <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
             <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
               <div className="text-muted-foreground text-[11px] tabular-nums">
-                Showing <span className="font-bold text-foreground">{d.filteredAuditLogs.length === 0 ? 0 : (d.auditPage - 1) * d.auditPageSize + 1}</span> to{" "}
-                <span className="font-bold text-foreground">{Math.min(d.auditPage * d.auditPageSize, d.filteredAuditLogs.length)}</span> of{" "}
-                <span className="font-bold text-foreground">{d.filteredAuditLogs.length}</span> records
+                Showing{" "}
+                <span className="font-bold text-foreground">
+                  {d.filteredAuditLogs.length === 0
+                    ? 0
+                    : (d.auditPage - 1) * d.auditPageSize + 1}
+                </span>{" "}
+                to{" "}
+                <span className="font-bold text-foreground">
+                  {Math.min(d.auditPage * d.auditPageSize, d.filteredAuditLogs.length)}
+                </span>{" "}
+                of{" "}
+                <span className="font-bold text-foreground">
+                  {d.filteredAuditLogs.length}
+                </span>{" "}
+                records
               </div>
 
               {d.auditGroupBy === "none" && (

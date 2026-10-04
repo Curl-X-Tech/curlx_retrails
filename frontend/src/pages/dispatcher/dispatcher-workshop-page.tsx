@@ -3,7 +3,13 @@ import { useVehicles, useUpdateVehicle, type Vehicle } from "@/api/fleet";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import {
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
 import { TablePagination } from "@/components/shared/table-pagination";
 import {
   WrenchIcon,
@@ -39,7 +45,9 @@ export function DispatcherWorkshopPage() {
     const map = new Map<string, Vehicle[]>();
     for (const v of maintenanceVehicles) {
       const key =
-        v.status === "breakdown" ? "Breakdown & Emergency Repairs" : "Scheduled Service & Inspection";
+        v.status === "breakdown"
+          ? "Breakdown & Emergency Repairs"
+          : "Scheduled Service & Inspection";
       const list = map.get(key) ?? [];
       list.push(v);
       map.set(key, list);
@@ -53,38 +61,54 @@ export function DispatcherWorkshopPage() {
     return maintenanceVehicles.slice(start, start + PAGE_SIZE);
   }, [maintenanceVehicles, currentPage]);
 
-  const totalMaintenance = vehicles.filter((v) => v.status === "in_workshop" || v.status === "breakdown").length;
+  const totalMaintenance = vehicles.filter(
+    (v) => v.status === "in_workshop" || v.status === "breakdown"
+  ).length;
   const readyFleet = vehicles.filter((v) => v.status === "available").length;
 
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
       <div className="px-4 sm:px-6 py-2.5 border-b border-border/60 bg-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
         <div>
-          <h1 className="text-lg font-heading font-black tracking-tight text-foreground">Workshop & Maintenance Log</h1>
-          <p className="text-[11px] text-muted-foreground">Monitor vehicle servicing, reefer calibration, and return-to-service readiness</p>
+          <h1 className="text-lg font-heading font-black tracking-tight text-foreground">
+            Workshop & Maintenance Log
+          </h1>
+          <p className="text-[11px] text-muted-foreground">
+            Monitor vehicle servicing, reefer calibration, and return-to-service readiness
+          </p>
         </div>
       </div>
 
       <div className="px-4 sm:px-6 py-2 border-b border-border/50 bg-muted/20 flex items-center gap-2 sm:gap-4 overflow-x-auto text-xs whitespace-nowrap scrollbar-none">
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 border border-amber-500/30 rounded-lg shadow-2xs">
           <WrenchIcon className="size-3.5 text-amber-600 shrink-0" />
-          <span className="text-amber-700 dark:text-amber-300 text-[11px] font-bold">In Workshop:</span>
-          <span className="font-bold text-amber-700 dark:text-amber-300 text-[11px] tabular-nums">{totalMaintenance}</span>
+          <span className="text-amber-700 dark:text-amber-300 text-[11px] font-bold">
+            In Workshop:
+          </span>
+          <span className="font-bold text-amber-700 dark:text-amber-300 text-[11px] tabular-nums">
+            {totalMaintenance}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <CheckCircleIcon className="size-3.5 text-emerald-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Ready Fleet:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{readyFleet}</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {readyFleet}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <TruckIcon className="size-3.5 text-primary shrink-0" />
           <span className="text-muted-foreground text-[11px]">Total Units:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{vehicles.length}</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {vehicles.length}
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <ClockIcon className="size-3.5 text-sky-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Avg Downtime:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">4.2 hrs</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            4.2 hrs
+          </span>
         </div>
       </div>
 
@@ -122,9 +146,19 @@ export function DispatcherWorkshopPage() {
         <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
           <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
             <div className="text-muted-foreground text-[11px] tabular-nums">
-              Showing <span className="font-bold text-foreground">{maintenanceVehicles.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
-              <span className="font-bold text-foreground">{Math.min(currentPage * PAGE_SIZE, maintenanceVehicles.length)}</span> of{" "}
-              <span className="font-bold text-foreground">{maintenanceVehicles.length}</span> units
+              Showing{" "}
+              <span className="font-bold text-foreground">
+                {maintenanceVehicles.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-bold text-foreground">
+                {Math.min(currentPage * PAGE_SIZE, maintenanceVehicles.length)}
+              </span>{" "}
+              of{" "}
+              <span className="font-bold text-foreground">
+                {maintenanceVehicles.length}
+              </span>{" "}
+              units
             </div>
 
             {!groupByStatus && (
@@ -140,30 +174,66 @@ export function DispatcherWorkshopPage() {
             <table className="w-full caption-bottom text-sm">
               <TableHeader className="sticky top-0 z-20 bg-card shadow-2xs border-b border-border/80">
                 <TableRow className="border-b border-border/80 hover:bg-transparent">
-                  <TableHead className="w-[180px] font-bold text-foreground text-xs">Plate & Model</TableHead>
-                  <TableHead className="w-[200px] font-bold text-foreground text-xs">Specifications</TableHead>
-                  <TableHead className="w-[240px] font-bold text-foreground text-xs">Service Reason</TableHead>
-                  <TableHead className="w-[120px] text-right font-bold text-foreground text-xs">Actions</TableHead>
+                  <TableHead className="w-[180px] font-bold text-foreground text-xs">
+                    Plate & Model
+                  </TableHead>
+                  <TableHead className="w-[200px] font-bold text-foreground text-xs">
+                    Specifications
+                  </TableHead>
+                  <TableHead className="w-[240px] font-bold text-foreground text-xs">
+                    Service Reason
+                  </TableHead>
+                  <TableHead className="w-[120px] text-right font-bold text-foreground text-xs">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {isLoading ? (
-                  <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">Loading workshop units...</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      Loading workshop units...
+                    </TableCell>
+                  </TableRow>
                 ) : maintenanceVehicles.length === 0 ? (
-                  <TableRow><TableCell colSpan={4} className="text-center py-8 text-muted-foreground">No vehicles currently in the workshop. All units operational.</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      No vehicles currently in the workshop. All units operational.
+                    </TableCell>
+                  </TableRow>
                 ) : groups ? (
                   groups.map(([groupName, groupVehicles]) => (
                     <div key={groupName} className="contents">
                       <TableRow className="bg-muted/40 border-b border-border/60">
-                        <TableCell colSpan={4} className="py-2 px-4 font-bold text-foreground text-xs">
-                          {groupName} <span className="ml-2 font-normal text-muted-foreground">({groupVehicles.length} units)</span>
+                        <TableCell
+                          colSpan={4}
+                          className="py-2 px-4 font-bold text-foreground text-xs"
+                        >
+                          {groupName}{" "}
+                          <span className="ml-2 font-normal text-muted-foreground">
+                            ({groupVehicles.length} units)
+                          </span>
                         </TableCell>
                       </TableRow>
-                      {groupVehicles.map((v) => renderWorkshopRow(v, updateVehicle.mutate, updateVehicle.isPending))}
+                      {groupVehicles.map((v) =>
+                        renderWorkshopRow(
+                          v,
+                          updateVehicle.mutate,
+                          updateVehicle.isPending
+                        )
+                      )}
                     </div>
                   ))
                 ) : (
-                  paginatedVehicles.map((v) => renderWorkshopRow(v, updateVehicle.mutate, updateVehicle.isPending))
+                  paginatedVehicles.map((v) =>
+                    renderWorkshopRow(v, updateVehicle.mutate, updateVehicle.isPending)
+                  )
                 )}
               </TableBody>
             </table>
@@ -174,7 +244,11 @@ export function DispatcherWorkshopPage() {
   );
 }
 
-function renderWorkshopRow(v: Vehicle, mutate: (params: { id: string; payload: { status: "available" } }) => void, isPending: boolean) {
+function renderWorkshopRow(
+  v: Vehicle,
+  mutate: (params: { id: string; payload: { status: "available" } }) => void,
+  isPending: boolean
+) {
   return (
     <TableRow key={v.id} className="border-b border-border/30 hover:bg-muted/30 text-xs">
       <TableCell className="py-2 px-4 whitespace-nowrap">
@@ -182,12 +256,17 @@ function renderWorkshopRow(v: Vehicle, mutate: (params: { id: string; payload: {
         <div className="text-[11px] text-muted-foreground">{v.model_name}</div>
       </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap text-muted-foreground">
-        <span className="font-medium text-foreground uppercase">{v.type}</span> &bull; {v.temp.toUpperCase()} &bull; {v.weight_cap_kg.toLocaleString()} kg
+        <span className="font-medium text-foreground uppercase">{v.type}</span> &bull;{" "}
+        {v.temp.toUpperCase()} &bull; {v.weight_cap_kg.toLocaleString()} kg
       </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap">
         <div className="flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
           <WarningCircleIcon className="size-4 shrink-0" />
-          <span>{v.status === "breakdown" ? "Urgent Mechanical Repair" : "Routine Inspection & Calibration"}</span>
+          <span>
+            {v.status === "breakdown"
+              ? "Urgent Mechanical Repair"
+              : "Routine Inspection & Calibration"}
+          </span>
         </div>
       </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap text-right">

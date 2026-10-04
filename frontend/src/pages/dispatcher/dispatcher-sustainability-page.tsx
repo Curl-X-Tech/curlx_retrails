@@ -3,10 +3,15 @@ import { useAllocations } from "@/api/allocations";
 import { useVehicles } from "@/api/fleet";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { CircularProgressRing } from "@/components/shared/circular-progress-ring";
-import { TableHeader, TableRow, TableHead, TableBody, TableCell } from "@/components/ui/table";
+import {
+  TableHeader,
+  TableRow,
+  TableHead,
+  TableBody,
+  TableCell,
+} from "@/components/ui/table";
 import { TablePagination } from "@/components/shared/table-pagination";
 import {
   TrendUpIcon,
@@ -40,13 +45,20 @@ export function DispatcherSustainabilityPage() {
 
   const rows: SustainabilityRow[] = useMemo(() => {
     return allocations.map((a, i) => {
-      const v = vehicles.find((veh) => veh.id === a.vehicle_id || veh.reg_number === a.vehicle_reg_number);
+      const v = vehicles.find(
+        (veh) => veh.id === a.vehicle_id || veh.reg_number === a.vehicle_reg_number
+      );
       const kmPerL = v?.km_per_l ?? 7.5;
       const distance = a.total_distance_km ?? 35 + i * 12;
       const fuelUsed = Number((distance / kmPerL).toFixed(1));
       const co2 = Number((fuelUsed * 2.68).toFixed(1));
       const emptyKm = Number((distance * 0.08).toFixed(1));
-      const grade = a.weight_utilization_pct >= 85 ? "A+" : a.weight_utilization_pct >= 70 ? "A" : "B";
+      const grade =
+        a.weight_utilization_pct >= 85
+          ? "A+"
+          : a.weight_utilization_pct >= 70
+            ? "A"
+            : "B";
 
       return {
         id: a.trip_code,
@@ -66,7 +78,11 @@ export function DispatcherSustainabilityPage() {
     return rows.filter((r) => {
       if (!search.trim()) return true;
       const q = search.toLowerCase();
-      return r.route.toLowerCase().includes(q) || r.id.toLowerCase().includes(q) || r.vehicle.toLowerCase().includes(q);
+      return (
+        r.route.toLowerCase().includes(q) ||
+        r.id.toLowerCase().includes(q) ||
+        r.vehicle.toLowerCase().includes(q)
+      );
     });
   }, [rows, search]);
 
@@ -94,9 +110,13 @@ export function DispatcherSustainabilityPage() {
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-background">
       <div className="px-4 sm:px-6 py-2.5 border-b border-border/60 bg-card flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
-        <div className="flex items-center gap-2">
-          <h1 className="text-lg font-heading font-black tracking-tight text-foreground">Sustainability & Carbon Metrics</h1>
-          <Badge variant="warning" className="text-[10px] h-5 px-1.5 font-bold uppercase">DEMO</Badge>
+        <div>
+          <h1 className="text-lg font-heading font-black tracking-tight text-foreground">
+            Sustainability & Carbon Metrics
+          </h1>
+          <p className="text-[11px] text-muted-foreground">
+            Fuel burn, CO2 emission reduction, and deadhead mileage optimization
+          </p>
         </div>
       </div>
 
@@ -104,22 +124,30 @@ export function DispatcherSustainabilityPage() {
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <GlobeHemisphereWestIcon className="size-3.5 text-emerald-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">CO2 Total:</span>
-          <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] tabular-nums">{totalCo2.toFixed(1)} kg</span>
+          <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] tabular-nums">
+            {totalCo2.toFixed(1)} kg
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <SparkleIcon className="size-3.5 text-primary shrink-0" />
           <span className="text-muted-foreground text-[11px]">Empty Miles Cut:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">18.4%</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            18.4%
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <DropIcon className="size-3.5 text-sky-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Total Burn:</span>
-          <span className="font-bold text-foreground text-[11px] tabular-nums">{totalFuel.toFixed(1)} L</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {totalFuel.toFixed(1)} L
+          </span>
         </div>
         <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
           <TrendUpIcon className="size-3.5 text-emerald-600 shrink-0" />
           <span className="text-muted-foreground text-[11px]">Eco Index:</span>
-          <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] tabular-nums">A (94.2)</span>
+          <span className="font-bold text-emerald-600 dark:text-emerald-400 text-[11px] tabular-nums">
+            A (94.2)
+          </span>
         </div>
       </div>
 
@@ -157,28 +185,53 @@ export function DispatcherSustainabilityPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 shrink-0">
           <Card className="p-3 bg-card border border-border/80 rounded-2xl flex items-center justify-between shadow-xs">
             <div className="space-y-0.5">
-              <span className="text-xs font-semibold text-muted-foreground">Logistics Decarbonization Score</span>
+              <span className="text-xs font-semibold text-muted-foreground">
+                Logistics Decarbonization Score
+              </span>
               <div className="text-xl font-bold font-heading text-foreground">94.2%</div>
-              <p className="text-[11px] text-muted-foreground">High-density multi-drop route optimization</p>
+              <p className="text-[11px] text-muted-foreground">
+                High-density multi-drop route optimization
+              </p>
             </div>
-            <CircularProgressRing value={94} size={44} strokeWidth={4.5} colorClassName="text-emerald-500" />
+            <CircularProgressRing
+              value={94}
+              size={44}
+              strokeWidth={4.5}
+              colorClassName="text-emerald-500"
+            />
           </Card>
           <Card className="p-3 bg-card border border-border/80 rounded-2xl flex items-center justify-between shadow-xs">
             <div className="space-y-0.5">
-              <span className="text-xs font-semibold text-muted-foreground">Deadhead Reduction Ratio</span>
+              <span className="text-xs font-semibold text-muted-foreground">
+                Deadhead Reduction Ratio
+              </span>
               <div className="text-xl font-bold font-heading text-foreground">18.4%</div>
-              <p className="text-[11px] text-muted-foreground">Total empty kilometers eliminated today</p>
+              <p className="text-[11px] text-muted-foreground">
+                Total empty kilometers eliminated today
+              </p>
             </div>
-            <CircularProgressRing value={82} size={44} strokeWidth={4.5} colorClassName="text-primary" />
+            <CircularProgressRing
+              value={82}
+              size={44}
+              strokeWidth={4.5}
+              colorClassName="text-primary"
+            />
           </Card>
         </div>
 
         <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
           <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
             <div className="text-muted-foreground text-[11px] tabular-nums">
-              Showing <span className="font-bold text-foreground">{filteredData.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}</span> to{" "}
-              <span className="font-bold text-foreground">{Math.min(currentPage * PAGE_SIZE, filteredData.length)}</span> of{" "}
-              <span className="font-bold text-foreground">{filteredData.length}</span> corridors
+              Showing{" "}
+              <span className="font-bold text-foreground">
+                {filteredData.length === 0 ? 0 : (currentPage - 1) * PAGE_SIZE + 1}
+              </span>{" "}
+              to{" "}
+              <span className="font-bold text-foreground">
+                {Math.min(currentPage * PAGE_SIZE, filteredData.length)}
+              </span>{" "}
+              of <span className="font-bold text-foreground">{filteredData.length}</span>{" "}
+              corridors
             </div>
 
             {!groupByGrade && (
@@ -194,25 +247,57 @@ export function DispatcherSustainabilityPage() {
             <table className="w-full caption-bottom text-sm">
               <TableHeader className="sticky top-0 z-20 bg-card shadow-2xs border-b border-border/80">
                 <TableRow className="border-b border-border/80 hover:bg-transparent">
-                  <TableHead className="w-[180px] font-bold text-foreground text-xs">Trip & Corridor</TableHead>
-                  <TableHead className="w-[120px] font-bold text-foreground text-xs">Distance</TableHead>
-                  <TableHead className="w-[160px] font-bold text-foreground text-xs">Fuel Consumed</TableHead>
-                  <TableHead className="w-[150px] font-bold text-foreground text-xs">Carbon Footprint</TableHead>
-                  <TableHead className="w-[130px] font-bold text-foreground text-xs">Deadhead Run</TableHead>
-                  <TableHead className="w-[90px] text-right font-bold text-foreground text-xs">Eco Grade</TableHead>
+                  <TableHead className="w-[180px] font-bold text-foreground text-xs">
+                    Trip & Corridor
+                  </TableHead>
+                  <TableHead className="w-[120px] font-bold text-foreground text-xs">
+                    Distance
+                  </TableHead>
+                  <TableHead className="w-[160px] font-bold text-foreground text-xs">
+                    Fuel Consumed
+                  </TableHead>
+                  <TableHead className="w-[150px] font-bold text-foreground text-xs">
+                    Carbon Footprint
+                  </TableHead>
+                  <TableHead className="w-[130px] font-bold text-foreground text-xs">
+                    Deadhead Run
+                  </TableHead>
+                  <TableHead className="w-[90px] text-right font-bold text-foreground text-xs">
+                    Eco Grade
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {allocLoading || fleetLoading ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Loading sustainability metrics...</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      Loading sustainability metrics...
+                    </TableCell>
+                  </TableRow>
                 ) : filteredData.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">No sustainability records available.</TableCell></TableRow>
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center py-8 text-muted-foreground"
+                    >
+                      No sustainability records available.
+                    </TableCell>
+                  </TableRow>
                 ) : groups ? (
                   groups.map(([groupName, groupRows]) => (
                     <div key={groupName} className="contents">
                       <TableRow className="bg-muted/40 border-b border-border/60">
-                        <TableCell colSpan={6} className="py-2 px-4 font-bold text-foreground text-xs">
-                          {groupName} <span className="ml-2 font-normal text-muted-foreground">({groupRows.length} corridors)</span>
+                        <TableCell
+                          colSpan={6}
+                          className="py-2 px-4 font-bold text-foreground text-xs"
+                        >
+                          {groupName}{" "}
+                          <span className="ml-2 font-normal text-muted-foreground">
+                            ({groupRows.length} corridors)
+                          </span>
                         </TableCell>
                       </TableRow>
                       {groupRows.map(renderSustainabilityRow)}
@@ -235,13 +320,20 @@ function renderSustainabilityRow(s: SustainabilityRow) {
     <TableRow key={s.id} className="border-b border-border/30 hover:bg-muted/30 text-xs">
       <TableCell className="py-2 px-4 whitespace-nowrap">
         <div className="font-semibold text-foreground">{s.route}</div>
-        <div className="text-[11px] text-muted-foreground">{s.id} &bull; {s.vehicle}</div>
+        <div className="text-[11px] text-muted-foreground">
+          {s.id} &bull; {s.vehicle}
+        </div>
       </TableCell>
-      <TableCell className="py-2 px-4 whitespace-nowrap text-foreground">{s.distanceKm} km</TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap text-foreground">
-        {s.fuelUsedL} L <span className="text-muted-foreground text-[11px]">({s.kmPerL} km/L)</span>
+        {s.distanceKm} km
       </TableCell>
-      <TableCell className="py-2 px-4 whitespace-nowrap text-foreground font-medium">{s.co2Kg} kg CO2e</TableCell>
+      <TableCell className="py-2 px-4 whitespace-nowrap text-foreground">
+        {s.fuelUsedL} L{" "}
+        <span className="text-muted-foreground text-[11px]">({s.kmPerL} km/L)</span>
+      </TableCell>
+      <TableCell className="py-2 px-4 whitespace-nowrap text-foreground font-medium">
+        {s.co2Kg} kg CO2e
+      </TableCell>
       <TableCell className="py-2 px-4 whitespace-nowrap text-muted-foreground">
         {s.emptyKm} km ({((s.emptyKm / s.distanceKm) * 100).toFixed(1)}%)
       </TableCell>

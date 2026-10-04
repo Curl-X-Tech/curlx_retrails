@@ -29,7 +29,6 @@ export const dispatcherNavGroups: NavGroup[] = [
         id: "order-queue",
         path: "/dispatcher/orders",
         icon: <TrayIcon weight="duotone" className="size-5" />,
-        badge: 14,
       },
       {
         title: "Allocation",
@@ -54,14 +53,11 @@ export const dispatcherNavGroups: NavGroup[] = [
         id: "deferrals",
         path: "/dispatcher/deferrals/carryover",
         icon: <WarningOctagonIcon weight="duotone" className="size-5" />,
-        badge: 4,
-        badgeVariant: "warning",
         items: [
           {
             title: "Carryover",
             id: "carryover",
             path: "/dispatcher/deferrals/carryover",
-            badge: 4,
           },
           {
             title: "Deferral log",

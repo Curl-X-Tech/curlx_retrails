@@ -273,6 +273,7 @@ export function useDeferrals(
     orderParam,
     selectedOrder,
     carryoverKPIs,
+    carryoverOrders,
     auditLogsCount: mappedAuditLogs.length,
     carryoverSearch,
     carryoverBrandFilter,
