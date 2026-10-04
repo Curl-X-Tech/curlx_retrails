@@ -21,3 +21,4 @@ export * from "./circular-progress-ring";
 export * from "./sort-header-icon";
 export * from "./query-state";
 export * from "./sync-status-indicator";
+export * from "./table-pagination";

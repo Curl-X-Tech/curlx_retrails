@@ -4,7 +4,7 @@ import type { CarryoverSummaryKPIs } from "../types";
 
 export function DeferralsKpiBar() {
   return (
-    <div className="grid grid-cols-1 tablet:grid-cols-3 gutter-responsive mb-4 shrink-0">
+    <div className="px-4 sm:px-6 py-3.5 grid grid-cols-1 tablet:grid-cols-3 gutter-responsive shrink-0">
       <DeferralsWave1Card
         title="Cold Lorry"
         count={1}
