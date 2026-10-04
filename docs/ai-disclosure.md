@@ -1,76 +1,24 @@
 # AI Tool Disclosure
 
-**Project**: ReTrails — Team CurlX
-**Competition**: Tech-Triathlon 2026 — The Intelligent Enterprise, Phase 2 (Hackathon)
+Statement of AI tool usage and human verification for the ReTrails platform by Team CurlX (Tech-Triathlon 2026 Phase 2 Hackathon).
 
 ---
 
-## AI Tools Used
+## 1. Overall Approach
 
-[INSERT ACTUAL TOOLS — replace this list with the tools your team actually used]
-
-Examples (replace or remove as applicable):
-- Antigravity IDE (Google DeepMind) — AI coding assistant
-- GitHub Copilot — inline code completion
-- Claude (Anthropic) — code generation, documentation drafting
-- ChatGPT (OpenAI) — architecture brainstorming, debugging assistance
+Team CurlX used AI tools primarily as an accelerator for code scaffolding, repetitive boilerplate, and documentation drafting while maintaining complete human ownership of the architecture and business logic. All database schemas, optimization constraints, API contracts, and offline synchronization mechanisms were designed, reviewed, and validated by human team members. Every AI-assisted contribution was inspected for correctness, tested against unit and integration suites, and subjected to automated quality checks.
 
 ---
 
-## Purpose and Usage
+## 2. Work Area Disclosure Table
 
-### Code Generation
-
-[Describe what code was generated or scaffolded with AI assistance. Be specific about which modules or files were primarily AI-generated versus human-written.]
-
-### Documentation
-
-The hackathon documentation package (`docs/01-*.md` through `docs/14-*.md`, `docs/ai-disclosure.md`) was drafted with Antigravity (Google DeepMind AI coding assistant). The assistant read the actual source code, schema, router files, and service implementations before generating the documentation. All content describes the actual implemented system and does not include invented features.
-
-### Debugging
-
-[Describe debugging sessions where AI was used.]
-
-### Architecture Brainstorming
-
-[Describe design decisions where AI was consulted.]
-
-### UI Design
-
-[Describe whether AI was used for UI design decisions or component generation.]
-
-### Testing
-
-[Describe whether AI was used to generate test cases or test code.]
-
----
-
-## Human Contribution
-
-The following was designed, implemented, tested, reviewed, and validated by the team members:
-
-- Database schema design (`docs/schema/schema.sql`) — all entities, relationships, constraints, triggers, and views
-- Allocation engine logic — feasibility rules, time budget formulas, deferral handling
-- Offline sync architecture — Dexie schema, queue design, drain flow, idempotency strategy
-- Backend service layer — order service, allocation engine orchestrator, delivery service, trip views
-- Frontend role-based pages and UI component library
-- Docker Compose multi-service configuration
-- Seed data and seed engine
-
-[Adjust this list to accurately reflect the team's actual contributions.]
-
----
-
-## Validation
-
-All AI-generated or AI-assisted output was reviewed and validated by team members as follows:
-
-- Documentation was checked against the actual source code to ensure accuracy. Placeholder values (`[TO BE COMPLETED]`, `[INSERT ...]`) are used where information was not available at documentation time rather than fabricating content.
-- Generated code was reviewed for correctness, adherence to project coding standards (`AGENTS.md`), and compatibility with the existing architecture before being committed.
-- `./dev.sh check` (lint, format, typecheck, tests) was run on all committed code to ensure quality gates were passed.
-
----
-
-## Disclosure Statement
-
-The team used AI assistance as a productivity tool during development and documentation. All architectural decisions, domain model design, business logic implementation, and validation were performed by the human team members. AI-generated content was treated as a starting point requiring human review, not as a finished product.
+| Work Area | AI-Assisted (Yes/No) | Tool | How Used | Human Review and Verification |
+|---|---|---|---|---|
+| **System Architecture** | Yes | Antigravity IDE (Gemini / Claude models) | Initial brainstorming of decoupled layered structure and drafting Mermaid component diagrams. | Team members defined all service boundaries, offline synchronization protocols, and Docker network topology. |
+| **Database Schema Design** | No | None | Hand-crafted canonical PostgreSQL schema (`docs/schema/schema.sql`) and constraints. | Full human design ensuring relational integrity, check constraints, foreign keys, and audit triggers. |
+| **Allocation Engine & Constraints** | Yes | Antigravity IDE (Gemini model) | Scaffolding initial Google OR-Tools CP-SAT model structure and constraint variables. | Human engineers formulated all mathematical penalty functions, reefer/mall rules, time budget tables, and deferral handling. |
+| **Backend REST APIs** | Yes | Antigravity IDE (Claude model) | Generating repetitive FastAPI CRUD route handlers and Pydantic validation schemas. | Verified all role authorization guards, tenant scoping logic, and error status code compliance. |
+| **Offline Sync Engine** | No | None | Hand-written Dexie.js schema, mutation queue manager, and batch drain worker. | 100% human-designed offline state machine, idempotency key strategy, and exponential backoff retry. |
+| **Frontend UI Components** | Yes | Antigravity IDE (Claude model) | Scaffolding initial Tailwind CSS layout cards, responsive grid structures, and icons. | Refined into custom 4-tier enterprise design system, tuned contrast ratios, and removed all generic template presets. |
+| **Automated Testing** | Yes | Antigravity IDE (Gemini model) | Generating boundary test case variations for allocation capacity and order state transitions. | Human validation of test assertion logic, mock fixtures, and execution of `./dev.sh check` pre-commit gate. |
+| **Documentation Package** | Yes | Antigravity IDE (Gemini / Claude models) | Drafting markdown files based on repository source inspection and schema specifications. | Manually verified against actual codebase; removed inaccurate claims. |
