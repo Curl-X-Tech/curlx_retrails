@@ -15,19 +15,26 @@ from app.entities.staff_profile import StaffProfile
 from app.entities.user import User
 from app.entities.vehicle import Vehicle
 
-REG_PREFIX = {"PEL": "WP", "KAN": "CP"}
+REG_PREFIX = {"PEL": "WP", "KDY": "CP"}
 MODEL_NAMES = {
     ("truck", "reefer"): "Isuzu FTR Reefer",
     ("truck", "ambient"): "Isuzu FVR Dry",
     ("van", "reefer"): "Toyota Hiace Reefer",
     ("van", "ambient"): "Tata Ace",
 }
+ORDER_STATUS = {"dispatched": "allocated"}
 DEFERRAL_REASONS = [
     ("insufficient_reefer_capacity", "weight_cap"),
     ("van_access_shortage", "fleet_downtime"),
     ("time_budget_limit", "time_budget"),
     ("fuel_quota_exceeded", "volume_cap"),
 ]
+
+
+def _plate(province: str, index: int) -> str:
+    """Sri Lankan plate such as 'WP CAB-1234': province code, three letters, four digits."""
+    letters = f"C{'ABC'[index // 26]}{chr(65 + index % 26)}"
+    return f"{province} {letters}-{1000 + (index * 137) % 9000}"
 
 
 def staff_rows(data: SeedData, users: dict[str, User], depots: dict[str, Depot]) -> list[dict[str, Any]]:
@@ -62,7 +69,7 @@ def vehicle_rows(data: SeedData, depots: dict[str, Depot], drivers: dict[str, St
             {
                 "name": row["ID"],
                 "vehicle_id": row["ID"],
-                "reg_number": f"{REG_PREFIX.get(code, 'SP')}-{4000 + index * 17}",
+                "reg_number": _plate(REG_PREFIX.get(code, "SP"), index),
                 "model_name": MODEL_NAMES[(row["type"], row["temp_condition"])],
                 "type": row["type"],
                 "temp": row["temp_condition"],
@@ -103,7 +110,7 @@ def order_rows(
                 "order_date": row["order_date"],
                 "required_date": row["order_date"],
                 "temp_requirement": "chilled" if chilled else "ambient",
-                "status": planned.get(row["ID"], row["status"]),
+                "status": planned.get(row["ID"]) or ORDER_STATUS.get(row["status"], row["status"]),
                 "deferred_yesterday": 1 if row["status"] == "deferred" else 0,
             }
         )

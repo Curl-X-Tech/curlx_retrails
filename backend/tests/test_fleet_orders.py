@@ -73,7 +73,7 @@ async def test_order_lifecycle_and_deferrals(
     outlet_id, item_id = await _first_ids(client, user_token_headers)
     payload = {
         "outlet_id": outlet_id,
-        "order_date": "2026-10-05",
+        "order_date": "2031-03-05",
         "idempotency_key": "key-1",
         "items": [{"item_id": item_id, "requested_qty": 4}],
     }
@@ -92,7 +92,7 @@ async def test_order_lifecycle_and_deferrals(
     assert detail["delivery_window"]
 
     listed = (
-        await client.get("/api/v1/orders?order_date=2026-10-05&status=pending", headers=user_token_headers)
+        await client.get("/api/v1/orders?order_date=2031-03-05&status=pending", headers=user_token_headers)
     ).json()
     assert [o["id"] for o in listed] == [order["id"]]
 
@@ -128,7 +128,7 @@ async def test_sync_batch_creates_orders_once(
         "action": "create",
         "payload": {
             "outlet_id": outlet_id,
-            "order_date": "2026-10-06",
+            "order_date": "2031-03-06",
             "items": [{"item_id": item_id, "requested_qty": 2}],
         },
     }
@@ -139,7 +139,7 @@ async def test_sync_batch_creates_orders_once(
     assert second["results"][0]["status"] == "duplicate_ignored"
     count = (
         await session.execute(
-            select(func.count()).select_from(CustomerOrder).where(CustomerOrder.order_date == date(2026, 10, 6))
+            select(func.count()).select_from(CustomerOrder).where(CustomerOrder.order_date == date(2031, 3, 6))
         )
     ).scalar()
     lines = (await session.execute(select(func.count()).select_from(OrderItem))).scalar()

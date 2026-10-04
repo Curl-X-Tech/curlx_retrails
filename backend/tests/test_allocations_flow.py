@@ -1,8 +1,11 @@
+from datetime import timedelta
+
 import pytest
 from httpx import AsyncClient
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.timezone import sl_today
 from app.db.seed import seed_database
 from app.entities.staff_profile import StaffProfile
 from app.entities.trip import Trip
@@ -14,11 +17,19 @@ async def test_allocation_reads_and_loader_flow(
     client: AsyncClient, session: AsyncSession, user_token_headers: dict[str, str]
 ) -> None:
     await seed_database(session)
-    allocations = (await client.get("/api/v1/allocations?dispatch_date=2026-06-27", headers=user_token_headers)).json()
+    allocations = (
+        await client.get(
+            f"/api/v1/allocations?dispatch_date={sl_today() + timedelta(days=1)}", headers=user_token_headers
+        )
+    ).json()
     assert allocations
     assert {"weight_utilization_pct", "cargo_value_lkr", "driver_name"} <= allocations[0].keys()
 
-    kpis = (await client.get("/api/v1/allocations/summary?dispatch_date=2026-06-27", headers=user_token_headers)).json()
+    kpis = (
+        await client.get(
+            f"/api/v1/allocations/summary?dispatch_date={sl_today() + timedelta(days=1)}", headers=user_token_headers
+        )
+    ).json()
     assert kpis["total_trips"] == len(allocations)
 
     loading = next(a for a in allocations if a["status"] == "loading")

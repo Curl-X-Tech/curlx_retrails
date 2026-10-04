@@ -35,14 +35,14 @@ async def test_seed_reports_orphans_and_duplicates(
 ) -> None:
     broken = tmp_path / "seed_data"
     shutil.copytree(seed_json.SEED_DIR, broken)
-    orders = json.loads((broken / "orders.json").read_text())
-    orders.append({**orders[0], "outlet_id": "OUT999"})
-    (broken / "orders.json").write_text(json.dumps(orders))
+    outlets = json.loads((broken / "outlets.json").read_text())
+    outlets.append({**outlets[0], "latitude": 48.85})
+    (broken / "outlets.json").write_text(json.dumps(outlets))
     monkeypatch.setattr(seed_json, "SEED_DIR", broken)
 
     with pytest.raises(seed_json.SeedValidationError) as excinfo:
         await seed_database(session)
 
-    assert any("orphan outlet_id 'OUT999'" in e for e in excinfo.value.errors)
-    assert any("duplicate ID" in e for e in excinfo.value.errors)
+    assert any("'latitude' out of range" in e for e in excinfo.value.errors)
+    assert any("duplicate outlet_id" in e for e in excinfo.value.errors)
     assert (await session.execute(select(func.count()).select_from(User))).scalar() == 0

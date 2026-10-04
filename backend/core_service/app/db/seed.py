@@ -121,10 +121,8 @@ async def seed_database(session: AsyncSession) -> dict[str, int]:
 
         outlet_rows = _mapped(
             data.outlets,
-            ("brand", "district", "depot"),
-            name=lambda r: (
-                f"Waypoint {brands[r['brand']].name.removeprefix('Waypoint ')} - {r['district']} ({r['outlet_id']})"
-            ),
+            ("brand", "district", "depot", "area", "address", "city"),
+            name=lambda r: f"{brands[r['brand']].name} - {r['area']}",
             brand_id=lambda r: brands[r["brand"]].id,
             district_id=lambda r: districts[r["district"]].id,
             depot_id=lambda r: depot_id(r["depot"]),

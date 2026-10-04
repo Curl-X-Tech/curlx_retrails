@@ -1,10 +1,12 @@
 """Seeds trips, legs, checklists, proofs of delivery, discrepancies and telemetry from JSON, insert-if-missing."""
 
+from datetime import datetime, timezone
 from typing import Any
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.timezone import utc_now
 from app.db.seed_json import SeedData, resolve_depot
 from app.entities.brand import Brand
 from app.entities.customer_order import CustomerOrder, OrderItem
@@ -24,6 +26,12 @@ from app.entities.user import User
 from app.entities.vehicle import Vehicle
 
 
+def _same(current: Any, new: Any) -> bool:
+    if isinstance(current, datetime) and isinstance(new, datetime):
+        return current.replace(tzinfo=None) == new.astimezone(timezone.utc).replace(tzinfo=None)
+    return current == new
+
+
 async def _existing(session: AsyncSession, model: type, key: Any) -> dict[Any, Any]:
     return {key(o): o for o in (await session.execute(select(model))).scalars()}
 
@@ -35,7 +43,14 @@ async def _insert_missing(
     counts.setdefault(model.__tablename__, 0)
     for row in rows:
         probe = model(**row)
-        if key(probe) in found:
+        current = found.get(key(probe))
+        if current is not None:
+            changed = {k: v for k, v in row.items() if not _same(getattr(current, k), v)}
+            for k, v in changed.items():
+                setattr(current, k, v)
+            if changed:
+                current.updated_at = utc_now()
+                counts[model.__tablename__] += 1
             continue
         session.add(probe)
         found[key(probe)] = probe
@@ -54,6 +69,8 @@ def trip_order_status(data: SeedData) -> dict[str, str]:
                 continue
             if leg["status"] == "completed":
                 result[ref] = "delivered"
+            elif leg["status"] == "skipped":
+                result[ref] = "deferred"
             elif trip["status"] == "in_transit":
                 result[ref] = "in_transit"
             else:

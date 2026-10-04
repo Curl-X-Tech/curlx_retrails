@@ -1,4 +1,5 @@
 import json
+import re
 from collections import Counter
 from collections.abc import Iterator
 from dataclasses import dataclass, field
@@ -8,15 +9,16 @@ from pathlib import Path
 from typing import Any
 
 from app.enums.master import DeliveryWindowType, DockType, ParkingConstraint
+from app.core.timezone import sl_today
 from app.enums.roles import UserType
-from app.schemas.dispatch_schemas import StopStatus, TripLiveStatus
-from app.schemas.order_schemas import OrderStatus, TempCondition
 from app.schemas.route_schemas import RoadClass
 
 SEED_DIR = Path(__file__).resolve().parent / "seed_data"
 VEHICLE_TYPES = {"truck", "van"}
 TEMP_CONDITIONS = {"reefer", "ambient"}
 SPECIAL_HANDLING_CODES = {"COL", "FRG", "MAL", "HAZ"}
+SL_LAT, SL_LNG = (5.9, 9.9), (79.5, 81.9)
+SL_PHONE = re.compile(r"^\+94 \d{2} \d{3} \d{4}$")
 
 
 class SeedValidationError(Exception):
@@ -82,6 +84,12 @@ class Row:
         if raw is not None and raw not in allowed:
             self.fail(f"'{col}' must be one of {sorted(allowed)}: {raw!r}")
             return None
+        return raw
+
+    def phone(self, col: str) -> str | None:
+        raw = self.text(col)
+        if raw is not None and not SL_PHONE.match(raw):
+            self.fail(f"'{col}' must look like '+94 11 234 5678': {raw!r}")
         return raw
 
     def clock(self, col: str) -> time | None:
@@ -202,7 +210,7 @@ def resolve_depot(label: str, depots: list[dict[str, Any]]) -> str | None:
     return matches[0] if len(matches) == 1 else None
 
 
-def load_seed_data(include_demo: bool) -> SeedData:
+def load_seed_data(include_demo: bool, today: date | None = None) -> SeedData:
     errors: list[str] = []
     d = SeedData()
 
@@ -290,6 +298,12 @@ def load_seed_data(include_demo: bool) -> SeedData:
             "mall_window",
             "window_open_time",
             "window_close_time",
+            "area",
+            "address",
+            "city",
+            "latitude",
+            "longitude",
+            "contact_phone",
         ],
         errors,
     ):
@@ -307,6 +321,12 @@ def load_seed_data(include_demo: bool) -> SeedData:
                 "mall_window": r.text("mall_window", False),
                 "window_open_time": opens,
                 "window_close_time": closes,
+                "area": r.text("area"),
+                "address": r.text("address"),
+                "city": r.text("city"),
+                "latitude": r.number("latitude", SL_LAT[0], SL_LAT[1]),
+                "longitude": r.number("longitude", SL_LNG[0], SL_LNG[1]),
+                "contact_phone": r.phone("contact_phone"),
             }
         )
     for r in read_rows(
@@ -388,12 +408,12 @@ def load_seed_data(include_demo: bool) -> SeedData:
                 {
                     "email": (r.text("email") or "").lower() or None,
                     "license_no": r.text("license_no"),
-                    "phone": r.text("phone"),
+                    "phone": r.phone("phone"),
                     "depot": r.text("depot"),
                 }
             )
 
-    load_operations(d, errors, include_demo)
+    load_operations(d, errors, include_demo, today or sl_today())
     cross_check(d, errors)
     if include_demo and not errors:
         from app.db.seed_dispatch_json import load_dispatch
@@ -404,7 +424,7 @@ def load_seed_data(include_demo: bool) -> SeedData:
     return d
 
 
-def load_operations(d: SeedData, errors: list[str], include_demo: bool) -> None:
+def load_operations(d: SeedData, errors: list[str], include_demo: bool, today: date) -> None:
     for r in read_rows(
         "routes.json",
         [
@@ -449,113 +469,10 @@ def load_operations(d: SeedData, errors: list[str], include_demo: bool) -> None:
                 "service_allowance_min": r.number("service_allowance_min", 0),
             }
         )
-    if not include_demo:
-        return
-    for r in read_rows(
-        "orders.json",
-        [
-            "ID",
-            "outlet_id",
-            "order_date",
-            "order_time",
-            "weight_kg",
-            "volume_m3",
-            "temp_condition",
-            "status",
-            "allocation_day",
-        ],
-        errors,
-    ):
-        temp, status = r.choice("temp_condition", TempCondition), r.choice("status", OrderStatus)
-        d.orders.append(
-            {
-                "ID": r.text("ID"),
-                "outlet_id": r.text("outlet_id"),
-                "order_date": r.day("order_date"),
-                "order_time": r.hhmm("order_time"),
-                "weight_kg": r.number("weight_kg", 0),
-                "volume_m3": r.number("volume_m3", 0),
-                "temp_condition": temp.value if temp else None,
-                "status": status.value if status else None,
-                "allocation_day": r.integer("allocation_day", 1) if r.text("allocation_day", False) else None,
-            }
-        )
-    trip_keys = [
-        "ID",
-        "trip_id",
-        "vehicle_id",
-        "driver_email",
-        "depot",
-        "district",
-        "brand",
-        "trip_date",
-        "planned_dispatch",
-        "planned_return",
-        "live_status",
-        "departed_at",
-        "completed_at",
-        "delay_minutes",
-        "delay_reason",
-        "stops",
-        "allocated_from",
-        "plan_id",
-        "is_manual",
-        "override_reason",
-        "authorized_by_email",
-        "odometer_start_km",
-        "odometer_end_km",
-    ]
-    for r in read_rows("trips.json", trip_keys, errors):
-        status = r.choice("live_status", TripLiveStatus)
-        stops = r.data["stops"] if isinstance(r.data["stops"], list) else []
-        for stop in stops:
-            if stop.get("status") not in {e.value for e in StopStatus}:
-                r.fail(f"stop status {stop.get('status')!r} is invalid")
-        d.trips.append(
-            {
-                "ID": r.text("ID"),
-                "trip_id": r.text("trip_id"),
-                "vehicle_id": r.text("vehicle_id"),
-                "driver_email": (r.text("driver_email", False) or "").lower() or None,
-                "depot": r.text("depot"),
-                "district": r.text("district"),
-                "brand": r.text("brand"),
-                "trip_date": r.day("trip_date").isoformat() if r.day("trip_date") else None,
-                "planned_dispatch": r.hhmm("planned_dispatch"),
-                "planned_return": r.hhmm("planned_return", False),
-                "live_status": status.value if status else None,
-                "departed_at": r.hhmm("departed_at", False),
-                "completed_at": r.hhmm("completed_at", False),
-                "delay_minutes": r.integer("delay_minutes", 0),
-                "delay_reason": r.text("delay_reason", False),
-                "stops": stops,
-                "allocated_from": r.member("allocated_from", {"AUTO", "MANUAL"}),
-                "plan_id": r.text("plan_id", False),
-                "is_manual": r.flag("is_manual"),
-                "override_reason": r.text("override_reason", False),
-                "authorized_by_email": (r.text("authorized_by_email", False) or "").lower() or None,
-                "odometer_start_km": r.number("odometer_start_km", 0, required=False),
-                "odometer_end_km": r.number("odometer_end_km", 0, required=False),
-            }
-        )
-    for r in read_rows(
-        "audit_logs.json",
-        ["ID", "timestamp", "actor_email", "action", "trip_id", "vehicle_id", "driver_email", "details", "is_valid"],
-        errors,
-    ):
-        d.logs.append(
-            {
-                "ID": r.text("ID"),
-                "timestamp": r.stamp("timestamp"),
-                "actor_email": (r.text("actor_email") or "").lower() or None,
-                "action": r.text("action"),
-                "trip_id": r.text("trip_id", False),
-                "vehicle_id": r.text("vehicle_id", False),
-                "driver_email": (r.text("driver_email", False) or "").lower() or None,
-                "details": r.text("details", False),
-                "is_valid": r.flag("is_valid", True),
-            }
-        )
+    if include_demo and not errors:
+        from app.db.seed_scenario import build_scenario
+
+        build_scenario(d, today)
 
 
 def cross_check(d: SeedData, errors: list[str]) -> None:
