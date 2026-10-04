@@ -71,7 +71,7 @@ export function OrderListCards({
                     {isCold && (
                       <Badge
                         variant="secondary"
-                        className="text-[9px] px-1 py-0 h-3.5 bg-sky-500/10 text-sky-700 dark:text-sky-300 gap-0.5"
+                        className="text-[9px] px-1 py-0 h-3.5 bg-sky-600 text-white font-bold gap-0.5"
                       >
                         <SnowflakeIcon className="size-2.5" />
                         COL

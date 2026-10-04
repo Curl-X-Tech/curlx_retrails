@@ -32,23 +32,17 @@ export function StoreOrderKpiBar({ kpis }: StoreOrderKpiBarProps) {
       </div>
 
       {kpis.urgentCount > 0 && (
-        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900 rounded-lg shadow-2xs">
-          <span className="text-amber-700 dark:text-amber-300 text-[11px] font-bold">
-            Urgent:
-          </span>
-          <span className="font-black text-amber-700 dark:text-amber-300 text-[11px] tabular-nums">
-            {kpis.urgentCount}
-          </span>
+        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-rose-600 text-white rounded-lg shadow-2xs">
+          <span className="text-[11px] font-bold">Urgent:</span>
+          <span className="font-black text-[11px] tabular-nums">{kpis.urgentCount}</span>
         </div>
       )}
 
       {kpis.deferredCount > 0 && (
-        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-900 rounded-lg shadow-2xs">
-          <WarningOctagonIcon className="size-3.5 text-rose-600 shrink-0" weight="bold" />
-          <span className="text-rose-700 dark:text-rose-300 text-[11px] font-bold">
-            Deferred:
-          </span>
-          <span className="font-black text-rose-700 dark:text-rose-300 text-[11px] tabular-nums">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-600 text-white rounded-lg shadow-2xs">
+          <WarningOctagonIcon className="size-3.5 shrink-0" weight="bold" />
+          <span className="text-[11px] font-bold">Deferred:</span>
+          <span className="font-black text-[11px] tabular-nums">
             {kpis.deferredCount}
           </span>
         </div>
