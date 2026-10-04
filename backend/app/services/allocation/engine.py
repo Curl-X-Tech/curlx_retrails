@@ -53,14 +53,29 @@ async def fetch_allocation_orders(
         .where(
             Outlet.depot_id == depot_id,
             CustomerOrder.status.in_(("pending", "deferred")),
-            CustomerOrder.order_date <= operating_date,
         )
     )
 
     if order_ids:
         query = query.where(CustomerOrder.id.in_(order_ids))
+    else:
+        query = query.where(CustomerOrder.order_date <= operating_date)
 
     rows = (await session.execute(query)).all()
+    if not rows and not order_ids:
+        fallback_query = (
+            select(CustomerOrder, Outlet, Brand, District, Depot)
+            .join(Outlet, Outlet.id == CustomerOrder.outlet_id)
+            .join(Brand, Brand.id == Outlet.brand_id)
+            .join(District, District.id == Outlet.district_id)
+            .join(Depot, Depot.id == Outlet.depot_id)
+            .where(
+                Outlet.depot_id == depot_id,
+                CustomerOrder.status.in_(("pending", "deferred")),
+            )
+        )
+        rows = (await session.execute(fallback_query)).all()
+
     if not rows:
         return []
 

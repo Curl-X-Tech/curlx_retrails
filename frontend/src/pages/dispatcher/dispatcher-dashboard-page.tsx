@@ -13,16 +13,26 @@ import {
 } from "@phosphor-icons/react";
 import { useVehicles } from "@/api/fleet";
 import { useDeferralSummary } from "@/api/deferrals/hooks";
-import { useAllocationKpis } from "@/api/allocations/hooks";
+import { useAllocationKpis, useOptimizeAllocations } from "@/api/allocations/hooks";
+import { useDepots } from "@/api/master";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CircularProgressRing } from "@/components/shared/circular-progress-ring";
+
+function colomboToday(): string {
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Colombo" }).format(
+    new Date()
+  );
+}
 
 export function DispatcherDashboardPage() {
   const navigate = useNavigate();
   const { data: vehicles = [] } = useVehicles();
   const { data: deferralSummary } = useDeferralSummary();
   const { data: allocKpis } = useAllocationKpis();
+  const { data: depots = [] } = useDepots();
+  const optimize = useOptimizeAllocations();
+  const depot = depots.find((d) => d.code === "PEL") ?? depots[0];
 
   const totalVehicles = vehicles.length;
   const inTransitCount = vehicles.filter((v) => v.status === "in_transit").length;
@@ -89,12 +99,27 @@ export function DispatcherDashboardPage() {
             <span>Open Live Map</span>
           </Button>
           <Button
+            variant="secondary"
+            size="xs"
+            className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20"
+            disabled={!depot || optimize.isPending}
+            onClick={() =>
+              depot &&
+              optimize.mutate({ operating_date: colomboToday(), depot_id: depot.id })
+            }
+          >
+            <ArrowsClockwiseIcon
+              className={`size-3 ${optimize.isPending ? "animate-spin" : ""}`}
+            />
+            <span>{optimize.isPending ? "Auto-Allocating..." : "Auto-Allocate"}</span>
+          </Button>
+          <Button
             variant="default"
             size="xs"
             className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg"
             onClick={() => navigate("/dispatcher/allocations")}
           >
-            <ArrowsClockwiseIcon className="size-3" />
+            <ChartBarIcon className="size-3" />
             <span>Manage Allocations</span>
           </Button>
         </div>

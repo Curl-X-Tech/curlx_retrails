@@ -21,7 +21,13 @@ export function mapTelemetryToTrackingData(
     reeferTempCelsius: item.reefer_temp_celsius ?? undefined,
     brand: item.brand as "Fresh" | "Style" | "Tech",
     depot: item.depot,
-    imageUrl: item.image_url,
+    imageUrl:
+      item.image_url ||
+      (item.vehicle_category === "van"
+        ? "/vehicle-images/van.png"
+        : item.temp === "reefer"
+          ? "/vehicle-images/freeze.png"
+          : "/vehicle-images/dry.png"),
     driverName: item.driver_name,
     driverPhone: item.driver_phone,
     status: item.status,

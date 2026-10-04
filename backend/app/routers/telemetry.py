@@ -108,7 +108,11 @@ async def live_telemetry(session: SessionDep, _: DispatcherDep):
                 "temp": vehicle.temp,
                 "brand": ctx.brand.name,
                 "depot": ctx.depot.name,
-                "image_url": "",
+                "image_url": (
+                    "/vehicle-images/van.png"
+                    if vehicle.type == "van"
+                    else ("/vehicle-images/freeze.png" if vehicle.temp == "reefer" else "/vehicle-images/dry.png")
+                ),
                 "driver_name": ctx.driver.name if ctx.driver else "",
                 "driver_phone": ctx.driver.phone if ctx.driver else "",
                 "weight_percentage": pct(ctx.weight_kg, vehicle.weight_cap_kg),

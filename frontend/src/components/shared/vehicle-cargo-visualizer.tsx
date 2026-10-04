@@ -34,7 +34,9 @@ export function VehicleCargoVisualizer({
   const [isDragging, setIsDragging] = React.useState(false);
 
   const activeIndex = mode === "weight" ? 0 : 1;
-  const isVan = vehicle.vehicleCategory === "van";
+  const isVan =
+    vehicle.vehicleCategory === "van" ||
+    Boolean(vehicle.imageUrl && vehicle.imageUrl.includes("van.png"));
 
   const sizeContainer = {
     compact: "h-32 sm:h-36 my-0.5",
