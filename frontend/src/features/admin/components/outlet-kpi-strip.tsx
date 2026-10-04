@@ -14,13 +14,13 @@ export function OutletKpiStrip({ outlets = [] }: OutletKpiStripProps) {
       <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
         <StorefrontIcon className="size-3.5 text-primary shrink-0" />
         <span className="text-muted-foreground text-[11px]">Total Stores:</span>
-        <span className="font-bold text-foreground text-[11px]">{outlets.length}</span>
+        <span className="font-bold text-foreground text-[11px] tabular-nums">{outlets.length}</span>
       </div>
 
       <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
         <TruckIcon className="size-3.5 text-amber-600 shrink-0" />
         <span className="text-muted-foreground text-[11px]">Van-Only Access:</span>
-        <span className="font-bold text-foreground text-[11px]">
+        <span className="font-bold text-foreground text-[11px] tabular-nums">
           {vanOnlyCount} Outlets
         </span>
       </div>
@@ -28,7 +28,7 @@ export function OutletKpiStrip({ outlets = [] }: OutletKpiStripProps) {
       <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
         <BuildingIcon className="size-3.5 text-sky-600 shrink-0" />
         <span className="text-muted-foreground text-[11px]">Mall Bays:</span>
-        <span className="font-bold text-foreground text-[11px]">
+        <span className="font-bold text-foreground text-[11px] tabular-nums">
           {mallBayCount} Outlets
         </span>
       </div>

@@ -1,5 +1,6 @@
 import * as React from "react";
 import type { Role } from "@/api/users";
+import { formatErrorMessage } from "@/api/client";
 import { WarningCircleIcon } from "@phosphor-icons/react";
 import { FormDialog } from "@/components/shared";
 import type { MockUserWithMeta } from "@/features/admin/types";
@@ -70,8 +71,8 @@ export function UserEditDialog({
         is_active: active,
       });
       onClose();
-    } catch (err: any) {
-      setFormError(err.message || "Failed to update user.");
+    } catch (err: unknown) {
+      setFormError(formatErrorMessage(err, "Failed to update user account."));
     }
   };
 

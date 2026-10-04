@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export function StoreReportsPage() {
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-background font-sans">
+    <div className="flex-1 flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-background font-sans">
       {/* Top Header */}
       <div className="border-b border-border bg-card px-4 md:px-8 py-4 shrink-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-w-7xl mx-auto w-full">
@@ -22,7 +22,7 @@ export function StoreReportsPage() {
             variant="outline"
             size="sm"
             onClick={() => window.print()}
-            className="text-xs gap-1.5 rounded-xl border-border"
+            className="text-xs gap-1.5 rounded-xl border-border cursor-pointer active:scale-[0.98] transition-all"
           >
             <PrinterIcon className="size-4" />
             Print Report
@@ -38,7 +38,7 @@ export function StoreReportsPage() {
             <span className="text-[11px] text-muted-foreground font-medium block">
               On-Time Delivery Rate
             </span>
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 tabular-nums">
               98.4%
             </p>
             <span className="text-[11px] text-muted-foreground">
@@ -50,7 +50,7 @@ export function StoreReportsPage() {
             <span className="text-[11px] text-muted-foreground font-medium block">
               Crate Reconciliation
             </span>
-            <p className="text-2xl font-bold text-primary mt-1">100% Balanced</p>
+            <p className="text-2xl font-bold text-primary mt-1 tabular-nums">100% Balanced</p>
             <span className="text-[11px] text-muted-foreground">
               Empty crates returned to depot
             </span>
@@ -60,7 +60,7 @@ export function StoreReportsPage() {
             <span className="text-[11px] text-muted-foreground font-medium block">
               Monthly Replenishment Spend
             </span>
-            <p className="text-2xl font-extrabold text-foreground mt-1">LKR 4.82M</p>
+            <p className="text-2xl font-extrabold text-foreground mt-1 tabular-nums">LKR 4.82M</p>
             <span className="text-[11px] text-muted-foreground">
               Adhering to active price list
             </span>
@@ -100,7 +100,7 @@ export function StoreReportsPage() {
                     {report.title}
                   </h4>
                   <p className="text-muted-foreground mt-0.5">{report.desc}</p>
-                  <span className="text-[10px] text-muted-foreground font-medium mt-1 inline-block">
+                  <span className="text-[10px] text-muted-foreground font-medium mt-1 inline-block tabular-nums">
                     {report.format}
                   </span>
                 </div>
@@ -108,7 +108,7 @@ export function StoreReportsPage() {
                   variant="outline"
                   size="sm"
                   onClick={() => {}}
-                  className="gap-1.5 rounded-lg border-border text-xs shrink-0"
+                  className="gap-1.5 rounded-lg border-border text-xs shrink-0 cursor-pointer active:scale-[0.98] transition-all"
                 >
                   <DownloadSimpleIcon className="size-4" />
                   Download

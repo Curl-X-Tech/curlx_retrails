@@ -119,19 +119,19 @@ export function QueueTableRow({
         </Tooltip>
       </TableCell>
 
-      <TableCell className="text-center font-bold text-foreground py-2 px-3 whitespace-nowrap">
+      <TableCell className="text-center font-bold text-foreground py-2 px-3 whitespace-nowrap tabular-nums">
         {order.items.length} pkgs
       </TableCell>
-      <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap">
+      <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap tabular-nums">
         {order.totalWeightKg.toLocaleString()} kg
       </TableCell>
-      <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap">
+      <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap tabular-nums">
         {order.totalVolumeM3.toFixed(2)} m³
       </TableCell>
-      <TableCell className="text-right font-bold text-foreground py-2 px-4 whitespace-nowrap">
+      <TableCell className="text-right font-bold text-foreground py-2 px-4 whitespace-nowrap tabular-nums">
         LKR {order.totalOrderValueLkr.toLocaleString()}
       </TableCell>
-      <TableCell className="text-xs font-medium text-foreground py-2 px-4 whitespace-nowrap">
+      <TableCell className="text-xs font-medium text-foreground py-2 px-4 whitespace-nowrap tabular-nums">
         {order.deliveryWindow}
       </TableCell>
       <TableCell className="text-right py-2 px-4 whitespace-nowrap">

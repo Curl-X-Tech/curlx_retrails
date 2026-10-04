@@ -67,7 +67,7 @@ export function StoreOrdersPage() {
   };
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-background font-sans">
+    <div className="flex-1 flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-background font-sans">
       <OrderListFilterBar
         searchQuery={searchQuery}
         onSearchChange={handleSearchChange}

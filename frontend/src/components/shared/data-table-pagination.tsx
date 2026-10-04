@@ -22,7 +22,7 @@ export function DataTablePagination({
 
   return (
     <div className="flex items-center justify-between px-2">
-      <div className="text-xs text-muted-foreground">
+      <div className="text-xs text-muted-foreground tabular-nums">
         Page {currentPage} of {totalPages}
       </div>
       <Pagination className="justify-end w-auto mx-0">

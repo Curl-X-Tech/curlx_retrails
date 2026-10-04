@@ -93,10 +93,10 @@ export function AllocationDetailPage({
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/80 pb-3">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-xs font-mono font-bold bg-primary/10 text-primary px-2 py-0.5 rounded">
+                <span className="text-xs font-mono font-bold bg-primary/10 text-primary px-2 py-0.5 rounded tabular-nums">
                   {currentManifest.manifestCode}
                 </span>
-                <span className="text-xs font-semibold text-muted-foreground">
+                <span className="text-xs font-semibold text-muted-foreground tabular-nums">
                   Trip #{currentManifest.tripSequence}
                 </span>
               </div>
@@ -109,7 +109,7 @@ export function AllocationDetailPage({
               variant="outline"
               size="sm"
               onClick={() => setIsCargoListOpen(true)}
-              className="text-xs font-semibold gap-1.5 cursor-pointer rounded-xl bg-card self-start sm:self-auto"
+              className="text-xs font-semibold gap-1.5 cursor-pointer rounded-xl bg-card self-start sm:self-auto active:scale-[0.98] transition-all"
             >
               <PackageIcon className="size-3.5 text-primary" />
               <span>Inspect Cargo List ({currentManifest.cargoList.length})</span>

@@ -1,4 +1,5 @@
 import { postSyncBatch } from "@/api/sync/api";
+import { formatErrorMessage } from "@/api/client";
 import { peekBatch, markSent, markApplied, markFailed } from "./queue";
 import { calculateBackoffDelay, shouldRetry } from "./backoff";
 import { useSyncStatus } from "./use-sync-status";
@@ -113,7 +114,7 @@ export async function drainMutationQueue(options?: {
           return { processed, remaining: remainingBatch.length };
         }
       } catch (err: unknown) {
-        const errorMsg = err instanceof Error ? err.message : String(err);
+        const errorMsg = formatErrorMessage(err, "Sync request failed.");
         let maxRetryDelay = 0;
         let hasRetryable = false;
 

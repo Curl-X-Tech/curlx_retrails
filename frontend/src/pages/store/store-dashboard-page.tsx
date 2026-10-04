@@ -20,7 +20,7 @@ export function StoreDashboardPage() {
   const totalWeight = orders.reduce((sum, o) => sum + o.totalWeightKg, 0);
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-background font-sans">
+    <div className="flex-1 flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-background font-sans">
       <div className="border-b border-border bg-card px-4 md:px-8 py-4 shrink-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-w-7xl mx-auto w-full">
           <div>
@@ -35,7 +35,7 @@ export function StoreDashboardPage() {
           <Button
             onClick={() => navigate("/store/orders/new")}
             size="sm"
-            className="h-9 px-3 text-xs gap-1.5 rounded-xl bg-primary text-primary-foreground font-semibold cursor-pointer self-start sm:self-auto"
+            className="h-9 px-3 text-xs gap-1.5 rounded-xl bg-primary text-primary-foreground font-semibold cursor-pointer self-start sm:self-auto active:scale-[0.98] transition-all"
           >
             <PlusIcon className="size-4 font-bold" />
             Create New Order
@@ -65,7 +65,7 @@ export function StoreDashboardPage() {
               variant="outline"
               size="sm"
               onClick={() => navigate("/store/orders")}
-              className="text-xs gap-1 rounded-lg border-border"
+              className="text-xs gap-1 rounded-lg border-border cursor-pointer active:scale-[0.98] transition-all"
             >
               <span>View All in Queue</span>
               <ArrowRightIcon className="size-3.5" />
@@ -77,20 +77,20 @@ export function StoreDashboardPage() {
               <div
                 key={order.id}
                 onClick={() => navigate("/store/orders")}
-                className="p-3.5 rounded-xl border border-border bg-card shadow-xs flex items-center justify-between gap-3 text-xs cursor-pointer hover:border-primary/40 transition-colors"
+                className="p-3.5 rounded-xl border border-border bg-card shadow-xs flex items-center justify-between gap-3 text-xs cursor-pointer hover:border-primary/40 active:scale-[0.99] transition-all"
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-primary">{order.orderRef}</span>
+                    <span className="font-bold text-primary tabular-nums">{order.orderRef}</span>
                     <span className="text-muted-foreground">• {order.outletName}</span>
                   </div>
-                  <span className="text-[11px] text-muted-foreground">
+                  <span className="text-[11px] text-muted-foreground tabular-nums">
                     {order.totalItems} pkgs • {order.totalWeightKg.toFixed(1)} kg • ETA{" "}
                     {order.eta || "Pending"}
                   </span>
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="font-bold text-foreground block">
+                  <span className="font-bold text-foreground block tabular-nums">
                     LKR {order.totalOrderValueLkr.toLocaleString()}
                   </span>
                   <span className="text-[10px] text-muted-foreground capitalize">

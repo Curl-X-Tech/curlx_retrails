@@ -51,7 +51,7 @@ export function QueueTableView({
   return (
     <Card className="bg-card border border-border/80 shadow-xs rounded-2xl overflow-hidden flex-1 min-h-0 flex flex-col">
       <div className="px-4 py-2.5 bg-muted/25 border-b border-border/50 shrink-0 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
-        <div className="text-muted-foreground text-xs">
+        <div className="text-muted-foreground text-xs tabular-nums">
           {groupByStore ? (
             <span>
               Showing{" "}

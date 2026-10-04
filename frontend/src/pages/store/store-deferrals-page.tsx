@@ -29,7 +29,7 @@ export function StoreDeferralsPage({ viewMode = "unserved" }: StoreDeferralsPage
   const { carryoverOrders, auditLogs, totalCarryovers } = useStoreDeferrals(searchQuery);
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-background font-sans">
+    <div className="flex-1 flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-background font-sans">
       <div className="border-b border-border bg-card px-4 md:px-8 py-4 shrink-0">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-w-7xl mx-auto w-full">
           <div>

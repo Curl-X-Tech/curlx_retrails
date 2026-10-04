@@ -1,3 +1,4 @@
+import "./setup";
 import { describe, it, expect, beforeEach } from "vitest";
 import { isPastCutoff, getTargetOrderDate } from "@/lib/business-day";
 import { calculateBackoffDelay, shouldRetry } from "@/sync/backoff";

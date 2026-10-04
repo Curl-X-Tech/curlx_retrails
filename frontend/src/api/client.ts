@@ -5,8 +5,17 @@ import {
   setStoredToken,
   removeStoredToken,
 } from "./auth/tokens";
+import { normalizeApiError, formatErrorMessage, humanizeErrorCode } from "./errors";
 
-export { TOKEN_KEY, getStoredToken, setStoredToken, removeStoredToken };
+export {
+  TOKEN_KEY,
+  getStoredToken,
+  setStoredToken,
+  removeStoredToken,
+  formatErrorMessage,
+  humanizeErrorCode,
+  normalizeApiError,
+};
 
 export const API_URL = import.meta.env.VITE_API_URL || "/api/v1";
 
@@ -102,30 +111,43 @@ export async function apiClient<T>(
       isForm || typeof body === "string" ? (body as BodyInit) : JSON.stringify(body);
   }
 
-  let response = await fetch(url, requestInit);
+  let response: Response;
+  try {
+    response = await fetch(url, requestInit);
+  } catch (netErr: unknown) {
+    throw new ApiError(
+      0,
+      "Unable to connect to the server. Please check your network connection.",
+      netErr
+    );
+  }
 
   if (response.status === 401) {
     const refreshed = await handleUnauthorized();
     if (refreshed) {
       const retryToken = getStoredToken();
       if (retryToken) headers.set("Authorization", `Bearer ${retryToken}`);
-      response = await fetch(url, { ...requestInit, headers });
+      try {
+        response = await fetch(url, { ...requestInit, headers });
+      } catch (netErr: unknown) {
+        throw new ApiError(
+          0,
+          "Unable to connect to the server. Please check your network connection.",
+          netErr
+        );
+      }
     }
   }
 
   if (!response.ok) {
-    let errorDetail = `Request failed with status ${response.status}`;
     let data: unknown;
     try {
       data = await response.json();
-      if (data && typeof data === "object" && "detail" in data) {
-        const d = (data as { detail: unknown }).detail;
-        errorDetail = typeof d === "string" ? d : JSON.stringify(d);
-      }
     } catch {
       // Fallback
     }
-    throw new ApiError(response.status, errorDetail, data);
+    const message = normalizeApiError(response.status, data);
+    throw new ApiError(response.status, message, data);
   }
 
   if (response.status === 204) return {} as T;

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { WarningCircleIcon, TrayIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { formatErrorMessage } from "@/api/client";
 
 export interface QueryStateProps {
   isLoading: boolean;
@@ -28,7 +29,9 @@ export function QueryState({
       <div className="flex flex-col items-center justify-center gap-3 py-16 text-center">
         <WarningCircleIcon className="size-6 text-destructive" />
         <p className="text-sm font-medium text-foreground">Failed to load data</p>
-        <p className="text-xs text-muted-foreground font-mono">{error.message}</p>
+        <p className="text-xs text-muted-foreground max-w-md">
+          {formatErrorMessage(error, "Unable to load data. Please try again.")}
+        </p>
         {onRetry && (
           <Button variant="outline" size="xs" onClick={onRetry}>
             Retry

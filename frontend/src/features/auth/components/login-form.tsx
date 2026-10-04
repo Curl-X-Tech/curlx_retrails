@@ -10,6 +10,7 @@ import {
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { formatErrorMessage } from "@/api/client";
 import { getRoleHomePath } from "@/lib/domain-routing";
 import type { StaffRole } from "@/types/domain";
 import { useAuth } from "../hooks/use-auth";
@@ -50,7 +51,10 @@ export function LoginForm({ onSwitchToForgot, onError }: LoginFormProps) {
       const targetPath = redirectParam || getRoleHomePath(role);
       navigate(targetPath, { replace: true });
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Authentication failed.";
+      const message = formatErrorMessage(
+        err,
+        "Authentication failed. Please verify your credentials."
+      );
       onError(message);
     } finally {
       setIsSubmitting(false);
@@ -113,7 +117,7 @@ export function LoginForm({ onSwitchToForgot, onError }: LoginFormProps) {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full h-10 rounded-xl font-semibold gap-2 mt-2 cursor-pointer shadow-xs"
+        className="w-full h-10 rounded-xl font-semibold gap-2 mt-2 cursor-pointer shadow-xs active:scale-[0.99] transition-all"
       >
         {isSubmitting ? (
           <>

@@ -23,7 +23,7 @@ export function CalendarKpiStrip({
       <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
         <TrendUpIcon className="size-3.5 text-amber-600 shrink-0" />
         <span className="text-muted-foreground text-[11px]">Peak Multiplier:</span>
-        <span className="font-bold text-foreground text-[11px]">
+        <span className="font-bold text-foreground text-[11px] tabular-nums">
           {peakSurge ? `${peakSurge.toFixed(2)}x` : "1.00x"}
         </span>
       </div>
@@ -31,7 +31,7 @@ export function CalendarKpiStrip({
       <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
         <CloudRainIcon className="size-3.5 text-sky-600 shrink-0" />
         <span className="text-muted-foreground text-[11px]">Monsoon Advisory:</span>
-        <span className="font-bold text-foreground text-[11px]">
+        <span className="font-bold text-foreground text-[11px] tabular-nums">
           {monsoonDaysCount} Days
         </span>
       </div>

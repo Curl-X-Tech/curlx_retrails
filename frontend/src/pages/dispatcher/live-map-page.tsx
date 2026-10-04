@@ -116,7 +116,7 @@ export function LiveMapPage() {
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-4rem)] overflow-hidden bg-background">
+    <div className="relative w-full h-[calc(100dvh-4rem)] overflow-hidden bg-background">
       <div ref={mapContainerRef} className="w-full h-full" />
 
       {isLoading && vehicles.length === 0 && (

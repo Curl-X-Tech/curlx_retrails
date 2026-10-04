@@ -6,7 +6,7 @@ export function StoreCreateOrderPage() {
   const catalog = useOrderCatalog();
 
   return (
-    <div className="flex-1 flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-[#FBFBFB] dark:bg-background font-sans">
+    <div className="flex-1 flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-[#FBFBFB] dark:bg-background font-sans">
       <QueryState
         isLoading={catalog.isLoading}
         error={catalog.error}
