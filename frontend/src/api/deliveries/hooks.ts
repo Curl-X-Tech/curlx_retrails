@@ -14,6 +14,7 @@ export function useArrive() {
       waypointId: string;
       payload: ArriveRequest;
     }) => recordArrival(waypointId, payload),
+    networkMode: "always",
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: driverKeys.currentRoute() });
       void queryClient.invalidateQueries({ queryKey: ordersKeys.all });
@@ -33,6 +34,7 @@ export function useSubmitPod() {
       waypointId: string;
       payload: SubmitPodRequest;
     }) => submitPod(waypointId, payload),
+    networkMode: "always",
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: driverKeys.currentRoute() });
       void queryClient.invalidateQueries({ queryKey: ordersKeys.all });
@@ -52,6 +54,7 @@ export function useLogDiscrepancy() {
       waypointId: string;
       payload: LogDiscrepancyRequest;
     }) => logDiscrepancy(waypointId, payload),
+    networkMode: "always",
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: driverKeys.currentRoute() });
       void queryClient.invalidateQueries({ queryKey: ordersKeys.all });

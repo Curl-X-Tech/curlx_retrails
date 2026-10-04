@@ -4,8 +4,10 @@ import {
   useTripProgress,
   useDriverTrips,
   useActivateTrip,
+  getCurrentRoute,
 } from "@/api/driver";
 import { useArrive, useSubmitPod } from "@/api/deliveries";
+import { executeDownloadTrip } from "../download-trip-helper";
 import { requestSyncDrain } from "@/sync/events";
 import { useSyncStatus } from "@/sync/use-sync-status";
 
@@ -45,12 +47,16 @@ export function useDriverTripsList() {
     async (tripId: string): Promise<boolean> => {
       try {
         await activateTripMutation.mutateAsync(tripId);
+        const routeData = route ?? (await getCurrentRoute(tripId));
+        if (routeData) {
+          await executeDownloadTrip(tripId, routeData);
+        }
         return true;
       } catch {
         return true;
       }
     },
-    [activateTripMutation]
+    [activateTripMutation, route]
   );
 
   const trips = React.useMemo(() => {

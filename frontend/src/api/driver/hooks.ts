@@ -35,6 +35,7 @@ export function useActivateTrip() {
 
   return useMutation({
     mutationFn: (tripId: string) => activateDriverTrip(tripId),
+    networkMode: "always",
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: driverKeys.all });
     },
