@@ -23,7 +23,7 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen w-full grid grid-cols-1 lg:grid-cols-12 bg-background p-4 sm:p-6 lg:p-8 font-sans select-none gap-6 lg:gap-12">
+    <div className="min-h-dvh w-full grid grid-cols-1 lg:grid-cols-12 bg-background p-4 sm:p-6 lg:p-8 font-sans select-none gap-6 lg:gap-12">
       {/* 1. Left Showcase Frame */}
       <div className="hidden lg:block lg:col-span-6 xl:col-span-7 relative overflow-hidden rounded-3xl bg-muted border border-border/70 shadow-xs min-h-[580px] h-full">
         <img
@@ -45,7 +45,7 @@ export function LoginPage() {
               />
             </div>
             <div className="space-y-1">
-              <h1 className="font-heading font-bold text-2xl sm:text-3xl text-foreground tracking-tight">
+              <h1 className="font-heading font-bold text-2xl sm:text-3xl text-foreground tracking-tight text-balance">
                 {viewState === "login" && "Welcome to ReTrails"}
                 {viewState === "forgot" && "Reset Password"}
                 {viewState === "reset" && "Choose New Password"}

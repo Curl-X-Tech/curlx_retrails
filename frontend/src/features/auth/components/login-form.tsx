@@ -117,7 +117,7 @@ export function LoginForm({ onSwitchToForgot, onError }: LoginFormProps) {
       <Button
         type="submit"
         disabled={isSubmitting}
-        className="w-full h-10 rounded-xl font-semibold gap-2 mt-2 cursor-pointer shadow-xs"
+        className="w-full h-10 rounded-xl font-semibold gap-2 mt-2 cursor-pointer shadow-xs active:scale-[0.99] transition-all"
       >
         {isSubmitting ? (
           <>

@@ -16,7 +16,7 @@ export function AppLayout() {
   return (
     <SidebarProvider defaultOpen={true}>
       <AppSidebar />
-      <SidebarInset className="bg-muted/20 flex flex-col h-screen overflow-hidden">
+      <SidebarInset className="bg-muted/20 flex flex-col h-dvh overflow-hidden">
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-4">
           <div className="flex items-center gap-2.5 min-w-0">
             <SidebarTrigger className="shrink-0 text-muted-foreground hover:text-foreground cursor-pointer" />

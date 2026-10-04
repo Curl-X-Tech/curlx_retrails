@@ -58,7 +58,7 @@ export function DepotCard({ depot, districts, outlets }: DepotCardProps) {
             <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
               Position
             </div>
-            <div className="font-semibold text-xs text-foreground">
+            <div className="font-semibold text-xs text-foreground tabular-nums">
               {depot.latitude.toFixed(4)}, {depot.longitude.toFixed(4)}
             </div>
           </div>
@@ -66,7 +66,7 @@ export function DepotCard({ depot, districts, outlets }: DepotCardProps) {
             <div className="text-[11px] text-muted-foreground font-medium uppercase tracking-wider">
               Assigned Outlets
             </div>
-            <div className="font-semibold text-xs text-foreground">
+            <div className="font-semibold text-xs text-foreground tabular-nums">
               {assignedOutlets.length} Stores
             </div>
           </div>
@@ -75,7 +75,7 @@ export function DepotCard({ depot, districts, outlets }: DepotCardProps) {
         <div className="space-y-2">
           <div className="text-xs font-semibold text-foreground flex items-center justify-between">
             <span>Covered Logistics Districts</span>
-            <span className="text-[11px] text-muted-foreground">
+            <span className="text-[11px] text-muted-foreground tabular-nums">
               {assignedDistricts.length} Districts
             </span>
           </div>

@@ -65,7 +65,7 @@ export function AllocationTableRow({ alloc, onSelect }: AllocationTableRowProps)
           <span className="font-medium text-xs text-foreground block truncate max-w-[180px]">
             {alloc.routeName}
           </span>
-          <span className="text-[10px] text-muted-foreground">
+          <span className="text-[10px] text-muted-foreground tabular-nums">
             {alloc.assignedStops.length} stops scheduled
           </span>
         </div>
@@ -75,11 +75,11 @@ export function AllocationTableRow({ alloc, onSelect }: AllocationTableRowProps)
           <span className="font-medium text-xs text-foreground block truncate">
             {alloc.driverName}
           </span>
-          <span className="text-[10px] text-muted-foreground">{alloc.driverPhone}</span>
+          <span className="text-[10px] text-muted-foreground tabular-nums">{alloc.driverPhone}</span>
         </div>
       </TableCell>
       <TableCell className="text-center">
-        <Badge variant="secondary" className="text-[11px] font-bold px-2 py-0.5">
+        <Badge variant="secondary" className="text-[11px] font-bold px-2 py-0.5 tabular-nums">
           {alloc.cratesAllocated}
         </Badge>
       </TableCell>
@@ -91,10 +91,10 @@ export function AllocationTableRow({ alloc, onSelect }: AllocationTableRowProps)
             strokeWidth={3}
           />
           <div>
-            <span className="font-bold text-xs text-foreground block leading-tight">
+            <span className="font-bold text-xs text-foreground block leading-tight tabular-nums">
               {alloc.allocatedWeightKg.toLocaleString()} kg
             </span>
-            <span className="text-[10px] text-muted-foreground font-medium block">
+            <span className="text-[10px] text-muted-foreground font-medium block tabular-nums">
               {alloc.weightPercentage}% of {alloc.maxWeightKg.toLocaleString()} kg
             </span>
           </div>
@@ -108,17 +108,17 @@ export function AllocationTableRow({ alloc, onSelect }: AllocationTableRowProps)
             strokeWidth={3}
           />
           <div>
-            <span className="font-bold text-xs text-foreground block leading-tight">
+            <span className="font-bold text-xs text-foreground block leading-tight tabular-nums">
               {alloc.allocatedVolumeCbm} m³
             </span>
-            <span className="text-[10px] text-muted-foreground font-medium block">
+            <span className="text-[10px] text-muted-foreground font-medium block tabular-nums">
               {alloc.volumePercentage}% of {alloc.maxVolumeCbm} m³
             </span>
           </div>
         </div>
       </TableCell>
       <TableCell>
-        <span className="text-xs font-medium text-foreground">{alloc.departureTime}</span>
+        <span className="text-xs font-medium text-foreground tabular-nums">{alloc.departureTime}</span>
       </TableCell>
       <TableCell>{getAllocationStatusBadge(alloc.status)}</TableCell>
       <TableCell className="text-right">
