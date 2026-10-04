@@ -8,6 +8,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { CopyableId } from "@/components/shared";
 import type { QueuedOrder } from "@/types";
 import { OrderCardMetrics } from "./order-card-metrics";
 
@@ -37,9 +38,7 @@ export function OrderCard({ order, onSelect, className }: OrderCardProps) {
             <span className="font-heading font-black text-base text-foreground tracking-tight group-hover:text-primary transition-colors">
               #{order.orderRef}
             </span>
-            <span className="text-[11px] font-bold text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded-md">
-              {order.outletId}
-            </span>
+            <CopyableId id={order.outletId} />
             <span className="text-[11px] font-bold text-primary">
               Waypoint {order.brand}
             </span>

@@ -39,7 +39,10 @@ export function BayDiscrepancySheet({
 }: BayDiscrepancySheetProps) {
   return (
     <Sheet open={Boolean(reportingItem)} onOpenChange={(open) => !open && onClose()}>
-      <SheetContent side="right" className="sm:max-w-md w-full p-0 flex flex-col bg-card">
+      <SheetContent
+        side="right"
+        className="sm:max-w-md w-full p-0 flex flex-col bg-card [&>button]:hidden"
+      >
         <SheetHeader className="p-5 pb-3 border-b border-border/70">
           <SheetTitle className="font-heading font-bold text-base text-foreground flex items-center gap-2">
             <WarningCircleIcon className="size-5 text-amber-500" weight="bold" />

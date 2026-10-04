@@ -48,13 +48,18 @@ export function VehicleCargoCanvas({
     <div
       className={`w-1/2 min-w-[50%] max-w-[50%] shrink-0 flex items-center justify-center overflow-hidden ${containerHeightClass} select-none pointer-events-none`}
     >
-      <div
-        className={`relative inline-block aspect-square ${containerHeightClass} max-h-full transform-gpu pointer-events-none`}
-      >
+      <div className="relative aspect-square h-full max-h-full max-w-full flex items-center justify-center transform-gpu pointer-events-none">
         <img
-          src={imageUrl}
+          src={
+            imageUrl || (isVan ? "/vehicle-images/van.png" : "/vehicle-images/dry.png")
+          }
           alt={alt}
-          className="w-full h-full object-contain drop-shadow-xs select-none pointer-events-none"
+          onError={(e) => {
+            e.currentTarget.src = isVan
+              ? "/vehicle-images/van.png"
+              : "/vehicle-images/dry.png";
+          }}
+          className="w-full h-full object-contain drop-shadow-xs select-none pointer-events-none block"
           draggable={false}
         />
         <div

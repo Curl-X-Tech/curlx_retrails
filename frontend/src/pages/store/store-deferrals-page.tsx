@@ -1,9 +1,9 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
-import { MagnifyingGlassIcon } from "@phosphor-icons/react";
-import { Badge } from "@/components/ui/badge";
+import { MagnifyingGlassIcon, XIcon } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import {
+  StoreDeferralsHeader,
   StoreDeferralsKpi,
   StoreDeferralsTable,
   StoreDeferralsAuditTable,
@@ -19,78 +19,154 @@ export function StoreDeferralsPage({ viewMode = "unserved" }: StoreDeferralsPage
   const activeMode =
     (searchParams.get("tab") as "unserved" | "log" | "carryover") || viewMode;
   const [searchQuery, setSearchQuery] = React.useState<string>("");
+  const [currentPage, setCurrentPage] = React.useState<number>(1);
+  const pageSize = 10;
 
   const handleTabChange = (tab: "unserved" | "log" | "carryover") => {
     const next = new URLSearchParams(searchParams);
     next.set("tab", tab);
     setSearchParams(next, { replace: true });
+    setCurrentPage(1);
   };
 
   const { carryoverOrders, auditLogs, totalCarryovers } = useStoreDeferrals(searchQuery);
 
-  return (
-    <div className="flex-1 flex flex-col h-[calc(100dvh-4rem)] overflow-hidden bg-background font-sans">
-      <div className="border-b border-border bg-card px-4 md:px-8 py-4 shrink-0">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 max-w-7xl mx-auto w-full">
-          <div>
-            <div className="flex items-center gap-2">
-              <h1 className="font-heading font-bold text-xl sm:text-2xl text-foreground">
-                Store Order Deferrals & Carryovers
-              </h1>
-              <Badge
-                variant="outline"
-                className="text-xs font-semibold border-amber-500/30 text-amber-700 dark:text-amber-300"
-              >
-                Rule: Max 1 Day Deferral
-              </Badge>
-            </div>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Track postponed retail replenishments, bottleneck reasons, and scheduled
-              recovery runs
-            </p>
-          </div>
+  const displayedOrders = React.useMemo(() => {
+    if (activeMode === "carryover") {
+      return carryoverOrders.filter((o) => o.deferredYesterday === 1);
+    }
+    return carryoverOrders;
+  }, [carryoverOrders, activeMode]);
 
-          <div className="flex items-center bg-muted/40 p-1 rounded-xl border border-border">
-            {(["unserved", "carryover", "log"] as const).map((tab) => (
+  const totalWeightKg = React.useMemo(
+    () => displayedOrders.reduce((sum, o) => sum + o.totalWeightKg, 0),
+    [displayedOrders]
+  );
+
+  const totalValueLkr = React.useMemo(
+    () => displayedOrders.reduce((sum, o) => sum + o.totalValueLkr, 0),
+    [displayedOrders]
+  );
+
+  const mustDispatchCount = React.useMemo(
+    () => carryoverOrders.filter((o) => o.deferredYesterday === 1).length,
+    [carryoverOrders]
+  );
+
+  const totalPagesOrders = Math.max(1, Math.ceil(displayedOrders.length / pageSize));
+  const paginatedOrders = React.useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return displayedOrders.slice(start, start + pageSize);
+  }, [displayedOrders, currentPage, pageSize]);
+
+  const totalPagesLogs = Math.max(1, Math.ceil(auditLogs.length / pageSize));
+  const paginatedLogs = React.useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return auditLogs.slice(start, start + pageSize);
+  }, [auditLogs, currentPage, pageSize]);
+
+  const handleExport = () => {
+    const csvRows = [
+      [
+        "Order Ref",
+        "Outlet",
+        "District",
+        "Reason",
+        "Priority",
+        "Weight (kg)",
+        "Value (LKR)",
+      ],
+      ...displayedOrders.map((o) => [
+        o.orderRef,
+        `"${o.outletName}"`,
+        `"${o.district}"`,
+        `"${o.deferralReason}"`,
+        o.deferredYesterday === 1 ? "Must Dispatch Tomorrow" : "Deferred Today",
+        o.totalWeightKg.toString(),
+        o.totalValueLkr.toString(),
+      ]),
+    ];
+    const csvContent =
+      "data:text/csv;charset=utf-8," + csvRows.map((e) => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute(
+      "download",
+      `store-deferrals-${new Date().toISOString().slice(0, 10)}.csv`
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="flex-1 flex flex-col h-full overflow-hidden bg-background font-sans">
+      <StoreDeferralsHeader
+        activeTab={activeMode}
+        onTabChange={handleTabChange}
+        onRefresh={() => window.location.reload()}
+        onExport={handleExport}
+      />
+
+      <StoreDeferralsKpi
+        totalPending={totalCarryovers}
+        totalWeightKg={totalWeightKg}
+        totalValueLkr={totalValueLkr}
+        mustDispatchCount={mustDispatchCount}
+      />
+
+      {/* Filter toolbar */}
+      <div className="px-4 sm:px-6 py-2 border-b border-border/50 bg-background flex flex-wrap items-center justify-between gap-2.5">
+        <div className="flex items-center gap-2 flex-1 min-w-[220px] max-w-sm">
+          <div className="relative w-full">
+            <MagnifyingGlassIcon className="absolute left-2.5 top-1/2 -translate-y-1/2 size-3 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search order ref, outlet, or reason..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setCurrentPage(1);
+              }}
+              className="pl-7 pr-7 h-7 text-xs bg-card"
+            />
+            {searchQuery && (
               <button
-                key={tab}
                 type="button"
-                onClick={() => handleTabChange(tab)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all cursor-pointer capitalize ${
-                  activeMode === tab
-                    ? "bg-primary text-primary-foreground shadow-xs"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
+                onClick={() => {
+                  setSearchQuery("");
+                  setCurrentPage(1);
+                }}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
               >
-                {tab === "log"
-                  ? "Audit Log"
-                  : tab === "unserved"
-                    ? "Unserved Queue"
-                    : "Carryover"}
+                <XIcon className="size-3" />
               </button>
-            ))}
+            )}
           </div>
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 max-w-7xl mx-auto w-full space-y-6">
-        <StoreDeferralsKpi totalPending={totalCarryovers} />
-
-        <div className="relative max-w-md">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-          <Input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Filter by order ref, outlet, or reason..."
-            className="pl-9 h-9 text-xs rounded-xl bg-card border-border"
-          />
-        </div>
-
+      {/* Main Table Container */}
+      <div className="flex-1 min-h-0 margin-responsive py-4 sm:py-5 overflow-hidden flex flex-col">
         {activeMode === "log" ? (
-          <StoreDeferralsAuditTable logs={auditLogs} />
+          <StoreDeferralsAuditTable
+            logs={paginatedLogs}
+            totalCount={auditLogs.length}
+            currentPage={currentPage}
+            totalPages={totalPagesLogs}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+          />
         ) : (
-          <StoreDeferralsTable orders={carryoverOrders} />
+          <StoreDeferralsTable
+            orders={paginatedOrders}
+            totalCount={displayedOrders.length}
+            currentPage={currentPage}
+            totalPages={totalPagesOrders}
+            pageSize={pageSize}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
     </div>

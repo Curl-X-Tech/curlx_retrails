@@ -2,13 +2,23 @@ import * as React from "react";
 import { PencilSimpleLineIcon } from "@phosphor-icons/react";
 
 interface SignaturePadProps {
-  onSignatureChange?: (hasSig: boolean) => void;
+  onSignatureChange?: (hasSig: boolean, dataUrl?: string | null) => void;
 }
 
 export function SignaturePad({ onSignatureChange }: SignaturePadProps) {
   const [hasSignature, setHasSignature] = React.useState(false);
   const canvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = React.useRef(false);
+
+  const emitSignature = (hasSig: boolean) => {
+    const canvas = canvasRef.current;
+    if (hasSig && canvas) {
+      const dataUrl = canvas.toDataURL("image/png");
+      onSignatureChange?.(true, dataUrl);
+    } else {
+      onSignatureChange?.(false, null);
+    }
+  };
 
   const startDrawing = (x: number, y: number) => {
     const canvas = canvasRef.current;
@@ -17,7 +27,6 @@ export function SignaturePad({ onSignatureChange }: SignaturePadProps) {
     if (!ctx) return;
     isDrawingRef.current = true;
     setHasSignature(true);
-    onSignatureChange?.(true);
     const rect = canvas.getBoundingClientRect();
     ctx.beginPath();
     ctx.moveTo(x - rect.left, y - rect.top);
@@ -39,7 +48,10 @@ export function SignaturePad({ onSignatureChange }: SignaturePadProps) {
   };
 
   const stopDrawing = () => {
-    isDrawingRef.current = false;
+    if (isDrawingRef.current) {
+      isDrawingRef.current = false;
+      emitSignature(true);
+    }
   };
 
   const handleClearSignature = () => {
@@ -49,7 +61,7 @@ export function SignaturePad({ onSignatureChange }: SignaturePadProps) {
     if (!ctx) return;
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     setHasSignature(false);
-    onSignatureChange?.(false);
+    emitSignature(false);
   };
 
   return (

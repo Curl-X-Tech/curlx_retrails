@@ -27,12 +27,18 @@ export interface AppSidebarProps {
 }
 
 export function AppSidebar({ activeId, onSelect, customNavGroups }: AppSidebarProps) {
+  const { user } = useAuth();
   const { hubs } = useHubOptions();
   const [selectedHub, setActiveHub] = React.useState<HubInfo | null>(null);
-  const activeHub = selectedHub ?? hubs[0] ?? null;
+
+  const userHub = React.useMemo(() => {
+    if (!user?.depotId && !user?.depotName) return null;
+    return hubs.find((h) => h.id === user?.depotId || h.name === user?.depotName) ?? null;
+  }, [user, hubs]);
+
+  const activeHub = selectedHub ?? userHub ?? hubs[0] ?? null;
   const location = useLocation();
   const navigate = useNavigate();
-  const { user } = useAuth();
 
   const isAdminRole =
     user?.role === "system_admin" || location.pathname.startsWith("/admin");

@@ -1,16 +1,16 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useLiveQuery } from "dexie-react-hooks";
 import { driverKeys } from "../keys";
-import { getCurrentRoute } from "./api";
+import { activateDriverTrip, getCurrentRoute, getDriverTrips } from "./api";
 import type { TripProgressSummary } from "./types";
 import { db } from "@/lib/dexie-db";
 
-export function useCurrentRoute() {
+export function useCurrentRoute(tripId?: string) {
   const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
   return useQuery({
-    queryKey: driverKeys.currentRoute(),
-    queryFn: () => getCurrentRoute(),
+    queryKey: driverKeys.currentRoute(tripId),
+    queryFn: () => getCurrentRoute(tripId),
     staleTime: 1000 * 60 * 5,
     networkMode: "offlineFirst",
     refetchOnWindowFocus: isOnline,
@@ -18,8 +18,31 @@ export function useCurrentRoute() {
   });
 }
 
-export function useTripProgress(): TripProgressSummary {
-  const { data: route } = useCurrentRoute();
+export function useDriverTrips() {
+  const isOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
+
+  return useQuery({
+    queryKey: driverKeys.trips(),
+    queryFn: () => getDriverTrips(),
+    staleTime: 1000 * 60 * 5,
+    networkMode: "offlineFirst",
+    refetchOnWindowFocus: isOnline,
+  });
+}
+
+export function useActivateTrip() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (tripId: string) => activateDriverTrip(tripId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: driverKeys.all });
+    },
+  });
+}
+
+export function useTripProgress(tripId?: string): TripProgressSummary {
+  const { data: route } = useCurrentRoute(tripId);
   const queuedMutations = useLiveQuery(
     () => db.mutationQueue.where("status").anyOf(["queued", "sending"]).toArray(),
     []

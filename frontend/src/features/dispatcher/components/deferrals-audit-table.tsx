@@ -1,5 +1,11 @@
 import * as React from "react";
-import { TableHeader, TableBody, TableRow, TableHead } from "@/components/ui/table";
+import {
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SortHeaderIcon } from "@/components/shared/sort-header-icon";
 import { DeferralsGroupHeader } from "./deferrals-group-header";
@@ -107,8 +113,18 @@ export function DeferralsAuditTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {auditGroupBy !== "none" && groupedAuditLogs
-              ? groupedAuditLogs.map((group) => (
+            {auditGroupBy !== "none" && groupedAuditLogs ? (
+              groupedAuditLogs.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={9}
+                    className="text-center py-12 text-muted-foreground text-xs"
+                  >
+                    No deferral audit records found.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                groupedAuditLogs.map((group) => (
                   <React.Fragment key={group.key}>
                     <DeferralsGroupHeader
                       title={group.title}
@@ -128,13 +144,25 @@ export function DeferralsAuditTable({
                     ))}
                   </React.Fragment>
                 ))
-              : paginatedAuditLogs.map((log) => (
-                  <DeferralsAuditRow
-                    key={log.id}
-                    log={log}
-                    onSelectOrderRef={onSelectOrderRef}
-                  />
-                ))}
+              )
+            ) : paginatedAuditLogs.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={9}
+                  className="text-center py-12 text-muted-foreground text-xs"
+                >
+                  No deferral audit records recorded.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedAuditLogs.map((log) => (
+                <DeferralsAuditRow
+                  key={log.id}
+                  log={log}
+                  onSelectOrderRef={onSelectOrderRef}
+                />
+              ))
+            )}
           </TableBody>
         </table>
       </div>

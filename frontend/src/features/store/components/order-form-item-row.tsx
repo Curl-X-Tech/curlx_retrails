@@ -7,8 +7,6 @@ import type { CatalogProduct, StoreOrderItemRow } from "../types";
 interface OrderFormItemRowProps {
   row: StoreOrderItemRow;
   catalogProducts: CatalogProduct[];
-  isSelected: boolean;
-  onToggleSelect: () => void;
   onUpdateProduct: (product: CatalogProduct) => void;
   onUpdateQuantity: (qty: number) => void;
   onRemove: () => void;
@@ -17,21 +15,21 @@ interface OrderFormItemRowProps {
 export function OrderFormItemRow({
   row,
   catalogProducts,
-  isSelected,
-  onToggleSelect,
   onUpdateProduct,
   onUpdateQuantity,
   onRemove,
 }: OrderFormItemRowProps) {
   return (
     <TableRow className="hover:bg-muted/15 transition-colors">
-      <TableCell className="px-3">
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={onToggleSelect}
-          className="size-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
-        />
+      <TableCell className="px-3 w-10">
+        <button
+          type="button"
+          onClick={onRemove}
+          className="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors cursor-pointer flex items-center justify-center"
+          title="Remove item"
+        >
+          <TrashIcon className="size-4" />
+        </button>
       </TableCell>
       <TableCell>
         <ProductChangeDropdown
@@ -70,24 +68,14 @@ export function OrderFormItemRow({
           </button>
         </div>
       </TableCell>
-      <TableCell className="text-right text-xs text-muted-foreground font-medium">
+      <TableCell className="text-right text-xs text-muted-foreground font-medium tabular-nums">
         LKR {row.unitPriceLkr.toLocaleString()}
       </TableCell>
-      <TableCell className="text-right text-xs text-muted-foreground font-medium">
+      <TableCell className="text-right text-xs text-muted-foreground font-medium tabular-nums">
         {row.totalWeightKg.toFixed(1)} kg
       </TableCell>
-      <TableCell className="text-right text-xs font-bold text-foreground">
+      <TableCell className="text-right text-xs font-bold text-foreground tabular-nums pr-4">
         LKR {row.totalPriceLkr.toLocaleString()}
-      </TableCell>
-      <TableCell className="text-right pr-3">
-        <button
-          type="button"
-          onClick={onRemove}
-          className="p-1.5 text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
-          title="Remove item"
-        >
-          <TrashIcon className="size-4" />
-        </button>
       </TableCell>
     </TableRow>
   );

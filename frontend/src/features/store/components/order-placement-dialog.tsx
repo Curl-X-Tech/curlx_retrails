@@ -19,7 +19,8 @@ interface OrderPlacementDialogProps {
 type StepState = "done" | "failed" | "active" | "idle";
 
 function StepMarker({ state }: { state: StepState }) {
-  const base = "absolute -left-2.5 top-0.5 size-5 rounded-full flex items-center justify-center";
+  const base =
+    "absolute -left-2.5 top-0.5 size-5 rounded-full flex items-center justify-center";
   if (state === "done")
     return (
       <span className={`${base} bg-primary text-primary-foreground`}>
@@ -49,20 +50,16 @@ export function OrderPlacementDialog({
 }: OrderPlacementDialogProps) {
   const isCutoff = stage === "cutoff";
   const received: StepState = stage === "received" ? "active" : "done";
-  const cutoff: StepState = isCutoff
-    ? "failed"
-    : stage === "received"
-      ? "idle"
-      : "done";
+  const cutoff: StepState = isCutoff ? "failed" : stage === "received" ? "idle" : "done";
   const placed: StepState =
     stage === "placed" ? "done" : stage === "placing" ? "active" : "idle";
 
   return (
-    <Dialog open={stage !== null} onOpenChange={(open) => !open && isCutoff && onCancel()}>
-      <DialogContent
-        showCloseButton={false}
-        className="sm:max-w-md p-6"
-      >
+    <Dialog
+      open={stage !== null}
+      onOpenChange={(open) => !open && isCutoff && onCancel()}
+    >
+      <DialogContent showCloseButton={false} className="sm:max-w-md p-6">
         <DialogHeader>
           <DialogTitle>Placing order</DialogTitle>
           <DialogDescription className="sr-only">
@@ -74,7 +71,7 @@ export function OrderPlacementDialog({
           <li className="pl-6 relative">
             <StepMarker state={received} />
             <p className="text-sm font-medium text-foreground">Order received</p>
-            <p className="font-mono text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               Checking order details and the daily cut-off.
             </p>
           </li>
@@ -83,7 +80,7 @@ export function OrderPlacementDialog({
             <p className="text-sm font-medium text-foreground">
               {isCutoff ? "Order cannot be placed after 4:00 PM" : "Cut-off check"}
             </p>
-            <p className="font-mono text-xs text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {isCutoff ? "Same-day dispatch has closed." : "Orders close at 4:00 PM."}
             </p>
           </li>
@@ -95,7 +92,7 @@ export function OrderPlacementDialog({
                   <p className="text-sm font-medium text-foreground">
                     Schedule the order for the next day?
                   </p>
-                  <p className="font-mono text-xs text-muted-foreground">
+                  <p className="text-xs text-muted-foreground tabular-nums">
                     Delivery date: {nextDate}
                   </p>
                 </div>
@@ -103,13 +100,14 @@ export function OrderPlacementDialog({
                   size="sm"
                   variant="secondary"
                   onClick={onSchedule}
-                  className="font-mono text-xs font-bold text-primary cursor-pointer"
+                  className="text-xs font-bold text-primary cursor-pointer"
                 >
                   YES
                 </Button>
               </div>
             </li>
           )}
+
           <li className="pl-6 relative">
             <StepMarker state={placed} />
             <p

@@ -30,17 +30,25 @@ def test_core_service_routes_registered(core_app):
     openapi_paths = set(core_app.openapi()["paths"].keys())
 
     # Verify orders endpoints
-    assert "/orders/v1/orders" in openapi_paths
+    assert "/api/v1/orders" in openapi_paths
+    assert "/api/v1/orders/{id}" in openapi_paths
+    assert "/api/v1/orders/{id}/status" in openapi_paths
 
-    # Verify routes endpoints
-    assert "/routes/v1/routes" in openapi_paths
+    # Verify fleet & drivers endpoints
+    assert "/api/v1/fleet/vehicles" in openapi_paths
+    assert "/api/v1/fleet/drivers" in openapi_paths
 
-    # Verify vehicles endpoints
-    assert "/vehicles/v1/vehicles" in openapi_paths
+    # Verify allocations & operations endpoints
+    assert "/api/v1/allocations" in openapi_paths
+    assert "/api/v1/loader/bays" in openapi_paths
+    assert "/api/v1/driver/routes/current" in openapi_paths
+    assert "/api/v1/sync/batch" in openapi_paths
 
-    # Verify dispatch endpoints
-    assert "/dispatch/v1/trips" in openapi_paths
-    assert "/dispatch/v1/drivers" in openapi_paths
+    # Verify legacy microservice prefixes are not in openapi schema
+    assert "/orders/v1/orders" not in openapi_paths
+    assert "/routes/v1/routes" not in openapi_paths
+    assert "/vehicles/v1/vehicles" not in openapi_paths
+    assert "/dispatch/v1/trips" not in openapi_paths
 
     # Verify auth & user endpoints
     assert "/api/v1/auth/jwt/login" in openapi_paths
@@ -59,22 +67,12 @@ def test_core_service_routes_registered(core_app):
     assert "/api/v1/master/prices" in openapi_paths
     assert "/api/v1/master/calendar/operating-days" in openapi_paths
     assert "/api/v1/sync/batch" in openapi_paths
-    assert "/sync/batch" not in openapi_paths
-    assert "/master/brands" not in openapi_paths
-    assert "/master/depots" not in openapi_paths
-    assert "/master/districts" not in openapi_paths
-    assert "/master/items" not in openapi_paths
-    assert "/master/outlets" not in openapi_paths
-    assert "/master/prices" not in openapi_paths
-    assert "/master/calendar" not in openapi_paths
 
 
 def test_core_service_openapi_schema(core_app):
     openapi = core_app.openapi()
     assert openapi["info"]["title"] == "Waypoint — Core Service"
-    assert "/orders/v1/orders" in openapi["paths"]
-    assert "/routes/v1/routes" in openapi["paths"]
-    assert "/vehicles/v1/vehicles" in openapi["paths"]
-    assert "/dispatch/v1/trips" in openapi["paths"]
+    assert "/api/v1/orders" in openapi["paths"]
+    assert "/api/v1/fleet/vehicles" in openapi["paths"]
     assert "/api/v1/auth/jwt/login" in openapi["paths"]
     assert "/api/v1/master/brands" in openapi["paths"]

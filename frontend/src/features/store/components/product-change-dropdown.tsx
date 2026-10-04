@@ -37,10 +37,7 @@ export function ProductChangeDropdown({
               {row.name}
             </span>
             {row.specialHandlingCode && (
-              <Badge
-                variant="outline"
-                className="text-[10px] px-1.5 py-0 h-4 border-amber-500/30 text-amber-700 dark:text-amber-300"
-              >
+              <Badge variant="outline" className="text-[9px] px-1 py-0 h-4 font-bold">
                 {row.specialHandlingCode}
               </Badge>
             )}

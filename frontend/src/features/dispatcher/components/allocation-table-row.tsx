@@ -75,11 +75,16 @@ export function AllocationTableRow({ alloc, onSelect }: AllocationTableRowProps)
           <span className="font-medium text-xs text-foreground block truncate">
             {alloc.driverName}
           </span>
-          <span className="text-[10px] text-muted-foreground tabular-nums">{alloc.driverPhone}</span>
+          <span className="text-[10px] text-muted-foreground tabular-nums">
+            {alloc.driverPhone}
+          </span>
         </div>
       </TableCell>
       <TableCell className="text-center">
-        <Badge variant="secondary" className="text-[11px] font-bold px-2 py-0.5 tabular-nums">
+        <Badge
+          variant="secondary"
+          className="text-[11px] font-bold px-2 py-0.5 tabular-nums"
+        >
           {alloc.cratesAllocated}
         </Badge>
       </TableCell>
@@ -118,7 +123,9 @@ export function AllocationTableRow({ alloc, onSelect }: AllocationTableRowProps)
         </div>
       </TableCell>
       <TableCell>
-        <span className="text-xs font-medium text-foreground tabular-nums">{alloc.departureTime}</span>
+        <span className="text-xs font-medium text-foreground tabular-nums">
+          {alloc.departureTime}
+        </span>
       </TableCell>
       <TableCell>{getAllocationStatusBadge(alloc.status)}</TableCell>
       <TableCell className="text-right">

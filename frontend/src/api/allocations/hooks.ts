@@ -43,6 +43,8 @@ export function useConfirmAllocation() {
   });
 }
 
+import { toast } from "@/components/ui/sonner";
+
 function useRefreshAfterAllocation() {
   const queryClient = useQueryClient();
   return () => {
@@ -51,9 +53,39 @@ function useRefreshAfterAllocation() {
   };
 }
 
+let activeAllocationToastId: string | number | undefined;
+
 export function useOptimizeAllocations() {
   const refresh = useRefreshAfterAllocation();
-  return useMutation({ mutationFn: optimizeAllocations, onSuccess: refresh });
+  return useMutation({
+    mutationFn: optimizeAllocations,
+    onMutate: () => {
+      activeAllocationToastId = toast.loading("Auto-allocating fleet routes...", {
+        description:
+          "Optimizing 3D volumetric pack, vehicle weight limits, and delivery windows",
+      });
+    },
+    onSuccess: (data) => {
+      refresh();
+      const count = data?.summary?.total_trips_created ?? 0;
+      const allocated = data?.summary?.allocated_orders_count ?? 0;
+      const deferred = data?.summary?.deferred_orders_count ?? 0;
+      toast.success("Auto-Allocation Confirmed", {
+        id: activeAllocationToastId,
+        description: `${count} trips generated with ${allocated} orders allocated (${deferred} deferred).`,
+        action: {
+          label: "Open in New Tab ↗",
+          onClick: () => window.open("/dispatcher/allocations", "_blank"),
+        },
+        duration: 8000,
+      });
+    },
+    onError: (err) => {
+      toast.error(err instanceof Error ? err.message : "Auto-allocation failed", {
+        id: activeAllocationToastId,
+      });
+    },
+  });
 }
 
 export function useManualAllocation() {

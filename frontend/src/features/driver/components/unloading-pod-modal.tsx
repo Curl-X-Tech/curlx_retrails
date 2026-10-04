@@ -1,13 +1,22 @@
-import { XIcon, ArrowRightIcon } from "@phosphor-icons/react";
+import * as React from "react";
+import { XIcon, ArrowRightIcon, CircleNotchIcon, UserIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { uploadPodImage } from "@/api/deliveries/api";
 import { SignaturePad } from "./signature-pad";
 import { PhotoCapturePad } from "./photo-capture-pad";
+
+export interface PodConfirmPayload {
+  recipient_name: string;
+  signature_data_url: string;
+  photo_proof_url?: string;
+}
 
 interface UnloadingPodModalProps {
   isOpen: boolean;
   podMode: "signature" | "photo";
   onSetPodMode: (mode: "signature" | "photo") => void;
-  onConfirm: () => void;
+  onConfirm: (payload: PodConfirmPayload) => void;
   onClose: () => void;
 }
 
@@ -18,7 +27,48 @@ export function UnloadingPodModal({
   onConfirm,
   onClose,
 }: UnloadingPodModalProps) {
+  const [recipientName, setRecipientName] = React.useState("Store Manager");
+  const [signatureData, setSignatureData] = React.useState<string | null>(null);
+  const [photoData, setPhotoData] = React.useState<string | null>(null);
+  const [isUploading, setIsUploading] = React.useState(false);
+
   if (!isOpen) return null;
+
+  const handleConfirmClick = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsUploading(true);
+    try {
+      let finalSignature = signatureData || "data:image/svg+xml;base64,mock";
+      let finalPhoto: string | undefined = photoData || undefined;
+
+      if (podMode === "signature" && signatureData && signatureData.startsWith("data:")) {
+        const uploadRes = await uploadPodImage(signatureData);
+        finalSignature = uploadRes.file_url;
+      } else if (
+        podMode === "photo" &&
+        photoData &&
+        (photoData.startsWith("data:") || photoData.startsWith("blob:"))
+      ) {
+        const uploadRes = await uploadPodImage(photoData);
+        finalPhoto = uploadRes.file_url;
+      }
+
+      onConfirm({
+        recipient_name: recipientName.trim() || "Store Manager",
+        signature_data_url: finalSignature,
+        photo_proof_url: finalPhoto,
+      });
+    } catch {
+      onConfirm({
+        recipient_name: recipientName.trim() || "Store Manager",
+        signature_data_url: signatureData || "data:image/svg+xml;base64,mock",
+        photo_proof_url: photoData || undefined,
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in duration-200">
@@ -42,14 +92,33 @@ export function UnloadingPodModal({
           </p>
         </div>
 
-        {podMode === "signature" ? <SignaturePad /> : <PhotoCapturePad />}
+        <div className="space-y-1 text-left">
+          <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <UserIcon className="size-3" weight="bold" />
+            <span>Recipient Name</span>
+          </label>
+          <Input
+            value={recipientName}
+            onChange={(e) => setRecipientName(e.target.value)}
+            placeholder="e.g. Store Manager"
+            className="h-10 text-xs rounded-xl bg-muted/20 border-border/70"
+          />
+        </div>
+
+        {podMode === "signature" ? (
+          <SignaturePad
+            onSignatureChange={(_, dataUrl) => setSignatureData(dataUrl || null)}
+          />
+        ) : (
+          <PhotoCapturePad onPhotoCaptured={(photo) => setPhotoData(photo)} />
+        )}
 
         <div className="text-left">
           {podMode === "signature" ? (
             <button
               type="button"
               onClick={() => onSetPodMode("photo")}
-              className="text-xs font-bold text-[#0070BA] hover:underline cursor-pointer"
+              className="text-xs font-bold text-primary hover:underline cursor-pointer"
             >
               Store manager not available
             </button>
@@ -57,7 +126,7 @@ export function UnloadingPodModal({
             <button
               type="button"
               onClick={() => onSetPodMode("signature")}
-              className="text-xs font-bold text-[#0070BA] hover:underline cursor-pointer"
+              className="text-xs font-bold text-primary hover:underline cursor-pointer"
             >
               Store manager available
             </button>
@@ -66,11 +135,21 @@ export function UnloadingPodModal({
 
         <div className="pt-2">
           <Button
-            onClick={onConfirm}
-            className="w-full h-12 rounded-2xl font-heading font-black text-sm bg-[#0070BA] hover:bg-[#0070BA]/90 text-white shadow-md cursor-pointer gap-2 flex items-center justify-center transition-all active:scale-95"
+            onClick={handleConfirmClick}
+            disabled={isUploading}
+            className="w-full h-12 rounded-2xl font-heading font-black text-sm bg-primary hover:bg-primary/90 text-primary-foreground shadow-md cursor-pointer gap-2 flex items-center justify-center transition-all active:scale-95"
           >
-            <span>Confirm</span>
-            <ArrowRightIcon className="size-4" weight="bold" />
+            {isUploading ? (
+              <>
+                <CircleNotchIcon className="size-4 animate-spin" weight="bold" />
+                <span>Uploading Proof...</span>
+              </>
+            ) : (
+              <>
+                <span>Confirm Delivery</span>
+                <ArrowRightIcon className="size-4" weight="bold" />
+              </>
+            )}
           </Button>
         </div>
       </div>

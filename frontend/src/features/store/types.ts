@@ -55,6 +55,17 @@ export interface StoreOrderRecord {
   createdAt: string;
 }
 
+export interface StoreOrderKPIs {
+  totalOrders: number;
+  totalWeightKg: number;
+  totalVolumeM3: number;
+  totalValueLkr: number;
+  pendingCount: number;
+  inTransitCount: number;
+  urgentCount: number;
+  deferredCount: number;
+}
+
 export interface StoreOutletOption {
   id: string;
   code: string;
@@ -63,4 +74,47 @@ export interface StoreOutletOption {
   district: string;
   depot: string;
   dockType: "rear_dock" | "street" | "mall_bay";
+}
+
+export type StoreViewMode = "table" | "grid";
+
+export interface InboundShipment {
+  id: string;
+  waypointId: string;
+  orderRef: string;
+  outletName: string;
+  outletAddress: string;
+  district: string;
+  depot: string;
+  requiredDate: string;
+  tempRequirement: TempRequirement;
+  status: "loading" | "in_transit" | "served";
+  isUrgent: boolean;
+  totalPackages: number;
+  totalWeightKg: number;
+  totalVolumeM3: number;
+  totalValueLkr: number;
+}
+
+export type DiscrepancyIssue =
+  "damaged_in_transit" | "missing_crate" | "rejected_by_store" | "temp_spoilage";
+
+export interface ReceivingCheckItem {
+  itemId: string;
+  name: string;
+  packageCode?: string;
+  requestedQty: number;
+  receivedQty: number;
+  issueType: DiscrepancyIssue;
+  notes?: string;
+  specialHandlingCode?: SpecialHandlingCode | null;
+}
+
+export interface ReceivingKPIs {
+  totalInbound: number;
+  loadingCount: number;
+  inTransitCount: number;
+  receivedCount: number;
+  coldChainCount: number;
+  totalWeightKg: number;
 }

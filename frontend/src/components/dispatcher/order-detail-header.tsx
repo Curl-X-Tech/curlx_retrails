@@ -5,6 +5,7 @@ import {
   SunIcon,
 } from "@phosphor-icons/react";
 import { SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { CopyableId } from "@/components/shared";
 import type { QueuedOrder } from "@/types";
 
 interface OrderDetailHeaderProps {
@@ -21,9 +22,7 @@ export function OrderDetailHeader({ order }: OrderDetailHeaderProps) {
           <SheetTitle className="font-heading font-black text-xl text-foreground tracking-tight">
             Order #{order.orderRef}
           </SheetTitle>
-          <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded">
-            {order.outletId}
-          </span>
+          <CopyableId id={order.outletId} />
         </div>
 
         <div className="flex items-center gap-3 flex-wrap">

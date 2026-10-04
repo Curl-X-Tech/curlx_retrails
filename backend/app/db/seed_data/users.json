@@ -1,0 +1,21 @@
+[
+  {"email": "admin@curlx.tech", "password": "Password@123", "name": "System Administrator", "user_type": "system_admin"},
+  {"email": "admin@example.com", "password": "Password@123", "name": "System Administrator", "user_type": "system_admin"},
+  {"email": "dispatcher.peliyagoda@example.com", "password": "Password@123", "name": "K. Jayawardena", "user_type": "dispatcher"},
+  {"email": "dispatcher.kandy@example.com", "password": "Password@123", "name": "Chamila Rathnayake", "user_type": "dispatcher"},
+  {"email": "dispatcher@curlx.tech", "password": "Password@123", "name": "K. Jayawardena", "user_type": "dispatcher"},
+  {"email": "dispatcher@example.com", "password": "Password@123", "name": "K. Jayawardena", "user_type": "dispatcher"},
+  {"email": "loader.peliyagoda@example.com", "password": "Password@123", "name": "Nuwan Pradeep", "user_type": "loader"},
+  {"email": "loader.kandy@example.com", "password": "Password@123", "name": "Kasun Rajapaksha", "user_type": "loader"},
+  {"email": "loader@curlx.tech", "password": "Password@123", "name": "Nuwan Pradeep", "user_type": "loader"},
+  {"email": "loader@example.com", "password": "Password@123", "name": "Nuwan Pradeep", "user_type": "loader"},
+  {"email": "driver.peliyagoda@example.com", "password": "Password@123", "name": "Sunil Shantha", "user_type": "driver"},
+  {"email": "driver.kandy@example.com", "password": "Password@123", "name": "Kamal Perera", "user_type": "driver"},
+  {"email": "driver@curlx.tech", "password": "Password@123", "name": "Sunil Shantha", "user_type": "driver"},
+  {"email": "driver@example.com", "password": "Password@123", "name": "Sunil Shantha", "user_type": "driver"},
+  {"email": "store.fresh@example.com", "password": "Password@123", "name": "Anoma Wickramasinghe", "user_type": "store_manager"},
+  {"email": "store.style@example.com", "password": "Password@123", "name": "Nimali Jayasinghe", "user_type": "store_manager"},
+  {"email": "store.tech@example.com", "password": "Password@123", "name": "Ruwan Bandara", "user_type": "store_manager"},
+  {"email": "store@curlx.tech", "password": "Password@123", "name": "Anoma Wickramasinghe", "user_type": "store_manager"},
+  {"email": "store@example.com", "password": "Password@123", "name": "Anoma Wickramasinghe", "user_type": "store_manager"}
+]

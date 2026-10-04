@@ -10,6 +10,7 @@ interface BayChecklistCardProps {
   isExpanded: boolean;
   isLocked: boolean;
   isShaking: boolean;
+  disabled?: boolean;
   onToggleExpand: (seq: number) => void;
   onUnlock: (seq: number) => void;
   onLockedAttempt: (seq: number) => void;
@@ -22,6 +23,7 @@ export function BayChecklistCard({
   isExpanded,
   isLocked,
   isShaking,
+  disabled = false,
   onToggleExpand,
   onUnlock,
   onLockedAttempt,
@@ -45,61 +47,86 @@ export function BayChecklistCard({
     >
       <div
         onClick={() => onToggleExpand(waypoint.seq)}
-        className="flex items-center justify-between p-4 cursor-pointer hover:bg-accent/40 transition-colors select-none gap-3"
+        className="flex flex-col sm:flex-row sm:items-center justify-between p-3.5 sm:p-4 cursor-pointer hover:bg-accent/40 transition-colors select-none gap-2.5 sm:gap-3"
       >
-        <div className="flex items-center gap-3.5 min-w-0">
+        <div className="flex items-start sm:items-center gap-3 min-w-0 flex-1">
           <div
             className={cn(
-              "flex size-9 shrink-0 items-center justify-center rounded-xl font-heading font-black text-sm transition-colors",
+              "flex flex-col min-w-11 px-2.5 h-10 sm:h-11 shrink-0 items-center justify-center rounded-xl font-heading font-black transition-colors mt-0.5 sm:mt-0 leading-none",
               isLocked
                 ? "bg-emerald-500 text-white"
                 : "bg-primary text-primary-foreground"
             )}
+            title={`Drop #${waypoint.seq}`}
           >
-            {waypoint.seq}
+            <span className="text-[9px] uppercase font-bold tracking-tighter opacity-80">
+              Drop
+            </span>
+            <span className="text-sm sm:text-base font-black">#{waypoint.seq}</span>
           </div>
-          <div className="flex flex-col min-w-0">
-            <div className="flex items-center gap-2">
-              <span className="font-heading font-bold text-sm sm:text-base text-foreground truncate">
+          <div className="flex flex-col min-w-0 flex-1">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="font-heading font-bold text-sm sm:text-base text-foreground break-words leading-tight">
                 {waypoint.outletName}
               </span>
               <span className="text-xs text-muted-foreground font-semibold shrink-0">
                 ({waypoint.outletCode})
               </span>
+              {waypoint.seq === 1 && (
+                <span className="inline-flex items-center text-[10px] font-bold px-1.5 py-0.5 rounded bg-sky-500/15 text-sky-700 dark:text-sky-300">
+                  Door Drop
+                </span>
+              )}
+              {isLocked && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-700 dark:text-emerald-300">
+                  <CheckCircleIcon className="size-3" weight="fill" />
+                  Loaded
+                </span>
+              )}
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5 flex-wrap">
               <span className="font-semibold text-foreground/90">
                 {totalCrates} Crates ({totalWeightKg} kg)
               </span>
               <span>·</span>
-              <span>{totalItems} Line Items</span>
+              <span>{totalItems} Items</span>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          {isLocked ? (
-            <div onClick={(e) => e.stopPropagation()} className="flex items-center">
-              <HoldToUnlockButton
-                isShaking={isShaking}
-                onUnlock={() => onUnlock(waypoint.seq)}
-              />
-            </div>
-          ) : isAllLoaded ? (
-            <CheckCircleIcon
-              className="size-7 text-primary fill-primary drop-shadow-xs"
-              weight="fill"
-            />
-          ) : (
-            <span className="text-xs font-bold text-muted-foreground bg-muted/80 px-2.5 py-1 rounded-lg">
-              {verifiedItems}/{totalItems} Checked
-            </span>
-          )}
-          {isExpanded ? (
-            <CaretDownIcon className="size-4 text-muted-foreground" />
-          ) : (
-            <CaretRightIcon className="size-4 text-muted-foreground" />
-          )}
+        <div className="flex items-center justify-between sm:justify-end gap-2.5 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-border/50">
+          <div className="flex items-center gap-2">
+            {disabled ? (
+              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-xs bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/30">
+                <CheckCircleIcon className="size-4" weight="fill" />
+                <span>Loaded & Sealed</span>
+              </div>
+            ) : isLocked ? (
+              <div onClick={(e) => e.stopPropagation()} className="flex items-center">
+                <HoldToUnlockButton
+                  isShaking={isShaking}
+                  onUnlock={() => onUnlock(waypoint.seq)}
+                />
+              </div>
+            ) : isAllLoaded ? (
+              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-xs bg-emerald-500/10 px-2 py-1 rounded-lg border border-emerald-500/30">
+                <CheckCircleIcon className="size-4" weight="fill" />
+                <span>Loaded</span>
+              </div>
+            ) : (
+              <span className="text-xs font-bold text-muted-foreground bg-muted/80 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg">
+                {verifiedItems}/{totalItems} Checked
+              </span>
+            )}
+          </div>
+
+          <div className="flex items-center text-muted-foreground">
+            {isExpanded ? (
+              <CaretDownIcon className="size-4" />
+            ) : (
+              <CaretRightIcon className="size-4" />
+            )}
+          </div>
         </div>
       </div>
 
@@ -116,7 +143,7 @@ export function BayChecklistCard({
       </div>
 
       {isExpanded && (
-        <div className="flex flex-col border-t border-border/70 p-3 sm:p-3.5 gap-2.5 bg-muted/15">
+        <div className="flex flex-col border-t border-border/70 p-2.5 sm:p-3.5 gap-2.5 bg-muted/15">
           {waypoint.items.map((item) => (
             <BayChecklistItem
               key={item.id}

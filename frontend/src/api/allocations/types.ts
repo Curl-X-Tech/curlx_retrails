@@ -113,8 +113,10 @@ export interface AllocationDetail {
   driver: {
     id: string;
     name: string;
+    email?: string;
     phone: string;
     license_number?: string;
+    employee_code?: string;
   };
   depot: {
     id: string;

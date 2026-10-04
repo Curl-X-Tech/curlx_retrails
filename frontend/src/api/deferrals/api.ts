@@ -92,7 +92,32 @@ export async function requeueDeferral(
 
 export async function getDeferralAuditLogs(
   filters: DeferralFilters = {},
-  _signal?: AbortSignal
+  signal?: AbortSignal
 ): Promise<DeferralAuditLog[]> {
-  return getDeferralAuditLogsMock(filters);
+  if (
+    shouldUseMock(
+      ENDPOINTS.deferralsAuditLogs.domain,
+      ENDPOINTS.deferralsAuditLogs.status
+    )
+  ) {
+    return getDeferralAuditLogsMock(filters);
+  }
+  const params: Record<string, string | number | boolean | undefined> = {};
+  if (filters.outlet_id) params.outlet_id = filters.outlet_id;
+  if (filters.brand_id) params.brand_id = filters.brand_id;
+  if (filters.date || filters.dispatch_date)
+    params.date = filters.date || filters.dispatch_date;
+  if (filters.reason && filters.reason !== "all") params.reason = filters.reason;
+  if (filters.limiting_resource && filters.limiting_resource !== "all")
+    params.limiting_resource = filters.limiting_resource;
+  if (filters.search) params.search = filters.search;
+  if (filters.page) params.page = filters.page;
+  if (filters.limit || filters.page_size)
+    params.limit = filters.limit || filters.page_size;
+
+  return apiClient<DeferralAuditLog[]>(ENDPOINTS.deferralsAuditLogs.path, {
+    method: ENDPOINTS.deferralsAuditLogs.method,
+    params,
+    signal,
+  });
 }

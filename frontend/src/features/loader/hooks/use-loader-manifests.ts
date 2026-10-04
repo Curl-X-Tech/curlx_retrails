@@ -20,10 +20,7 @@ export function useLoaderManifests() {
   const [vehicleTypeFilter, setVehicleTypeFilter] =
     React.useState<VehicleTypeFilter>("all");
   const [tempFilter, setTempFilter] = React.useState<TempFilter>("all");
-  const [viewMode, setViewMode] = React.useState<ManifestViewMode>("table");
-  const [inspectingTrip, setInspectingTrip] = React.useState<LoaderVehicleTrip | null>(
-    null
-  );
+  const [viewMode, setViewMode] = React.useState<ManifestViewMode>("grid");
 
   const depotTrips: LoaderVehicleTrip[] = React.useMemo(() => {
     return bays.map((b) => ({
@@ -117,8 +114,6 @@ export function useLoaderManifests() {
     setTempFilter,
     viewMode,
     setViewMode,
-    inspectingTrip,
-    setInspectingTrip,
     isLoading,
     filteredTrips,
     counts: {

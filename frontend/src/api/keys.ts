@@ -83,7 +83,9 @@ export const loaderKeys = {
 
 export const driverKeys = {
   all: ["driver"] as const,
-  currentRoute: () => [...driverKeys.all, "routes", "current"] as const,
+  currentRoute: (tripId?: string) =>
+    [...driverKeys.all, "routes", "current", tripId ?? "active"] as const,
+  trips: () => [...driverKeys.all, "trips"] as const,
 };
 
 export const deliveriesKeys = {

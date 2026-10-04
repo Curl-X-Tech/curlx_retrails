@@ -4,8 +4,10 @@ import { useLatestTelemetry } from "@/api/telemetry";
 export function useDriverVehicle() {
   const { data: route } = useCurrentRoute();
   const vehicle = route?.trip.vehicle;
-  const vehicleId = vehicle?.id || "VEH001";
-  const { data: telemetry } = useLatestTelemetry(vehicleId);
+  const vehicleId = vehicle?.id;
+  const { data: telemetry } = useLatestTelemetry(vehicleId || "", {
+    enabled: Boolean(vehicleId),
+  });
 
   const currentTemp =
     telemetry?.reefer_temp_celsius ?? vehicle?.reefer_current_temp_c ?? -18.2;
@@ -20,7 +22,7 @@ export function useDriverVehicle() {
   const tripSummary = {
     id: route?.trip.id || "trip-4811",
     tripCode: route?.trip.trip_code || "RT-14",
-    vehicleId: vehicleId,
+    vehicleId: vehicleId || "VEH001",
     regNumber: vehicle?.reg_number || "NP-4811",
     modelName: vehicle?.model_name || "Isuzu ELF NPR Reefer",
     type: vehicle?.type || "truck",

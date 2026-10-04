@@ -1,5 +1,11 @@
 import * as React from "react";
-import { TableHeader, TableBody, TableRow, TableHead } from "@/components/ui/table";
+import {
+  TableHeader,
+  TableBody,
+  TableRow,
+  TableHead,
+  TableCell,
+} from "@/components/ui/table";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { DeferralsGroupHeader } from "./deferrals-group-header";
 import { DeferralsCarryoverRow } from "./deferrals-carryover-row";
@@ -65,8 +71,18 @@ export function DeferralsCarryoverTable({
           </TableHeader>
 
           <TableBody>
-            {groupBy !== "none" && groupedCarryover
-              ? groupedCarryover.map((group) => (
+            {groupBy !== "none" && groupedCarryover ? (
+              groupedCarryover.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={9}
+                    className="text-center py-12 text-muted-foreground text-xs"
+                  >
+                    No active carryover orders for the next-day planning cycle.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                groupedCarryover.map((group) => (
                   <React.Fragment key={group.key}>
                     <DeferralsGroupHeader
                       title={group.title}
@@ -86,13 +102,26 @@ export function DeferralsCarryoverTable({
                     ))}
                   </React.Fragment>
                 ))
-              : paginatedCarryover.map((ord) => (
-                  <DeferralsCarryoverRow
-                    key={ord.id}
-                    order={ord}
-                    onSelectOrderRef={onSelectOrderRef}
-                  />
-                ))}
+              )
+            ) : paginatedCarryover.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={9}
+                  className="text-center py-12 text-muted-foreground text-xs"
+                >
+                  No active carryover orders for the next-day planning cycle. All orders
+                  served or queued.
+                </TableCell>
+              </TableRow>
+            ) : (
+              paginatedCarryover.map((ord) => (
+                <DeferralsCarryoverRow
+                  key={ord.id}
+                  order={ord}
+                  onSelectOrderRef={onSelectOrderRef}
+                />
+              ))
+            )}
           </TableBody>
         </table>
       </div>

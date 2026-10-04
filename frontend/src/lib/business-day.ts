@@ -58,3 +58,14 @@ export function getTargetOrderDate(date: Date = new Date()): string {
   const d = String(base.getUTCDate()).padStart(2, "0");
   return `${y}-${m}-${d}`;
 }
+
+export function getEarliestDeliveryDate(date: Date = new Date()): string {
+  const parts = getColomboParts(date);
+  const base = new Date(Date.UTC(parts.year, parts.month - 1, parts.day));
+  const offsetDays = isPastCutoff(date) ? 2 : 1;
+  base.setUTCDate(base.getUTCDate() + offsetDays);
+  const y = base.getUTCFullYear();
+  const m = String(base.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(base.getUTCDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}

@@ -51,7 +51,7 @@ export function TruckCountdownBar({
               : "text-primary"
         )}
       >
-        {timeString} left
+        {timeString}
       </span>
     </div>
   );

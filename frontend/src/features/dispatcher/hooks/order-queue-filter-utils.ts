@@ -1,5 +1,49 @@
+import type { CustomerOrder } from "@/api/orders";
 import type { OrderQueueKPIs, QueuedOrder, StoreOrderGroup } from "@/types";
 import type { QueueSortKey } from "../types";
+
+export function mapToQueuedOrder(order: CustomerOrder): QueuedOrder {
+  const brandName =
+    order.brand ||
+    (order.brand_id?.includes("style")
+      ? "Style"
+      : order.brand_id?.includes("tech")
+        ? "Tech"
+        : "Fresh");
+
+  return {
+    id: order.id,
+    orderRef: order.order_ref,
+    outletId: order.outlet_id,
+    outletName: order.outlet_name || `Outlet ${order.outlet_id.slice(0, 8)}`,
+    outletAddress: order.outlet_address || "Colombo, Sri Lanka",
+    brand: brandName as QueuedOrder["brand"],
+    district: order.district || "Colombo",
+    depot: "Peliyagoda",
+    dockType: (order.dock_type || "rear_dock") as QueuedOrder["dockType"],
+    parkingConstraint: (order.parking_constraint ||
+      "normal") as QueuedOrder["parkingConstraint"],
+    deliveryWindow: order.delivery_window || "05:00 - 08:00 AM",
+    orderDate: order.order_date,
+    requiredDate: order.required_date ?? order.order_date,
+    tempRequirement: order.temp_requirement,
+    status:
+      order.status === "delivered"
+        ? "served"
+        : order.status === "deferred"
+          ? "deferred"
+          : "pending",
+    isUrgent: order.is_urgent ?? false,
+    deferredYesterday: (order.deferred_yesterday ?? 0) as 0 | 1,
+    daysSinceLastServed: order.days_since_last_served ?? 0,
+    totalItems: order.total_items ?? order.total_packages ?? 3,
+    totalPackages: order.total_packages ?? order.total_items ?? 3,
+    totalWeightKg: order.total_weight_kg,
+    totalVolumeM3: order.total_volume_m3,
+    totalOrderValueLkr: order.total_price_lkr,
+    items: [],
+  };
+}
 
 export function filterQueuedOrders(
   orders: QueuedOrder[],
@@ -78,7 +122,11 @@ export function getStoreGroupedOrders(orders: QueuedOrder[]): StoreOrderGroup[] 
     const group = map.get(ord.outletId)!;
     group.orders.push(ord);
     group.totalOrders += 1;
-    group.totalPackages += ord.items.length;
+    const pkgs =
+      ord.totalPackages ??
+      ord.totalItems ??
+      (ord.items.length > 0 ? ord.items.reduce((s, i) => s + i.requestedQty, 0) : 3);
+    group.totalPackages += pkgs;
     group.totalWeightKg += ord.totalWeightKg;
     group.totalVolumeM3 += ord.totalVolumeM3;
     group.totalValueLkr += ord.totalOrderValueLkr;

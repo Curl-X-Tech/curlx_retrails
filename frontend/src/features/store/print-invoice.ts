@@ -38,7 +38,8 @@ const STYLES = `
 `;
 
 function buildInvoiceHtml(data: InvoiceData): string {
-  const { orderRef, outlet, deliveryDate, rows, totalWeightKg, totalOrderValueLkr } = data;
+  const { orderRef, outlet, deliveryDate, rows, totalWeightKg, totalOrderValueLkr } =
+    data;
   const lines = rows
     .map(
       (r, i) => `<tr>

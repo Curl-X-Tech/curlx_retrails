@@ -1,5 +1,6 @@
 import { StorefrontIcon } from "@phosphor-icons/react";
 import { TableRow, TableCell } from "@/components/ui/table";
+import { CopyableId } from "@/components/shared";
 import type { StoreOrderGroup } from "../types";
 
 export function QueueGroupHeaderRow({ group }: { group: StoreOrderGroup }) {
@@ -12,12 +13,10 @@ export function QueueGroupHeaderRow({ group }: { group: StoreOrderGroup }) {
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <StorefrontIcon className="size-4 text-primary shrink-0" />
-            <span className="text-xs font-bold text-muted-foreground bg-muted px-1.5 py-0.5 rounded">
-              {group.outletId}
-            </span>
             <span className="font-heading font-black text-sm text-foreground">
               {group.outletName}
             </span>
+            <CopyableId id={group.outletId} />
             <span className="text-xs font-semibold text-primary">
               Waypoint {group.brand}
             </span>

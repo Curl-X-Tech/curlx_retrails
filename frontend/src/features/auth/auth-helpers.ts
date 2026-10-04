@@ -26,6 +26,7 @@ export function mapApiUserToStaffUser(apiUser: UserProfile): StaffUser {
     role: normalizeRole(apiUser.user_type || apiUser.role),
     depotId: apiUser.depotId || "depot-peliyagoda",
     depotName: apiUser.depotName || "Peliyagoda Hub",
+    location: (apiUser as { location?: string }).location,
   };
 }
 

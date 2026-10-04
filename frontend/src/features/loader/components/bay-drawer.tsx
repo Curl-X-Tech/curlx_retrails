@@ -1,6 +1,5 @@
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetContent,
@@ -34,16 +33,19 @@ export function BayDrawer({
 }: BayDrawerProps) {
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent side="left" className="sm:max-w-md w-full p-0 flex flex-col bg-card">
+      <SheetContent
+        side="left"
+        className="sm:max-w-md w-full p-0 flex flex-col bg-card [&>button]:hidden"
+      >
         <SheetHeader className="p-5 pb-3 border-b border-border/70">
           <SheetTitle className="font-heading font-bold text-base text-foreground flex items-center justify-between">
-            <span>Docked Vehicle Manifests</span>
-            <Badge variant="secondary" className="text-xs font-bold px-2.5 py-0.5">
-              {tripsCount} Active
-            </Badge>
+            <span>Docked Vehicles</span>
+            <span className="text-xs font-mono font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded-md">
+              {tripsCount} Docked
+            </span>
           </SheetTitle>
           <SheetDescription className="text-xs text-muted-foreground">
-            Tap any docked vehicle to switch the active loading manifest.
+            Tap any docked vehicle to switch the active bay checklist.
           </SheetDescription>
           <div className="relative mt-2">
             <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />

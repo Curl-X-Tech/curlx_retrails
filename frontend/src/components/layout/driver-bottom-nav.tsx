@@ -4,6 +4,7 @@ import {
   NavigationArrowIcon,
   ListBulletsIcon,
   TruckIcon,
+  GaugeIcon,
   UserCircleIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
@@ -37,9 +38,10 @@ export function DriverBottomNav({ syncState }: DriverBottomNavProps) {
   const isStopsActive =
     location.pathname.startsWith("/driver/stops") ||
     location.pathname.startsWith("/driver/unload");
+  const isVehicleActive = location.pathname.startsWith("/driver/vehicle");
 
   return (
-    <nav className="h-14 shrink-0 bg-background border-t border-border/80 grid grid-cols-4 px-2 z-30 shadow-lg">
+    <nav className="h-14 shrink-0 bg-background border-t border-border/80 grid grid-cols-5 px-1 z-30 shadow-lg">
       <button
         onClick={() => navigate("/driver/trips")}
         className={cn(
@@ -66,7 +68,7 @@ export function DriverBottomNav({ syncState }: DriverBottomNavProps) {
           className="size-4.5"
           weight={isActiveRun ? "fill" : "bold"}
         />
-        <span className="text-[10px]">Active Run</span>
+        <span className="text-[10px]">Active</span>
       </button>
 
       <button
@@ -83,6 +85,19 @@ export function DriverBottomNav({ syncState }: DriverBottomNavProps) {
           weight={isStopsActive ? "bold" : "regular"}
         />
         <span className="text-[10px]">Stops ({route?.waypoints.length || 0})</span>
+      </button>
+
+      <button
+        onClick={() => navigate("/driver/vehicle")}
+        className={cn(
+          "flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer relative",
+          isVehicleActive
+            ? "text-primary font-bold"
+            : "text-muted-foreground hover:text-foreground font-medium"
+        )}
+      >
+        <GaugeIcon className="size-4.5" weight={isVehicleActive ? "fill" : "regular"} />
+        <span className="text-[10px]">Vehicle</span>
       </button>
 
       <DropdownMenu>

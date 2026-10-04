@@ -7,6 +7,10 @@ export interface StaffUser {
   role: StaffRole;
   depotId?: string;
   depotName?: string;
+  outletId?: string;
+  outletCode?: string;
+  outletName?: string;
+  location?: string;
 }
 
 export interface LoginCredentials {

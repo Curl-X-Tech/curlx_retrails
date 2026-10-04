@@ -28,7 +28,12 @@ export interface Vehicle {
 
 export interface Driver {
   id: string;
-  user_id: string;
+  user_id?: string;
+  employee_code?: string;
+  first_name?: string;
+  last_name?: string;
+  name?: string;
+  email?: string;
   license_number: string;
   phone_number: string;
   assigned_depot_id: string;

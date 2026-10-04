@@ -9,7 +9,7 @@ export function ManifestWaypointsList({ waypoints }: ManifestWaypointsListProps)
   return (
     <div className="space-y-2">
       <h4 className="text-xs font-bold text-foreground uppercase tracking-wider">
-        Waypoints ({waypoints.length} Stops)
+        Loading Sequence ({waypoints.length} Drops)
       </h4>
       <div className="space-y-2">
         {waypoints.map((wp) => (
@@ -19,15 +19,18 @@ export function ManifestWaypointsList({ waypoints }: ManifestWaypointsListProps)
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="flex size-5 items-center justify-center rounded-lg bg-primary text-primary-foreground font-heading font-black text-[11px]">
-                  {wp.seq}
+                <span className="flex h-5 px-1.5 items-center justify-center rounded-md bg-primary text-primary-foreground font-heading font-black text-[10px]">
+                  Drop #{wp.seq}
                 </span>
                 <span className="font-heading font-bold text-xs text-foreground">
                   {wp.outletName}
                 </span>
+                <span className="text-[10px] text-muted-foreground font-semibold">
+                  ({wp.outletCode})
+                </span>
               </div>
-              <span className="text-[10px] font-semibold text-muted-foreground">
-                {wp.deliveryWindow}
+              <span className="text-[11px] font-bold text-foreground">
+                {wp.items.reduce((s, i) => s + i.crateCount, 0)} Crates
               </span>
             </div>
 
@@ -38,29 +41,31 @@ export function ManifestWaypointsList({ waypoints }: ManifestWaypointsListProps)
                   return (
                     <div
                       key={item.id}
-                      className="flex items-center justify-between p-1.5 rounded-lg bg-muted/40 text-xs gap-2"
+                      className="flex items-center justify-between p-2 rounded-lg bg-muted/40 text-xs gap-2"
                     >
                       <div className="flex flex-col min-w-0">
-                        <span className="font-medium text-foreground truncate text-[11px]">
-                          {item.itemTitle}
-                        </span>
-                        <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                          <span className="font-bold text-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-heading font-black text-foreground text-xs">
                             {item.packageCode}
                           </span>
                           <span>·</span>
-                          <span>{item.stagingBay}</span>
+                          <span className="text-[10px] font-bold text-foreground/80">
+                            {item.stagingBay}
+                          </span>
                           {handlingText && (
                             <>
                               <span>·</span>
-                              <span className="text-amber-600 dark:text-amber-400 font-semibold">
+                              <span className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
                                 {handlingText}
                               </span>
                             </>
                           )}
                         </div>
+                        <span className="text-[11px] text-muted-foreground truncate">
+                          {item.itemTitle}
+                        </span>
                       </div>
-                      <span className="font-bold text-foreground text-[11px] shrink-0">
+                      <span className="font-heading font-black text-foreground text-xs shrink-0">
                         {item.crateCount} Crates
                       </span>
                     </div>
@@ -68,8 +73,8 @@ export function ManifestWaypointsList({ waypoints }: ManifestWaypointsListProps)
                 })}
               </div>
             ) : (
-              <div className="text-[11px] text-muted-foreground italic pl-7">
-                Loading completed for this stop.
+              <div className="text-[11px] text-muted-foreground italic pl-2">
+                No items allocated.
               </div>
             )}
           </div>

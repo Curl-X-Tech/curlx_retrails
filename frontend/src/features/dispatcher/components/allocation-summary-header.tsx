@@ -60,7 +60,7 @@ export function AllocationSummaryHeader() {
           <ArrowsClockwiseIcon
             className={`size-3 ${optimize.isPending ? "animate-spin" : ""}`}
           />
-          <span>{optimize.isPending ? "Optimizing..." : "Re-optimize"}</span>
+          <span>{optimize.isPending ? "Auto-Allocating..." : "Auto-Allocate"}</span>
         </Button>
       </div>
     </div>

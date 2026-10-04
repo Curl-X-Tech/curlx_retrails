@@ -1,8 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import {
-  TruckIcon,
+  SquaresFourIcon,
   UserCircleIcon,
   ListBulletsIcon,
+  WarningOctagonIcon,
   SignOutIcon,
 } from "@phosphor-icons/react";
 import { useAuth } from "@/context/auth-context";
@@ -16,16 +17,22 @@ import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 
 export interface LoaderSidebarProps {
+  isDashboardActive?: boolean;
   isManifestsActive: boolean;
-  isBaysActive: boolean;
+  isBaysActive?: boolean;
+  isExceptionsActive?: boolean;
 }
 
-export function LoaderSidebar({ isManifestsActive, isBaysActive }: LoaderSidebarProps) {
+export function LoaderSidebar({
+  isDashboardActive,
+  isManifestsActive,
+  isExceptionsActive,
+}: LoaderSidebarProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
   return (
-    <aside className="flex flex-col items-center justify-between border-r border-border/80 bg-sidebar py-3 w-16 shrink-0 z-30 select-none">
+    <aside className="hidden md:flex flex-col items-center justify-between border-r border-border/80 bg-sidebar py-3 w-16 shrink-0 z-30 select-none">
       <div className="flex flex-col items-center gap-3 w-full">
         <div className="flex size-10 items-center justify-center rounded-xl bg-card border border-border/60 shadow-xs overflow-hidden p-1.5">
           <img src="/icon.png" alt="ReTrails Logo" className="size-full object-contain" />
@@ -34,6 +41,19 @@ export function LoaderSidebar({ isManifestsActive, isBaysActive }: LoaderSidebar
         <Separator className="w-8 bg-border/60" />
 
         <nav className="flex flex-col items-center gap-2 w-full px-2">
+          <button
+            onClick={() => navigate("/loader/dashboard")}
+            title="Loader Command Dashboard"
+            className={cn(
+              "flex size-11 items-center justify-center rounded-2xl transition-all cursor-pointer shadow-xs",
+              isDashboardActive
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground"
+            )}
+          >
+            <SquaresFourIcon className="size-5.5" weight="bold" />
+          </button>
+
           <button
             onClick={() => navigate("/loader/manifests")}
             title="Dock Queue & Loading Manifests"
@@ -48,16 +68,16 @@ export function LoaderSidebar({ isManifestsActive, isBaysActive }: LoaderSidebar
           </button>
 
           <button
-            onClick={() => navigate("/loader/bays")}
-            title="Active Loading Bay Manifest"
+            onClick={() => navigate("/loader/exceptions")}
+            title="Discrepancies & Exceptions"
             className={cn(
               "flex size-11 items-center justify-center rounded-2xl transition-all cursor-pointer shadow-xs",
-              isBaysActive
+              isExceptionsActive
                 ? "bg-primary text-primary-foreground shadow-sm"
                 : "bg-secondary text-secondary-foreground hover:bg-accent hover:text-foreground"
             )}
           >
-            <TruckIcon className="size-5.5" weight="bold" />
+            <WarningOctagonIcon className="size-5.5" weight="bold" />
           </button>
         </nav>
       </div>

@@ -4,7 +4,6 @@ import {
   ManifestToolbar,
   ManifestTableView,
   ManifestGridView,
-  ManifestInspectSheet,
   ManifestEmptyState,
 } from "@/features/loader";
 
@@ -21,8 +20,6 @@ export function LoaderManifestsPage() {
     setTempFilter,
     viewMode,
     setViewMode,
-    inspectingTrip,
-    setInspectingTrip,
     isLoading,
     filteredTrips,
     counts,
@@ -57,23 +54,15 @@ export function LoaderManifestsPage() {
         ) : viewMode === "table" ? (
           <ManifestTableView
             trips={filteredTrips}
-            onInspectTrip={setInspectingTrip}
             onOpenBay={(tripId) => navigate(`/loader/bays?tripId=${tripId}`)}
           />
         ) : (
           <ManifestGridView
             trips={filteredTrips}
-            onInspectTrip={setInspectingTrip}
             onOpenBay={(tripId) => navigate(`/loader/bays?tripId=${tripId}`)}
           />
         )}
       </div>
-
-      <ManifestInspectSheet
-        trip={inspectingTrip}
-        onClose={() => setInspectingTrip(null)}
-        onOpenBayStation={(tripId) => navigate(`/loader/bays?tripId=${tripId}`)}
-      />
     </div>
   );
 }

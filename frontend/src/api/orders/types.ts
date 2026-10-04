@@ -22,6 +22,16 @@ export interface CustomerOrder {
   days_since_last_served?: number;
   created_by_staff_id?: string | null;
   sync_status?: "pending" | "synced";
+  outlet_name?: string;
+  outlet_address?: string;
+  brand?: string;
+  district?: string;
+  dock_type?: string;
+  parking_constraint?: string;
+  delivery_window?: string;
+  depot?: string;
+  total_packages?: number;
+  total_items?: number;
 }
 
 export interface OrderItem {

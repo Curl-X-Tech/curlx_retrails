@@ -36,6 +36,16 @@ export function OrderAllocatePanel({ orderId, onAllocated }: OrderAllocatePanelP
       { onSuccess: onAllocated }
     );
 
+  const handleVehicleChange = (newVehicleId: string) => {
+    setVehicleId(newVehicleId);
+    if (newVehicleId && !driverId) {
+      const veh = vehicles.find((v) => v.id === newVehicleId);
+      if (veh?.assigned_driver_id) {
+        setDriverId(veh.assigned_driver_id);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col gap-1.5 flex-1 min-w-0">
       <div className="flex items-center gap-2">
@@ -44,12 +54,13 @@ export function OrderAllocatePanel({ orderId, onAllocated }: OrderAllocatePanelP
           className={selectClass}
           value={vehicleId}
           disabled={allocate.isPending}
-          onChange={(e) => setVehicleId(e.target.value)}
+          onChange={(e) => handleVehicleChange(e.target.value)}
         >
           <option value="">Select vehicle</option>
           {vehicles.map((v) => (
             <option key={v.id} value={v.id}>
-              {v.reg_number} ({v.temp}, {v.weight_cap_kg} kg)
+              {v.reg_number} — {v.model_name || v.type.toUpperCase()} (
+              {v.temp.toUpperCase()} · {v.weight_cap_kg} kg)
             </option>
           ))}
         </select>
@@ -60,12 +71,20 @@ export function OrderAllocatePanel({ orderId, onAllocated }: OrderAllocatePanelP
           disabled={allocate.isPending}
           onChange={(e) => setDriverId(e.target.value)}
         >
-          <option value="">Vehicle's driver</option>
-          {drivers.map((d) => (
-            <option key={d.id} value={d.id}>
-              {d.license_number}
-            </option>
-          ))}
+          <option value="">Assigned driver</option>
+          {drivers.map((d) => {
+            const fullName =
+              `${d.first_name || ""} ${d.last_name || ""}`.trim() || d.name;
+            const displayName = fullName || d.employee_code || "Driver";
+            const secondary = d.email || d.license_number;
+            const label = `${displayName} — ${secondary}`;
+
+            return (
+              <option key={d.id} value={d.id}>
+                {label}
+              </option>
+            );
+          })}
         </select>
         <Button
           size="sm"

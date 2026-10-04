@@ -33,7 +33,7 @@ export function BayPortalButton({ baysCount, onOpenDrawer }: BayPortalButtonProp
         weight="bold"
       />
       <span className="text-[10px] font-bold text-muted-foreground [writing-mode:vertical-lr] tracking-widest uppercase">
-        {baysCount} Bays
+        {baysCount} Docked
       </span>
     </button>,
     document.body

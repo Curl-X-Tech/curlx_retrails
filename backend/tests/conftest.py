@@ -33,8 +33,8 @@ async def prepare_test_db() -> AsyncGenerator[None, None]:
     auth_rate_limiter.reset()
     register_rate_limiter.reset()
     email_service.clear_outbox()
-    orig_smtp_host = settings.SMTP_HOST
-    settings.SMTP_HOST = None
+    orig_resend_key = settings.RESEND_API_KEY
+    settings.RESEND_API_KEY = ""
     for table in SQLModel.metadata.tables.values():
         seen_idx = set()
         deduped_idx = set()
@@ -51,7 +51,7 @@ async def prepare_test_db() -> AsyncGenerator[None, None]:
         await conn.run_sync(SQLModel.metadata.create_all)
         await conn.run_sync(Base.metadata.create_all)
     yield
-    settings.SMTP_HOST = orig_smtp_host
+    settings.RESEND_API_KEY = orig_resend_key
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(SQLModel.metadata.drop_all)

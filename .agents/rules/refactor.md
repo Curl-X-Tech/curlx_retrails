@@ -6,7 +6,7 @@ trigger: always_on
 
 - Behavior must stay identical. No new features.
 - Output: be terse. No summaries or explanations. After edits reply only: "Done: <files>".
-- Files under 200 lines, one responsibility each. Pages stay thin.
+- Files under 300 lines, one responsibility each. Pages stay thin.
 - Structure: frontend/src/features/<name>/{components,hooks,repo.ts,store.ts,types.ts}
 - Reusable UI goes in components/shared. Never modify components/ui or types/domain.ts.
 - Zustand = UI state only, with selectors. TanStack Query = server data. Dexie = local data, accessed only through repo files.
@@ -20,4 +20,5 @@ trigger: always_on
 
 - API sources: docs/api-map.md (paths, roles, status) wins over docs/api-issues.json (payload contracts). docs/api-gaps.md lists pending endpoints and the mocks that cover them.
 - Implemented in map = status live. Planned or gap = status pending (mock adapter).
-- Line limit 200 applies to code. Mock data files (src/data/*, src/api/*/mock.ts and mock seed data) are exempt and may exceed 200 lines. Do not split them just for length.
+- Line limit 300 applies to code. Mock data files (src/data/*, src/api/*/mock.ts and mock seed data) are exempt and may exceed 300 lines. Do not split them just for length.
+

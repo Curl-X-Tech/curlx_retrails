@@ -61,6 +61,14 @@ export function getBreadcrumbs(pathname: string): CrumbItem[] {
   ) {
     return [{ label: "Planning" }, { label: "Order queue", isCurrent: true }];
   }
+  if (
+    pathname === "/store/receiving" ||
+    pathname.startsWith("/store/receiving") ||
+    pathname === "/store/inbound"
+  ) {
+    return [{ label: "Planning" }, { label: "Inbound receiving", isCurrent: true }];
+  }
+
   if (pathname === "/store/orders/new" || pathname === "/store/create-order") {
     return [
       { label: "Planning" },
@@ -119,12 +127,35 @@ export function getBreadcrumbs(pathname: string): CrumbItem[] {
   if (pathname === "/dispatcher/live-map" || pathname === "/dispatcher/live-tracking") {
     return [{ label: "Operations" }, { label: "Live Tracking", isCurrent: true }];
   }
-  if (pathname.startsWith("/dispatcher/fleet")) {
+  if (pathname === "/dispatcher/fleet/vehicles" || pathname === "/dispatcher/fleet") {
     return [
       { label: "Operations" },
       { label: "Fleet", path: "/dispatcher/fleet/vehicles" },
       { label: "Vehicles", isCurrent: true },
     ];
+  }
+  if (pathname === "/dispatcher/fleet/workshop-log") {
+    return [
+      { label: "Operations" },
+      { label: "Fleet", path: "/dispatcher/fleet/vehicles" },
+      { label: "Workshop log", isCurrent: true },
+    ];
+  }
+  if (pathname === "/dispatcher/fleet/fuel-quotas") {
+    return [
+      { label: "Operations" },
+      { label: "Fleet", path: "/dispatcher/fleet/vehicles" },
+      { label: "Fuel quotas", isCurrent: true },
+    ];
+  }
+  if (pathname === "/dispatcher/outlets" || pathname.startsWith("/dispatcher/outlets")) {
+    return [{ label: "Operations" }, { label: "Outlets", isCurrent: true }];
+  }
+  if (pathname === "/dispatcher/analytics/trips") {
+    return [{ label: "Analytics" }, { label: "Trip metrics", isCurrent: true }];
+  }
+  if (pathname === "/dispatcher/analytics/sustainability") {
+    return [{ label: "Analytics" }, { label: "Sustainability", isCurrent: true }];
   }
   if (pathname === "/dispatcher/dashboard") {
     return [{ label: "Dashboard", isCurrent: true }];

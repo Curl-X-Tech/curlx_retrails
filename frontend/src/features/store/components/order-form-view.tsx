@@ -8,7 +8,6 @@ import { OrderFormItemsTable } from "./order-form-items-table";
 import { OrderFormItemsCards } from "./order-form-items-cards";
 import { OrderFormSummaryStrip } from "./order-form-summary-strip";
 import { OrderFormActionBar } from "./order-form-action-bar";
-import { OrderFormPrintModal } from "./order-form-print-modal";
 import { OrderFormSuccessModal } from "./order-form-success-modal";
 import { OrderPlacementDialog } from "./order-placement-dialog";
 
@@ -36,64 +35,68 @@ export function OrderFormView({ catalog }: { catalog: OrderCatalog }) {
 
   return (
     <>
+      <OrderFormHeader
+        orderRef={builder.orderRef}
+        hasRows={builder.rows.length > 0}
+        onClearDraft={builder.handleClearDraft}
+      />
+
       <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 max-w-7xl w-full mx-auto space-y-6">
-        <OrderFormHeader
-          orderRef={builder.orderRef}
-          hasRows={builder.rows.length > 0}
-          onClearDraft={builder.handleClearDraft}
-        />
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+          {/* Sidebar / Waypoint, Delivery Date, Order Stats (25% width on desktop, sticky on left) */}
+          <div className="lg:col-span-1 space-y-4 lg:sticky lg:top-0 lg:self-start">
+            <OrderFormDestination
+              selectedOutlet={builder.selectedOutlet}
+              onSelectOutlet={builder.setSelectedOutlet}
+              selectedDate={builder.selectedDate}
+              minDeliveryDate={builder.minDeliveryDate}
+              onChangeDate={builder.setSelectedDate}
+              outletSearch={builder.outletSearch}
+              onChangeOutletSearch={builder.setOutletSearch}
+              filteredOutlets={builder.filteredOutlets}
+            />
 
-        <OrderFormDestination
-          selectedOutlet={builder.selectedOutlet}
-          onSelectOutlet={builder.setSelectedOutlet}
-          selectedDate={builder.selectedDate}
-          onChangeDate={builder.setSelectedDate}
-          isUrgent={builder.isUrgent}
-          onToggleUrgent={builder.setIsUrgent}
-          outletSearch={builder.outletSearch}
-          onChangeOutletSearch={builder.setOutletSearch}
-          filteredOutlets={builder.filteredOutlets}
-        />
+            <OrderFormSummaryStrip
+              totalItems={builder.totalItems}
+              totalUnits={builder.totalUnits}
+              totalWeightKg={builder.totalWeightKg}
+              totalVolumeM3={builder.totalVolumeM3}
+              totalOrderValueLkr={builder.totalOrderValueLkr}
+            />
+          </div>
 
-        <OrderFormCatalogSearch
-          catalogSearch={builder.catalogSearch}
-          onChangeCatalogSearch={builder.setCatalogSearch}
-          isSearchingCatalog={builder.isSearchingCatalog}
-          setIsSearchingCatalog={builder.setIsSearchingCatalog}
-          searchResults={builder.searchResults}
-          catalogProducts={builder.catalogProducts}
-          onAddProduct={builder.handleAddProduct}
-        />
+          {/* Main / Catalog Search & Items Table (75% width on desktop) */}
+          <div className="lg:col-span-3 space-y-4">
+            <OrderFormCatalogSearch
+              catalogSearch={builder.catalogSearch}
+              onChangeCatalogSearch={builder.setCatalogSearch}
+              isSearchingCatalog={builder.isSearchingCatalog}
+              setIsSearchingCatalog={builder.setIsSearchingCatalog}
+              searchResults={builder.searchResults}
+              catalogProducts={builder.catalogProducts}
+              onAddProduct={builder.handleAddProduct}
+            />
 
-        <div className="space-y-3">
-          <OrderFormItemsTable
-            rows={builder.rows}
-            catalogProducts={builder.catalogProducts}
-            selectedRowIds={builder.selectedRowIds}
-            hasColdChain={builder.hasColdChain}
-            onToggleSelectAll={builder.toggleSelectAllRows}
-            onToggleSelectRow={builder.toggleSelectRow}
-            onUpdateProduct={builder.handleUpdateProduct}
-            onUpdateQuantity={builder.handleUpdateQuantity}
-            onRemoveRow={builder.handleRemoveRow}
-            onAddRow={addNextProduct}
-          />
+            <div className="space-y-3">
+              <OrderFormItemsTable
+                rows={builder.rows}
+                catalogProducts={builder.catalogProducts}
+                hasColdChain={builder.hasColdChain}
+                onUpdateProduct={builder.handleUpdateProduct}
+                onUpdateQuantity={builder.handleUpdateQuantity}
+                onRemoveRow={builder.handleRemoveRow}
+                onAddRow={addNextProduct}
+              />
 
-          <OrderFormItemsCards
-            rows={builder.rows}
-            onUpdateQuantity={builder.handleUpdateQuantity}
-            onRemoveRow={builder.handleRemoveRow}
-            onAddRow={addNextProduct}
-          />
+              <OrderFormItemsCards
+                rows={builder.rows}
+                onUpdateQuantity={builder.handleUpdateQuantity}
+                onRemoveRow={builder.handleRemoveRow}
+                onAddRow={addNextProduct}
+              />
+            </div>
+          </div>
         </div>
-
-        <OrderFormSummaryStrip
-          totalItems={builder.totalItems}
-          totalUnits={builder.totalUnits}
-          totalWeightKg={builder.totalWeightKg}
-          totalVolumeM3={builder.totalVolumeM3}
-          totalOrderValueLkr={builder.totalOrderValueLkr}
-        />
       </div>
 
       {builder.submitError && (
@@ -112,19 +115,10 @@ export function OrderFormView({ catalog }: { catalog: OrderCatalog }) {
       <OrderFormActionBar
         isSubmitting={builder.isSubmitting}
         hasRows={builder.rows.length > 0}
-        onOpenPrintPreview={() => builder.setShowPrintPreview(true)}
+        isUrgent={builder.isUrgent}
+        onToggleUrgent={builder.setIsUrgent}
+        onPrintDraft={builder.handlePrintDraft}
         onConfirmOrder={builder.handleConfirmOrder}
-      />
-
-      <OrderFormPrintModal
-        isOpen={builder.showPrintPreview}
-        onOpenChange={builder.setShowPrintPreview}
-        orderRef={builder.orderRef}
-        selectedOutlet={builder.selectedOutlet}
-        selectedDate={builder.selectedDate}
-        rows={builder.rows}
-        totalWeightKg={builder.totalWeightKg}
-        totalOrderValueLkr={builder.totalOrderValueLkr}
       />
 
       <OrderFormSuccessModal

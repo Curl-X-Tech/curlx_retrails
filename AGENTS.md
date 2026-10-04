@@ -55,7 +55,8 @@ Welcome to the **ReTrails** codebase, developed by Team **CurlX**.
    - Pages use hooks only; they do not import from `src/data`.
    - Do not add path strings outside `src/api/endpoints.ts`.
    - Treat `status: live` as implemented and `status: pending` as mock-backed.
-   - Keep code files under 200 lines; mock seed and mock-data files are exempt.
+   - Keep code files under 300 lines; mock seed and mock-data files are exempt.
+
 15. **Standard 4-Tier Enterprise Responsive Layout System**:
    - All page layouts, dashboard grids, and container views must adhere strictly to the role-optimized 4-tier design system:
      - **Wide / Command Center ($\ge 1440\text{px}$)**: 12–16 Columns, Gutter: $36\text{px}$, Margins: $64\text{px}$ (or $0\text{px}$ for flush views).
