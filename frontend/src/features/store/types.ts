@@ -80,43 +80,41 @@ export type StoreViewMode = "table" | "grid";
 
 export interface InboundShipment {
   id: string;
-  orderId: string;
   waypointId: string;
   orderRef: string;
-  tripId: string;
-  vehicleNo: string;
-  driverName: string;
-  driverPhone: string;
   outletName: string;
   outletAddress: string;
+  district: string;
+  depot: string;
+  requiredDate: string;
   tempRequirement: TempRequirement;
-  reeferTempC?: number;
-  eta: string;
-  status: "in_transit" | "docked" | "delivered" | "discrepancy";
+  status: "loading" | "in_transit" | "served";
+  isUrgent: boolean;
   totalPackages: number;
   totalWeightKg: number;
+  totalVolumeM3: number;
   totalValueLkr: number;
-  items: StoreOrderItemRow[];
-  deliveredAt?: string;
-  cratesReturned?: number;
 }
+
+export type DiscrepancyIssue =
+  "damaged_in_transit" | "missing_crate" | "rejected_by_store" | "temp_spoilage";
 
 export interface ReceivingCheckItem {
   itemId: string;
   name: string;
-  sku: string;
+  packageCode?: string;
   requestedQty: number;
   receivedQty: number;
-  issueType?:
-    "damaged_in_transit" | "missing_crate" | "rejected_by_store" | "temp_spoilage";
+  issueType: DiscrepancyIssue;
   notes?: string;
-  specialHandlingCode?: SpecialHandlingCode;
+  specialHandlingCode?: SpecialHandlingCode | null;
 }
 
 export interface ReceivingKPIs {
-  inboundTrucksCount: number;
-  pendingReceivalCount: number;
-  coldChainRunsCount: number;
-  discrepanciesCount: number;
-  cratesReturnedTotal: number;
+  totalInbound: number;
+  loadingCount: number;
+  inTransitCount: number;
+  receivedCount: number;
+  coldChainCount: number;
+  totalWeightKg: number;
 }

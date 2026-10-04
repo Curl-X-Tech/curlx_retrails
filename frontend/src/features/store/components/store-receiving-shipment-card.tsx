@@ -1,180 +1,156 @@
-import {
-  TruckIcon,
-  PhoneIcon,
-  ClockIcon,
-  SnowflakeIcon,
-  PackageIcon,
-  ScalesIcon,
-  CurrencyDollarIcon,
-  CheckCircleIcon,
-  WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { useNavigate } from "react-router-dom";
+import { PlusIcon, SnowflakeIcon } from "@phosphor-icons/react";
+import { Card } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { TablePagination } from "@/components/shared/table-pagination";
+import { StoreReceivingStage, getReceivingActionLabel } from "./store-receiving-stage";
 import type { InboundShipment } from "../types";
 
-interface StoreReceivingShipmentCardProps {
-  shipment: InboundShipment;
+interface StoreReceivingCardsProps {
+  shipments: InboundShipment[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  pageSize: number;
+  onPageChange: (page: number) => void;
   onInspect: (shipment: InboundShipment) => void;
 }
 
 export function StoreReceivingShipmentCard({
   shipment,
   onInspect,
-}: StoreReceivingShipmentCardProps) {
-  const isColdChain = shipment.tempRequirement === "chilled";
-  const isDelivered = shipment.status === "delivered";
-  const isDiscrepancy = shipment.status === "discrepancy";
-  const isDocked = shipment.status === "docked";
-
+}: {
+  shipment: InboundShipment;
+  onInspect: (shipment: InboundShipment) => void;
+}) {
   return (
-    <div className="bg-card border border-border/70 rounded-xl p-5 shadow-xs flex flex-col justify-between hover:border-border transition-all">
-      <div className="space-y-4">
-        {/* Card Header */}
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="font-mono font-bold text-sm tracking-tight text-foreground">
-                {shipment.vehicleNo}
-              </span>
-              <span className="text-xs text-muted-foreground font-mono">
-                {shipment.tripId}
-              </span>
-              {isColdChain && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-cyan-900 text-cyan-100 dark:bg-cyan-950 dark:text-cyan-200">
-                  <SnowflakeIcon className="size-3" weight="bold" />
-                  {shipment.reeferTempC !== undefined
-                    ? `${shipment.reeferTempC.toFixed(1)}°C`
-                    : "REEFER"}
-                </span>
-              )}
-            </div>
-            <div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-              <span className="font-mono">{shipment.orderRef}</span>
-              <span>•</span>
-              <span>{shipment.outletName}</span>
-            </div>
-          </div>
-
-          <div>
-            {isDocked && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold bg-emerald-600 text-white">
-                <TruckIcon className="size-3.5" weight="bold" />
-                Docked at Bay
-              </span>
-            )}
-            {shipment.status === "in_transit" && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold bg-sky-700 text-white">
-                <ClockIcon className="size-3.5" weight="bold" />
-                In Transit
-              </span>
-            )}
-            {isDelivered && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold bg-slate-700 text-slate-100">
-                <CheckCircleIcon className="size-3.5" weight="bold" />
-                Received
-              </span>
-            )}
-            {isDiscrepancy && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded text-xs font-bold bg-rose-600 text-white">
-                <WarningCircleIcon className="size-3.5" weight="bold" />
-                Discrepancy
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Driver & ETA strip */}
-        <div className="grid grid-cols-2 gap-3 p-2.5 bg-muted/30 rounded-lg text-xs">
-          <div>
-            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">
-              Driver
+    <Card
+      onClick={() => onInspect(shipment)}
+      className="p-4 rounded-xl border border-border bg-card shadow-xs space-y-3 cursor-pointer hover:border-primary/40 hover:shadow-sm transition-all"
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div>
+          <div className="flex items-center gap-1.5 flex-wrap">
+            <span className="font-bold text-xs text-primary tabular-nums">
+              {shipment.orderRef}
             </span>
-            <div className="font-medium text-foreground flex items-center gap-1.5 mt-0.5">
-              <span>{shipment.driverName}</span>
-              <a
-                href={`tel:${shipment.driverPhone}`}
-                className="text-muted-foreground hover:text-foreground"
-                title={shipment.driverPhone}
+            {shipment.isUrgent && (
+              <Badge
+                variant="destructive"
+                className="text-[9px] px-1 py-0 h-3.5 font-bold uppercase"
               >
-                <PhoneIcon className="size-3" />
-              </a>
-            </div>
-          </div>
-          <div>
-            <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">
-              {isDelivered ? "Delivered At" : "ETA / Dock"}
-            </span>
-            <div className="font-mono font-medium text-foreground mt-0.5">
-              {isDelivered ? shipment.deliveredAt : shipment.eta}
-            </div>
-          </div>
-        </div>
-
-        {/* Manifest Metrics */}
-        <div className="grid grid-cols-3 gap-2 py-1 border-y border-border/50 text-center text-xs">
-          <div>
-            <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
-              <PackageIcon className="size-3" /> Packages
-            </div>
-            <div className="font-bold text-foreground font-mono mt-0.5">
-              {shipment.totalPackages}
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
-              <ScalesIcon className="size-3" /> Weight
-            </div>
-            <div className="font-bold text-foreground font-mono mt-0.5">
-              {shipment.totalWeightKg.toFixed(1)} kg
-            </div>
-          </div>
-          <div>
-            <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground">
-              <CurrencyDollarIcon className="size-3" /> Value
-            </div>
-            <div className="font-bold text-foreground font-mono mt-0.5">
-              LKR {shipment.totalValueLkr.toLocaleString()}
-            </div>
-          </div>
-        </div>
-
-        {/* Item List Preview */}
-        <div className="space-y-1.5">
-          <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider block">
-            Shipment Items ({shipment.items.length})
-          </span>
-          <div className="space-y-1 text-xs">
-            {shipment.items.slice(0, 3).map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between text-muted-foreground py-0.5 border-b border-border/30 last:border-0"
-              >
-                <span className="truncate max-w-[200px] text-foreground">
-                  {item.name}
-                </span>
-                <span className="font-mono font-medium shrink-0 ml-2">
-                  {item.quantity} {item.unit}s
-                </span>
-              </div>
-            ))}
-            {shipment.items.length > 3 && (
-              <div className="text-[11px] text-muted-foreground italic">
-                + {shipment.items.length - 3} more items...
-              </div>
+                Urgent
+              </Badge>
+            )}
+            {shipment.tempRequirement === "chilled" && (
+              <Badge variant="secondary" className="text-[9px] px-1 py-0 h-3.5 gap-0.5">
+                <SnowflakeIcon className="size-2.5" />
+                COL
+              </Badge>
             )}
           </div>
+          <p className="font-semibold text-foreground text-xs mt-1">
+            {shipment.outletName}
+          </p>
+          <p className="text-[10px] text-muted-foreground">
+            {shipment.district} • {shipment.depot}
+          </p>
         </div>
       </div>
 
-      {/* Action Footer */}
-      <div className="mt-5 pt-3 border-t border-border/50">
+      <StoreReceivingStage status={shipment.status} />
+
+      <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-border text-center text-xs">
+        <div className="bg-muted/30 p-1.5 rounded-lg">
+          <span className="text-[9px] text-muted-foreground block">Packages</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {shipment.totalPackages}
+          </span>
+        </div>
+        <div className="bg-muted/30 p-1.5 rounded-lg">
+          <span className="text-[9px] text-muted-foreground block">Weight</span>
+          <span className="font-bold text-foreground text-[11px] tabular-nums">
+            {shipment.totalWeightKg.toFixed(1)} kg
+          </span>
+        </div>
+        <div className="bg-muted/30 p-1.5 rounded-lg">
+          <span className="text-[9px] text-muted-foreground block">Valuation</span>
+          <span className="font-bold text-primary text-[11px] tabular-nums">
+            {(shipment.totalValueLkr / 1000).toFixed(0)}k LKR
+          </span>
+        </div>
+      </div>
+
+      <div
+        className="flex items-center justify-between pt-1 border-t border-border/60 text-[11px]"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <span className="text-[10px] text-muted-foreground">
+          Delivery: {shipment.requiredDate}
+        </span>
         <Button
-          className="w-full h-9 text-xs font-semibold"
-          variant={isDelivered || isDiscrepancy ? "outline" : "default"}
+          variant={shipment.status === "in_transit" ? "default" : "ghost"}
+          size="xs"
+          className="h-6 px-2 text-[10px] cursor-pointer"
           onClick={() => onInspect(shipment)}
         >
-          {isDelivered || isDiscrepancy ? "View Receiving Slip" : "Inspect & Receive"}
+          {getReceivingActionLabel(shipment.status)}
         </Button>
+      </div>
+    </Card>
+  );
+}
+
+export function StoreReceivingCards({
+  shipments,
+  totalCount,
+  currentPage,
+  totalPages,
+  pageSize,
+  onPageChange,
+  onInspect,
+}: StoreReceivingCardsProps) {
+  const navigate = useNavigate();
+
+  if (shipments.length === 0) {
+    return (
+      <Card className="min-h-64 flex flex-col items-center justify-center gap-3 text-center rounded-2xl border-border">
+        <p className="text-sm font-semibold text-foreground">
+          No inbound deliveries for today
+        </p>
+        <p className="text-xs text-muted-foreground">
+          Orders due today will appear here once they are allocated.
+        </p>
+        <Button
+          size="xs"
+          className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg"
+          onClick={() => navigate("/store/orders/new")}
+        >
+          <PlusIcon className="size-3" />
+          Create Order
+        </Button>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-4 flex-1 flex flex-col">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
+        {shipments.map((s) => (
+          <StoreReceivingShipmentCard key={s.id} shipment={s} onInspect={onInspect} />
+        ))}
+      </div>
+      <div className="flex items-center justify-between pt-2 border-t border-border/50 text-xs">
+        <span className="text-muted-foreground text-xs tabular-nums">
+          Showing {(currentPage - 1) * pageSize + 1} to{" "}
+          {Math.min(currentPage * pageSize, totalCount)} of {totalCount} deliveries
+        </span>
+        <TablePagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
       </div>
     </div>
   );
