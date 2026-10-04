@@ -3,24 +3,33 @@ import {
   useBays,
   useConfirmDeparture,
   useSealWaypoint,
+  useStartLoading,
   useTripChecklist,
   useVerifyItem,
 } from "@/api/loader";
 import { useAuth } from "@/context/auth-context";
-import type { DiscrepancyType, LoaderOrderItem, LoaderVehicleTrip } from "../types";
+import { getDefaultTrip, mapBayToTrip, mapChecklistToWaypoints } from "./bay-mappers";
+import type {
+  DiscrepancyType,
+  LoaderOrderItem,
+  LoaderVehicleTrip,
+  LoaderWaypoint,
+} from "../types";
 
 export function useLoaderBays(urlTripId: string | null) {
   const { user } = useAuth();
   const userDepotId = user?.depotId || "depot-pel";
 
   const { data: bays = [], isLoading: isBaysLoading } = useBays(userDepotId);
-
   const [selectedTripIdState, setSelectedTripId] = React.useState<string>("");
 
   const selectedTripId = React.useMemo(() => {
     if (selectedTripIdState) return selectedTripIdState;
     if (urlTripId && bays.some((b) => b.trip.id === urlTripId)) return urlTripId;
-    return bays[0]?.trip.id ?? "trip-01";
+    const activeFirst = bays.find(
+      (b) => b.bay.dock_status === "docked_loading" || b.trip.status === "loading"
+    );
+    return activeFirst?.trip.id ?? bays[0]?.trip.id ?? "trip-01";
   }, [selectedTripIdState, urlTripId, bays]);
 
   const { data: activeChecklist, isLoading: isChecklistLoading } =
@@ -29,12 +38,17 @@ export function useLoaderBays(urlTripId: string | null) {
   const verifyItemMutation = useVerifyItem();
   const sealWaypointMutation = useSealWaypoint();
   const confirmDepartureMutation = useConfirmDeparture();
+  const startLoadingMutation = useStartLoading();
 
   const [searchQuery, setSearchQuery] = React.useState("");
   const [expandedStopSeq, setExpandedStopSeq] = React.useState<number>(1);
   const [isVehicleDrawerOpen, setIsVehicleDrawerOpen] = React.useState<boolean>(false);
   const [shakingWaypointSeq, setShakingWaypointSeq] = React.useState<number | null>(null);
-  const [lockedWaypoints, setLockedWaypoints] = React.useState<Set<number>>(new Set());
+  const [unlockedWaypoints, setUnlockedWaypoints] = React.useState<Set<number>>(
+    new Set()
+  );
+  const [isDepartureDialogOpen, setIsDepartureDialogOpen] =
+    React.useState<boolean>(false);
 
   const [reportingItem, setReportingItem] = React.useState<{
     stopSeq: number;
@@ -46,135 +60,23 @@ export function useLoaderBays(urlTripId: string | null) {
 
   const activeTrip: LoaderVehicleTrip = React.useMemo(() => {
     const activeBay = bays.find((b) => b.trip.id === selectedTripId);
-
-    const waypoints =
-      activeChecklist?.waypoints.map((wp) => ({
-        seq: wp.seq,
-        outletId: wp.outlet_id,
-        outletCode: wp.outlet_code,
-        outletName: wp.outlet_name,
-        dockType: (wp.dock_type as any) || "rear_dock",
-        deliveryWindow: wp.delivery_window,
-        parkingConstraint: (wp.parking_constraint as any) || "normal",
-        items: wp.items.map((i) => ({
-          id: i.id,
-          orderRef: i.package_code,
-          packageCode: i.package_code,
-          sku: i.sku,
-          itemTitle: i.item_title,
-          category: i.category,
-          crateCount: i.crate_count,
-          weightKg: i.gross_weight_kg,
-          volumeM3: i.gross_volume_m3,
-          temperature: i.temperature_req || "chilled",
-          isReefer: i.is_reefer,
-          specialHandlingCode: (i.special_handling_code as any) || "COL",
-          bayCoordinates: { bayX: 4, bayY: 2, bayZ: 1 },
-          stagingBay: i.staging_bay,
-          status: (i.verification_status === "flagged_shortfall"
-            ? "flagged"
-            : i.verification_status) as "pending" | "verified" | "flagged",
-          notes: i.note,
-        })),
-      })) || [];
-
-    const totalItems = waypoints.reduce((acc, wp) => acc + wp.items.length, 0);
-    const verifiedItems = waypoints.reduce(
-      (acc, wp) => acc + wp.items.filter((i) => i.status === "verified").length,
-      0
-    );
-
-    return {
-      id: selectedTripId,
-      tripCode: activeChecklist?.trip.trip_code || activeBay?.trip.trip_code || "RT-14",
-      tripSequence: 1,
-      sealNumber: activeChecklist?.trip.seal_number || "SL-90821-B",
-      vehicleId: activeBay?.vehicle.vehicle_id || "VEH001",
-      regNumber: activeBay?.vehicle.reg_number || "NP-4811",
-      modelName: activeBay?.vehicle.model_name || "Isuzu ELF NPR",
-      type: activeBay?.vehicle.type || "truck",
-      temp: activeBay?.vehicle.temp || "reefer",
-      weightCapKg: activeBay?.vehicle.weight_cap_kg || 4200,
-      volumeCapM3: activeBay?.vehicle.volume_cap_m3 || 28.0,
-      imagePath: "/vehicle-images/freeze.png",
-      depotName: userDepotId === "depot-kandy" ? "Kandy Depot" : "Peliyagoda Depot",
-      stopsCount: waypoints.length,
-      nextStopName: waypoints[0]?.outletName || "Waypoint Fresh Wattala",
-      plannedDepartureTime: activeBay?.trip.planned_departure_time || "05:30 AM",
-      departureCountdownMinutes: 35,
-      status: (activeBay?.trip.status as any) || "loading",
-      dockBay: activeBay?.bay.bay_number || "Bay 4C",
-      verifiedItemsCount: verifiedItems,
-      totalItemsCount: totalItems,
-      driver: {
-        name: activeBay?.driver.name || "Saman Perera",
-        designation: "Heavy Vehicle Pilot",
-        licenseId: activeBay?.driver.license_number || "DL-90821-WP-89",
-        phone: activeBay?.driver.phone || "+94 77 123 4567",
-        avatarInitials: (activeBay?.driver.name || "Saman Perera")
-          .split(" ")
-          .map((n) => n[0])
-          .join(""),
-      },
-      payload: {
-        currentKg: activeBay?.progress.payload_kg || 3360,
-        maxKg: activeBay?.progress.max_payload_kg || 4200,
-        percentage: activeBay?.progress.payload_percentage || 80,
-        secondaryMetric: "2,650 kg s.m",
-        currentVolumeM3: activeBay?.progress.volume_m3 || 22.4,
-        maxVolumeM3: activeBay?.progress.max_volume_m3 || 28.0,
-      },
+    const waypoints = mapChecklistToWaypoints(activeChecklist);
+    if (!activeBay) {
+      return getDefaultTrip(selectedTripId, waypoints);
+    }
+    return mapBayToTrip(
+      activeBay,
+      userDepotId,
       waypoints,
-    };
+      activeChecklist?.trip.seal_number
+    );
   }, [bays, activeChecklist, selectedTripId, userDepotId]);
 
   const trips: LoaderVehicleTrip[] = React.useMemo(() => {
-    return bays.map((b) => ({
-      id: b.trip.id,
-      tripCode: b.trip.trip_code,
-      tripSequence: 1,
-      sealNumber: "SL-90821-B",
-      vehicleId: b.vehicle.vehicle_id,
-      regNumber: b.vehicle.reg_number,
-      modelName: b.vehicle.model_name,
-      type: b.vehicle.type,
-      temp: b.vehicle.temp,
-      weightCapKg: b.vehicle.weight_cap_kg,
-      volumeCapM3: b.vehicle.volume_cap_m3,
-      imagePath:
-        b.vehicle.temp === "reefer"
-          ? "/vehicle-images/freeze.png"
-          : "/vehicle-images/dry.png",
-      depotName: b.bay.depot_id === "depot-kandy" ? "Kandy Depot" : "Peliyagoda Depot",
-      stopsCount: b.trip.stops_count,
-      nextStopName: b.trip.next_stop_name,
-      plannedDepartureTime: b.trip.planned_departure_time,
-      departureCountdownMinutes: 45,
-      status: b.trip.status as any,
-      dockBay: b.bay.bay_number,
-      verifiedItemsCount: b.progress.verified_items_count,
-      totalItemsCount: b.progress.total_items_count,
-      driver: {
-        name: b.driver.name,
-        designation: "Fleet Pilot",
-        licenseId: b.driver.license_number || "DL-90821-WP-89",
-        phone: b.driver.phone,
-        avatarInitials: b.driver.name
-          .split(" ")
-          .map((n) => n[0])
-          .join(""),
-      },
-      payload: {
-        currentKg: b.progress.payload_kg,
-        maxKg: b.progress.max_payload_kg,
-        percentage: b.progress.payload_percentage,
-        secondaryMetric: "Payload",
-        currentVolumeM3: b.progress.volume_m3,
-        maxVolumeM3: b.progress.max_volume_m3,
-      },
-      waypoints: [],
-    }));
-  }, [bays]);
+    return bays
+      .filter((b) => b.bay.dock_status === "docked_loading")
+      .map((b) => mapBayToTrip(b, userDepotId));
+  }, [bays, userDepotId]);
 
   const filteredTrips = React.useMemo(() => {
     if (!searchQuery.trim()) return trips;
@@ -186,6 +88,24 @@ export function useLoaderBays(urlTripId: string | null) {
         t.depotName.toLowerCase().includes(q)
     );
   }, [trips, searchQuery]);
+
+  const isCompleted =
+    activeTrip.status === "dispatched" ||
+    activeTrip.status === "in_transit" ||
+    activeTrip.status === "completed";
+
+  const isWaypointLocked = React.useCallback(
+    (wp: LoaderWaypoint) => {
+      if (isCompleted) return true;
+      if (unlockedWaypoints.has(wp.seq)) return false;
+      if (wp.isSealed) return true;
+      return (
+        wp.items.length > 0 &&
+        wp.items.every((i: LoaderOrderItem) => i.status === "verified")
+      );
+    },
+    [unlockedWaypoints, isCompleted]
+  );
 
   const handleLockedAttempt = React.useCallback((seq: number) => {
     setShakingWaypointSeq(seq);
@@ -199,13 +119,17 @@ export function useLoaderBays(urlTripId: string | null) {
     setTimeout(() => setShakingWaypointSeq((curr) => (curr === seq ? null : curr)), 550);
   }, []);
 
-  const handleUnlockWaypoint = React.useCallback((seq: number) => {
-    setLockedWaypoints((prev) => {
-      const next = new Set(prev);
-      next.delete(seq);
-      return next;
-    });
-  }, []);
+  const handleUnlockWaypoint = React.useCallback(
+    (seq: number) => {
+      if (isCompleted) return;
+      setUnlockedWaypoints((prev) => {
+        const next = new Set(prev);
+        next.add(seq);
+        return next;
+      });
+    },
+    [isCompleted]
+  );
 
   const handleToggleExpandWaypoint = React.useCallback((seq: number) => {
     setExpandedStopSeq((curr) => (curr === seq ? 0 : seq));
@@ -213,20 +137,17 @@ export function useLoaderBays(urlTripId: string | null) {
 
   const handleToggleItemStatus = React.useCallback(
     (stopSeq: number, itemId: string) => {
+      if (isCompleted) return;
       const wp = activeTrip.waypoints.find((w) => w.seq === stopSeq);
       const item = wp?.items.find((i) => i.id === itemId);
       const nextStatus = item?.status === "verified" ? "pending" : "verified";
-
-      verifyItemMutation.mutate({
-        itemId,
-        payload: { status: nextStatus },
-      });
+      verifyItemMutation.mutate({ itemId, payload: { status: nextStatus } });
     },
-    [activeTrip, verifyItemMutation]
+    [activeTrip, isCompleted, verifyItemMutation]
   );
 
   const handleConfirmDiscrepancy = React.useCallback(() => {
-    if (!reportingItem) return;
+    if (!reportingItem || isCompleted) return;
     verifyItemMutation.mutate({
       itemId: reportingItem.item.id,
       payload: {
@@ -236,26 +157,24 @@ export function useLoaderBays(urlTripId: string | null) {
     });
     setReportingItem(null);
     setDiscrepancyNotes("");
-  }, [reportingItem, discrepancyNotes, discrepancyType, verifyItemMutation]);
+  }, [reportingItem, isCompleted, discrepancyNotes, discrepancyType, verifyItemMutation]);
 
   const handleSealWaypoint = React.useCallback(
     (seq: number) => {
-      sealWaypointMutation.mutate({
-        tripId: selectedTripId,
-        seq,
-      });
+      sealWaypointMutation.mutate({ tripId: selectedTripId, seq });
     },
     [selectedTripId, sealWaypointMutation]
   );
 
   const handleConfirmDeparture = React.useCallback(
-    (sealNumber: string) => {
+    (sealNumber?: string) => {
+      const seal = sealNumber || activeTrip.sealNumber || `SL-${activeTrip.tripCode}`;
       confirmDepartureMutation.mutate({
         tripId: selectedTripId,
-        payload: { seal_number: sealNumber },
+        payload: { seal_number: seal },
       });
     },
-    [selectedTripId, confirmDepartureMutation]
+    [selectedTripId, activeTrip, confirmDepartureMutation]
   );
 
   return {
@@ -274,9 +193,11 @@ export function useLoaderBays(urlTripId: string | null) {
     setDiscrepancyType,
     discrepancyNotes,
     setDiscrepancyNotes,
-    lockedWaypoints,
     shakingWaypointSeq,
+    isWaypointLocked,
+    unlockedWaypoints,
     isLoading: isBaysLoading || isChecklistLoading,
+    isCompleted,
     activeTrip,
     filteredTrips,
     handleLockedAttempt,
@@ -286,8 +207,18 @@ export function useLoaderBays(urlTripId: string | null) {
     handleConfirmDiscrepancy,
     handleSealWaypoint,
     handleConfirmDeparture,
+    handleStartLoading: () => startLoadingMutation.mutate(selectedTripId),
+    isDepartureDialogOpen,
+    setIsDepartureDialogOpen,
+    isReadyForDeparture: Boolean(
+      isCompleted ||
+      activeChecklist?.summary?.is_ready_for_departure ||
+      (activeTrip.waypoints.length > 0 &&
+        activeTrip.waypoints.every((w) => isWaypointLocked(w)))
+    ),
     isVerifying: verifyItemMutation.isPending,
     isSealing: sealWaypointMutation.isPending,
     isDeparting: confirmDepartureMutation.isPending,
+    isStartingLoading: startLoadingMutation.isPending,
   };
 }

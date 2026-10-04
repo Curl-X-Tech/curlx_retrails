@@ -859,6 +859,16 @@ export const ENDPOINTS = {
     issue: 13,
     ui: true,
   },
+  loaderStartLoading: {
+    domain: "loader",
+    method: "POST",
+    path: "/loader/trips/{trip_id}/start-loading",
+    roles: ["loader"],
+    offline: true,
+    status: "live",
+    issue: 13,
+    ui: true,
+  },
 
   // 9. Driver & Deliveries (EPOD)
   driverCurrentRoute: {

@@ -13,6 +13,7 @@ import type {
   ConfirmDepartureResponse,
   SealWaypointRequest,
   SealWaypointResponse,
+  StartLoadingResponse,
   TripChecklist,
   VerifyItemRequest,
   VerifyItemResponse,
@@ -113,5 +114,15 @@ export async function confirmDeparture(
   return apiClient<ConfirmDepartureResponse>(path, {
     method: ENDPOINTS.loaderConfirmDeparture.method,
     body: payload,
+  });
+}
+
+export async function startLoading(tripId: string): Promise<StartLoadingResponse> {
+  const path = ENDPOINTS.loaderStartLoading.path.replace(
+    "{trip_id}",
+    encodeURIComponent(tripId)
+  );
+  return apiClient<StartLoadingResponse>(path, {
+    method: ENDPOINTS.loaderStartLoading.method,
   });
 }

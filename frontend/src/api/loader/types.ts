@@ -147,3 +147,10 @@ export interface ConfirmDepartureResponse {
   status: string;
   departed_at: string;
 }
+
+export interface StartLoadingResponse {
+  success: boolean;
+  trip_id: string;
+  status: string;
+  started_at: string;
+}

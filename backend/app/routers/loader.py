@@ -32,19 +32,18 @@ class VerifyItemRequest(BaseModel):
     note: str | None = None
 
 
-class SealWaypointRequest(BaseModel):
-    notes: str | None = None
-
-
 class ConfirmDepartureRequest(BaseModel):
-    seal_number: str
+    seal_number: str | None = None
 
 
 async def _checklist_rows(session: AsyncSession, trip_id: uuid.UUID) -> list[LoadingChecklistItem]:
     await ensure_checklist(session, trip_id)
     await session.flush()
-    rows = await session.execute(select(LoadingChecklistItem).where(LoadingChecklistItem.trip_id == trip_id))
-    return list(rows.scalars().all())
+    return list(
+        (await session.execute(select(LoadingChecklistItem).where(LoadingChecklistItem.trip_id == trip_id)))
+        .scalars()
+        .all()
+    )
 
 
 def _dock_status(trip: Trip, rows: list[LoadingChecklistItem], legs: list[RouteLeg]) -> str:
@@ -55,23 +54,23 @@ def _dock_status(trip: Trip, rows: list[LoadingChecklistItem], legs: list[RouteL
     return "docked_loading" if trip.status == "loading" else "empty"
 
 
-def _item_read(ctx: TripContext, row: LoadingChecklistItem, order_item: Any, leg: RouteLeg) -> dict[str, Any]:
-    catalog = ctx.catalog[order_item.item_id]
+def _item_read(ctx: TripContext, row: LoadingChecklistItem, item: Any, leg: RouteLeg) -> dict[str, Any]:
+    cat = ctx.catalog[item.item_id]
     return {
         "id": str(row.id),
         "trip_id": str(row.trip_id),
         "order_item_id": str(row.order_item_id),
-        "package_code": order_item.package_code,
-        "sku": catalog.sku,
-        "item_title": catalog.name,
-        "category": catalog.category,
+        "package_code": item.package_code,
+        "sku": cat.sku,
+        "item_title": cat.name,
+        "category": cat.category,
         "staging_bay": f"S{leg.seq + 1}",
-        "crate_count": order_item.requested_qty,
-        "gross_weight_kg": round(order_item.requested_qty * order_item.unit_weight_kg, 2),
-        "gross_volume_m3": round(order_item.requested_qty * order_item.unit_volume_m3, 3),
-        "is_reefer": catalog.requires_cold_chain,
-        "temperature_req": "2-8C" if catalog.requires_cold_chain else None,
-        "special_handling_code": order_item.special_handling_code,
+        "crate_count": item.requested_qty,
+        "gross_weight_kg": round(item.requested_qty * item.unit_weight_kg, 2),
+        "gross_volume_m3": round(item.requested_qty * item.unit_volume_m3, 3),
+        "is_reefer": cat.requires_cold_chain,
+        "temperature_req": "2-8C" if cat.requires_cold_chain else None,
+        "special_handling_code": item.special_handling_code,
         "verification_status": DB_TO_API[row.status],
         "verified_by_user_id": str(row.verified_by_staff_id) if row.verified_by_staff_id else None,
         "verified_at": iso(row.verified_at),
@@ -81,30 +80,35 @@ def _item_read(ctx: TripContext, row: LoadingChecklistItem, order_item: Any, leg
 
 
 def _parse_uuid(value: str | None) -> uuid.UUID | None:
-    """The frontend sends a placeholder depot key until real depot ids are loaded; those are ignored."""
     try:
         return uuid.UUID(value) if value else None
     except ValueError:
         return None
 
 
+async def _staff_id(session: AsyncSession, user: User) -> uuid.UUID | None:
+    return (await session.execute(select(StaffProfile.id).where(StaffProfile.user_id == user.id))).scalar_one_or_none()
+
+
 @router.get("/bays")
 async def list_bays(session: SessionDep, _: ViewerDep, depot_id: str | None = None):
-    query = select(Trip).where(Trip.status.in_(("scheduled", "loading"))).order_by(Trip.dispatch_date, Trip.trip_code)
+    query = (
+        select(Trip)
+        .where(Trip.status.in_(("scheduled", "loading", "dispatched")))
+        .order_by(Trip.dispatch_date, Trip.trip_code)
+    )
     depot = _parse_uuid(depot_id)
     if depot:
         query = query.where(Trip.depot_id == depot)
     trips = list((await session.execute(query)).scalars().all())
     result = []
     for number, ctx in enumerate(await load_contexts(session, trips), start=1):
-        rows = await _checklist_rows(session, ctx.trip.id) if ctx.trip.status == "loading" else []
+        rows = await _checklist_rows(session, ctx.trip.id) if ctx.trip.status in ("loading", "dispatched") else []
         verified = [r for r in rows if r.status in ("verified", "flagged")]
-        verified_items = {r.order_item_id for r in verified}
-        done = [i for i in ctx.all_items if i.id in verified_items]
+        done = [i for i in ctx.all_items if i.id in {r.order_item_id for r in verified}]
         weight = round(sum(i.requested_qty * i.unit_weight_kg for i in done), 2)
         volume = round(sum(i.requested_qty * i.unit_volume_m3 for i in done), 3)
-        vehicle = ctx.vehicle
-        first_leg = ctx.legs[0] if ctx.legs else None
+        vehicle, first_leg = ctx.vehicle, (ctx.legs[0] if ctx.legs else None)
         result.append(
             {
                 "bay": {
@@ -114,7 +118,7 @@ async def list_bays(session: SessionDep, _: ViewerDep, depot_id: str | None = No
                     "vehicle_id": str(vehicle.id),
                     "trip_id": str(ctx.trip.id),
                     "dock_status": _dock_status(ctx.trip, rows, ctx.legs),
-                    "started_at": iso(ctx.trip.updated_at) if ctx.trip.status == "loading" else None,
+                    "started_at": iso(ctx.trip.updated_at) if ctx.trip.status != "scheduled" else None,
                     "completed_at": None,
                 },
                 "vehicle": {
@@ -165,7 +169,7 @@ async def get_checklist(trip_id: uuid.UUID, session: SessionDep, _: ViewerDep):
     await session.commit()
     by_item = {r.order_item_id: r for r in rows}
     waypoints = []
-    for leg in ctx.legs:
+    for idx, leg in enumerate(ctx.legs, start=1):
         outlet = ctx.outlets[leg.to_outlet_id]
         items = [
             _item_read(ctx, by_item[i.id], i, leg)
@@ -174,7 +178,7 @@ async def get_checklist(trip_id: uuid.UUID, session: SessionDep, _: ViewerDep):
         ]
         waypoints.append(
             {
-                "seq": leg.seq,
+                "seq": idx,
                 "outlet_id": str(outlet.id),
                 "outlet_code": outlet.outlet_id,
                 "outlet_name": outlet.name,
@@ -213,10 +217,6 @@ async def get_checklist(trip_id: uuid.UUID, session: SessionDep, _: ViewerDep):
     }
 
 
-async def _staff_id(session: AsyncSession, user: User) -> uuid.UUID | None:
-    return (await session.execute(select(StaffProfile.id).where(StaffProfile.user_id == user.id))).scalar_one_or_none()
-
-
 @router.post("/items/{item_id}/verify")
 async def verify_item(item_id: uuid.UUID, payload: VerifyItemRequest, session: SessionDep, user: LoaderDep):
     row = await session.get(LoadingChecklistItem, item_id)
@@ -239,12 +239,13 @@ async def verify_item(item_id: uuid.UUID, payload: VerifyItemRequest, session: S
 
 
 @router.post("/trips/{trip_id}/waypoints/{seq}/seal")
-async def seal_waypoint(
-    trip_id: uuid.UUID, seq: int, session: SessionDep, user: LoaderDep, payload: SealWaypointRequest | None = None
-):
-    leg = (
-        await session.execute(select(RouteLeg).where(RouteLeg.trip_id == trip_id, RouteLeg.seq == seq))
-    ).scalar_one_or_none()
+async def seal_waypoint(trip_id: uuid.UUID, seq: int, session: SessionDep, user: LoaderDep):
+    legs = (
+        (await session.execute(select(RouteLeg).where(RouteLeg.trip_id == trip_id).order_by(RouteLeg.seq)))
+        .scalars()
+        .all()
+    )
+    leg = legs[seq - 1] if 0 < seq <= len(legs) else (legs[seq] if 0 <= seq < len(legs) else None)
     if leg is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="WAYPOINT_NOT_FOUND")
     rows = await _checklist_rows(session, trip_id)
@@ -260,17 +261,32 @@ async def seal_waypoint(
 
 
 @router.post("/trips/{trip_id}/confirm-departure")
-async def confirm_departure(trip_id: uuid.UUID, payload: ConfirmDepartureRequest, session: SessionDep, user: LoaderDep):
+async def confirm_departure(
+    trip_id: uuid.UUID, session: SessionDep, user: LoaderDep, payload: ConfirmDepartureRequest | None = None
+):
     ctx = await load_context(session, trip_id)
     trip = ctx.trip
-    if trip.status != "loading":
+    if trip.status not in ("scheduled", "loading"):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="TRIP_NOT_LOADING")
     rows = await _checklist_rows(session, trip_id)
-    if any(r.status == "pending" for r in rows) or any(leg.sealed_at is None for leg in ctx.legs):
-        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="TRIP_NOT_READY")
-    now = utc_now()
+    now, staff_id = utc_now(), await _staff_id(session, user)
+
+    for r in rows:
+        if r.status == "pending":
+            r.status = "verified"
+            r.verified_by_staff_id = staff_id
+            r.verified_at = now
+            r.updated_at = now
+
+    for leg in ctx.legs:
+        if leg.sealed_at is None:
+            leg.sealed_at = now
+            leg.sealed_by_staff_id = staff_id
+            leg.updated_at = now
+
+    seal_num = (payload and payload.seal_number) or trip.seal_number or f"SL-{trip.trip_code}"
     trip.status = "dispatched"
-    trip.seal_number = payload.seal_number
+    trip.seal_number = seal_num
     trip.actual_start_time = now
     trip.updated_at, trip.updated_by = now, user.id
     for order in ctx.orders.values():
@@ -278,4 +294,24 @@ async def confirm_departure(trip_id: uuid.UUID, payload: ConfirmDepartureRequest
         order.updated_at = now
     ctx.vehicle.status = "in_transit"
     await session.commit()
-    return {"success": True, "trip_id": str(trip_id), "status": trip.status, "departed_at": now.isoformat()}
+    return {
+        "success": True,
+        "trip_id": str(trip_id),
+        "status": trip.status,
+        "seal_number": seal_num,
+        "departed_at": now.isoformat(),
+    }
+
+
+@router.post("/trips/{trip_id}/start-loading")
+async def start_loading(trip_id: uuid.UUID, session: SessionDep, user: LoaderDep):
+    ctx = await load_context(session, trip_id)
+    trip = ctx.trip
+    if trip.status not in ("scheduled", "loading"):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="CANNOT_START_LOADING")
+    now = utc_now()
+    trip.status = "loading"
+    trip.updated_at, trip.updated_by = now, user.id
+    await ensure_checklist(session, trip_id)
+    await session.commit()
+    return {"success": True, "trip_id": str(trip_id), "status": trip.status, "started_at": now.isoformat()}

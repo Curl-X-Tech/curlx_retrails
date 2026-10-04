@@ -1,6 +1,5 @@
 import {
   MagnifyingGlassIcon,
-  PrinterIcon,
   ListBulletsIcon,
   SquaresFourIcon,
 } from "@phosphor-icons/react";
@@ -49,7 +48,7 @@ export function ManifestToolbar({
   counts,
 }: ManifestToolbarProps) {
   return (
-    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-2 shrink-0 bg-card p-2 sm:p-2.5 rounded-2xl border border-border/80 shadow-xs">
+    <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-2 shrink-0 bg-card p-2 sm:p-2.5 rounded-2xl border border-border/80 shadow-xs max-w-full overflow-hidden">
       <ManifestStatusTabs
         statusFilter={statusFilter}
         onStatusFilterChange={onStatusFilterChange}
@@ -121,17 +120,6 @@ export function ManifestToolbar({
             <SquaresFourIcon className="size-3.5" weight="bold" />
           </Button>
         </div>
-
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => window.print()}
-          className="size-8.5 p-0 rounded-xl border-border/80 hover:bg-accent cursor-pointer shadow-xs shrink-0"
-          title="Print Schedule"
-          aria-label="Print Schedule"
-        >
-          <PrinterIcon className="size-4" />
-        </Button>
       </div>
     </div>
   );

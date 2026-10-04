@@ -31,12 +31,15 @@ export interface LoaderOrderItem {
 
 export interface LoaderWaypoint {
   seq: number;
+  loadOrder?: number;
   outletId: string;
   outletCode: string;
   outletName: string;
   dockType: DockType;
   deliveryWindow: string;
   parkingConstraint?: ParkingConstraint;
+  isSealed?: boolean;
+  sealedAt?: string | null;
   items: LoaderOrderItem[];
 }
 
@@ -56,9 +59,17 @@ export interface LoaderVehicleTrip {
   depotName: string;
   stopsCount: number;
   nextStopName: string;
+  dispatchDate?: string;
   plannedDepartureTime: string;
   departureCountdownMinutes: number;
-  status: "loading" | "ready" | "dispatched" | "flagged";
+  status:
+    | "scheduled"
+    | "loading"
+    | "ready"
+    | "dispatched"
+    | "in_transit"
+    | "completed"
+    | "flagged";
   dockBay: string;
   dispatchedAt?: string;
   verifiedItemsCount?: number;
@@ -82,7 +93,16 @@ export interface LoaderVehicleTrip {
   waypoints: LoaderWaypoint[];
 }
 
-export type ManifestStatusFilter = "loading" | "ready" | "dispatched" | "flagged" | "all";
+export type ManifestStatusFilter =
+  | "scheduled"
+  | "loading"
+  | "ready"
+  | "dispatched"
+  | "in_transit"
+  | "completed"
+  | "flagged"
+  | "all";
+
 export type VehicleTypeFilter = "all" | "truck" | "van";
 export type TempFilter = "all" | "reefer" | "ambient";
 export type ManifestViewMode = "table" | "grid";

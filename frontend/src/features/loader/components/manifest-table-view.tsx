@@ -11,15 +11,10 @@ import type { LoaderVehicleTrip } from "../types";
 
 interface ManifestTableViewProps {
   trips: LoaderVehicleTrip[];
-  onInspectTrip: (trip: LoaderVehicleTrip) => void;
   onOpenBay: (tripId: string) => void;
 }
 
-export function ManifestTableView({
-  trips,
-  onInspectTrip,
-  onOpenBay,
-}: ManifestTableViewProps) {
+export function ManifestTableView({ trips, onOpenBay }: ManifestTableViewProps) {
   return (
     <Card className="rounded-2xl border border-border/80 overflow-hidden shadow-xs bg-card">
       <Table>
@@ -47,12 +42,7 @@ export function ManifestTableView({
         </TableHeader>
         <TableBody>
           {trips.map((trip) => (
-            <ManifestTableRow
-              key={trip.id}
-              trip={trip}
-              onInspectTrip={onInspectTrip}
-              onOpenBay={onOpenBay}
-            />
+            <ManifestTableRow key={trip.id} trip={trip} onOpenBay={onOpenBay} />
           ))}
         </TableBody>
       </Table>

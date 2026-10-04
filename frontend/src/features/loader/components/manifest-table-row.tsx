@@ -1,4 +1,4 @@
-import { ClockIcon, EyeIcon } from "@phosphor-icons/react";
+import { ClockIcon, CalendarBlankIcon } from "@phosphor-icons/react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TableRow, TableCell } from "@/components/ui/table";
@@ -8,19 +8,45 @@ import { ManifestRowStatus } from "./manifest-row-status";
 
 interface ManifestTableRowProps {
   trip: LoaderVehicleTrip;
-  onInspectTrip: (trip: LoaderVehicleTrip) => void;
   onOpenBay: (tripId: string) => void;
 }
 
-export function ManifestTableRow({
-  trip,
-  onInspectTrip,
-  onOpenBay,
-}: ManifestTableRowProps) {
-  const isDispatched = trip.status === "dispatched";
+function formatDisplayDate(dateStr?: string): string {
+  if (!dateStr) return "";
+  try {
+    const d = new Date(dateStr);
+    if (!isNaN(d.getTime())) {
+      return d.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+      });
+    }
+  } catch {
+    /* fallback */
+  }
+  return dateStr;
+}
+
+function formatTime12h(timeStr?: string): string {
+  if (!timeStr) return "";
+  const match = timeStr.match(/^(\d{1,2}):(\d{2})/);
+  if (match) {
+    let h = parseInt(match[1], 10);
+    const m = match[2];
+    const ampm = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+    return `${h < 10 ? "0" : ""}${h}:${m} ${ampm}`;
+  }
+  return timeStr;
+}
+
+export function ManifestTableRow({ trip, onOpenBay }: ManifestTableRowProps) {
   const isReady = trip.status === "ready";
   const isFlagged = trip.status === "flagged";
   const isLoadingActive = trip.status === "loading";
+  const formattedDate = formatDisplayDate(trip.dispatchDate);
+  const formattedPlannedTime = formatTime12h(trip.plannedDepartureTime);
 
   return (
     <TableRow
@@ -34,9 +60,9 @@ export function ManifestTableRow({
           className={cn(
             "absolute left-0 top-1.5 bottom-1.5 w-1 rounded-r",
             isLoadingActive && "bg-primary",
-            isReady && "bg-emerald-600 dark:bg-emerald-500",
-            isFlagged && "bg-amber-600 dark:bg-amber-500",
-            isDispatched && "bg-muted-foreground/40"
+            (isReady || trip.status === "dispatched") &&
+              "bg-emerald-600 dark:bg-emerald-500",
+            isFlagged && "bg-amber-600 dark:bg-amber-500"
           )}
         />
         <Badge
@@ -48,14 +74,12 @@ export function ManifestTableRow({
       </TableCell>
 
       <TableCell className="py-2.5 align-middle">
-        <div className="flex flex-col min-w-0">
-          <span className="font-heading font-black text-sm text-foreground leading-tight">
-            {trip.tripCode}
-          </span>
-          <span className="text-[11px] font-medium text-muted-foreground truncate">
-            Seal #{trip.sealNumber}
-          </span>
-        </div>
+        <span
+          className="font-heading font-black text-xs sm:text-sm text-foreground truncate block"
+          title={trip.tripCode}
+        >
+          {trip.tripCode}
+        </span>
       </TableCell>
 
       <TableCell className="py-2.5 align-middle">
@@ -70,31 +94,16 @@ export function ManifestTableRow({
       </TableCell>
 
       <TableCell className="py-2.5 align-middle">
-        {isDispatched ? (
-          <div className="flex flex-col">
-            <span className="text-xs font-bold text-foreground">
-              Departed {trip.dispatchedAt || trip.plannedDepartureTime}
-            </span>
-            <span className="text-[10px] text-muted-foreground">Completed Run</span>
+        <div className="flex flex-col">
+          <div className="flex items-center gap-1 text-xs font-bold text-foreground">
+            <ClockIcon className="size-3.5 text-primary" weight="bold" />
+            <span>{formattedPlannedTime}</span>
           </div>
-        ) : (
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1 text-xs font-bold text-foreground">
-              <ClockIcon className="size-3.5 text-primary" weight="bold" />
-              <span>{trip.plannedDepartureTime}</span>
-            </div>
-            <span
-              className={cn(
-                "text-[11px] font-semibold",
-                trip.departureCountdownMinutes < 15
-                  ? "text-rose-600 dark:text-rose-400 font-bold"
-                  : "text-muted-foreground"
-              )}
-            >
-              {trip.departureCountdownMinutes}m remaining
-            </span>
+          <div className="flex items-center gap-1 text-[11px] font-medium text-muted-foreground mt-0.5">
+            <CalendarBlankIcon className="size-3 text-muted-foreground shrink-0" />
+            <span>{formattedDate || "Today"}</span>
           </div>
-        )}
+        </div>
       </TableCell>
 
       <TableCell className="py-2.5 align-middle">
@@ -102,26 +111,14 @@ export function ManifestTableRow({
       </TableCell>
 
       <TableCell className="py-2.5 align-middle text-right">
-        <div className="flex items-center justify-end gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onInspectTrip(trip)}
-            className="size-7.5 p-0 rounded-lg text-muted-foreground hover:text-foreground cursor-pointer"
-            title="Inspect Manifest Details"
-            aria-label="Inspect Manifest Details"
-          >
-            <EyeIcon className="size-4" />
-          </Button>
-          <Button
-            variant={isLoadingActive ? "default" : "secondary"}
-            size="sm"
-            onClick={() => onOpenBay(trip.id)}
-            className="h-7.5 px-2.5 rounded-lg text-xs font-bold cursor-pointer"
-          >
-            {isLoadingActive ? "Open Bay" : "View"}
-          </Button>
-        </div>
+        <Button
+          variant={isLoadingActive ? "default" : "secondary"}
+          size="sm"
+          onClick={() => onOpenBay(trip.id)}
+          className="h-8 px-3 rounded-xl text-xs font-bold cursor-pointer shadow-xs"
+        >
+          {isLoadingActive ? "Open Bay" : "View"}
+        </Button>
       </TableCell>
     </TableRow>
   );
