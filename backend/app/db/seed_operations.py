@@ -9,7 +9,7 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.timezone import sl_today, utc_now
-from app.entities.customer_order import CustomerOrder
+from app.entities.customer_order import CustomerOrder, DeferralAuditLog
 from app.entities.depot import Depot
 from app.entities.item import Item
 from app.entities.outlet import Outlet
@@ -51,33 +51,22 @@ async def seed_operational_pipeline(
         brand_code = item.sku.split("-")[0] if "-" in item.sku else "FRESH"
         items_by_brand.setdefault(brand_code, []).append(item)
 
-    outlet_list = list(outlets.values())
-    for index, outlet in enumerate(outlet_list[:45]):
-        # Match brand items
+    for index, outlet in enumerate(list(outlets.values())[:45]):
         brand_key = "FRESH" if index < 20 else ("STYLE" if index < 32 else "TECH")
         avail_items = items_by_brand.get(brand_key) or list(items.values())[:5]
-
         order_lines = [
             OrderItemCreate(
-                item_id=avail_items[0].id,
-                requested_qty=10 + (index % 5) * 5,
-                special_handling_code=avail_items[0].special_handling_code,
+                item_id=item.id,
+                requested_qty=(10 if i == 0 else 5) + (index % (5 if i == 0 else 3)) * 2,
+                special_handling_code=item.special_handling_code,
             )
+            for i, item in enumerate(avail_items[:2])
         ]
-        if len(avail_items) > 1:
-            order_lines.append(
-                OrderItemCreate(
-                    item_id=avail_items[1].id,
-                    requested_qty=5 + (index % 3) * 2,
-                    special_handling_code=avail_items[1].special_handling_code,
-                )
-            )
-
-        order_target_date = op_date if index < 35 else (op_date + timedelta(days=2))
+        target_dt = op_date if index < 35 else (op_date + timedelta(days=2))
         payload = OrderCreate(
             outlet_id=outlet.id,
-            order_date=order_target_date,
-            required_date=order_target_date,
+            order_date=target_dt,
+            required_date=target_dt,
             is_urgent=(index % 7 == 0),
             temp_requirement="chilled" if brand_key == "FRESH" and index % 2 == 0 else "ambient",
             items=order_lines,
@@ -118,12 +107,8 @@ async def seed_operational_pipeline(
     # 3. Warehouse Bay Staging: Generate checklists and LIFO container allocations
     trips_result = await session.execute(select(Trip).where(Trip.dispatch_date == op_date))
     trips = list(trips_result.scalars().all())
-
     for idx, trip in enumerate(trips):
-        if idx == 0:
-            trip.status = "loading"
-        elif idx == 1:
-            trip.status = "dispatched"
+        trip.status = "loading" if idx == 0 else ("dispatched" if idx == 1 else trip.status)
         try:
             await ensure_checklist(session, trip.id)
         except Exception as exc:
@@ -145,43 +130,67 @@ async def seed_operational_pipeline(
                 battery_pct=98.0,
             )
         )
-
-    await session.flush()
-
-    # 4. Simulate active/completed legs and Proof of Delivery for Trip 2 (leaving Trip 1 pending for driver flow)
-    if trips:
-        active_trip = trips[1] if len(trips) > 1 else trips[0]
         legs_res = await session.execute(
-            select(RouteLeg).where(RouteLeg.trip_id == active_trip.id).order_by(RouteLeg.seq.asc())
+            select(RouteLeg).where(RouteLeg.trip_id == trips[1].id).order_by(RouteLeg.seq.asc())
         )
         legs = list(legs_res.scalars().all())
-
-        if legs and (len(trips) > 1 or active_trip.status != "loading"):
-            first_leg = legs[0]
-            first_leg.status = "completed"
-            first_leg.arrival_time = datetime.now(timezone.utc) - timedelta(minutes=45)
-            first_leg.leave_outlet_time = datetime.now(timezone.utc) - timedelta(minutes=20)
-
-            # Insert authentic POD record
-            pod = ProofOfDelivery(
-                trip_id=active_trip.id,
-                route_leg_id=first_leg.id,
-                order_id=first_leg.order_id,
-                outlet_id=first_leg.to_outlet_id,
-                recipient_name="Sunil Perera (Store Mgr)",
-                recipient_phone="+94 77 123 4567",
-                signature_svg="<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><path d='M10 30 Q40 5 70 35 T110 25' stroke='#1e293b' stroke-width='2' fill='none'/></svg>",
-                arrived_at=first_leg.arrival_time or datetime.now(timezone.utc),
-                delivered_at=first_leg.leave_outlet_time or datetime.now(timezone.utc),
-                delivery_lat=6.9344,
-                delivery_lng=79.8428,
-                temperature_reading=4.2 if first_leg.order_id else None,
-                photo_evidence_url="http://localhost:9000/retrails-media/pod/pod_sample_001.webp",
-                is_offline_synced=True,
+        if legs:
+            legs[0].status = "completed"
+            legs[0].arrival_time = datetime.now(timezone.utc) - timedelta(minutes=45)
+            legs[0].leave_outlet_time = datetime.now(timezone.utc) - timedelta(minutes=20)
+            session.add(
+                ProofOfDelivery(
+                    trip_id=trips[1].id,
+                    route_leg_id=legs[0].id,
+                    order_id=legs[0].order_id,
+                    outlet_id=legs[0].to_outlet_id,
+                    recipient_name="Sunil Perera (Store Mgr)",
+                    recipient_phone="+94 77 123 4567",
+                    signature_svg="<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><path d='M10 30 Q40 5 70 35 T110 25' stroke='#1e293b' stroke-width='2' fill='none'/></svg>",
+                    arrived_at=legs[0].arrival_time,
+                    delivered_at=legs[0].leave_outlet_time,
+                    delivery_lat=6.9344,
+                    delivery_lng=79.8428,
+                    temperature_reading=4.2,
+                    photo_evidence_url="http://localhost:9000/retrails-media/pod/pod_sample_001.webp",
+                    is_offline_synced=True,
+                )
             )
-            session.add(pod)
             counts["pods"] += 1
             counts["legs"] = len(legs)
+
+    # 5. Seed authentic deferrals & audit logs for carryover and audit views
+    p_orders = list(
+        (await session.execute(select(CustomerOrder).where(CustomerOrder.status == "pending"))).scalars().all()
+    )
+    defer_configs = [
+        ("insufficient_reefer_capacity", "weight_cap", "Chilled payload exceeded Reefer axle threshold."),
+        ("van_access_shortage", "fleet_downtime", "Narrow street access requires Freeze Van; local vans occupied."),
+        ("time_budget_limit", "time_budget", "Delivery window conflicts with route budget; deferred to Wave 1."),
+        ("insufficient_reefer_capacity", "volume_cap", "Reefer compartment volume cap exceeded on Highland sector."),
+        ("fuel_quota_exceeded", "time_budget", "Weekly fuel quota conservation protocol triggered."),
+        ("manual_dispatcher_override", "time_budget", "Dispatcher hold: store bay maintenance scheduled in window."),
+    ]
+    for idx, (reason, resource, note) in enumerate(defer_configs):
+        if idx < len(p_orders):
+            ord_item = p_orders[idx]
+            ord_item.status = "deferred"
+            ord_item.deferred_yesterday = 1 if idx % 2 == 0 else 0
+            ord_item.days_since_last_served = (idx % 3) + 1
+            session.add(
+                DeferralAuditLog(
+                    name=f"DEF-{ord_item.order_ref}",
+                    order_id=ord_item.id,
+                    outlet_id=ord_item.outlet_id,
+                    dispatch_date=op_date,
+                    deferral_reason=reason,
+                    limiting_resource=resource,
+                    decision_maker_staff_id=dispatcher_uid or ord_item.created_by_staff_id,
+                    notes=note,
+                    created_by=dispatcher_uid,
+                    updated_by=dispatcher_uid,
+                )
+            )
 
     await session.flush()
     return {

@@ -80,14 +80,54 @@ export function useDeferrals(
     [setSearchParams]
   );
 
-  const { data: detailOrder, isError: detailMissing } = useOrder(orderParam ?? "", {
-    enabled: Boolean(orderParam),
+  const mappedAuditLogs: DeferralAuditRecord[] = React.useMemo(
+    () =>
+      auditLogs.map((l) => ({
+        id: l.id,
+        orderId: l.order_id,
+        orderRef: l.order_ref || `ORD-${l.order_id.slice(0, 6)}`,
+        outletId: l.outlet_id,
+        outletName: l.outlet_name || `Outlet ${l.outlet_id}`,
+        brand: (l.brand || "Fresh") as "Fresh" | "Style" | "Tech",
+        district: l.district || "Colombo",
+        dispatchDate: l.dispatch_date,
+        deferralReason: l.deferral_reason,
+        limitingResource: l.limiting_resource,
+        decisionMakerStaffId: l.decision_maker_staff_id,
+        decisionMakerName: l.decision_maker_name || "Dispatcher Staff",
+        decisionMakerRole: l.decision_maker_role || "Dispatcher",
+        totalWeightKg: l.total_weight_kg || 0,
+        totalVolumeM3: l.total_volume_m3 || 0,
+        totalValueLkr: l.total_value_lkr || 0,
+        tempRequirement: l.temp_requirement || "ambient",
+        dockType: (l.dock_type as DeferralAuditRecord["dockType"]) || "rear_dock",
+        notes: l.notes || undefined,
+        createdAt: l.created_at,
+      })),
+    [auditLogs]
+  );
+
+  const selectedAuditLog: DeferralAuditRecord | null = React.useMemo(() => {
+    if (!orderParam) return null;
+    return (
+      mappedAuditLogs.find(
+        (l) =>
+          l.id === orderParam || l.orderId === orderParam || l.orderRef === orderParam
+      ) || null
+    );
+  }, [orderParam, mappedAuditLogs]);
+
+  const lookupId = selectedAuditLog?.orderId || orderParam || "";
+  const { data: detailOrder, isError: detailMissing } = useOrder(lookupId, {
+    enabled: Boolean(lookupId),
     retry: false,
   });
 
   React.useEffect(() => {
-    if (detailMissing) updateQueryParams({ order: null });
-  }, [detailMissing, updateQueryParams]);
+    if (detailMissing && !selectedAuditLog) {
+      updateQueryParams({ order: null });
+    }
+  }, [detailMissing, selectedAuditLog, updateQueryParams]);
 
   const selectedOrder: QueuedOrder | null = React.useMemo(() => {
     if (!orderParam || !detailOrder) return null;
@@ -178,33 +218,6 @@ export function useDeferrals(
     [deferredOrders]
   );
 
-  const mappedAuditLogs: DeferralAuditRecord[] = React.useMemo(
-    () =>
-      auditLogs.map((l) => ({
-        id: l.id,
-        orderId: l.order_id,
-        orderRef: l.order_ref || `ORD-${l.order_id.slice(0, 6)}`,
-        outletId: l.outlet_id,
-        outletName: l.outlet_name || `Outlet ${l.outlet_id}`,
-        brand: (l.brand || "Fresh") as "Fresh" | "Style" | "Tech",
-        district: l.district || "Colombo",
-        dispatchDate: l.dispatch_date,
-        deferralReason: l.deferral_reason,
-        limitingResource: l.limiting_resource,
-        decisionMakerStaffId: l.decision_maker_staff_id,
-        decisionMakerName: l.decision_maker_name || "Dispatcher Staff",
-        decisionMakerRole: l.decision_maker_role || "Dispatcher",
-        totalWeightKg: l.total_weight_kg || 0,
-        totalVolumeM3: l.total_volume_m3 || 0,
-        totalValueLkr: l.total_value_lkr || 0,
-        tempRequirement: l.temp_requirement || "ambient",
-        dockType: (l.dock_type as DeferralAuditRecord["dockType"]) || "rear_dock",
-        notes: l.notes || undefined,
-        createdAt: l.created_at,
-      })),
-    [auditLogs]
-  );
-
   const carryoverKPIs: CarryoverSummaryKPIs = React.useMemo(() => {
     if (deferralSummary) {
       return {
@@ -272,6 +285,7 @@ export function useDeferrals(
     isAuditLog,
     orderParam,
     selectedOrder,
+    selectedAuditLog,
     carryoverKPIs,
     carryoverOrders,
     auditLogsCount: mappedAuditLogs.length,

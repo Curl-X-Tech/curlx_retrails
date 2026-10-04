@@ -11,6 +11,7 @@ import {
   DeferralsAuditKpiBar,
   DeferralsAuditFilterToolbar,
   DeferralsAuditTable,
+  DeferralAuditDetailSheet,
 } from "@/features/dispatcher";
 import { DeferralsHeader } from "@/features/dispatcher/components/deferrals-header";
 
@@ -158,11 +159,20 @@ export function DeferralsPage({
         )}
       </div>
 
-      <OrderDetailSheet
-        open={Boolean(d.orderParam)}
-        order={d.selectedOrder}
-        onOpenChange={(open) => !open && d.updateQueryParams({ order: null })}
-      />
+      {d.isAuditLog ? (
+        <DeferralAuditDetailSheet
+          open={Boolean(d.orderParam)}
+          log={d.selectedAuditLog}
+          order={d.selectedOrder}
+          onOpenChange={(open) => !open && d.updateQueryParams({ order: null })}
+        />
+      ) : (
+        <OrderDetailSheet
+          open={Boolean(d.orderParam)}
+          order={d.selectedOrder}
+          onOpenChange={(open) => !open && d.updateQueryParams({ order: null })}
+        />
+      )}
     </div>
   );
 }

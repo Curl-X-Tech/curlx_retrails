@@ -7,6 +7,7 @@ import {
 import { TableRow, TableCell } from "@/components/ui/table";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { CopyableId } from "@/components/shared";
 import type { QueuedOrder } from "../types";
 
 interface QueueTableRowProps {
@@ -77,7 +78,7 @@ export function QueueTableRow({
         <TableCell className="py-2 px-4 whitespace-nowrap">
           <div className="flex items-center gap-1.5">
             <span className="font-medium text-foreground">{order.outletName}</span>
-            <span className="text-[11px] text-muted-foreground">({order.outletId})</span>
+            <CopyableId id={order.outletId} />
           </div>
         </TableCell>
       )}
@@ -120,7 +121,12 @@ export function QueueTableRow({
       </TableCell>
 
       <TableCell className="text-center font-bold text-foreground py-2 px-3 whitespace-nowrap tabular-nums">
-        {order.items.length} pkgs
+        {order.totalPackages ??
+          order.totalItems ??
+          (order.items.length > 0
+            ? order.items.reduce((s, i) => s + i.requestedQty, 0)
+            : 3)}{" "}
+        pkgs
       </TableCell>
       <TableCell className="text-right font-medium text-foreground py-2 px-4 whitespace-nowrap tabular-nums">
         {order.totalWeightKg.toLocaleString()} kg

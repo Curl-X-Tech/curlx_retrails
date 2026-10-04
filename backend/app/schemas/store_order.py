@@ -56,6 +56,15 @@ class OrderRead(BaseModel):
     created_by_staff_id: uuid.UUID | None = None
     created_at: datetime
     updated_at: datetime
+    outlet_name: str | None = None
+    outlet_address: str | None = None
+    brand: str | None = None
+    district: str | None = None
+    dock_type: str | None = None
+    parking_constraint: str | None = None
+    delivery_window: str | None = None
+    total_packages: int | None = None
+    total_items: int | None = None
 
 
 class OrderItemRead(BaseModel):

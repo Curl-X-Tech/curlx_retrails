@@ -1,4 +1,5 @@
 import { StorefrontIcon, ClockIcon } from "@phosphor-icons/react";
+import { CopyableId } from "@/components/shared";
 import type { DataTableColumn } from "@/components/shared";
 import type { MasterOutlet } from "../types";
 import { EntityRowActions, type EntityActions } from "./entity-row-actions";
@@ -24,7 +25,9 @@ export function getOutletColumns(
           <StorefrontIcon className="size-3.5 text-primary shrink-0" />
           <div>
             <div className="font-bold text-xs text-foreground">{outlet.name}</div>
-            <div className="text-[11px] text-muted-foreground">{outlet.outlet_id}</div>
+            <div className="mt-0.5">
+              <CopyableId id={outlet.outlet_id} />
+            </div>
           </div>
         </div>
       ),

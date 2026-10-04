@@ -7,6 +7,7 @@ import {
 import { TableRow, TableCell } from "@/components/ui/table";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { CopyableId } from "@/components/shared";
 import type { CarryoverOrder } from "../types";
 import { getReasonLabel } from "./deferrals-utils";
 
@@ -75,9 +76,12 @@ export function DeferralsCarryoverRow({
           <span className="font-bold text-xs text-foreground block truncate max-w-[200px]">
             {ord.outletName}
           </span>
-          <span className="text-[10px] text-muted-foreground">
-            {ord.outletId} • {ord.district} ({ord.dockType.replace("_", " ")})
-          </span>
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-0.5">
+            <CopyableId id={ord.outletId} />
+            <span>•</span>
+            <span>{ord.district}</span>
+            <span>({ord.dockType.replace("_", " ")})</span>
+          </div>
         </div>
       </TableCell>
 

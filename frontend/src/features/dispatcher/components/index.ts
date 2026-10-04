@@ -15,6 +15,7 @@ export * from "./deferrals-audit-kpi-bar";
 export * from "./deferrals-audit-filter-toolbar";
 export * from "./deferrals-audit-row";
 export * from "./deferrals-audit-table";
+export * from "./deferral-audit-detail-sheet";
 export * from "./allocation-kpi-bar";
 export * from "./allocation-filter-toolbar";
 export * from "./allocation-table-row";

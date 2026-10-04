@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { TableRow, TableCell } from "@/components/ui/table";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { CopyableId } from "@/components/shared";
 import { getReasonLabel } from "./deferrals-carryover-row";
 import { getResourceBadge } from "./deferrals-audit-filter-toolbar";
 import type { DeferralAuditRecord } from "../types";
@@ -16,7 +17,7 @@ export function DeferralsAuditRow({ log, onSelectOrderRef }: DeferralsAuditRowPr
   return (
     <TableRow
       key={log.id}
-      onClick={() => onSelectOrderRef(log.orderRef)}
+      onClick={() => onSelectOrderRef(log.orderId || log.orderRef)}
       className="border-border/30 hover:bg-muted/30 cursor-pointer text-xs"
     >
       <TableCell className="font-semibold text-foreground py-2.5 px-4 whitespace-nowrap">
@@ -36,9 +37,11 @@ export function DeferralsAuditRow({ log, onSelectOrderRef }: DeferralsAuditRowPr
           <span className="font-bold text-xs text-foreground block truncate max-w-[180px]">
             {log.outletName}
           </span>
-          <span className="text-[10px] text-muted-foreground">
-            {log.outletId} • {log.district}
-          </span>
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground mt-0.5">
+            <CopyableId id={log.outletId} />
+            <span>•</span>
+            <span>{log.district}</span>
+          </div>
         </div>
       </TableCell>
 
@@ -78,9 +81,9 @@ export function DeferralsAuditRow({ log, onSelectOrderRef }: DeferralsAuditRowPr
             <span className="font-semibold text-xs text-foreground block leading-tight">
               {log.decisionMakerName}
             </span>
-            <span className="text-[10px] text-muted-foreground">
-              {log.decisionMakerStaffId}
-            </span>
+            <div className="mt-0.5">
+              <CopyableId id={log.decisionMakerStaffId} />
+            </div>
           </div>
         </div>
       </TableCell>
@@ -91,7 +94,7 @@ export function DeferralsAuditRow({ log, onSelectOrderRef }: DeferralsAuditRowPr
           size="xs"
           onClick={(e) => {
             e.stopPropagation();
-            onSelectOrderRef(log.orderRef);
+            onSelectOrderRef(log.orderId || log.orderRef);
           }}
           className="size-7 text-muted-foreground hover:text-foreground cursor-pointer rounded-lg"
           title="Inspect Order"

@@ -98,18 +98,28 @@ async def get_order(id: str, user: AuthDep, session: SessionDep) -> OrderDetail:
         for line, name, category, unit in rows.all()
     ]
     outlet = await session.get(Outlet, order.outlet_id)
-    district = await session.get(District, outlet.district_id)
-    depot = await session.get(Depot, outlet.depot_id)
-    return OrderDetail(
-        **header.model_dump(),
-        items=items,
-        outlet_name=outlet.name,
-        district=district.name if district else None,
-        depot=depot.name if depot else None,
-        dock_type=outlet.dock_type.value,
-        parking_constraint=outlet.parking_constraint.value,
-        delivery_window=f"{outlet.window_open_time:%H:%M}-{outlet.window_close_time:%H:%M}",
+    district = await session.get(District, outlet.district_id) if outlet else None
+    depot = await session.get(Depot, outlet.depot_id) if outlet else None
+    window = "05:00 - 08:00 AM"
+    if outlet and outlet.window_open_time and outlet.window_close_time:
+        try:
+            window = f"{outlet.window_open_time.strftime('%I:%M %p')} - {outlet.window_close_time.strftime('%I:%M %p')}"
+        except Exception:
+            window = f"{outlet.window_open_time} - {outlet.window_close_time}"
+
+    data = header.model_dump()
+    data.update(
+        {
+            "items": items,
+            "outlet_name": outlet.name if outlet else header.outlet_name,
+            "district": district.name if district else header.district,
+            "depot": depot.name if depot else "Peliyagoda",
+            "dock_type": outlet.dock_type.value if outlet else header.dock_type,
+            "parking_constraint": outlet.parking_constraint.value if outlet else header.parking_constraint,
+            "delivery_window": window or header.delivery_window or "05:00 - 08:00 AM",
+        }
     )
+    return OrderDetail(**data)
 
 
 @router.post("", response_model=OrderRead, status_code=status.HTTP_201_CREATED, summary="Place an order")

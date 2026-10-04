@@ -715,6 +715,16 @@ export const ENDPOINTS = {
     issue: null,
     ui: true,
   },
+  deferralsAuditLogs: {
+    domain: "deferrals",
+    method: "GET",
+    path: "/deferrals/audit-logs",
+    roles: ["dispatcher", "system_admin"],
+    offline: false,
+    status: "live",
+    issue: null,
+    ui: true,
+  },
 
   // 7. Allocations & Solver
   allocationsList: {

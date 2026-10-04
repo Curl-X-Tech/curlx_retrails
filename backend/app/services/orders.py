@@ -7,7 +7,9 @@ from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.timezone import utc_today
+from app.entities.brand import Brand
 from app.entities.customer_order import CustomerOrder, OrderItem
+from app.entities.district import District
 from app.entities.item import Item
 from app.entities.outlet import Outlet
 from app.entities.price_list import PriceList
@@ -93,19 +95,26 @@ async def order_reads(session: AsyncSession, orders: Sequence[CustomerOrder]) ->
                 func.sum(OrderItem.requested_qty * OrderItem.unit_weight_kg).label("weight"),
                 func.sum(OrderItem.requested_qty * OrderItem.unit_volume_m3).label("volume"),
                 func.sum(OrderItem.requested_qty * OrderItem.unit_price).label("price"),
+                func.sum(OrderItem.requested_qty).label("packages"),
+                func.count(OrderItem.id).label("items"),
             )
             .where(OrderItem.order_id.in_(ids))
             .group_by(OrderItem.order_id)
         )
     }
-    brands = dict(
-        (await session.execute(select(Outlet.id, Outlet.brand_id).where(Outlet.id.in_({o.outlet_id for o in orders}))))
-        .tuples()
-        .all()
-    )
+    outlet_ids = {o.outlet_id for o in orders}
+    outlets = {o.id: o for o in (await session.execute(select(Outlet).where(Outlet.id.in_(outlet_ids)))).scalars()}
+    brands = {b.id: b.name for b in (await session.execute(select(Brand))).scalars()}
+    districts = {d.id: d.name for d in (await session.execute(select(District))).scalars()}
     reads = []
     for order in orders:
         row = totals.get(order.id)
+        out = outlets.get(order.outlet_id)
+        b_id = out.brand_id if out else order.outlet_id
+        b_name = brands.get(b_id, "Fresh") if out else "Fresh"
+        window = None
+        if out and out.window_open_time and out.window_close_time:
+            window = f"{out.window_open_time.strftime('%I:%M %p')} - {out.window_close_time.strftime('%I:%M %p')}"
         reads.append(
             OrderRead(
                 **order.model_dump(
@@ -125,10 +134,21 @@ async def order_reads(session: AsyncSession, orders: Sequence[CustomerOrder]) ->
                         "updated_at",
                     }
                 ),
-                brand_id=brands[order.outlet_id],
+                brand_id=b_id,
+                brand=b_name,
+                outlet_name=out.name if out else f"Outlet {str(order.outlet_id)[:8]}",
+                outlet_address=f"{out.name}, {districts.get(out.district_id, 'Colombo')}"
+                if out
+                else "Colombo, Sri Lanka",
+                district=districts.get(out.district_id, "Colombo") if out else "Colombo",
+                dock_type=out.dock_type.value if out else "rear_dock",
+                parking_constraint=out.parking_constraint.value if out else "normal",
+                delivery_window=window or "05:00 - 08:00 AM",
                 total_weight_kg=round(float(row.weight or 0), 3) if row else 0.0,
                 total_volume_m3=round(float(row.volume or 0), 4) if row else 0.0,
                 total_price_lkr=round(float(row.price or 0), 2) if row else 0.0,
+                total_packages=int(row.packages or 0) if row else 0,
+                total_items=int(row.items or 0) if row else 0,
             )
         )
     return reads

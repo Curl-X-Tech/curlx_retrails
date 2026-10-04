@@ -1,50 +1,14 @@
 import * as React from "react";
 import { useSearchParams } from "react-router-dom";
-import { useOrder, useOrders, type CustomerOrder } from "@/api/orders";
+import { useOrder, useOrders } from "@/api/orders";
 import type { QueuedOrder, QueueSortKey, QueueViewMode, StoreOrderGroup } from "../types";
 import {
   computeOrderQueueKPIs,
   filterQueuedOrders,
   getStoreGroupedOrders,
+  mapToQueuedOrder,
   sortQueuedOrders,
 } from "./order-queue-filter-utils";
-
-function mapToQueuedOrder(order: CustomerOrder): QueuedOrder {
-  return {
-    id: order.id,
-    orderRef: order.order_ref,
-    outletId: order.outlet_id,
-    outletName: `Outlet ${order.outlet_id}`,
-    outletAddress: "Colombo, Sri Lanka",
-    brand: order.brand_id.includes("style")
-      ? "Style"
-      : order.brand_id.includes("tech")
-        ? "Tech"
-        : "Fresh",
-    district: "Colombo",
-    depot: "Peliyagoda",
-    dockType: "rear_dock",
-    parkingConstraint: "normal",
-    deliveryWindow: "05:00 - 08:00 AM",
-    orderDate: order.order_date,
-    requiredDate: order.required_date ?? order.order_date,
-    tempRequirement: order.temp_requirement,
-    status:
-      order.status === "delivered"
-        ? "served"
-        : order.status === "deferred"
-          ? "deferred"
-          : "pending",
-    isUrgent: order.is_urgent ?? false,
-    deferredYesterday: (order.deferred_yesterday ?? 0) as 0 | 1,
-    daysSinceLastServed: order.days_since_last_served ?? 0,
-    totalItems: 3,
-    totalWeightKg: order.total_weight_kg,
-    totalVolumeM3: order.total_volume_m3,
-    totalOrderValueLkr: order.total_price_lkr,
-    items: [],
-  };
-}
 
 export function useOrderQueue() {
   const [searchParams, setSearchParams] = useSearchParams();
