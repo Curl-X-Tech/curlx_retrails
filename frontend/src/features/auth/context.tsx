@@ -95,7 +95,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
               : role === "dispatcher"
                 ? "K. Jayawardena"
                 : role === "store_manager"
-                  ? "Store Manager"
+                  ? "Priyani De Silva"
                   : role === "loader"
                     ? "Station Loader"
                     : "Delivery Driver",
@@ -103,6 +103,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           role,
           depotId: "depot-peliyagoda",
           depotName: "Peliyagoda Hub",
+          outletId: role === "store_manager" ? "out-01" : undefined,
+          outletCode: role === "store_manager" ? "OUT-001" : undefined,
+          outletName: role === "store_manager" ? "Keells Super - Colombo 03" : undefined,
+          location:
+            role === "store_manager" ? "Keells Super - Colombo 03 (OUT-001)" : undefined,
         };
         setUser(roleUser);
         persistUser(roleUser);

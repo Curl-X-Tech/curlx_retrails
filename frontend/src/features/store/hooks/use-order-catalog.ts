@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useAuth } from "@/context/auth-context";
 import {
   useActivePrices,
   useBrands,
@@ -17,6 +18,7 @@ const BRAND_LABELS: Record<BrandCode, CatalogProduct["brand"]> = {
 };
 
 export function useOrderCatalog() {
+  const { user } = useAuth();
   const outletsQuery = useOutlets({ is_active: true });
   const itemsQuery = useItems();
   const pricesQuery = useActivePrices();
@@ -27,7 +29,7 @@ export function useOrderCatalog() {
   const outlets = React.useMemo<StoreOutletOption[]>(() => {
     const districtName = new Map(districts.map((d) => [d.id, d.name]));
     const depotName = new Map(depots.map((d) => [d.id, d.name]));
-    return (outletsQuery.data ?? []).map((o) => ({
+    const allOutlets = (outletsQuery.data ?? []).map((o) => ({
       id: o.id,
       code: o.outlet_id,
       name: o.name,
@@ -36,7 +38,30 @@ export function useOrderCatalog() {
       depot: depotName.get(o.depot_id) ?? "",
       dockType: o.dock_type,
     }));
-  }, [outletsQuery.data, districts, depots]);
+
+    if (user?.role === "store_manager") {
+      const assigned = allOutlets.filter((o) => {
+        if (user.outletCode && o.code === user.outletCode) return true;
+        if (user.outletId && o.id === user.outletId) return true;
+        if (
+          user.location &&
+          (user.location.includes(o.code) || user.location.includes(o.name))
+        ) {
+          return true;
+        }
+        if (user.email && user.email.includes("cargills") && o.code === "OUT-004")
+          return true;
+        return false;
+      });
+
+      if (assigned.length > 0) return assigned;
+      // Default fallback for store manager if unassigned: return their default outlet (OUT-001)
+      const defaultStore = allOutlets.filter((o) => o.code === "OUT-001");
+      return defaultStore.length > 0 ? defaultStore : allOutlets.slice(0, 1);
+    }
+
+    return allOutlets;
+  }, [outletsQuery.data, districts, depots, user]);
 
   const products = React.useMemo<CatalogProduct[]>(() => {
     const brandCode = new Map(brands.map((b) => [b.id, b.code]));

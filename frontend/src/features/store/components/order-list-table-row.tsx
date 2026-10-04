@@ -117,9 +117,10 @@ export function OrderListTableRow({
           )}
         </div>
       </TableCell>
-      <TableCell className="text-center py-2.5 font-mono text-xs text-foreground">
+      <TableCell className="text-center py-2.5 tabular-nums text-xs font-semibold text-foreground">
         {order.totalUnits || order.totalItems || "-"}
       </TableCell>
+
       <TableCell className="text-right font-medium text-foreground text-xs tabular-nums py-2.5">
         {order.totalWeightKg.toFixed(1)} kg
       </TableCell>

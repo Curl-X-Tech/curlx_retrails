@@ -2,52 +2,17 @@ import type { CatalogProduct, StoreOrderItemRow } from "../types";
 
 export const DRAFT_STORAGE_KEY = "retrails_store_draft_order";
 
-export const INITIAL_ORDER_ROWS: StoreOrderItemRow[] = [
-  {
-    id: "row-1",
-    productId: "prod-01",
-    sku: "SKU-MLK-01",
-    name: "Farm Fresh Chilled Full Cream Milk (1L x 24)",
-    category: "Dairy & Chilled",
-    unit: "Crate",
-    quantity: 10,
-    unitWeightKg: 25.5,
-    unitVolumeM3: 0.18,
-    unitPriceLkr: 11500,
-    totalWeightKg: 255.0,
-    totalVolumeM3: 1.8,
-    totalPriceLkr: 115000,
-    specialHandlingCode: "COL",
-  },
-  {
-    id: "row-2",
-    productId: "prod-02",
-    sku: "SKU-BTR-02",
-    name: "Highland Butter Blocks Salted (250g x 40)",
-    category: "Dairy & Chilled",
-    unit: "Box",
-    quantity: 8,
-    unitWeightKg: 10.5,
-    unitVolumeM3: 0.07,
-    unitPriceLkr: 14200,
-    totalWeightKg: 84.0,
-    totalVolumeM3: 0.56,
-    totalPriceLkr: 113600,
-    specialHandlingCode: "COL",
-  },
-];
-
 export function loadSavedDraftRows(): StoreOrderItemRow[] {
   try {
     const saved = localStorage.getItem(DRAFT_STORAGE_KEY);
     if (saved) {
       const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      if (Array.isArray(parsed)) return parsed;
     }
   } catch {
     // fallback
   }
-  return INITIAL_ORDER_ROWS;
+  return [];
 }
 
 export function saveDraftRows(rows: StoreOrderItemRow[]): void {

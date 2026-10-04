@@ -2,9 +2,10 @@ import * as React from "react";
 import { useCreateOrder } from "@/api/orders";
 import {
   getTodayColomboDate,
-  getTargetOrderDate,
+  getEarliestDeliveryDate,
   isPastCutoff,
 } from "@/lib/business-day";
+import { printInvoice } from "../print-invoice";
 import type { CatalogProduct, StoreOrderItemRow, StoreOutletOption } from "../types";
 import type { OrderCatalog } from "./use-order-catalog";
 import {
@@ -152,7 +153,19 @@ export function useOrderBuilder({
     await submitOrder(selectedDate);
   };
 
-  const handleScheduleNextDay = () => submitOrder(getTargetOrderDate());
+  const handlePrintDraft = () => {
+    if (!selectedOutlet || rows.length === 0) return;
+    printInvoice({
+      orderRef: createdOrderRef || orderRef,
+      outlet: selectedOutlet,
+      deliveryDate: selectedDate,
+      rows,
+      totalWeightKg: metrics.totalWeightKg,
+      totalOrderValueLkr: metrics.totalOrderValueLkr,
+    });
+  };
+
+  const handleScheduleNextDay = () => submitOrder(getEarliestDeliveryDate());
 
   return {
     orderRef: createdOrderRef || orderRef,
@@ -160,6 +173,7 @@ export function useOrderBuilder({
     setSelectedOutlet,
     selectedDate,
     setSelectedDate,
+    minDeliveryDate: getTodayColomboDate(),
     isUrgent,
     setIsUrgent,
     outletSearch,
@@ -192,10 +206,11 @@ export function useOrderBuilder({
     toggleSelectAllRows,
     toggleSelectRow,
     handleConfirmOrder,
+    handlePrintDraft,
     placementStage,
     setPlacementStage,
     handleScheduleNextDay,
-    nextOrderDate: getTargetOrderDate(),
+    nextOrderDate: getEarliestDeliveryDate(),
     submitError,
   };
 }

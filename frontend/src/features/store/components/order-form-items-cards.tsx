@@ -50,7 +50,7 @@ export function OrderFormItemsCards({
                 >
                   -
                 </button>
-                <span className="px-3 py-1 font-semibold text-xs bg-background">
+                <span className="px-3 py-1 font-semibold text-xs bg-background tabular-nums">
                   {row.quantity}
                 </span>
                 <button
@@ -67,10 +67,10 @@ export function OrderFormItemsCards({
             </div>
 
             <div className="text-right">
-              <span className="text-[10px] text-muted-foreground block">
+              <span className="text-[10px] text-muted-foreground block tabular-nums">
                 {row.totalWeightKg.toFixed(1)} kg
               </span>
-              <span className="font-bold text-xs text-foreground">
+              <span className="font-bold text-xs text-foreground tabular-nums">
                 LKR {row.totalPriceLkr.toLocaleString()}
               </span>
             </div>

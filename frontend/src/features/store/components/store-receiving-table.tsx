@@ -184,9 +184,10 @@ export function StoreReceivingTable({
                   <TableCell className="text-xs text-muted-foreground font-medium py-2.5">
                     {s.requiredDate}
                   </TableCell>
-                  <TableCell className="text-center text-xs font-mono py-2.5">
+                  <TableCell className="text-center text-xs tabular-nums font-semibold py-2.5">
                     {s.totalPackages}
                   </TableCell>
+
                   <TableCell className="text-right font-medium text-foreground text-xs tabular-nums py-2.5">
                     {s.totalWeightKg.toFixed(1)} kg
                   </TableCell>

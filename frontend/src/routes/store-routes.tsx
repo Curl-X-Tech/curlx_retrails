@@ -11,7 +11,7 @@ import { StoreReportsPage } from "@/pages/store/store-reports-page";
 export function StoreRoutes() {
   return (
     <>
-      <Route path="/store" element={<Navigate to="/store/orders" replace />} />
+      <Route path="/store" element={<Navigate to="/store/dashboard" replace />} />
       <Route
         element={
           <ProtectedRoute allowedRoles={["store_manager"]}>

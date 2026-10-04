@@ -56,7 +56,7 @@ export function StoreCutoffBanner() {
                 ? "16:00 Colombo Cutoff Reached"
                 : "Daily Replenishment Window Active"}
             </span>
-            <span className="text-xs font-mono font-bold text-muted-foreground">
+            <span className="text-xs font-bold text-muted-foreground tabular-nums">
               [Asia/Colombo: {parts.timeStr}]
             </span>
           </div>
@@ -72,7 +72,7 @@ export function StoreCutoffBanner() {
             <span className="text-[10px] uppercase font-bold text-muted-foreground tracking-wider block">
               {pastCutoff ? "Next Cutoff In" : "Cutoff Closes In"}
             </span>
-            <span className="font-mono text-lg font-black text-foreground tabular-nums">
+            <span className="text-lg font-black text-foreground tabular-nums">
               {timeRemaining}
             </span>
           </div>

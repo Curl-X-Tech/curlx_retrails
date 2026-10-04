@@ -28,7 +28,7 @@ export function OrderFormCatalogSearch({
   const searchInputRef = React.useRef<HTMLInputElement>(null);
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3 sticky top-0 z-20 bg-background pt-1 pb-3 -mt-1">
       <div className="relative">
         <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
         <Input

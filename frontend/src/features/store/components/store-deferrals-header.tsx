@@ -21,7 +21,7 @@ export function StoreDeferralsHeader({
           <h1 className="text-lg font-heading font-black tracking-tight text-foreground">
             Store Order Deferrals & Carryovers
           </h1>
-          <span className="text-[11px] font-mono font-bold text-amber-600 dark:text-amber-400">
+          <span className="text-[11px] font-semibold text-amber-600 dark:text-amber-400">
             • Rule: Max 1 Day Deferral
           </span>
         </div>

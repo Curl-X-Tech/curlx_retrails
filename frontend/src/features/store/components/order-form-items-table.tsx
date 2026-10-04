@@ -15,10 +15,7 @@ import type { CatalogProduct, StoreOrderItemRow } from "../types";
 interface OrderFormItemsTableProps {
   rows: StoreOrderItemRow[];
   catalogProducts: CatalogProduct[];
-  selectedRowIds: string[];
   hasColdChain: boolean;
-  onToggleSelectAll: () => void;
-  onToggleSelectRow: (rowId: string) => void;
   onUpdateProduct: (rowId: string, product: CatalogProduct) => void;
   onUpdateQuantity: (rowId: string, qty: number) => void;
   onRemoveRow: (rowId: string) => void;
@@ -28,18 +25,12 @@ interface OrderFormItemsTableProps {
 export function OrderFormItemsTable({
   rows,
   catalogProducts,
-  selectedRowIds,
   hasColdChain,
-  onToggleSelectAll,
-  onToggleSelectRow,
   onUpdateProduct,
   onUpdateQuantity,
   onRemoveRow,
   onAddRow,
 }: OrderFormItemsTableProps) {
-  const allRowsSelected =
-    rows.length > 0 && rows.every((r) => selectedRowIds.includes(r.id));
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
@@ -48,8 +39,8 @@ export function OrderFormItemsTable({
             Order Items ({rows.length})
           </h3>
           {hasColdChain && (
-            <Badge className="bg-sky-500/15 text-sky-700 dark:text-sky-300 border-sky-500/30 text-[10px] font-semibold gap-1">
-              <SnowflakeIcon className="size-3" />
+            <Badge className="bg-sky-600 text-white text-[10px] font-bold gap-1 shadow-2xs">
+              <SnowflakeIcon className="size-3" weight="bold" />
               Reefer Temp Controlled
             </Badge>
           )}
@@ -69,22 +60,15 @@ export function OrderFormItemsTable({
         <Table>
           <TableHeader className="bg-muted/30">
             <TableRow className="hover:bg-transparent">
-              <TableHead className="w-10 px-3">
-                <input
-                  type="checkbox"
-                  checked={allRowsSelected}
-                  onChange={onToggleSelectAll}
-                  className="size-4 rounded border-border text-primary focus:ring-primary/20 cursor-pointer"
-                />
-              </TableHead>
+              <TableHead className="w-10 px-3"></TableHead>
               <TableHead className="text-xs font-semibold text-foreground min-w-[240px]">
-                Item
+                Item & SKU
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground w-24">
-                unit
+                Unit
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground w-36 text-center">
-                Qnt
+                Qty
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground w-28 text-right">
                 Unit Price
@@ -92,17 +76,16 @@ export function OrderFormItemsTable({
               <TableHead className="text-xs font-semibold text-foreground w-24 text-right">
                 Weight
               </TableHead>
-              <TableHead className="text-xs font-semibold text-foreground w-32 text-right">
+              <TableHead className="text-xs font-semibold text-foreground w-32 text-right pr-4">
                 Subtotal (LKR)
               </TableHead>
-              <TableHead className="w-12 text-right pr-4"></TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {rows.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={8}
+                  colSpan={7}
                   className="h-36 text-center text-muted-foreground text-xs"
                 >
                   No items in draft. Type in the search box above or click the + button to
@@ -115,8 +98,6 @@ export function OrderFormItemsTable({
                   key={row.id}
                   row={row}
                   catalogProducts={catalogProducts}
-                  isSelected={selectedRowIds.includes(row.id)}
-                  onToggleSelect={() => onToggleSelectRow(row.id)}
                   onUpdateProduct={(prod) => onUpdateProduct(row.id, prod)}
                   onUpdateQuantity={(qty) => onUpdateQuantity(row.id, qty)}
                   onRemove={() => onRemoveRow(row.id)}

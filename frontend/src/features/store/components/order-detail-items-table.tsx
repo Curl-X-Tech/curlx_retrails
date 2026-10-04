@@ -45,15 +45,13 @@ export function OrderDetailItemsTable({ isLoading, items }: OrderDetailItemsTabl
                   {item.specialHandlingCode && (
                     <Badge
                       variant="outline"
-                      className="text-[9px] px-1 py-0 h-4 font-mono font-bold"
+                      className="text-[9px] px-1 py-0 h-4 font-bold"
                     >
                       {item.specialHandlingCode}
                     </Badge>
                   )}
                 </div>
-                <span className="text-[10px] text-muted-foreground font-mono">
-                  {item.sku}
-                </span>
+                <span className="text-[10px] text-muted-foreground">{item.sku}</span>
               </td>
               <td className="p-3 text-muted-foreground">{item.category || "General"}</td>
               <td className="p-3 text-right">

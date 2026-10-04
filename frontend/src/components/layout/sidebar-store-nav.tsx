@@ -2,6 +2,7 @@ import {
   SquaresFourIcon,
   TrayIcon,
   ChartBarIcon,
+  PlusCircleIcon,
   WarningOctagonIcon,
   FileTextIcon,
 } from "@phosphor-icons/react";
@@ -15,16 +16,10 @@ export const storeNavGroups: NavGroup[] = [
         id: "dashboard",
         path: "/store/dashboard",
         icon: <SquaresFourIcon weight="duotone" className="size-5" />,
-        items: [
-          {
-            title: "System alerts",
-            id: "system-alerts",
-            path: "/store/dashboard",
-          },
-        ],
       },
     ],
   },
+
   {
     label: "Planning",
     items: [
@@ -45,7 +40,7 @@ export const storeNavGroups: NavGroup[] = [
         title: "New order",
         id: "new-order",
         path: "/store/orders/new",
-        icon: <SquaresFourIcon weight="duotone" className="size-5" />,
+        icon: <PlusCircleIcon weight="duotone" className="size-5" />,
       },
       {
         title: "Deferrals",

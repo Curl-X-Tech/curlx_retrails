@@ -16,13 +16,13 @@ export function OrderFormSummaryStrip({
   totalOrderValueLkr,
 }: OrderFormSummaryStripProps) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">
       <div className="p-3.5 rounded-xl border border-border bg-card shadow-xs">
         <span className="text-[11px] text-muted-foreground block font-medium flex items-center gap-1">
           <PackageIcon className="size-3.5 text-primary" />
           Total Package Units
         </span>
-        <span className="text-base font-bold text-foreground mt-0.5 block">
+        <span className="text-base font-bold text-foreground mt-0.5 block tabular-nums">
           {totalItems} items ({totalUnits} units)
         </span>
       </div>
@@ -32,7 +32,7 @@ export function OrderFormSummaryStrip({
           <ScalesIcon className="size-3.5 text-primary" />
           Gross Weight
         </span>
-        <span className="text-base font-bold text-foreground mt-0.5 block">
+        <span className="text-base font-bold text-foreground mt-0.5 block tabular-nums">
           {totalWeightKg.toFixed(1)} kg
         </span>
         <div className="w-full bg-muted/60 h-1.5 rounded-full mt-2 overflow-hidden">
@@ -48,7 +48,7 @@ export function OrderFormSummaryStrip({
           <CubeIcon className="size-3.5 text-primary" />
           Cargo Volume
         </span>
-        <span className="text-base font-bold text-foreground mt-0.5 block">
+        <span className="text-base font-bold text-foreground mt-0.5 block tabular-nums">
           {totalVolumeM3.toFixed(2)} m³
         </span>
       </div>
@@ -57,7 +57,7 @@ export function OrderFormSummaryStrip({
         <span className="text-[11px] text-primary block font-semibold">
           Total Order Valuation
         </span>
-        <span className="text-base font-extrabold text-primary mt-0.5 block">
+        <span className="text-base font-extrabold text-primary mt-0.5 block tabular-nums">
           LKR {totalOrderValueLkr.toLocaleString()}
         </span>
       </div>

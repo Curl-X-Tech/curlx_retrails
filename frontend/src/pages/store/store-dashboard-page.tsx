@@ -12,7 +12,9 @@ import {
   useStoreOrders,
   StoreDashboardKpi,
   StoreDashboardAlerts,
-  StoreCutoffBanner,
+  StoreReplenishmentChart,
+  StoreFulfillmentChart,
+  StoreDockScheduleChart,
 } from "@/features/store";
 
 export function StoreDashboardPage() {
@@ -36,7 +38,7 @@ export function StoreDashboardPage() {
               Store Operations Hub
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Replenishment windows, inbound receipt tracking, and daily manifest status
+              Replenishment analytics, delivery schedule velocity, and intake status
             </p>
           </div>
 
@@ -62,119 +64,96 @@ export function StoreDashboardPage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 max-w-7xl mx-auto w-full space-y-6">
-        <StoreCutoffBanner />
+      <div className="flex-1 overflow-y-auto px-4 md:px-8 py-6 max-w-7xl mx-auto w-full">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+          {/* Main 2-Column Section (Stats & Charts) */}
+          <div className="xl:col-span-2 space-y-6">
+            <StoreDashboardKpi
+              totalOrders={totalOrders}
+              totalWeight={totalWeight}
+              inTransitCount={inTransitCount}
+              loadingCount={loadingCount}
+              pendingCount={pendingCount}
+              totalOrderValue={totalOrderValue}
+              servedCount={servedCount}
+            />
 
-        <StoreDashboardKpi
-          totalOrders={totalOrders}
-          totalWeight={totalWeight}
-          inTransitCount={inTransitCount}
-          loadingCount={loadingCount}
-          pendingCount={pendingCount}
-          totalOrderValue={totalOrderValue}
-          servedCount={servedCount}
-        />
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <Card
-            onClick={() => navigate("/store/receiving")}
-            className="p-4 rounded-xl border border-border/80 bg-card shadow-xs hover:border-primary/40 cursor-pointer active:scale-[0.99] transition-all space-y-1.5"
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
-                <TruckIcon className="size-4 text-sky-600" weight="bold" />
-                Inbound Receiving
-              </span>
-              <ArrowRightIcon className="size-3.5 text-muted-foreground" />
+            <div className="space-y-6">
+              <StoreReplenishmentChart />
+              <StoreFulfillmentChart
+                totalOrders={totalOrders}
+                servedCount={servedCount}
+                inTransitCount={inTransitCount}
+                loadingCount={loadingCount}
+                pendingCount={pendingCount}
+              />
+              <StoreDockScheduleChart orders={orders} />
             </div>
-            <p className="text-[11px] text-muted-foreground">
-              Inspect incoming trucks, verify physical counts, and record short shipments.
-            </p>
-          </Card>
-
-          <Card
-            onClick={() => navigate("/store/orders")}
-            className="p-4 rounded-xl border border-border/80 bg-card shadow-xs hover:border-primary/40 cursor-pointer active:scale-[0.99] transition-all space-y-1.5"
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
-                <PackageIcon className="size-4 text-primary" weight="bold" />
-                Order Queue
-              </span>
-              <ArrowRightIcon className="size-3.5 text-muted-foreground" />
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              Monitor placed orders, track depot staging status, and manage drafts.
-            </p>
-          </Card>
-
-          <Card
-            onClick={() => navigate("/store/deferrals")}
-            className="p-4 rounded-xl border border-border/80 bg-card shadow-xs hover:border-primary/40 cursor-pointer active:scale-[0.99] transition-all space-y-1.5"
-          >
-            <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
-                <ClockCounterClockwiseIcon
-                  className="size-4 text-amber-600"
-                  weight="bold"
-                />
-                Deferrals Queue
-              </span>
-              <ArrowRightIcon className="size-3.5 text-muted-foreground" />
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              Review rollover runs, auto-escalated priority batches, and audit trails.
-            </p>
-          </Card>
-        </div>
-
-        <StoreDashboardAlerts />
-
-        <div className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="font-heading font-semibold text-sm sm:text-base text-foreground">
-              Recent Manifest Runs
-            </h3>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => navigate("/store/orders")}
-              className="text-xs gap-1 rounded-lg border-border cursor-pointer active:scale-[0.98] transition-all"
-            >
-              <span>View All ({orders.length})</span>
-              <ArrowRightIcon className="size-3.5" />
-            </Button>
           </div>
 
-          <div className="space-y-2">
-            {orders.slice(0, 4).map((order) => (
-              <div
-                key={order.id}
-                onClick={() => navigate("/store/orders")}
-                className="p-3.5 rounded-xl border border-border bg-card shadow-xs flex items-center justify-between gap-3 text-xs cursor-pointer hover:border-primary/40 active:scale-[0.99] transition-all"
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-primary tabular-nums">
-                      {order.orderRef}
+          {/* Side 1-Column Section (Alerts & Quick Navigation) */}
+          <div className="xl:col-span-1 space-y-6">
+            <StoreDashboardAlerts />
+
+            <div className="space-y-3">
+              <h3 className="font-heading font-semibold text-sm text-foreground">
+                Quick Navigation
+              </h3>
+              <div className="space-y-3">
+                <Card
+                  onClick={() => navigate("/store/receiving")}
+                  className="p-4 rounded-xl border border-border/80 bg-card shadow-xs hover:border-primary/40 cursor-pointer active:scale-[0.99] transition-all space-y-1.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                      <TruckIcon className="size-4 text-sky-600" weight="bold" />
+                      Inbound Receiving
                     </span>
-                    <span className="text-muted-foreground">• {order.outletName}</span>
+                    <ArrowRightIcon className="size-3.5 text-muted-foreground" />
                   </div>
-                  <span className="text-[11px] text-muted-foreground tabular-nums">
-                    {order.totalItems} pkgs • {order.totalWeightKg.toFixed(1)} kg • ETA{" "}
-                    {order.eta || "06:30 AM"}
-                  </span>
-                </div>
-                <div className="text-right shrink-0">
-                  <span className="font-bold text-foreground block tabular-nums">
-                    LKR {order.totalOrderValueLkr.toLocaleString()}
-                  </span>
-                  <span className="text-[10px] text-muted-foreground capitalize">
-                    {order.status.replace("_", " ")}
-                  </span>
-                </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Inspect incoming trucks, verify physical counts, and record shortages.
+                  </p>
+                </Card>
+
+                <Card
+                  onClick={() => navigate("/store/orders")}
+                  className="p-4 rounded-xl border border-border/80 bg-card shadow-xs hover:border-primary/40 cursor-pointer active:scale-[0.99] transition-all space-y-1.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                      <PackageIcon className="size-4 text-primary" weight="bold" />
+                      Order Queue
+                    </span>
+                    <ArrowRightIcon className="size-3.5 text-muted-foreground" />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Track depot staging status, manage drafts, and review itemized
+                    manifests.
+                  </p>
+                </Card>
+
+                <Card
+                  onClick={() => navigate("/store/deferrals")}
+                  className="p-4 rounded-xl border border-border/80 bg-card shadow-xs hover:border-primary/40 cursor-pointer active:scale-[0.99] transition-all space-y-1.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-xs text-foreground flex items-center gap-1.5">
+                      <ClockCounterClockwiseIcon
+                        className="size-4 text-amber-600"
+                        weight="bold"
+                      />
+                      Deferrals Queue
+                    </span>
+                    <ArrowRightIcon className="size-3.5 text-muted-foreground" />
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    Review rollover runs, auto-escalated priority batches, and audit
+                    trails.
+                  </p>
+                </Card>
               </div>
-            ))}
+            </div>
           </div>
         </div>
       </div>
