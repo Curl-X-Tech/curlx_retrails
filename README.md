@@ -1,6 +1,6 @@
 # ReTrails
 
-Full-stack web application developed by Team **CurlX** for the hackathon. Built with FastAPI, SQLAlchemy 2.0, React PWA, Dexie, React Email, uv, and bun.
+Full-stack web application developed by Team **CurlX** for the hackathon. Built with FastAPI, SQLAlchemy 2.0, React PWA, Dexie, React Email, Google OR-Tools, uv, and bun.
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18+-61DAFB.svg?logo=react&logoColor=black)](https://reactjs.org/)
@@ -14,7 +14,7 @@ Full-stack web application developed by Team **CurlX** for the hackathon. Built 
 
 ## Overview
 
-ReTrails is an offline-first, cross-platform application designed to provide reliable data tracking, local persistence, and background cloud synchronization.
+ReTrails is an offline-first, cross-platform logistics and retail distribution management platform designed to provide reliable order tracking, automated vehicle routing, and local-first persistence with background cloud synchronization.
 
 - **Team**: CurlX
 - **Project**: ReTrails
@@ -28,20 +28,26 @@ ReTrails is an offline-first, cross-platform application designed to provide rel
   - Python backend dependencies managed with `uv`.
   - Frontend and email packages managed with `bun`.
 - **Backend (FastAPI)**:
-  - SQLAlchemy 2.0 ORM with PostgreSQL and SQLite fallback.
-  - Alembic database migrations.
-  - JWT authentication and secure password hashing.
+  - Unified FastAPI application on port 8000.
+  - SQLAlchemy 2.0 async ORM with PostgreSQL and SQLite fallback.
+  - Hybrid Fleet Allocation Engine with Google OR-Tools CP-SAT and heuristic solvers.
+  - Scheduled automated 4:00 PM cutoff allocation runs with concurrency locking.
+  - Role-based access control (`system_admin`, `dispatcher`, `loader`, `driver`, `store_manager`).
+  - JWT authentication, rate limiting, and password reset flows.
   - OpenAPI documentation available at `/docs`.
 - **Frontend (React PWA)**:
-  - React, TypeScript, and Vite.
-  - Tailwind CSS styling.
-  - Dexie.js (IndexedDB) for offline-first storage and sync queuing.
-  - Progressive Web App support for all client platforms.
+  - React 18, TypeScript, and Vite on port 5173.
+  - Tailwind CSS 4-tier enterprise responsive design system.
+  - Dexie.js (IndexedDB) for offline-first local state and queued background mutations.
+  - Interactive distribution maps with Leaflet and live telemetry simulation.
+  - Progressive Web App support for mobile field drivers and store managers.
 - **Emails (React Email)**:
   - Transactional email templates rendered to HTML for SMTP delivery.
-  - Preview server for rapid template iteration.
+  - Preview server on port 3001 for rapid template iteration.
 - **Containerization**:
-  - Dockerfiles and Docker Compose configuration for PostgreSQL, Mailpit, backend, and frontend services.
+  - `docker-compose.yml`: Full-stack containerized deployment.
+  - `docker-compose.dev.yml`: Local dev infrastructure (PostgreSQL, Redis, Mailpit).
+  - `docker-compose.prod.yml`: Production HTTPS deployment with Nginx and Let's Encrypt.
 
 ---
 
@@ -49,26 +55,14 @@ ReTrails is an offline-first, cross-platform application designed to provide rel
 
 ```mermaid
 graph TD
-    Client[Web Browser / Mobile] -->|HTTP / HTTPS| Frontend[React PWA + Tailwind CSS]
+    Client[Web Browser / Mobile PWA] -->|HTTP / HTTPS| Frontend[React PWA + Tailwind CSS]
     Frontend -->|IndexedDB| Dexie[Dexie Local Storage]
-    Frontend -->|REST API / JWT| Backend[FastAPI Backend]
-    Backend -->|SQLAlchemy 2.0 / Alembic| DB[(PostgreSQL)]
+    Frontend -->|REST API / JWT| Backend[FastAPI Backend :8000]
+    Backend -->|SQLAlchemy 2.0 Async| DB[(PostgreSQL :5432)]
+    Backend -->|Cache / Sessions| Redis[(Redis :6379)]
     Backend -->|SMTP| Mailer[Mailpit / SMTP Gateway]
+    Backend -->|Hybrid Solver| ORTools[OR-Tools CP-SAT & Heuristic Engine]
     Emails[React Email Templates] -->|Compiled HTML| Backend
-
-    subgraph Waypoint Microservices
-        OrderSvc[Order Service :8001]
-        OutletSvc[Outlet Manager :8002]
-        RouteSvc[Route Management :8003]
-        VehicleSvc[Vehicle Manager :8004]
-        PlanningSvc[Planning Engine :8005]
-        DispatchSvc[Dispatcher :8006]
-        PlanningSvc --> CeleryWorker[Celery Worker]
-    end
-
-    OrderSvc & OutletSvc & RouteSvc & VehicleSvc & PlanningSvc & DispatchSvc -->|SQLAlchemy| PGDB[(PostgreSQL :5432)]
-    PlanningSvc & CeleryWorker -->|Celery tasks| Redis[(Redis :6379)]
-    OrderSvc & VehicleSvc & PlanningSvc & DispatchSvc & CeleryWorker -->|AMQP| RabbitMQ[RabbitMQ :5672]
 ```
 
 ---
@@ -77,30 +71,38 @@ graph TD
 
 ```text
 .
-├── backend/                     # Waypoint microservices (uv per-service)
-│   ├── order_service/           # Order Service (port 8001)
-│   ├── outlet_service/          # Outlet Manager Service (port 8002)
-│   ├── route_service/           # Route Management Service (port 8003)
-│   ├── vehicle_service/         # Vehicle Manager Service (port 8004)
-│   ├── planning_service/        # Planning Engine + Celery Worker (port 8005)
-│   ├── dispatch_service/        # Dispatcher Service (port 8006)
-│   ├── shared/                  # Shared utilities across services
-│   └── helpers/
-│       └── init-db.sql          # PostgreSQL multi-database init script
+├── backend/                     # Unified FastAPI application (uv)
+│   ├── app/
+│   │   ├── core/                # Config, database, security, and timezone
+│   │   ├── db/                  # Seed scripts and seed data fixtures
+│   │   ├── entities/            # SQLAlchemy 2.0 ORM models
+│   │   ├── guards/              # Role authorization and rate limiting
+│   │   ├── models/              # Domain data structures
+│   │   ├── routers/             # API v1 route handlers
+│   │   ├── schemas/             # Pydantic v2 validation schemas
+│   │   └── services/            # Business logic and Allocation Engine
+│   ├── helpers/
+│   │   └── init-db.sql          # PostgreSQL database initialization script
+│   ├── tests/                   # Backend pytest test suite
+│   ├── Dockerfile
+│   └── pyproject.toml
 ├── frontend/                    # React PWA frontend (bun)
 │   ├── src/
-│   │   ├── App.tsx
-│   │   ├── index.css
-│   │   └── main.tsx
+│   │   ├── api/                 # API client hooks and endpoints
+│   │   ├── components/          # UI and shared layout components
+│   │   ├── db/                  # Dexie.js offline schema and repositories
+│   │   ├── features/            # Feature modules
+│   │   ├── pages/               # Enterprise dashboard pages
+│   │   └── App.tsx
 │   ├── Dockerfile
-│   ├── package.json
-│   └── vite.config.ts
+│   ├── nginx.conf
+│   └── package.json
 ├── packages/emails/             # React Email templates (bun)
 │   ├── emails/
-│   ├── package.json
-│   └── tsconfig.json
-├── docker-compose.yml           # Waypoint microservices stack
-├── docker-compose.dev.yml       # Local dev infrastructure (PostgreSQL, Redis, Mailpit)
+│   └── package.json
+├── docker-compose.yml           # Full-stack local container deployment
+├── docker-compose.dev.yml       # Dev backing infrastructure (PostgreSQL, Redis, Mailpit)
+├── docker-compose.prod.yml      # Production HTTPS deployment with Let's Encrypt
 └── .env.example                 # Environment variables template
 ```
 
@@ -128,54 +130,62 @@ graph TD
 ### Individual Service Commands
 
 ```bash
-# Backend only (FastAPI on port 8000, docs at /docs)
+# Backend only (FastAPI on port 8000, docs at http://localhost:8000/docs)
 ./dev.sh backend
 
-# Frontend only (React on port 5173)
+# Frontend only (React on port 5173 at http://localhost:5173)
 ./dev.sh frontend
 
-# Email preview server (React Email on port 3001)
+# Email preview server (React Email on port 3001 at http://localhost:3001)
 ./dev.sh emails
 
-# Run tests
+# Run quality checks (formatting, linting, typechecks, and test suites)
+./dev.sh check
+
+# Run tests only
 ./dev.sh test
+
+# Format code across backend, frontend, and emails
+./dev.sh format
+
+# Typecheck code
+./dev.sh typecheck
 
 # Start dev infrastructure only (PostgreSQL, Redis, Mailpit)
 ./dev.sh services
 ./dev.sh services:down
 ```
 
-### Microservices Stack
+---
 
-Build and run all six Waypoint microservices plus their infrastructure (PostgreSQL,
-Redis, RabbitMQ, pgAdmin) from the repository root:
+### Docker Deployment
 
 ```bash
-# Build images and start all services in the background
-./dev.sh microservices
+# Build and start full stack locally in Docker
+./dev.sh docker:up
 
-# Follow logs across all containers
-docker compose logs -f
+# View logs across all containers
+./dev.sh docker:logs
 
-# Stop and remove containers
-./dev.sh microservices:down
+# Stop containers
+./dev.sh docker:down
 ```
 
-Port registry when the microservices stack is running:
+Port registry when the stack is running:
 
-| Service | URL |
-|---|---|
-| Order Service | http://localhost:8001 |
-| Outlet Manager | http://localhost:8002 |
-| Route Management | http://localhost:8003 |
-| Vehicle Manager | http://localhost:8004 |
-| Planning Engine | http://localhost:8005 |
-| Dispatcher | http://localhost:8006 |
-| RabbitMQ Management | http://localhost:15672 |
-| pgAdmin 4 | http://localhost:5050 |
+| Service | Port / URL | Description |
+|---|---|---|
+| Frontend Web / PWA | http://localhost:5173 | React Vite Dev Server / Nginx |
+| Backend API & Docs | http://localhost:8000/docs | FastAPI Swagger Documentation |
+| PostgreSQL | `localhost:5432` | Relational Database (`general_db`) |
+| Redis | `localhost:6379` | Cache & In-Memory Store |
+| Mailpit Web UI | http://localhost:8025 | Local Email Inspection |
+| Mailpit SMTP | `localhost:1025` | Local SMTP Gateway |
+| pgAdmin 4 | http://localhost:5050 | PostgreSQL Web Admin |
 
 ---
 
 ## License
 
 MIT (c) 2026 Team CurlX
+
