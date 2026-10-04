@@ -1,12 +1,11 @@
 name: retrails
 
-# Waypoint Group — Service-Based Architecture Platform Stack
+# Waypoint Group — ReTrails Platform Stack (Team CurlX)
 # Run: docker compose up --build
 #
 # Port Registry:
-#   5173  -- Frontend (React PWA via Nginx)
-#   8000  -- Core Service (Auth, Users, Master Domain, Orders, Routes, Vehicles, Dispatch)
-#   8005  -- Planning Engine Service
+#   5173  -- Frontend (React PWA via Vite / Nginx)
+#   8000  -- Backend API (FastAPI)
 #   5432  -- PostgreSQL
 #   5050  -- pgAdmin 4 Web UI
 #   6379  -- Redis
@@ -64,11 +63,11 @@ services:
 
   # -- Application Services -------------------------------------------------- #
 
-  core-service:
+  backend:
     build:
-      context: ./backend/core_service
+      context: ./backend
       dockerfile: Dockerfile
-    container_name: waypoint-core
+    container_name: waypoint-backend
     restart: unless-stopped
     ports:
       - "8000:8000"
@@ -90,49 +89,6 @@ services:
       postgres:
         condition: service_healthy
 
-  planning-service:
-    build:
-      context: ./backend/planning_service
-      dockerfile: Dockerfile
-    container_name: waypoint-planning
-    restart: unless-stopped
-    ports:
-      - "8005:8005"
-    environment:
-      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/planning_db
-      REDIS_URL: redis://redis:6379/0
-      CORE_SERVICE_URL: http://core-service:8000
-    healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8005/health')"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      core-service:
-        condition: service_healthy
-
-  planning-celery-worker:
-    build:
-      context: ./backend/planning_service
-      dockerfile: Dockerfile
-    container_name: waypoint-planning-worker
-    restart: unless-stopped
-    command: celery -A app.core.job_worker worker --loglevel=info --concurrency=4
-    environment:
-      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/planning_db
-      REDIS_URL: redis://redis:6379/0
-      CORE_SERVICE_URL: http://core-service:8000
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-
   frontend:
     build:
       context: ./frontend
@@ -145,7 +101,7 @@ services:
     ports:
       - "5173:80"
     depends_on:
-      core-service:
+      backend:
         condition: service_healthy
 
 volumes:

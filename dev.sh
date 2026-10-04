@@ -37,33 +37,12 @@ print_banner() {
     echo -e "  ${GREEN}Backend API (FastAPI):${RESET}     ${CYAN}http://localhost:8000${RESET}"
     echo -e "  ${GREEN}API Swagger Docs:${RESET}          ${CYAN}http://localhost:8000/docs${RESET}"
     echo -e "  ${GREEN}API ReDoc:${RESET}                 ${CYAN}http://localhost:8000/redoc${RESET}"
-    echo -e "  ${GREEN}Planning API:${RESET}              ${CYAN}http://localhost:8005${RESET}"
-    echo -e "  ${GREEN}Planning Swagger Docs:${RESET}    ${CYAN}http://localhost:8005/planning/v1/docs${RESET}"
     echo -e "  ${GREEN}PostgreSQL Database:${RESET}       ${CYAN}localhost:5432${RESET}"
     echo -e "  ${GREEN}Redis Cache / Broker:${RESET}      ${CYAN}localhost:6379${RESET}"
     echo -e "  ${GREEN}Mailpit Web Inbox:${RESET}         ${CYAN}http://localhost:8025${RESET} (SMTP: 1025)"
     echo -e "  ${GREEN}React Email Preview:${RESET}       ${CYAN}http://localhost:3001${RESET} (via ./dev.sh emails)"
     echo -e "${BOLD}================================================================${RESET}"
     echo -e "  ${YELLOW}Ready for requests. Press Ctrl+C to stop all processes.${RESET}"
-    echo -e "${BOLD}================================================================${RESET}"
-    echo ""
-}
-
-# Display microservices stack status banner
-print_microservices_banner() {
-    echo ""
-    echo -e "${BOLD}================================================================${RESET}"
-    echo -e "  ${BOLD}Waypoint Services Stack (Team CurlX)${RESET}"
-    echo -e "${BOLD}================================================================${RESET}"
-    echo -e "  ${GREEN}Core Service (Orders/Outlets/Routes/Vehicles/Dispatch):${RESET} ${CYAN}http://localhost:8000${RESET}"
-    echo -e "  ${GREEN}Planning Engine Service:${RESET}   ${CYAN}http://localhost:8005${RESET}"
-    echo -e "  ${GREEN}PostgreSQL Database:${RESET}       ${CYAN}localhost:5432${RESET}"
-    echo -e "  ${GREEN}Redis Cache / Broker:${RESET}      ${CYAN}localhost:6379${RESET}"
-    echo -e "  ${GREEN}RabbitMQ AMQP:${RESET}            ${CYAN}localhost:5672${RESET}"
-    echo -e "  ${GREEN}RabbitMQ Management UI:${RESET}    ${CYAN}http://localhost:15672${RESET} (waypoint/waypoint)"
-    echo -e "  ${GREEN}pgAdmin 4:${RESET}                ${CYAN}http://localhost:5050${RESET}"
-    echo -e "${BOLD}================================================================${RESET}"
-    echo -e "  ${YELLOW}Stack running in background. Use './dev.sh microservices:down' to stop.${RESET}"
     echo -e "${BOLD}================================================================${RESET}"
     echo ""
 }
@@ -97,13 +76,6 @@ ensure_env() {
     fi
 }
 
-require_planning_env() {
-    if [ ! -x "$ROOT_DIR/backend/planning_service/.venv/bin/python" ]; then
-        log_error "Planning service dependencies are not installed. Run './dev.sh install' first."
-        exit 1
-    fi
-}
-
 # Install dependencies across all packages
 install_deps() {
     check_prerequisites
@@ -111,12 +83,6 @@ install_deps() {
 
     log_info "Installing backend dependencies (uv)..."
     (cd "$ROOT_DIR/backend" && uv sync)
-
-    log_info "Installing core service dependencies (uv)..."
-    (cd "$ROOT_DIR/backend/core_service" && uv sync)
-
-    log_info "Installing planning service dependencies (uv)..."
-    (cd "$ROOT_DIR/backend/planning_service" && uv venv --python 3.11 --allow-existing && uv pip install -r requirements.txt)
 
     log_info "Installing frontend dependencies (bun)..."
     (cd "$ROOT_DIR/frontend" && bun install)
@@ -132,27 +98,8 @@ run_backend() {
     check_prerequisites
     ensure_env
     log_info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
-    cd "$ROOT_DIR/backend/core_service"
+    cd "$ROOT_DIR/backend"
     exec uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-}
-
-# Run planning service
-run_planning() {
-    check_uv
-    ensure_env
-    require_planning_env
-    log_info "Starting planning service on http://localhost:8005 (Docs: http://localhost:8005/planning/v1/docs)..."
-    cd "$ROOT_DIR/backend/planning_service"
-    exec .venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
-}
-
-# Run planning Celery worker
-run_planning_worker() {
-    check_uv
-    ensure_env
-    log_info "Starting planning Celery worker..."
-    cd "$ROOT_DIR/backend/planning_service"
-    exec .venv/bin/celery -A app.core.job_worker worker --loglevel=info --concurrency=4
 }
 
 # Run frontend service
@@ -190,26 +137,10 @@ run_services_down() {
     log_success "Dev infrastructure stopped."
 }
 
-# Run the full Waypoint microservices stack via docker-compose.yml
-run_microservices_up() {
-    log_info "Building and starting Waypoint microservices stack..."
-    docker compose -f "$ROOT_DIR/docker-compose.yml" up -d --build
-    echo ""
-    log_success "Microservices stack running."
-    print_microservices_banner
-}
-
-run_microservices_down() {
-    log_info "Stopping Waypoint microservices stack..."
-    docker compose -f "$ROOT_DIR/docker-compose.yml" down 2>/dev/null || true
-    log_success "Microservices stack stopped."
-}
-
 # Run full development stack (Backend + Frontend + Auto Dev Services)
 run_dev() {
     check_prerequisites
     ensure_env
-    require_planning_env
 
     # Automatically start dev infrastructure if Docker daemon is running
     if command -v docker &> /dev/null && docker info &> /dev/null; then
@@ -222,11 +153,8 @@ run_dev() {
     # Handle graceful exit on SIGINT/SIGTERM
     trap 'echo ""; log_info "Shutting down development processes..."; kill $(jobs -p) 2>/dev/null || true; exit 0' SIGINT SIGTERM EXIT
 
-    (cd "$ROOT_DIR/backend/core_service" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
+    (cd "$ROOT_DIR/backend" && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000) &
     BACKEND_PID=$!
-
-    (cd "$ROOT_DIR/backend/planning_service" && .venv/bin/python -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005) &
-    PLANNING_PID=$!
 
     (cd "$ROOT_DIR/frontend" && bun run dev) &
     FRONTEND_PID=$!
@@ -238,7 +166,7 @@ run_dev() {
     sleep 1.5
     print_banner
 
-    wait $BACKEND_PID $PLANNING_PID $FRONTEND_PID $EMAILS_PID
+    wait $BACKEND_PID $FRONTEND_PID $EMAILS_PID
 }
 
 # Linting
@@ -318,8 +246,8 @@ run_check() {
 # Full Docker Compose commands
 run_docker_up() {
     ensure_env
-    log_info "Starting full Docker Compose services (App + DB + Redis + Mailpit)..."
-    docker compose -f "$ROOT_DIR/docker-compose.dev.yml" up -d
+    log_info "Starting full Docker Compose services..."
+    docker compose -f "$ROOT_DIR/docker-compose.yml" up -d --build
 }
 
 run_docker_down() {
@@ -332,7 +260,7 @@ run_docker_down() {
 # Clean build artifacts and virtualenvs
 clean_all() {
     log_info "Cleaning caches, virtualenvs, and node_modules..."
-    rm -rf "$ROOT_DIR/backend/core_service/.venv" "$ROOT_DIR/backend/planning_service/.venv" "$ROOT_DIR/backend/.venv" "$ROOT_DIR/backend/.pytest_cache" "$ROOT_DIR/backend/.ruff_cache" "$ROOT_DIR/backend/.mypy_cache" "$ROOT_DIR/backend/__pycache__"
+    rm -rf "$ROOT_DIR/backend/.venv" "$ROOT_DIR/backend/.pytest_cache" "$ROOT_DIR/backend/.ruff_cache" "$ROOT_DIR/backend/.mypy_cache" "$ROOT_DIR/backend/__pycache__"
     rm -rf "$ROOT_DIR/frontend/node_modules" "$ROOT_DIR/frontend/dist"
     rm -rf "$ROOT_DIR/packages/emails/node_modules" "$ROOT_DIR/packages/emails/.react-email"
     log_success "Clean completed."
@@ -353,26 +281,20 @@ run_graphify() {
     log_success "Graphify knowledge graph updated at graphify-out/graph.json"
 }
 
-
 # Help menu
-
 show_help() {
     echo -e "${BOLD}ReTrails Development Script (Team CurlX)${RESET}"
     echo ""
     echo "Usage: ./dev.sh [command]"
     echo ""
     echo "Commands:"
-    echo "  dev                  Start core API, planning API, frontend, and emails (default)"
+    echo "  dev                  Start backend API, frontend, and emails (default)"
     echo "  services             Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
     echo "  services:down        Stop dev infrastructure"
-    echo "  microservices        Build and start the full Waypoint services stack"
-    echo "  microservices:down   Stop the Waypoint services stack"
     echo "  down                 Stop all running Docker containers (dev + services)"
     echo "  stop                 Alias for down"
     echo "  install              Install all dependencies for backend, frontend, and emails"
     echo "  backend              Start backend server only (FastAPI on port 8000)"
-    echo "  planning             Start planning service only (FastAPI on port 8005)"
-    echo "  planning:worker      Start planning Celery worker (requires Redis)"
     echo "  frontend             Start frontend server only (Vite on port 5173)"
     echo "  emails               Start React Email preview server on port 3001"
     echo "  lint                 Run linter on backend and frontend"
@@ -382,7 +304,7 @@ show_help() {
     echo "  test                 Run backend test suite"
     echo "  check                Run all quality checks (lint + format + typecheck + test)"
     echo "  graphify             Build/update Graphify knowledge graph (graphify-out/)"
-    echo "  docker               Start dev infrastructure in background (alias for services)"
+    echo "  docker               Start full Docker Compose stack"
     echo "  docker:down          Stop all Docker Compose services"
     echo "  clean                Remove virtual environments and node_modules"
     echo "  help                 Show this help message"
@@ -402,12 +324,6 @@ case "$COMMAND" in
     services:down|infra:down)
         run_services_down
         ;;
-    microservices)
-        run_microservices_up
-        ;;
-    microservices:down)
-        run_microservices_down
-        ;;
     down|stop)
         run_docker_down
         ;;
@@ -416,12 +332,6 @@ case "$COMMAND" in
         ;;
     backend)
         run_backend
-        ;;
-    planning)
-        run_planning
-        ;;
-    planning:worker)
-        run_planning_worker
         ;;
     frontend)
         run_frontend
@@ -451,7 +361,6 @@ case "$COMMAND" in
         run_graphify
         ;;
     docker)
-
         run_docker_up
         ;;
     docker:down)

@@ -51,24 +51,6 @@ function Print-Banner {
     Write-Host ""
 }
 
-function Print-MicroservicesBanner {
-    Write-Host ""
-    Write-Host "================================================================" -ForegroundColor White
-    Write-Host "  Waypoint Services Stack (Team CurlX)" -ForegroundColor White
-    Write-Host "================================================================" -ForegroundColor White
-    Write-Host "  Core Service (Orders/Outlets/Routes/Vehicles/Dispatch): " -NoNewline; Write-Host "http://localhost:8000" -ForegroundColor Cyan
-    Write-Host "  Planning Engine Service:   " -NoNewline; Write-Host "http://localhost:8005" -ForegroundColor Cyan
-    Write-Host "  PostgreSQL Database:       " -NoNewline; Write-Host "localhost:5432" -ForegroundColor Cyan
-    Write-Host "  Redis Cache / Broker:      " -NoNewline; Write-Host "localhost:6379" -ForegroundColor Cyan
-    Write-Host "  RabbitMQ AMQP:            " -NoNewline; Write-Host "localhost:5672" -ForegroundColor Cyan
-    Write-Host "  RabbitMQ Management UI:    " -NoNewline; Write-Host "http://localhost:15672" -ForegroundColor Cyan -NoNewline; Write-Host " (waypoint/waypoint)"
-    Write-Host "  pgAdmin 4:                 " -NoNewline; Write-Host "http://localhost:5050" -ForegroundColor Cyan
-    Write-Host "================================================================" -ForegroundColor White
-    Write-Host "  Stack running in background. Use '.\dev.ps1 microservices:down' to stop." -ForegroundColor Yellow
-    Write-Host "================================================================" -ForegroundColor White
-    Write-Host ""
-}
-
 # ---------------------------------------------------------------------------
 # Prerequisites
 # ---------------------------------------------------------------------------
@@ -107,17 +89,6 @@ function Invoke-InstallDeps {
     uv sync
     Pop-Location
 
-    Write-Info "Installing core service dependencies (uv)..."
-    Push-Location (Join-Path $ROOT_DIR "backend\core_service")
-    uv sync
-    Pop-Location
-
-    Write-Info "Installing planning service dependencies (uv)..."
-    Push-Location (Join-Path $ROOT_DIR "backend\planning_service")
-    uv venv --python 3.11 --allow-existing
-    uv pip install -r requirements.txt
-    Pop-Location
-
     Write-Info "Installing frontend dependencies (bun)..."
     Push-Location (Join-Path $ROOT_DIR "frontend")
     bun install
@@ -135,26 +106,8 @@ function Invoke-Backend {
     Assert-Prerequisites
     Ensure-Env
     Write-Info "Starting FastAPI backend on http://localhost:8000 (Docs: http://localhost:8000/docs)..."
-    Push-Location (Join-Path $ROOT_DIR "backend/core_service")
+    Push-Location (Join-Path $ROOT_DIR "backend")
     uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
-    Pop-Location
-}
-
-function Invoke-Planning {
-    Assert-Prerequisites
-    Ensure-Env
-    Write-Info "Starting planning service on http://localhost:8005 (Docs: http://localhost:8005/docs)..."
-    Push-Location (Join-Path $ROOT_DIR "backend\planning_service")
-    & ".venv\Scripts\python.exe" -m uvicorn app.main:app --reload --host 0.0.0.0 --port 8005
-    Pop-Location
-}
-
-function Invoke-PlanningWorker {
-    Assert-Prerequisites
-    Ensure-Env
-    Write-Info "Starting planning Celery worker..."
-    Push-Location (Join-Path $ROOT_DIR "backend\planning_service")
-    & ".venv\Scripts\celery.exe" -A app.core.job_worker worker --loglevel=info --pool=solo
     Pop-Location
 }
 
@@ -192,20 +145,6 @@ function Invoke-ServicesDown {
     Write-Ok "Dev infrastructure stopped."
 }
 
-function Invoke-MicroservicesUp {
-    Write-Info "Building and starting Waypoint microservices stack..."
-    docker compose -f "$ROOT_DIR\docker-compose.yml" up -d --build
-    Write-Host ""
-    Write-Ok "Microservices stack running."
-    Print-MicroservicesBanner
-}
-
-function Invoke-MicroservicesDown {
-    Write-Info "Stopping Waypoint microservices stack..."
-    docker compose -f "$ROOT_DIR\docker-compose.yml" down 2>$null
-    Write-Ok "Microservices stack stopped."
-}
-
 function Invoke-AllDown {
     Write-Info "Stopping all Docker Compose services..."
     docker compose -f "$ROOT_DIR\docker-compose.dev.yml" down 2>$null
@@ -230,7 +169,7 @@ function Invoke-Dev {
 
     # Launch all three processes in separate windows so each gets its own console
     $backendJob = Start-Process -FilePath "powershell.exe" `
-        -ArgumentList "-NoExit", "-Command", "Push-Location '$ROOT_DIR\backend\core_service'; uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" `
+        -ArgumentList "-NoExit", "-Command", "Push-Location '$ROOT_DIR\backend'; uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000" `
         -PassThru
 
     $frontendJob = Start-Process -FilePath "powershell.exe" `
@@ -375,14 +314,10 @@ function Show-Help {
     Write-Host "  dev                  Start backend, frontend, and emails concurrently (default)"
     Write-Host "  services             Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
     Write-Host "  services:down        Stop dev infrastructure"
-    Write-Host "  microservices        Build and start the full Waypoint microservices stack"
-    Write-Host "  microservices:down   Stop the Waypoint microservices stack"
-    Write-Host "  down                 Stop all running Docker containers (dev + microservices)"
+    Write-Host "  down                 Stop all running Docker containers (dev + services)"
     Write-Host "  stop                 Alias for down"
     Write-Host "  install              Install all dependencies for backend, frontend, and emails"
     Write-Host "  backend              Start backend server only (FastAPI on port 8000)"
-    Write-Host "  planning             Start planning service only (FastAPI on port 8005)"
-    Write-Host "  planning:worker      Start planning Celery worker (requires Redis)"
     Write-Host "  frontend             Start frontend server only (Vite on port 5173)"
     Write-Host "  emails               Start React Email preview server on port 3001"
     Write-Host "  lint                 Run linter on backend and frontend"
@@ -408,14 +343,10 @@ switch ($Command) {
     "infra"             { Invoke-ServicesUp }
     "services:down"     { Invoke-ServicesDown }
     "infra:down"        { Invoke-ServicesDown }
-    "microservices"     { Invoke-MicroservicesUp }
-    "microservices:down"{ Invoke-MicroservicesDown }
     "down"              { Invoke-AllDown }
     "stop"              { Invoke-AllDown }
     "install"           { Invoke-InstallDeps }
     "backend"           { Invoke-Backend }
-    "planning"          { Invoke-Planning }
-    "planning:worker"   { Invoke-PlanningWorker }
     "frontend"          { Invoke-Frontend }
     "emails"            { Invoke-Emails }
     "lint"              { Invoke-Lint }
