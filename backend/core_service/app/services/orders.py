@@ -11,7 +11,7 @@ from app.entities.customer_order import CustomerOrder, OrderItem
 from app.entities.item import Item
 from app.entities.outlet import Outlet
 from app.entities.price_list import PriceList
-from app.schemas.customer_order import OrderCreate, OrderRead
+from app.schemas.store_order import OrderCreate, OrderRead
 
 
 async def active_unit_prices(session: AsyncSession, item_ids: Sequence[uuid.UUID], on: date) -> dict[uuid.UUID, float]:

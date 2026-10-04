@@ -23,7 +23,7 @@ from app.routers.deliveries import (
 from app.routers.telemetry import TelemetryReport, build_telemetry
 from app.entities.customer_order import CustomerOrder
 from app.entities.user import User
-from app.schemas.customer_order import OrderCreate
+from app.schemas.store_order import OrderCreate
 from app.services.orders import create_order
 
 router = APIRouter(prefix="/sync", tags=["Sync"])

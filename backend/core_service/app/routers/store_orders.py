@@ -17,7 +17,7 @@ from app.entities.outlet import Outlet
 from app.entities.user import User
 from app.enums.roles import RoleType
 from app.guards import RoleGuard
-from app.schemas.customer_order import (
+from app.schemas.store_order import (
     OrderCreate,
     OrderDetail,
     OrderItemRead,
@@ -88,14 +88,16 @@ async def get_order(id: str, user: AuthDep, session: SessionDep) -> OrderDetail:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ORDER_NOT_FOUND")
     [header] = await order_reads(session, [order])
     rows = await session.execute(
-        select(OrderItem, Item.name, Item.category)
+        select(OrderItem, Item.name, Item.category, Item.unit)
         .join(Item, Item.id == OrderItem.item_id)
         .where(OrderItem.order_id == order.id)
         .order_by(OrderItem.package_code.asc())
     )
     items = [
-        OrderItemRead.model_validate(line).model_copy(update={"item_name": name, "category": category})
-        for line, name, category in rows.all()
+        OrderItemRead.model_validate(line).model_copy(
+            update={"item_name": name, "category": category, "unit": unit}
+        )
+        for line, name, category, unit in rows.all()
     ]
     outlet = await session.get(Outlet, order.outlet_id)
     district = await session.get(District, outlet.district_id)

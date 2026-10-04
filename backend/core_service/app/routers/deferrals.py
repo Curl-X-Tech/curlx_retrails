@@ -16,7 +16,7 @@ from app.entities.outlet import Outlet
 from app.entities.user import User
 from app.enums.master import ParkingConstraint
 from app.guards import require_dispatcher
-from app.schemas.customer_order import (
+from app.schemas.store_order import (
     DeferOrderRequest,
     DeferralAuditLogRead,
     DeferralSummary,

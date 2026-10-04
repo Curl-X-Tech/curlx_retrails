@@ -74,6 +74,7 @@ class OrderItemRead(BaseModel):
     special_handling_code: str | None = None
     item_name: str | None = None
     category: str | None = None
+    unit: str | None = None
     created_at: datetime
 
 

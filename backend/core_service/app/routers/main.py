@@ -31,6 +31,7 @@ from app.routers.auth_refresh import router as auth_refresh_router
 from app.routers.deliveries import router as deliveries_router
 from app.routers.driver_route import router as driver_route_router
 from app.routers.loader import router as loader_router
+from app.routers.sync import router as sync_router
 from app.routers.telemetry import router as telemetry_router
 
 api_router = APIRouter()
@@ -46,6 +47,7 @@ for _router in (
     deliveries_router,
     telemetry_router,
     auth_refresh_router,
+    sync_router,
 ):
     api_router.include_router(_router)
 
