@@ -6,15 +6,17 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
+import { EntityRowActions, type EntityActions } from "./entity-row-actions";
 import type { MasterDepot, MasterDistrict, MasterOutlet } from "../types";
 
 export interface DepotCardProps {
   depot: MasterDepot;
   districts: MasterDistrict[];
   outlets: MasterOutlet[];
+  actions?: EntityActions<MasterDepot>;
 }
 
-export function DepotCard({ depot, districts, outlets }: DepotCardProps) {
+export function DepotCard({ depot, districts, outlets, actions }: DepotCardProps) {
   const assignedDistricts = districts.filter(
     (dist) => dist.assigned_depot_id === depot.id
   );
@@ -44,12 +46,15 @@ export function DepotCard({ depot, districts, outlets }: DepotCardProps) {
             </div>
           </div>
 
-          {depot.is_active && (
-            <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-              <span className="size-1.5 rounded-full bg-emerald-500" />
-              Online
-            </span>
-          )}
+          <div className="flex items-center gap-2">
+            {depot.is_active && (
+              <span className="inline-flex items-center gap-1 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
+                <span className="size-1.5 rounded-full bg-emerald-500" />
+                Online
+              </span>
+            )}
+            {actions && <EntityRowActions row={depot} actions={actions} />}
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-5 space-y-5">

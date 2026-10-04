@@ -1,5 +1,5 @@
 import * as React from "react";
-import { ArrowsClockwiseIcon } from "@phosphor-icons/react";
+import { ArrowsClockwiseIcon, PlusIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { AdminCrudShell, DataTable } from "@/components/shared";
 import { useOutlets, useBrands, useDepots, useDistricts } from "@/api/master";
@@ -8,6 +8,9 @@ import {
   OutletKpiStrip,
   OutletFilterControls,
   getOutletColumns,
+  OutletDialogs,
+  type DialogState,
+  type MasterOutlet,
   type OutletSortKey,
 } from "@/features/admin";
 import { useAdminOutletsFilter } from "@/features/admin/hooks/use-admin-outlets-filter";
@@ -22,6 +25,7 @@ export function AdminOutletsPage() {
   const [sortDirection, setSortDirection] = React.useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = React.useState(1);
   const pageSize = 15;
+  const [dialog, setDialog] = React.useState<DialogState<MasterOutlet>>(null);
 
   const {
     data: outlets = [],
@@ -54,7 +58,16 @@ export function AdminOutletsPage() {
     });
 
   const columns = React.useMemo(
-    () => getOutletColumns({ getBrandCode, getDepotCode, getDistrictName }),
+    () =>
+      getOutletColumns({
+        getBrandCode,
+        getDepotCode,
+        getDistrictName,
+        actions: {
+          onEdit: (row) => setDialog({ kind: "edit", row }),
+          onDelete: (row) => setDialog({ kind: "delete", row }),
+        },
+      }),
     [getBrandCode, getDepotCode, getDistrictName]
   );
 
@@ -63,15 +76,25 @@ export function AdminOutletsPage() {
       title="Retail Outlets Directory"
       description="Store delivery windows, unloading dock configurations, and vehicle access limits"
       actions={
-        <Button
-          variant="outline"
-          size="xs"
-          className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg"
-          onClick={() => refetchOutlets()}
-        >
-          <ArrowsClockwiseIcon className="size-3 text-muted-foreground" />
-          <span>Refresh</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="xs"
+            className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg"
+            onClick={() => refetchOutlets()}
+          >
+            <ArrowsClockwiseIcon className="size-3 text-muted-foreground" />
+            <span>Refresh</span>
+          </Button>
+          <Button
+            size="xs"
+            className="h-7 text-[11px] gap-1.5 cursor-pointer rounded-lg"
+            onClick={() => setDialog({ kind: "create" })}
+          >
+            <PlusIcon className="size-3" />
+            <span>Add Outlet</span>
+          </Button>
+        </div>
       }
       kpi={<OutletKpiStrip outlets={outlets} />}
       search={searchQuery}
@@ -141,6 +164,7 @@ export function AdminOutletsPage() {
         }
         keyExtractor={(o) => o.id}
       />
+      <OutletDialogs state={dialog} onClose={() => setDialog(null)} />
     </AdminCrudShell>
   );
 }

@@ -96,6 +96,15 @@ export interface PricePayload {
 
 export type PriceUpdatePayload = Partial<Omit<PricePayload, "item_id">>;
 
+export interface DepotPayload {
+  code: string;
+  name: string;
+  latitude: number;
+  longitude: number;
+  address?: string | null;
+  is_active?: boolean;
+}
+
 export interface DepotUpdatePayload {
   code?: string;
   name?: string;
@@ -112,6 +121,10 @@ export interface CalendarDayUpdatePayload {
   is_holiday?: boolean;
   monsoon?: boolean;
   is_operating?: boolean;
+}
+
+export interface CalendarDayCreatePayload extends CalendarDayUpdatePayload {
+  date: string;
 }
 
 export interface CalendarBulkGeneratePayload {

@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { masterKeys } from "@/api/keys";
 import { MASTER_QUERY_DEFAULTS, type MasterQueryOptions } from "./query-options";
 import {
+  createDepot,
+  deleteDepot,
   getBrands,
   getDepot,
   getDepots,
@@ -9,7 +11,7 @@ import {
   updateDepot,
 } from "./reference-api";
 import type { Brand, Depot, District } from "./entities";
-import type { DepotFilters, DepotUpdatePayload } from "./payloads";
+import type { DepotFilters, DepotPayload, DepotUpdatePayload } from "./payloads";
 
 export function useDepots<TData = Depot[]>(
   filters: DepotFilters = {},
@@ -55,6 +57,22 @@ export function useBrands<TData = Brand[]>(
     ...options,
     queryKey: masterKeys.brands(),
     queryFn: ({ signal }) => getBrands(signal),
+  });
+}
+
+export function useCreateDepot() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: DepotPayload) => createDepot(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: masterKeys.depots() }),
+  });
+}
+
+export function useDeleteDepot() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => deleteDepot(id),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: masterKeys.depots() }),
   });
 }
 

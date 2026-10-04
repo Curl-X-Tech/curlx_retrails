@@ -53,10 +53,10 @@ export function DataTable<T>({
   keyExtractor,
 }: DataTableProps<T>) {
   return (
-    <div className={cn("space-y-4", className)}>
-      <div className="rounded-xl border bg-card overflow-hidden">
+    <div className={cn("flex flex-col gap-4 min-h-0 max-h-full", className)}>
+      <div className="rounded-xl border bg-card overflow-hidden flex flex-col min-h-0 [&>div]:flex-1 [&>div]:min-h-0">
         <Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 z-10 bg-card shadow-[0_1px_0_var(--border)]">
             <TableRow className="hover:bg-transparent">
               {columns.map((col) => (
                 <TableHead

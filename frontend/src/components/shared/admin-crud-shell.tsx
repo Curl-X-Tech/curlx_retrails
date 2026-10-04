@@ -63,7 +63,7 @@ export function AdminCrudShell({
 
       <div
         className={cn(
-          "flex-1 p-4 sm:p-6 flex flex-col min-h-0 space-y-3 overflow-hidden",
+          "flex-1 p-4 sm:p-6 flex flex-col min-h-0 space-y-3 overflow-y-auto",
           contentClassName
         )}
       >

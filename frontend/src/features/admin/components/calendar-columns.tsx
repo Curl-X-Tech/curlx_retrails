@@ -1,8 +1,10 @@
 import { CalendarIcon, SunIcon, CloudRainIcon, CoinsIcon } from "@phosphor-icons/react";
 import type { DataTableColumn } from "@/components/shared";
 import type { CalendarDay } from "../types";
+import { EntityRowActions, type EntityActions } from "./entity-row-actions";
 
 export interface CalendarColumnHelpers {
+  actions?: EntityActions<CalendarDay>;
   getSurgeMultiplier: (date: string) => number;
 }
 
@@ -20,7 +22,7 @@ export function getCalendarColumns(
           <CalendarIcon className="size-3.5 text-primary shrink-0" />
           <div>
             <div className="font-bold text-xs text-foreground">{day.date}</div>
-            <div className="text-[10px] text-muted-foreground font-mono">
+            <div className="text-[10px] text-muted-foreground">
               ISO W{day.iso_week}, {day.iso_year}
             </div>
           </div>
@@ -71,9 +73,7 @@ export function getCalendarColumns(
             {mult.toFixed(2)}x Demand
           </span>
         ) : (
-          <span className="text-xs text-muted-foreground font-mono">
-            {mult.toFixed(2)}x
-          </span>
+          <span className="text-xs text-muted-foreground">{mult.toFixed(2)}x</span>
         );
       },
     },
@@ -118,5 +118,17 @@ export function getCalendarColumns(
         </div>
       ),
     },
+    ...(helpers.actions
+      ? [
+          {
+            key: "actions",
+            header: "Actions",
+            className: "w-14 text-right",
+            render: (row: CalendarDay) => (
+              <EntityRowActions row={row} actions={helpers.actions!} />
+            ),
+          },
+        ]
+      : []),
   ];
 }

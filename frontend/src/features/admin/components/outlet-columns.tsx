@@ -1,8 +1,10 @@
 import { StorefrontIcon, ClockIcon } from "@phosphor-icons/react";
 import type { DataTableColumn } from "@/components/shared";
 import type { MasterOutlet } from "../types";
+import { EntityRowActions, type EntityActions } from "./entity-row-actions";
 
 export interface OutletColumnHelpers {
+  actions?: EntityActions<MasterOutlet>;
   getBrandCode: (brandId: string) => string;
   getDepotCode: (depotId: string) => string;
   getDistrictName: (districtId: string) => string;
@@ -110,5 +112,17 @@ export function getOutletColumns(
           <span className="text-[11px] text-muted-foreground">Inactive</span>
         ),
     },
+    ...(helpers.actions
+      ? [
+          {
+            key: "actions",
+            header: "Actions",
+            className: "w-14 text-right",
+            render: (row: MasterOutlet) => (
+              <EntityRowActions row={row} actions={helpers.actions!} />
+            ),
+          },
+        ]
+      : []),
   ];
 }

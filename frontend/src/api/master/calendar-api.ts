@@ -5,6 +5,7 @@ import { ENDPOINTS, callEndpoint, isPending } from "./request";
 import type { CalendarDay, DemandSurge } from "./entities";
 import type {
   CalendarBulkGeneratePayload,
+  CalendarDayCreatePayload,
   CalendarDayUpdatePayload,
   CalendarRangeFilters,
   DateRange,
@@ -53,6 +54,16 @@ export function bulkGenerateCalendar(
   return callEndpoint<CalendarDay[]>(ENDPOINTS.masterCalendarBulkGenerate, {
     body: payload,
   });
+}
+
+export function createCalendarDay(
+  payload: CalendarDayCreatePayload
+): Promise<CalendarDay> {
+  return callEndpoint<CalendarDay>(ENDPOINTS.masterCalendarCreate, { body: payload });
+}
+
+export function deleteCalendarDay(date: string): Promise<void> {
+  return callEndpoint<void>(ENDPOINTS.masterCalendarDelete, { path: { date } });
 }
 
 export function updateCalendarDay(

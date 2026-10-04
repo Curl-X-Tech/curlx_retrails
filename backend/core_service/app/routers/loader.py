@@ -11,7 +11,8 @@ from app.core.timezone import utc_now
 from app.entities.staff_profile import StaffProfile
 from app.entities.trip import LoadingChecklistItem, RouteLeg, Trip
 from app.entities.user import User
-from app.guards import require_dispatcher, require_loader
+from app.guards import RoleGuard, require_loader
+from app.enums.roles import RoleType
 from app.services.checklist import ensure_checklist
 from app.services.trip_views import TripContext, iso, load_context, load_contexts, pct
 
@@ -19,7 +20,7 @@ router = APIRouter(prefix="/loader", tags=["loader"])
 
 SessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 LoaderDep = Annotated[User, Depends(require_loader)]
-ViewerDep = Annotated[User, Depends(require_dispatcher)]
+ViewerDep = Annotated[User, Depends(RoleGuard(RoleType.DISPATCHER, RoleType.LOADER))]
 
 API_TO_DB = {"pending": "pending", "verified": "verified", "flagged_shortfall": "flagged"}
 DB_TO_API = {"pending": "pending", "scanned": "pending", "verified": "verified", "flagged": "flagged_shortfall"}
@@ -79,11 +80,20 @@ def _item_read(ctx: TripContext, row: LoadingChecklistItem, order_item: Any, leg
     }
 
 
+def _parse_uuid(value: str | None) -> uuid.UUID | None:
+    """The frontend sends a placeholder depot key until real depot ids are loaded; those are ignored."""
+    try:
+        return uuid.UUID(value) if value else None
+    except ValueError:
+        return None
+
+
 @router.get("/bays")
-async def list_bays(session: SessionDep, _: ViewerDep, depot_id: uuid.UUID | None = None):
+async def list_bays(session: SessionDep, _: ViewerDep, depot_id: str | None = None):
     query = select(Trip).where(Trip.status.in_(("scheduled", "loading"))).order_by(Trip.dispatch_date, Trip.trip_code)
-    if depot_id:
-        query = query.where(Trip.depot_id == depot_id)
+    depot = _parse_uuid(depot_id)
+    if depot:
+        query = query.where(Trip.depot_id == depot)
     trips = list((await session.execute(query)).scalars().all())
     result = []
     for number, ctx in enumerate(await load_contexts(session, trips), start=1):

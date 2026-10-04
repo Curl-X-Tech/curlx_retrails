@@ -73,6 +73,7 @@ export function useAdminCalendarFilter({
     surgeMap,
     peakSurge,
     getSurgeMultiplier,
+    sortedDays,
     paginatedDays,
     totalPages,
   };

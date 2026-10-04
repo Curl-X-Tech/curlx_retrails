@@ -3,6 +3,8 @@ import { masterKeys } from "@/api/keys";
 import { MASTER_QUERY_DEFAULTS, type MasterQueryOptions } from "./query-options";
 import {
   bulkGenerateCalendar,
+  createCalendarDay,
+  deleteCalendarDay,
   getCalendarRange,
   getDemandSurge,
   getOperatingDays,
@@ -11,6 +13,7 @@ import {
 import type { CalendarDay, DemandSurge } from "./entities";
 import type {
   CalendarBulkGeneratePayload,
+  CalendarDayCreatePayload,
   CalendarDayUpdatePayload,
   CalendarRangeFilters,
   DateRange,
@@ -62,6 +65,22 @@ export function useBulkGenerateCalendar() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (payload: CalendarBulkGeneratePayload) => bulkGenerateCalendar(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: calendarRoot }),
+  });
+}
+
+export function useCreateCalendarDay() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: CalendarDayCreatePayload) => createCalendarDay(payload),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: calendarRoot }),
+  });
+}
+
+export function useDeleteCalendarDay() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (date: string) => deleteCalendarDay(date),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: calendarRoot }),
   });
 }

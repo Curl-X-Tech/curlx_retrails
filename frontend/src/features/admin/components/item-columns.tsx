@@ -1,8 +1,10 @@
 import { PackageIcon, SnowflakeIcon } from "@phosphor-icons/react";
 import type { DataTableColumn } from "@/components/shared";
 import type { MasterItem } from "../types";
+import { EntityRowActions, type EntityActions } from "./entity-row-actions";
 
 export interface ItemColumnHelpers {
+  actions?: EntityActions<MasterItem>;
   getBrandCode: (brandId: string) => string;
   getActivePrice: (itemId: string) => number | null;
 }
@@ -21,7 +23,7 @@ export function getItemColumns(
           <PackageIcon className="size-3.5 text-primary shrink-0" />
           <div>
             <div className="font-bold text-xs text-foreground">{item.name}</div>
-            <div className="text-[11px] text-muted-foreground font-mono">{item.sku}</div>
+            <div className="text-[11px] text-muted-foreground">{item.sku}</div>
           </div>
         </div>
       ),
@@ -77,11 +79,23 @@ export function getItemColumns(
       header: "Active Price (LKR)",
       sortable: true,
       className:
-        "w-[130px] pr-4 text-right whitespace-nowrap font-mono text-xs font-bold text-foreground",
+        "w-[130px] pr-4 text-right whitespace-nowrap text-xs font-bold text-foreground",
       render: (item) => {
         const price = helpers.getActivePrice(item.id);
         return price !== null ? `Rs. ${price.toLocaleString()}` : "-";
       },
     },
+    ...(helpers.actions
+      ? [
+          {
+            key: "actions",
+            header: "Actions",
+            className: "w-14 text-right",
+            render: (row: MasterItem) => (
+              <EntityRowActions row={row} actions={helpers.actions!} />
+            ),
+          },
+        ]
+      : []),
   ];
 }
