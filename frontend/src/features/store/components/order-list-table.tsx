@@ -77,13 +77,16 @@ export function OrderListTable({
                 />
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground">
-                Order Ref
+                Order
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground">
-                Outlet & Depot
+                Destination
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground">
-                Delivery Window
+                Temp Zone
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-foreground text-center">
+                Packages
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground text-right">
                 Weight
@@ -92,13 +95,16 @@ export function OrderListTable({
                 Volume
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground text-right">
-                Order Total
+                Order Value
+              </TableHead>
+              <TableHead className="text-xs font-semibold text-foreground">
+                Delivery Window
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground text-center">
                 Status
               </TableHead>
               <TableHead className="text-xs font-semibold text-foreground text-right pr-4">
-                Actions
+                Action
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -106,7 +112,7 @@ export function OrderListTable({
             {orders.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={9}
+                  colSpan={11}
                   className="h-48 text-center text-muted-foreground text-xs"
                 >
                   No orders found matching the filter criteria.

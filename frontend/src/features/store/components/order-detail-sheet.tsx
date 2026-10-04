@@ -1,10 +1,5 @@
 import * as React from "react";
-import {
-  ArrowCounterClockwiseIcon,
-  PrinterIcon,
-  TrashIcon,
-  WarningCircleIcon,
-} from "@phosphor-icons/react";
+import { ArrowCounterClockwiseIcon, PrinterIcon, TrashIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,17 +9,11 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-  DialogFooter,
-} from "@/components/ui/dialog";
 import { useOrder, useUpdateOrderStatus } from "@/api/orders";
 import { printInvoice } from "../print-invoice";
 import { OrderStatusBadge } from "./order-status-badge";
+import { OrderDetailItemsTable } from "./order-detail-items-table";
+import { OrderCancelDialog } from "./order-cancel-dialog";
 import type { StoreOrderItemRow, StoreOrderRecord } from "../types";
 
 interface OrderDetailSheetProps {
@@ -200,97 +189,7 @@ export function OrderDetailSheet({
                     </span>
                   </div>
 
-                  {isLoading ? (
-                    <p className="text-xs text-muted-foreground py-8 text-center">
-                      Loading line items...
-                    </p>
-                  ) : items.length === 0 ? (
-                    <div className="p-8 text-center text-xs text-muted-foreground rounded-xl border border-border bg-muted/20">
-                      No itemized packages available.
-                    </div>
-                  ) : (
-                    <div className="rounded-xl border border-border/80 overflow-hidden bg-card shadow-2xs">
-                      <table className="w-full text-xs">
-                        <thead className="bg-muted/40 text-[11px] uppercase text-muted-foreground border-b border-border/60">
-                          <tr>
-                            <th className="text-left p-3 font-semibold">Item & SKU</th>
-                            <th className="text-left p-3 font-semibold">Category</th>
-                            <th className="text-right p-3 font-semibold">Qty</th>
-                            <th className="text-right p-3 font-semibold">Unit Price</th>
-                            <th className="text-right p-3 font-semibold">Weight</th>
-                            <th className="text-right p-3 font-semibold pr-4">Total</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border/50">
-                          {items.map((item, idx) => (
-                            <tr
-                              key={item.id || idx}
-                              className="hover:bg-muted/20 transition-colors"
-                            >
-                              <td className="p-3">
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className="font-semibold text-foreground">
-                                    {item.name}
-                                  </span>
-                                  {item.specialHandlingCode && (
-                                    <Badge
-                                      variant="outline"
-                                      className="text-[9px] px-1 py-0 h-4 font-mono font-bold"
-                                    >
-                                      {item.specialHandlingCode}
-                                    </Badge>
-                                  )}
-                                </div>
-                                <span className="text-[10px] text-muted-foreground font-mono">
-                                  {item.sku}
-                                </span>
-                              </td>
-                              <td className="p-3 text-muted-foreground">
-                                {item.category || "General"}
-                              </td>
-                              <td className="p-3 text-right">
-                                <span className="font-bold text-foreground bg-muted/50 px-2 py-0.5 rounded-md tabular-nums">
-                                  {item.quantity}
-                                </span>
-                              </td>
-                              <td className="p-3 text-right tabular-nums text-muted-foreground">
-                                LKR {item.unitPriceLkr.toLocaleString()}
-                              </td>
-                              <td className="p-3 text-right tabular-nums text-muted-foreground">
-                                {item.totalWeightKg.toFixed(1)} kg
-                              </td>
-                              <td className="p-3 text-right font-bold text-foreground tabular-nums pr-4">
-                                LKR {item.totalPriceLkr.toLocaleString()}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                        <tfoot className="bg-muted/30 border-t border-border font-semibold text-xs">
-                          <tr>
-                            <td colSpan={2} className="p-3 text-foreground font-bold">
-                              Total Order Manifest
-                            </td>
-                            <td className="p-3 text-right font-bold text-foreground tabular-nums">
-                              {items.reduce((sum, i) => sum + i.quantity, 0)}
-                            </td>
-                            <td className="p-3"></td>
-                            <td className="p-3 text-right font-bold text-foreground tabular-nums">
-                              {items
-                                .reduce((sum, i) => sum + i.totalWeightKg, 0)
-                                .toFixed(1)}{" "}
-                              kg
-                            </td>
-                            <td className="p-3 text-right font-extrabold text-primary tabular-nums pr-4">
-                              LKR{" "}
-                              {items
-                                .reduce((sum, i) => sum + i.totalPriceLkr, 0)
-                                .toLocaleString()}
-                            </td>
-                          </tr>
-                        </tfoot>
-                      </table>
-                    </div>
-                  )}
+                  <OrderDetailItemsTable isLoading={isLoading} items={items} />
                 </div>
               </div>
 
@@ -360,41 +259,12 @@ export function OrderDetailSheet({
         </SheetContent>
       </Sheet>
 
-      <Dialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <div className="flex items-center gap-2">
-              <WarningCircleIcon className="size-5 text-destructive" />
-              <DialogTitle className="text-base font-bold">
-                Confirm Order Cancellation
-              </DialogTitle>
-            </div>
-            <DialogDescription className="text-xs text-muted-foreground pt-1">
-              Are you sure you want to cancel order{" "}
-              <strong className="text-foreground">{order?.orderRef}</strong>? This action
-              will remove the order from the dispatch planning queue and cannot be undone.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="gap-2 sm:gap-0 pt-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowCancelDialog(false)}
-              className="text-xs rounded-xl cursor-pointer"
-            >
-              Keep Order
-            </Button>
-            <Button
-              variant="destructive"
-              size="sm"
-              onClick={handleConfirmCancel}
-              className="text-xs rounded-xl font-semibold cursor-pointer"
-            >
-              Confirm Cancel Order
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <OrderCancelDialog
+        open={showCancelDialog}
+        onOpenChange={setShowCancelDialog}
+        orderRef={order?.orderRef}
+        onConfirm={handleConfirmCancel}
+      />
     </>
   );
 }
