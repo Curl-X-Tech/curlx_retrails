@@ -15,8 +15,8 @@ from app.entities.staff_profile import StaffProfile
 from app.entities.trip import Trip
 from app.entities.user import User
 from app.entities.vehicle import Vehicle
+from app.services.allocation.time_budget import MAX_TRIPS_PER_VEHICLE, add_trip_route_legs
 from app.services.dispatcher_scope import OPEN_STATUSES, is_scoped, order_scope
-from app.services.planner import MAX_TRIPS_PER_VEHICLE, _add_legs
 
 
 def _reject(code: str, http_status: int = status.HTTP_409_CONFLICT) -> HTTPException:
@@ -98,7 +98,7 @@ async def allocate_orders(
         updated_by=user_id,
     )
     session.add(trip)
-    await _add_legs(session, trip, await session.get(Depot, vehicle.depot_id), rows, operating_date)
+    await add_trip_route_legs(session, trip, await session.get(Depot, vehicle.depot_id), rows, operating_date)
     now = utc_now()
     for order, _ in rows:
         order.status = "allocated"

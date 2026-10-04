@@ -1,6 +1,6 @@
 import uuid
 from datetime import date
-from typing import Annotated, Any
+from typing import Annotated, Literal
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from pydantic import BaseModel, Field
@@ -14,27 +14,21 @@ from app.entities.staff_profile import StaffProfile
 from app.entities.trip import RouteLeg, Trip
 from app.entities.user import User
 from app.guards import require_dispatcher, require_system_admin
+from app.services.allocation import (
+    SOLVER_STATE,
+    get_engine_status,
+    run_allocation_engine,
+    update_cron_schedule,
+)
 from app.services.checklist import ensure_checklist
 from app.services.dispatcher_scope import is_scoped, trip_scope
 from app.services.manual_allocation import allocate_orders
-from app.services.planner import run_planner
 from app.services.trip_views import allocation_detail, allocation_summary, load_context, load_contexts
 
 router = APIRouter(prefix="/allocations", tags=["allocations"])
 
 SessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 DispatcherDep = Annotated[User, Depends(require_dispatcher)]
-
-SOLVER_STATE: dict[str, Any] = {
-    "status": "idle",
-    "progress_pct": 0,
-    "operating_date": "",
-    "last_run_at": None,
-    "trips_generated": 0,
-    "orders_deferred": 0,
-    "execution_time_ms": 0,
-}
-CRON_STATE: dict[str, Any] = {"cutoff_time": "16:00", "timezone": "Asia/Colombo", "is_enabled": False}
 
 
 class VehicleOverride(BaseModel):
@@ -47,6 +41,8 @@ class OptimizeRequest(BaseModel):
     depot_id: uuid.UUID
     order_ids: list[uuid.UUID] | None = None
     vehicle_overrides: list[VehicleOverride] = []
+    simulation: bool = False
+    solver_type: Literal["ortools", "heuristic"] = "ortools"
 
 
 class ManualAllocateRequest(BaseModel):
@@ -112,7 +108,7 @@ async def allocations_summary(
 
 @router.get("/engine/status")
 async def solver_status(_: DispatcherDep):
-    return SOLVER_STATE
+    return get_engine_status()
 
 
 @router.post("/engine/schedule")
@@ -120,12 +116,13 @@ async def schedule_cron(payload: ScheduleCronRequest, _: Annotated[User, Depends
     hour, _sep, minute = payload.cutoff_time.partition(":")
     if not (hour.isdigit() and minute.isdigit() and int(hour) < 24 and int(minute) < 60):
         raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail="INVALID_CUTOFF_TIME")
-    CRON_STATE.update(payload.model_dump())
+    updated = update_cron_schedule(payload.cutoff_time, payload.timezone, payload.is_enabled)
     return {
         "success": True,
         "scheduled_at": utc_now().isoformat(),
         "cron_expression": f"{int(minute)} {int(hour)} * * *",
         "message": "Daily allocation enabled" if payload.is_enabled else "Daily allocation disabled",
+        "config": updated,
     }
 
 
@@ -137,13 +134,24 @@ async def optimize(payload: OptimizeRequest, session: SessionDep, user: Dispatch
     unavailable = {o.vehicle_id for o in payload.vehicle_overrides if o.status == "in_workshop"}
     SOLVER_STATE.update(status="running", progress_pct=0, operating_date=payload.operating_date.isoformat())
     try:
-        result = await run_planner(
-            session, payload.operating_date, payload.depot_id, payload.order_ids, unavailable, staff_id, user.id
+        result = await run_allocation_engine(
+            session=session,
+            operating_date=payload.operating_date,
+            depot_id=payload.depot_id,
+            order_ids=payload.order_ids,
+            unavailable_vehicle_ids=unavailable,
+            staff_id=staff_id,
+            user_id=user.id,
+            simulation=payload.simulation,
+            solver_type=payload.solver_type,
         )
     except Exception:
         SOLVER_STATE.update(status="failed")
         raise
-    await session.commit()
+
+    if not payload.simulation:
+        await session.commit()
+
     SOLVER_STATE.update(
         status="completed",
         progress_pct=100,
