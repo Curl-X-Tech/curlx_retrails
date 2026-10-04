@@ -110,10 +110,43 @@ export function useDriverUnloading() {
   };
 
   const handleFinalDeliveryConfirm = async (
-    recipientName: string = "Store Manager",
-    signatureDataUrl: string = "data:image/svg+xml;base64,mock"
+    podData?:
+      | {
+          recipient_name?: string;
+          signature_data_url?: string;
+          photo_proof_url?: string;
+        }
+      | string,
+    fallbackSignature?: string
   ) => {
     if (!targetWp) return;
+
+    let recipientName = "Store Manager";
+    let signatureDataUrl = "data:image/svg+xml;base64,mock";
+    let photoProofUrl: string | undefined = undefined;
+
+    if (
+      typeof podData === "object" &&
+      podData !== null &&
+      !("nativeEvent" in podData) &&
+      !("target" in podData)
+    ) {
+      recipientName =
+        typeof podData.recipient_name === "string" && podData.recipient_name.trim()
+          ? podData.recipient_name.trim()
+          : "Store Manager";
+      if (typeof podData.signature_data_url === "string" && podData.signature_data_url) {
+        signatureDataUrl = podData.signature_data_url;
+      }
+      if (typeof podData.photo_proof_url === "string" && podData.photo_proof_url) {
+        photoProofUrl = podData.photo_proof_url;
+      }
+    } else if (typeof podData === "string" && podData.trim()) {
+      recipientName = podData.trim();
+      if (typeof fallbackSignature === "string" && fallbackSignature.trim()) {
+        signatureDataUrl = fallbackSignature;
+      }
+    }
 
     const now = new Date().toISOString();
     await submitPodMutation.mutateAsync({
@@ -121,6 +154,7 @@ export function useDriverUnloading() {
       payload: {
         recipient_name: recipientName,
         signature_data_url: signatureDataUrl,
+        photo_proof_url: photoProofUrl,
         arrived_at: targetWp.arrived_at || now,
         completed_at: now,
       },

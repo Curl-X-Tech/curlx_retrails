@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import {
   TruckIcon,
@@ -10,11 +11,13 @@ import {
   CubeIcon,
   ArrowRightIcon,
   ArrowsClockwiseIcon,
+  WrenchIcon,
 } from "@phosphor-icons/react";
 import { useVehicles } from "@/api/fleet";
 import { useDeferralSummary } from "@/api/deferrals/hooks";
 import { useAllocationKpis, useOptimizeAllocations } from "@/api/allocations/hooks";
 import { useDepots } from "@/api/master";
+import { BreakdownRescueModal } from "@/features/dispatcher/components/breakdown-rescue-modal";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CircularProgressRing } from "@/components/shared/circular-progress-ring";
@@ -33,7 +36,20 @@ export function DispatcherDashboardPage() {
   const { data: depots = [] } = useDepots();
   const optimize = useOptimizeAllocations();
   const depot = depots.find((d) => d.code === "PEL") ?? depots[0];
+  const [isRescueModalOpen, setIsRescueModalOpen] = React.useState(false);
+  const [selectedBreakdownVehicle, setSelectedBreakdownVehicle] = React.useState<{
+    id: string;
+    regNumber: string;
+    modelName: string;
+    driverName?: string;
+    reason?: string;
+    temp: "reefer" | "ambient";
+    remainingWeightKg: number;
+    remainingVolumeM3: number;
+    remainingStops: number;
+  } | null>(null);
 
+  const breakdownVehicles = vehicles.filter((v) => v.status === "breakdown");
   const totalVehicles = vehicles.length;
   const inTransitCount = vehicles.filter((v) => v.status === "in_transit").length;
   const availableCount = vehicles.filter((v) => v.status === "available").length;
@@ -171,6 +187,50 @@ export function DispatcherDashboardPage() {
       </div>
 
       <div className="flex-1 min-h-0 margin-responsive py-4 sm:py-5 overflow-y-auto space-y-4">
+        {breakdownVehicles.length > 0 && (
+          <div className="p-3.5 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-700 dark:text-rose-400 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="size-9 rounded-xl bg-rose-500/20 flex items-center justify-center shrink-0 text-rose-600">
+                <WarningOctagonIcon className="size-5 animate-pulse" weight="fill" />
+              </div>
+              <div>
+                <div className="font-heading font-black text-xs uppercase tracking-wider">
+                  Emergency Breakdown Alert ({breakdownVehicles.length} Vehicle
+                  {breakdownVehicles.length > 1 ? "s" : ""})
+                </div>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {breakdownVehicles.map((v) => v.reg_number).join(", ")} stranded on
+                  active delivery routes. Stranded consignment requires immediate rescue.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 self-end sm:self-auto">
+              <Button
+                size="sm"
+                variant="destructive"
+                className="h-8 px-3.5 text-xs font-bold gap-1.5 cursor-pointer bg-rose-600 hover:bg-rose-700 text-white shadow-xs rounded-xl"
+                onClick={() => {
+                  const target = breakdownVehicles[0];
+                  setSelectedBreakdownVehicle({
+                    id: target.id,
+                    regNumber: target.reg_number,
+                    modelName: target.model_name,
+                    reason: "Mechanical Breakdown / Roadside Issue",
+                    temp: target.temp,
+                    remainingWeightKg: 1850,
+                    remainingVolumeM3: 12.4,
+                    remainingStops: 4,
+                  });
+                  setIsRescueModalOpen(true);
+                }}
+              >
+                <WrenchIcon className="size-3.5" weight="bold" />
+                <span>Fix ({breakdownVehicles[0].reg_number})</span>
+              </Button>
+            </div>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <Card className="p-4 bg-card border border-border/80 rounded-2xl flex items-center justify-between shadow-xs">
             <div className="space-y-1">
@@ -312,6 +372,18 @@ export function DispatcherDashboardPage() {
           </Card>
         </div>
       </div>
+
+      {selectedBreakdownVehicle && (
+        <BreakdownRescueModal
+          isOpen={isRescueModalOpen}
+          onOpenChange={setIsRescueModalOpen}
+          breakdownVehicle={selectedBreakdownVehicle}
+          onRescueComplete={() => {
+            setIsRescueModalOpen(false);
+            setSelectedBreakdownVehicle(null);
+          }}
+        />
+      )}
     </div>
   );
 }

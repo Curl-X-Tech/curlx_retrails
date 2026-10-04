@@ -1,3 +1,4 @@
+import uuid
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -21,7 +22,9 @@ ACTIVE_TRIP_STATUSES = ("dispatched", "in_transit")
 
 def _waypoints(ctx: TripContext, flagged: set[Any]) -> list[dict[str, Any]]:
     waypoints = []
-    for leg in ctx.legs:
+    has_zero_seq = any(leg.seq == 0 for leg in ctx.legs)
+    for idx, leg in enumerate(ctx.legs, start=1):
+        seq = (leg.seq + 1) if has_zero_seq else (leg.seq if leg.seq and leg.seq > 0 else idx)
         outlet = ctx.outlets[leg.to_outlet_id]
         order = ctx.orders.get(leg.order_id) if leg.order_id else None
         items = ctx.items.get(leg.order_id, []) if leg.order_id else []
@@ -49,7 +52,7 @@ def _waypoints(ctx: TripContext, flagged: set[Any]) -> list[dict[str, Any]]:
             {
                 "id": str(leg.id),
                 "route_leg_id": str(leg.id),
-                "seq": leg.seq,
+                "seq": seq,
                 "outlet_id": str(outlet.id),
                 "outlet_name": outlet.name,
                 "address": outlet.name,
@@ -75,21 +78,104 @@ def _waypoints(ctx: TripContext, flagged: set[Any]) -> list[dict[str, Any]]:
     return waypoints
 
 
-@router.get("/routes/current")
-async def current_route(session: SessionDep, user: DriverDep):
+@router.get("/trips")
+async def list_driver_trips(session: SessionDep, user: DriverDep):
     staff = (await session.execute(select(StaffProfile).where(StaffProfile.user_id == user.id))).scalar_one_or_none()
-    if staff is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="DRIVER_PROFILE_NOT_FOUND")
-    trip = (
-        await session.execute(
-            select(Trip)
-            .where(Trip.driver_id == staff.id, Trip.status.in_(ACTIVE_TRIP_STATUSES))
-            .order_by(Trip.dispatch_date.desc(), Trip.trip_sequence)
-            .limit(1)
+
+    query = select(Trip).order_by(Trip.dispatch_date.desc(), Trip.trip_sequence)
+    if staff:
+        trips = list((await session.execute(query.where(Trip.driver_id == staff.id))).scalars().all())
+        if not trips:
+            trips = list((await session.execute(query.limit(20))).scalars().all())
+    else:
+        trips = list((await session.execute(query.limit(20))).scalars().all())
+
+    contexts = await load_contexts(session, trips)
+    results = []
+    for ctx in contexts:
+        t = ctx.trip
+        v = ctx.vehicle
+        d = ctx.driver
+        dep = ctx.depot
+        driver_name = (
+            f"{d.first_name} {d.last_name}".strip()
+            if d
+            else (f"{staff.first_name} {staff.last_name}".strip() if staff else "Driver")
         )
-    ).scalar_one_or_none()
+        results.append(
+            {
+                "id": str(t.id),
+                "trip_code": t.trip_code,
+                "driver_id": str(t.driver_id),
+                "driver_name": driver_name,
+                "date": t.dispatch_date.isoformat(),
+                "status": t.status,
+                "vehicle_id": str(v.id),
+                "reg_number": v.reg_number,
+                "model_name": v.model_name,
+                "depot_name": dep.name,
+                "total_weight_kg": ctx.weight_kg,
+                "total_volume_m3": ctx.volume_m3,
+                "total_stops": len(ctx.legs),
+                "is_downloaded": True,
+            }
+        )
+    return results
+
+
+@router.post("/trips/{trip_id}/activate")
+async def activate_trip(trip_id: uuid.UUID, session: SessionDep, user: DriverDep):
+    trip = await session.get(Trip, trip_id)
+    if not trip:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="TRIP_NOT_FOUND")
+    staff = (await session.execute(select(StaffProfile).where(StaffProfile.user_id == user.id))).scalar_one_or_none()
+    if staff:
+        trip.driver_id = staff.id
+    trip.status = "in_transit"
+    await session.commit()
+    return {"success": True, "trip_id": str(trip.id), "status": trip.status}
+
+
+@router.get("/routes/current")
+async def current_route(session: SessionDep, user: DriverDep, trip_id: uuid.UUID | None = None):
+    staff = (await session.execute(select(StaffProfile).where(StaffProfile.user_id == user.id))).scalar_one_or_none()
+
+    trip: Trip | None = None
+
+    if trip_id:
+        trip = (await session.execute(select(Trip).where(Trip.id == trip_id))).scalar_one_or_none()
+
+    if trip is None and staff:
+        # 1. Try active trip for this driver
+        trip = (
+            await session.execute(
+                select(Trip)
+                .where(Trip.driver_id == staff.id, Trip.status.in_(ACTIVE_TRIP_STATUSES))
+                .order_by(Trip.dispatch_date.desc(), Trip.trip_sequence)
+                .limit(1)
+            )
+        ).scalar_one_or_none()
+
+        # 2. Try any latest trip for this driver
+        if trip is None:
+            trip = (
+                await session.execute(
+                    select(Trip)
+                    .where(Trip.driver_id == staff.id)
+                    .order_by(Trip.dispatch_date.desc(), Trip.trip_sequence)
+                    .limit(1)
+                )
+            ).scalar_one_or_none()
+
+    # 3. Fallback to any latest active or recent trip in system
     if trip is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="NO_ACTIVE_TRIP")
+        trip = (
+            await session.execute(select(Trip).order_by(Trip.dispatch_date.desc(), Trip.trip_sequence).limit(1))
+        ).scalar_one_or_none()
+
+    if trip is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="NO_TRIP_AVAILABLE")
+
     ctx = (await load_contexts(session, [trip]))[0]
     flagged = set(
         (await session.execute(select(DiscrepancyReport.order_item_id).where(DiscrepancyReport.trip_id == trip.id)))
@@ -98,7 +184,16 @@ async def current_route(session: SessionDep, user: DriverDep):
     )
     waypoints = _waypoints(ctx, flagged)
     open_seq = [w["seq"] for w in waypoints if w["status"] in ("pending", "arrived")]
-    vehicle, depot = ctx.vehicle, ctx.depot
+    vehicle, depot, d = ctx.vehicle, ctx.depot, ctx.driver
+    driver_name = (
+        f"{d.first_name} {d.last_name}".strip()
+        if d
+        else (f"{staff.first_name} {staff.last_name}".strip() if staff else "Driver")
+    )
+    driver_phone = d.phone if d else (staff.phone if staff else "")
+    driver_license = d.license_number if d else (staff.license_number if staff else "")
+    driver_id = str(d.id) if d else (str(staff.id) if staff else "")
+
     return {
         "trip": {
             "id": str(trip.id),
@@ -127,13 +222,13 @@ async def current_route(session: SessionDep, user: DriverDep):
                 "lng": depot.longitude,
             },
             "driver": {
-                "id": str(staff.id),
-                "name": staff.name,
-                "phone": staff.phone,
-                "license_id": staff.license_number,
+                "id": driver_id,
+                "name": driver_name,
+                "phone": driver_phone,
+                "license_id": driver_license,
                 "designation": "Driver",
             },
         },
         "waypoints": waypoints,
-        "active_waypoint_seq": open_seq[0] if open_seq else (waypoints[-1]["seq"] if waypoints else 0),
+        "active_waypoint_seq": open_seq[0] if open_seq else (waypoints[-1]["seq"] if waypoints else 1),
     }

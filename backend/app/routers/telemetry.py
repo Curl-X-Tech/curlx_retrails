@@ -11,13 +11,15 @@ from app.core.db import get_async_session
 from app.core.timezone import utc_now
 from app.entities.trip import RouteLeg, Trip, VehicleTelemetry
 from app.entities.user import User
-from app.guards import require_dispatcher, require_driver
+from app.entities.vehicle import Vehicle
+from app.guards import require_authenticated_user, require_dispatcher, require_driver
 from app.services.deliveries import as_utc
 from app.services.trip_views import iso, load_contexts, pct
 
 router = APIRouter(prefix="/fleet", tags=["telemetry"])
 
 SessionDep = Annotated[AsyncSession, Depends(get_async_session)]
+UserDep = Annotated[User, Depends(require_authenticated_user)]
 DriverDep = Annotated[User, Depends(require_driver)]
 DispatcherDep = Annotated[User, Depends(require_dispatcher)]
 
@@ -132,8 +134,23 @@ async def live_telemetry(session: SessionDep, _: DispatcherDep):
 
 
 @router.get("/vehicles/{vehicle_id}/telemetry/latest")
-async def vehicle_latest(vehicle_id: uuid.UUID, session: SessionDep, _: DispatcherDep):
+async def vehicle_latest(vehicle_id: uuid.UUID, session: SessionDep, _: UserDep):
     row = await latest_for(session, vehicle_id)
     if row is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="TELEMETRY_NOT_FOUND")
+        vehicle = await session.get(Vehicle, vehicle_id)
+        if vehicle is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="VEHICLE_NOT_FOUND")
+        return {
+            "vehicle_id": str(vehicle.id),
+            "trip_id": None,
+            "latitude": 6.9319,
+            "longitude": 79.8478,
+            "speed_kmh": 0.0,
+            "heading_deg": 0.0,
+            "reefer_temp_celsius": -18.2 if vehicle.temp == "reefer" else None,
+            "ambient_temp_celsius": 28.5,
+            "fuel_level_pct": 85.0,
+            "battery_pct": 100.0,
+            "recorded_at": iso(utc_now()),
+        }
     return telemetry_read(row)

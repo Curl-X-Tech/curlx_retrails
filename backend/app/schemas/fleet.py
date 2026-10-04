@@ -68,6 +68,10 @@ class DriverRead(BaseModel):
 
     id: uuid.UUID
     user_id: uuid.UUID | None = None
+    employee_code: str | None = None
+    first_name: str | None = None
+    last_name: str | None = None
+    email: str | None = None
     license_number: str | None = None
     phone_number: str = Field(validation_alias=AliasChoices("phone_number", "phone"))
     assigned_depot_id: uuid.UUID | None = Field(

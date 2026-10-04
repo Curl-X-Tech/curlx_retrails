@@ -22,3 +22,4 @@ export * from "./allocation-table-row";
 export * from "./allocation-table-view";
 export * from "./allocation-grid-view";
 export * from "./allocation-sidebar-list";
+export * from "./breakdown-rescue-modal";

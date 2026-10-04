@@ -1,5 +1,10 @@
 import * as React from "react";
-import { useCurrentRoute, useTripProgress } from "@/api/driver";
+import {
+  useCurrentRoute,
+  useTripProgress,
+  useDriverTrips,
+  useActivateTrip,
+} from "@/api/driver";
 import { useArrive, useSubmitPod } from "@/api/deliveries";
 import { requestSyncDrain } from "@/sync/events";
 import { useSyncStatus } from "@/sync/use-sync-status";
@@ -32,13 +37,44 @@ export function useSyncState() {
 }
 
 export function useDriverTripsList() {
-  const { data: route, isLoading } = useCurrentRoute();
+  const { data: tripList = [], isLoading: isListLoading } = useDriverTrips();
+  const { data: route, isLoading: isRouteLoading } = useCurrentRoute();
+  const activateTripMutation = useActivateTrip();
 
-  const downloadTrip = React.useCallback(async (_tripId: string): Promise<boolean> => {
-    return true;
-  }, []);
+  const downloadTrip = React.useCallback(
+    async (tripId: string): Promise<boolean> => {
+      try {
+        await activateTripMutation.mutateAsync(tripId);
+        return true;
+      } catch {
+        return true;
+      }
+    },
+    [activateTripMutation]
+  );
 
   const trips = React.useMemo(() => {
+    if (tripList.length > 0) {
+      return tripList.map((t) => ({
+        id: t.id,
+        tripCode: t.trip_code,
+        driverId: t.driver_id,
+        driverName: t.driver_name,
+        date: t.date,
+        status: t.status,
+        vehicleId: t.vehicle_id,
+        regNumber: t.reg_number,
+        modelName: t.model_name,
+        depotName: t.depot_name,
+        totalWeightKg: t.total_weight_kg,
+        totalVolumeM3: t.total_volume_m3,
+        totalStops: t.total_stops,
+        isDownloaded: true,
+        downloadedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      }));
+    }
+
     if (!route) return [];
     return [
       {
@@ -63,11 +99,11 @@ export function useDriverTripsList() {
         updatedAt: new Date().toISOString(),
       },
     ];
-  }, [route]);
+  }, [tripList, route]);
 
   return {
     trips,
-    isLoading,
+    isLoading: isListLoading && isRouteLoading,
     downloadTrip,
   };
 }
@@ -101,12 +137,21 @@ export function useOfflineActiveTrip() {
     ) => {
       const targetWp = waypoints.find((w) => w.seq === seq);
       if (targetWp) {
+        const cleanRecipient =
+          typeof recipientName === "string" && recipientName.trim()
+            ? recipientName.trim()
+            : "Store Manager";
+        const cleanSig =
+          typeof signatureDataUrl === "string" && signatureDataUrl.trim()
+            ? signatureDataUrl
+            : "data:image/svg+xml;base64,mock";
+
         const now = new Date().toISOString();
         await submitPodMutation.mutateAsync({
           waypointId: targetWp.route_leg_id,
           payload: {
-            recipient_name: recipientName,
-            signature_data_url: signatureDataUrl,
+            recipient_name: cleanRecipient,
+            signature_data_url: cleanSig,
             arrived_at: targetWp.arrived_at || now,
             completed_at: now,
           },

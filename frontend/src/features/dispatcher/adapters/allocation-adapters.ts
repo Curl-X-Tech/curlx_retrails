@@ -101,7 +101,9 @@ export function toManifest(detail: AllocationDetail): AllocationManifestDetail {
     district: detail.district.name,
     depot: detail.depot.name,
     driver: {
+      employeeCode: driver.employee_code,
       name: driver.name,
+      email: driver.email,
       role: "driver",
       licenseId: driver.license_number ?? "",
       phone: driver.phone,

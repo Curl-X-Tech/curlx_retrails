@@ -125,6 +125,23 @@ export interface LocalTripSummary {
   updatedAt: string;
 }
 
+export interface DriverTripListItem {
+  id: string;
+  trip_code: string;
+  driver_id: string;
+  driver_name: string;
+  date: string;
+  status: TripStatus;
+  vehicle_id: string;
+  reg_number: string;
+  model_name: string;
+  depot_name: string;
+  total_weight_kg: number;
+  total_volume_m3: number;
+  total_stops: number;
+  is_downloaded: boolean;
+}
+
 export type DriverWaypoint = CurrentRouteWaypoint;
 export type DriverOrderItem = CurrentRouteOrderItem;
 export type LocalTripDetail = CurrentRoute;

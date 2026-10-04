@@ -57,10 +57,10 @@ export function UnloadingFlagModal({
               key={reason}
               onClick={() => onSelectReason(reason)}
               className={cn(
-                "w-full text-left p-2.5 rounded-xl border text-xs font-medium transition-all cursor-pointer",
+                "w-full text-left p-3 rounded-2xl border text-xs font-semibold transition-all cursor-pointer",
                 flagReason === reason
-                  ? "border-destructive bg-destructive/10 text-destructive font-bold"
-                  : "border-border hover:bg-muted text-foreground"
+                  ? "border-destructive bg-destructive/10 text-destructive font-bold shadow-2xs"
+                  : "border-border/80 hover:bg-muted/50 bg-background text-foreground"
               )}
             >
               {reason}
@@ -68,20 +68,20 @@ export function UnloadingFlagModal({
           ))}
         </div>
 
-        <div className="flex items-center gap-2 pt-2">
+        <div className="flex items-center gap-2.5 pt-2">
           <Button
             variant="outline"
             onClick={onClose}
-            className="flex-1 rounded-xl h-9 text-xs font-bold cursor-pointer"
+            className="flex-1 rounded-2xl h-11 text-xs font-bold cursor-pointer"
           >
             Cancel
           </Button>
           <Button
             variant="destructive"
             onClick={onConfirm}
-            className="flex-1 rounded-xl h-9 text-xs font-bold bg-red-600 hover:bg-red-700 text-white cursor-pointer"
+            className="flex-[2] rounded-2xl h-11 text-xs font-heading font-black bg-rose-600 hover:bg-rose-700 text-white cursor-pointer shadow-sm"
           >
-            Submit Report
+            Submit Discrepancy
           </Button>
         </div>
       </div>

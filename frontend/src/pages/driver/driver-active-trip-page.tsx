@@ -1,6 +1,7 @@
 import * as React from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import type L from "leaflet";
+import { WarningOctagonIcon } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import { SwipeToConfirm } from "@/components/ui/swipe-to-confirm";
 import {
@@ -20,6 +21,12 @@ export function DriverActiveTripPage() {
 
   const { waypoints, arriveAtStop } = useOfflineActiveTrip();
   const { isOnline } = useSyncState();
+
+  const localBreakdownRaw =
+    typeof window !== "undefined"
+      ? localStorage.getItem("retrails_driver_breakdown_status")
+      : null;
+  const isBreakdownActive = Boolean(localBreakdownRaw);
 
   const queryWpSeq = Number(searchParams.get("wp"));
   const initialIndex =
@@ -88,6 +95,26 @@ export function DriverActiveTripPage() {
         onSelectWaypoint={handleSelectWaypoint}
         mapInstanceRef={mapInstanceRef}
       />
+
+      {isBreakdownActive && (
+        <div className="absolute top-2 inset-x-2 z-20 p-2.5 bg-rose-600/95 text-white rounded-xl shadow-lg flex items-center justify-between backdrop-blur-md">
+          <div className="flex items-center gap-2 text-xs font-bold">
+            <WarningOctagonIcon
+              className="size-4 shrink-0 animate-bounce"
+              weight="fill"
+            />
+            <span>Vehicle in Breakdown — Standby for Rescue</span>
+          </div>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => navigate("/driver/vehicle")}
+            className="h-7 text-[11px] bg-white text-rose-700 hover:bg-white/90 border-0 font-bold cursor-pointer"
+          >
+            Details
+          </Button>
+        </div>
+      )}
 
       <ActiveTripOfflineBanner isOnline={isOnline} />
 

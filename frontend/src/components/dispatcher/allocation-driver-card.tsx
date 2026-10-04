@@ -1,4 +1,9 @@
-import { UserIcon, IdentificationCardIcon, CalendarIcon } from "@phosphor-icons/react";
+import {
+  UserIcon,
+  IdentificationCardIcon,
+  CalendarIcon,
+  EnvelopeSimpleIcon,
+} from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import type { AllocationDriverDetails } from "@/types";
 import { AllocationDriverShiftMeter } from "./allocation-driver-shift-meter";
@@ -12,6 +17,7 @@ interface AllocationDriverCardProps {
 export function AllocationDriverCard({ driver, className }: AllocationDriverCardProps) {
   const bloodGroup = driver.bloodGroup || "O+";
   const licenseExpiry = driver.licenseExpiryDate || "2028-11-15";
+  const email = driver.email || "driver@retrails.lk";
 
   return (
     <Card
@@ -41,12 +47,22 @@ export function AllocationDriverCard({ driver, className }: AllocationDriverCard
             </span>
           </div>
           <p className="text-[11px] font-medium text-muted-foreground mt-0.5 truncate">
-            {driver.role}
+            {driver.role} {email ? `· ${email}` : ""}
           </p>
         </div>
       </div>
 
       <div className="space-y-1 py-2 border-b border-border/50 text-xs">
+        <div className="flex items-center justify-between py-1 border-b border-border/40">
+          <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
+            <EnvelopeSimpleIcon className="size-3.5 text-primary shrink-0" />
+            <span>Driver Email</span>
+          </div>
+          <span className="font-bold text-foreground text-[11px] truncate max-w-[200px]">
+            {email}
+          </span>
+        </div>
+
         <div className="flex items-center justify-between py-1 border-b border-border/40">
           <div className="flex items-center gap-2 text-muted-foreground text-[11px]">
             <IdentificationCardIcon className="size-3.5 text-primary shrink-0" />

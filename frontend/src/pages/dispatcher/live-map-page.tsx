@@ -3,6 +3,7 @@ import { WarningIcon, CircleNotchIcon } from "@phosphor-icons/react";
 import { useLiveMapVehicles } from "@/api/telemetry";
 import { LiveVehicleCard } from "@/components/dispatcher/live-vehicle-card";
 import { LiveMapControls } from "@/features/dispatcher/components/live-map-controls";
+import { BreakdownRescueModal } from "@/features/dispatcher/components/breakdown-rescue-modal";
 import { useLiveMap } from "@/features/dispatcher/hooks/use-live-map";
 import { useLiveMapStores } from "@/features/dispatcher/hooks/use-live-map-stores";
 import type { VehicleTrackingData } from "@/types";
@@ -33,6 +34,18 @@ export function LiveMapPage() {
   const [selectedBrands, setSelectedBrands] = React.useState<
     ("Fresh" | "Style" | "Tech")[]
   >(["Fresh", "Style", "Tech"]);
+  const [isRescueModalOpen, setIsRescueModalOpen] = React.useState(false);
+  const [rescueVehicleData, setRescueVehicleData] = React.useState<{
+    id: string;
+    regNumber: string;
+    modelName: string;
+    driverName?: string;
+    reason?: string;
+    temp: "reefer" | "ambient";
+    remainingWeightKg: number;
+    remainingVolumeM3: number;
+    remainingStops: number;
+  } | null>(null);
 
   const selectedVehicle = React.useMemo(() => {
     if (!vehicles.length) return null;
@@ -178,9 +191,35 @@ export function LiveMapPage() {
                 vehicleMarkersRef.current[v.id]?.openPopup();
               }
             }}
+            onRescueVehicle={(v) => {
+              setRescueVehicleData({
+                id: v.id,
+                regNumber: v.code,
+                modelName: v.vehicleType || "Truck",
+                driverName: v.driverName,
+                reason: "Reported Mechanical Failure / Standby",
+                temp: "reefer",
+                remainingWeightKg: v.weightKg,
+                remainingVolumeM3: 18.5,
+                remainingStops: v.stopsTotal - v.stopsCompleted,
+              });
+              setIsRescueModalOpen(true);
+            }}
             onClose={() => setShowVehicleCard(false)}
           />
         </div>
+      )}
+
+      {rescueVehicleData && (
+        <BreakdownRescueModal
+          isOpen={isRescueModalOpen}
+          onOpenChange={setIsRescueModalOpen}
+          breakdownVehicle={rescueVehicleData}
+          onRescueComplete={() => {
+            setIsRescueModalOpen(false);
+            setRescueVehicleData(null);
+          }}
+        />
       )}
     </div>
   );

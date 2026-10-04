@@ -13,7 +13,8 @@ from app.entities.depot import Depot
 from app.entities.staff_profile import StaffProfile
 from app.entities.user import User
 from app.entities.vehicle import Vehicle
-from app.guards import require_dispatcher
+from app.enums.roles import RoleType
+from app.guards import RoleGuard, require_dispatcher
 from app.schemas.fleet import (
     DriverRead,
     VehicleCreate,
@@ -29,6 +30,7 @@ router = APIRouter(prefix="/fleet", tags=["fleet"])
 SessionDep = Annotated[AsyncSession, Depends(get_async_session)]
 AuthDep = Annotated[User, Depends(current_active_user)]
 DispatcherDep = Annotated[User, Depends(require_dispatcher)]
+VehicleUpdateDep = Annotated[User, Depends(RoleGuard(RoleType.DISPATCHER, RoleType.DRIVER))]
 
 VEHICLE_FIELD_MAP = {"assigned_depot_id": "depot_id"}
 
@@ -113,7 +115,7 @@ async def create_vehicle(payload: VehicleCreate, user: DispatcherDep, session: S
 
 
 @router.patch("/vehicles/{id}", response_model=VehicleRead, summary="Update a vehicle")
-async def update_vehicle(id: uuid.UUID, payload: VehicleUpdate, user: DispatcherDep, session: SessionDep) -> Vehicle:
+async def update_vehicle(id: uuid.UUID, payload: VehicleUpdate, user: VehicleUpdateDep, session: SessionDep) -> Vehicle:
     vehicle = await session.get(Vehicle, id)
     if vehicle is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="VEHICLE_NOT_FOUND")

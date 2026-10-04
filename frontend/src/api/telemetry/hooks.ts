@@ -75,6 +75,11 @@ export function useLiveMapVehicles(
   });
 }
 
+const isValidUuid = (val?: string) =>
+  Boolean(
+    val && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val)
+  );
+
 export function useLatestTelemetry<TData = VehicleTelemetry>(
   vehicleId: string,
   options: Omit<
@@ -87,7 +92,7 @@ export function useLatestTelemetry<TData = VehicleTelemetry>(
     ...options,
     queryKey: telemetryKeys.vehicleLatest(vehicleId),
     queryFn: ({ signal }) => getLatestTelemetry(vehicleId, signal),
-    enabled: Boolean(vehicleId) && options.enabled !== false,
+    enabled: Boolean(vehicleId) && isValidUuid(vehicleId) && options.enabled !== false,
   });
 }
 

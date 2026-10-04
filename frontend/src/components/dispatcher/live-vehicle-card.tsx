@@ -1,5 +1,5 @@
 import * as React from "react";
-import { CaretDownIcon, CrosshairIcon, XIcon } from "@phosphor-icons/react";
+import { CaretDownIcon, CrosshairIcon, XIcon, WrenchIcon } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,12 +14,14 @@ interface LiveVehicleCardProps {
   allVehicles: VehicleTrackingData[];
   onSelectVehicle: (vehicle: VehicleTrackingData) => void;
   onFocusVehicle: (vehicle: VehicleTrackingData) => void;
+  onRescueVehicle?: (vehicle: VehicleTrackingData) => void;
   onClose?: () => void;
 }
 
 export function LiveVehicleCard({
   vehicle,
   onFocusVehicle,
+  onRescueVehicle,
   onClose,
 }: LiveVehicleCardProps) {
   const [isMinimized, setIsMinimized] = React.useState(false);
@@ -121,6 +123,17 @@ export function LiveVehicleCard({
               <CrosshairIcon className="size-3.5 text-primary" />
               <span>Focus on Map</span>
             </Button>
+            {onRescueVehicle && (
+              <Button
+                variant="destructive"
+                size="sm"
+                className="h-8 px-3 text-xs font-bold gap-1.5 cursor-pointer rounded-xl bg-rose-600 hover:bg-rose-700 text-white shadow-xs"
+                onClick={() => onRescueVehicle(vehicle)}
+              >
+                <WrenchIcon className="size-3.5" weight="bold" />
+                <span>Fix</span>
+              </Button>
+            )}
           </div>
         </div>
       </div>

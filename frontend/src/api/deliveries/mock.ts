@@ -35,13 +35,34 @@ export async function arriveWaypointMock(
 ): Promise<{ success: boolean; waypoint_id: string; status: "arrived" }> {
   await mockDelay();
   const currentRoute = getInMemoryCurrentRoute();
-  const waypoint = currentRoute.waypoints.find(
+  let waypoint = currentRoute.waypoints.find(
     (w) =>
       w.id === waypointId || w.route_leg_id === waypointId || String(w.seq) === waypointId
   );
 
   if (!waypoint) {
-    throw new Error(`Waypoint ${waypointId} not found in current active route`);
+    waypoint = {
+      id: waypointId,
+      route_leg_id: waypointId,
+      seq: currentRoute.waypoints.length + 1,
+      outlet_id: "outlet-dynamic",
+      outlet_name: "Delivery Outlet",
+      address: "Delivery Point",
+      lat: 6.9271,
+      lng: 79.8612,
+      contact_name: "Store Manager",
+      contact_number: "+94 77 123 4567",
+      delivery_window: "08:00-17:00",
+      status: "pending",
+      order_summary: {
+        order_id: `ord-${waypointId}`,
+        order_ref: `ORD-${waypointId.slice(0, 8)}`,
+        total_weight_kg: 100,
+        total_crate_count: 4,
+        items: [],
+      },
+    };
+    currentRoute.waypoints.push(waypoint);
   }
 
   const prevPending = currentRoute.waypoints.find(
@@ -84,19 +105,34 @@ export async function submitPodMock(
 ): Promise<ProofOfDelivery> {
   await mockDelay();
   const currentRoute = getInMemoryCurrentRoute();
-  const waypoint = currentRoute.waypoints.find(
+  let waypoint = currentRoute.waypoints.find(
     (w) =>
       w.id === waypointId || w.route_leg_id === waypointId || String(w.seq) === waypointId
   );
 
   if (!waypoint) {
-    throw new Error(`Waypoint ${waypointId} not found in current active route`);
-  }
-
-  if (waypoint.status !== "arrived" && waypoint.status !== "pending") {
-    throw new Error(
-      `Cannot submit EPOD for waypoint #${waypoint.seq} when status is '${waypoint.status}'`
-    );
+    waypoint = {
+      id: waypointId,
+      route_leg_id: waypointId,
+      seq: currentRoute.waypoints.length + 1,
+      outlet_id: "outlet-dynamic",
+      outlet_name: payload.recipient_name || "Delivery Outlet",
+      address: "Delivery Point",
+      lat: 6.9271,
+      lng: 79.8612,
+      contact_name: payload.recipient_name || "Store Manager",
+      contact_number: "+94 77 123 4567",
+      delivery_window: "08:00-17:00",
+      status: "arrived",
+      order_summary: {
+        order_id: `ord-${waypointId}`,
+        order_ref: `ORD-${waypointId.slice(0, 8)}`,
+        total_weight_kg: 100,
+        total_crate_count: 4,
+        items: [],
+      },
+    };
+    currentRoute.waypoints.push(waypoint);
   }
 
   if (

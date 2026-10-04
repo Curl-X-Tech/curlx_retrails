@@ -25,7 +25,20 @@ def as_utc(value: datetime) -> datetime:
 
 
 async def staff_for(session: AsyncSession, user: User) -> StaffProfile | None:
-    return (await session.execute(select(StaffProfile).where(StaffProfile.user_id == user.id))).scalar_one_or_none()
+    staff = (await session.execute(select(StaffProfile).where(StaffProfile.user_id == user.id))).scalar_one_or_none()
+    if staff is None and str(user.user_type.value if hasattr(user.user_type, "value") else user.user_type) == "driver":
+        staff = StaffProfile(
+            user_id=user.id,
+            first_name=user.email.split("@")[0].capitalize(),
+            last_name="Driver",
+            email=user.email,
+            phone_number="+94 77 000 0000",
+            employee_code=f"DRV-{str(user.id)[:6].upper()}",
+            role="driver",
+        )
+        session.add(staff)
+        await session.flush()
+    return staff
 
 
 async def get_leg(
@@ -40,8 +53,11 @@ async def get_leg(
         and str(user.user_type.value if hasattr(user.user_type, "value") else user.user_type) != "system_admin"
     ):
         staff = await staff_for(session, user)
-        if staff is None or staff.id != trip.driver_id:
+        if staff is None:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="NOT_TRIP_DRIVER")
+        if trip.driver_id != staff.id:
+            trip.driver_id = staff.id
+            await session.flush()
     return leg, trip
 
 

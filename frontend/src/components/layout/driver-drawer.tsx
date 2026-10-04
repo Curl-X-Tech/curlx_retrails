@@ -1,5 +1,11 @@
+import * as React from "react";
 import { useNavigate } from "react-router-dom";
-import { TruckIcon, CheckCircleIcon } from "@phosphor-icons/react";
+import {
+  TruckIcon,
+  CheckCircleIcon,
+  GaugeIcon,
+  WarningOctagonIcon,
+} from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -9,6 +15,7 @@ import {
   SheetDescription,
 } from "@/components/ui/sheet";
 import { useOfflineActiveTrip } from "@/features/driver/hooks/use-offline-trip";
+import { DriverBreakdownDialog } from "@/features/driver/components/driver-breakdown-dialog";
 import { cn } from "@/lib/utils";
 
 export interface DriverDrawerProps {
@@ -19,6 +26,7 @@ export interface DriverDrawerProps {
 export function DriverDrawer({ isOpen, onOpenChange }: DriverDrawerProps) {
   const navigate = useNavigate();
   const { route } = useOfflineActiveTrip();
+  const [isBreakdownDialogOpen, setIsBreakdownDialogOpen] = React.useState(false);
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -41,7 +49,7 @@ export function DriverDrawer({ isOpen, onOpenChange }: DriverDrawerProps) {
               </div>
             </div>
           </div>
-          <div className="flex items-center justify-between gap-2 pt-1">
+          <div className="grid grid-cols-2 gap-2 pt-1">
             <Button
               size="sm"
               variant="outline"
@@ -49,10 +57,22 @@ export function DriverDrawer({ isOpen, onOpenChange }: DriverDrawerProps) {
                 onOpenChange(false);
                 navigate("/driver/trips");
               }}
-              className="w-full text-xs font-semibold gap-1.5 h-8 justify-center"
+              className="text-xs font-semibold gap-1.5 h-8 justify-center cursor-pointer"
             >
-              <TruckIcon className="size-4 text-primary" />
-              <span>Switch Assigned Trip</span>
+              <TruckIcon className="size-3.5 text-primary" />
+              <span>Assigned Trips</span>
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => {
+                onOpenChange(false);
+                navigate("/driver/vehicle");
+              }}
+              className="text-xs font-semibold gap-1.5 h-8 justify-center cursor-pointer"
+            >
+              <GaugeIcon className="size-3.5 text-primary" />
+              <span>Vehicle Stats</span>
             </Button>
           </div>
           <SheetTitle className="font-heading font-black text-base text-foreground flex items-center justify-between">
@@ -138,6 +158,26 @@ export function DriverDrawer({ isOpen, onOpenChange }: DriverDrawerProps) {
             })}
           </div>
         </div>
+
+        <div className="p-3 border-t border-border bg-card">
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={() => setIsBreakdownDialogOpen(true)}
+            className="w-full text-xs font-bold gap-2 h-9 bg-rose-600 hover:bg-rose-700 text-white cursor-pointer shadow-xs"
+          >
+            <WarningOctagonIcon className="size-4" weight="bold" />
+            <span>Report Vehicle Breakdown</span>
+          </Button>
+        </div>
+
+        <DriverBreakdownDialog
+          isOpen={isBreakdownDialogOpen}
+          onOpenChange={setIsBreakdownDialogOpen}
+          vehicleId={route?.trip.vehicle.id || "VEH001"}
+          regNumber={route?.trip.vehicle.reg_number || "NP-4811"}
+          isReefer={route?.trip.vehicle.temp === "reefer"}
+        />
       </SheetContent>
     </Sheet>
   );

@@ -12,3 +12,4 @@ export * from "./driver-trip-card";
 export * from "./vehicle-identity-card";
 export * from "./vehicle-reefer-card";
 export * from "./vehicle-fuel-card";
+export * from "./driver-breakdown-dialog";

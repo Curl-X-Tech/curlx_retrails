@@ -260,9 +260,11 @@ def allocation_detail(ctx: TripContext) -> dict[str, Any]:
         },
         "driver": {
             "id": str(driver.id) if driver else "",
-            "name": driver.name if driver else "",
+            "name": f"{driver.first_name} {driver.last_name}".strip() if driver else "",
+            "email": driver.email if driver else "",
             "phone": driver.phone if driver else "",
             "license_number": driver.license_number if driver else None,
+            "employee_code": driver.employee_code if driver else None,
         },
         "depot": {"id": str(ctx.depot.id), "code": ctx.depot.code, "name": ctx.depot.name},
         "brand": {"id": str(ctx.brand.id), "code": ctx.brand.code, "name": ctx.brand.name},
