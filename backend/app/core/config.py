@@ -45,14 +45,9 @@ class Settings(BaseSettings):
         "https://localhost",
     ]
 
-    # Email & SMTP Configuration
-    SMTP_TLS: bool = False
-    SMTP_SSL: bool = False
-    SMTP_PORT: int = 1025
-    SMTP_HOST: str | None = None
-    SMTP_USER: str | None = None
-    SMTP_PASSWORD: str | None = None
-    EMAILS_FROM_EMAIL: EmailStr | None = "info@example.com"
+    # Email Configuration (Resend REST API)
+    RESEND_API_KEY: str | None = None
+    EMAILS_FROM_EMAIL: EmailStr | None = "noreply@mail.curlx.tech"
     EMAILS_FROM_NAME: str | None = "ReTrails"
     FRONTEND_HOST: str = "http://localhost:5173"
     EMAIL_RESET_TOKEN_EXPIRE_HOURS: int = 24

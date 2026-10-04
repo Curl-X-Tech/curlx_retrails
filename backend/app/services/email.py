@@ -1,11 +1,8 @@
 import logging
-import smtplib
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
 from pathlib import Path
 from typing import Any
 
-import anyio
+import httpx
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 from pydantic import BaseModel, EmailStr
 
@@ -26,7 +23,7 @@ class EmailPayload(BaseModel):
 
 
 class EmailService:
-    """Core email service handling template rendering and SMTP delivery."""
+    """Core email service handling template rendering and Resend API delivery."""
 
     def __init__(self, templates_dir: Path = TEMPLATES_DIR) -> None:
         self.templates_dir = templates_dir
@@ -51,59 +48,50 @@ class EmailService:
         template = self.jinja_env.get_template(template_name)
         return template.render(merged_context)
 
-    def _send_smtp_sync(
+    async def _send_resend_api(
         self,
         email_to: str,
         subject: str,
         html_content: str,
         text_content: str | None = None,
     ) -> bool:
-        """Synchronous helper that connects to SMTP server and transmits message."""
+        """Sends an email using Resend's REST API."""
         from_header = (
             f"{settings.EMAILS_FROM_NAME} <{settings.EMAILS_FROM_EMAIL}>"
             if settings.EMAILS_FROM_NAME
             else str(settings.EMAILS_FROM_EMAIL)
         )
-
-        message = MIMEMultipart("alternative")
-        message["Subject"] = subject
-        message["From"] = from_header
-        message["To"] = email_to
-
+        payload: dict[str, Any] = {
+            "from": from_header,
+            "to": [email_to],
+            "subject": subject,
+            "html": html_content,
+        }
         if text_content:
-            message.attach(MIMEText(text_content, "plain", "utf-8"))
-        message.attach(MIMEText(html_content, "html", "utf-8"))
+            payload["text"] = text_content
 
-        if not settings.SMTP_HOST:
-            logger.info(
-                "SMTP_HOST is not configured. Email to %s saved to dev outbox.",
-                email_to,
+        headers = {
+            "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+            "Content-Type": "application/json",
+        }
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            response = await client.post(
+                "https://api.resend.com/emails",
+                json=payload,
+                headers=headers,
             )
-            return True
-
-        if settings.SMTP_SSL:
-            with smtplib.SMTP_SSL(
-                host=settings.SMTP_HOST,
-                port=settings.SMTP_PORT,
-                timeout=15,
-            ) as server:
-                if settings.SMTP_USER and settings.SMTP_PASSWORD:
-                    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-                server.sendmail(str(settings.EMAILS_FROM_EMAIL), [email_to], message.as_string())
-        else:
-            with smtplib.SMTP(
-                host=settings.SMTP_HOST,
-                port=settings.SMTP_PORT,
-                timeout=15,
-            ) as server:
-                if settings.SMTP_TLS:
-                    server.starttls()
-                if settings.SMTP_USER and settings.SMTP_PASSWORD:
-                    server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
-                server.sendmail(str(settings.EMAILS_FROM_EMAIL), [email_to], message.as_string())
-
-        logger.info("Email transmitted successfully to: %s", email_to)
-        return True
+            if response.is_success:
+                data = response.json()
+                logger.info("Email delivered via Resend API to %s: ID %s", email_to, data.get("id"))
+                return True
+            else:
+                logger.error(
+                    "Resend API error sending email to %s: %s %s",
+                    email_to,
+                    response.status_code,
+                    response.text,
+                )
+                return False
 
     async def send_email(
         self,
@@ -112,29 +100,43 @@ class EmailService:
         html_content: str,
         text_content: str | None = None,
     ) -> bool:
-        """Sends an email asynchronously via SMTP or logs to outbox in dev/test mode."""
-        if not settings.SMTP_HOST:
-            email_record = {
-                "to": email_to,
-                "subject": subject,
-                "html": html_content,
-                "text": text_content,
-            }
-            self.outbox.append(email_record)
-            logger.info("Email recorded in dev outbox for %s: %s", email_to, subject)
-            return True
+        """Sends an email via Resend API or logs to dev console and outbox in local mode."""
+        if settings.RESEND_API_KEY:
+            try:
+                return await self._send_resend_api(
+                    email_to=email_to,
+                    subject=subject,
+                    html_content=html_content,
+                    text_content=text_content,
+                )
+            except Exception as exc:
+                logger.error("Failed to send email to %s via Resend API: %s", email_to, exc)
+                return False
 
-        try:
-            return await anyio.to_thread.run_sync(
-                self._send_smtp_sync,
-                email_to,
-                subject,
-                html_content,
-                text_content,
-            )
-        except (smtplib.SMTPException, OSError, ValueError) as exc:
-            logger.error("Failed to send email to %s via SMTP: %s", email_to, exc)
-            return False
+        # In dev/local mode without RESEND_API_KEY, record to in-memory outbox and write formatted log
+        email_record = {
+            "to": email_to,
+            "subject": subject,
+            "html": html_content,
+            "text": text_content,
+        }
+        self.outbox.append(email_record)
+
+        # Visual console output for local development terminal
+        dev_log_box = (
+            f"\n"
+            f"┌─────────────────────────────────── [DEV EMAIL OUTBOX] ───────────────────────────────────┐\n"
+            f"│ To:      {email_to:<78} │\n"
+            f"│ From:    {str(settings.EMAILS_FROM_EMAIL):<78} │\n"
+            f"│ Subject: {subject:<78} │\n"
+            f"├──────────────────────────────────────────────────────────────────────────────────────────┤\n"
+            f"│ Body Preview:                                                                            │\n"
+            f"│ {(text_content or html_content)[:140].replace(chr(10), ' '):<88} │\n"
+            f"└──────────────────────────────────────────────────────────────────────────────────────────┘\n"
+        )
+        print(dev_log_box, flush=True)
+        logger.info("[DEV EMAIL] Dispatched to %s: %s", email_to, subject)
+        return True
 
     async def send_reset_password_email(
         self,
@@ -157,15 +159,6 @@ class EmailService:
 
         html_content = self.render_template("reset_password.html", context)
         text_content = self.render_template("reset_password.txt", context)
-
-        if not settings.SMTP_HOST:
-            logger.info(
-                "Password reset link generated for %s (dev mode): %s",
-                email_to,
-                reset_link,
-            )
-        else:
-            logger.info("Password reset email dispatched to %s", email_to)
 
         return await self.send_email(
             email_to=email_to,
