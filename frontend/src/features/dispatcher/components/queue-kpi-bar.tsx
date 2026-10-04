@@ -18,13 +18,17 @@ export function QueueKpiBar({ kpis }: QueueKpiBarProps) {
       <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
         <PackageIcon className="size-3.5 text-primary shrink-0" />
         <span className="text-muted-foreground text-[11px]">Orders:</span>
-        <span className="font-bold text-foreground text-[11px] tabular-nums">{kpis.totalOrders}</span>
+        <span className="font-bold text-foreground text-[11px] tabular-nums">
+          {kpis.totalOrders}
+        </span>
       </div>
 
       <div className="flex items-center gap-1.5 px-2.5 py-1 bg-card border border-border/50 rounded-lg shadow-2xs">
         <StorefrontIcon className="size-3.5 text-sky-600 shrink-0" />
         <span className="text-muted-foreground text-[11px]">Outlets:</span>
-        <span className="font-bold text-foreground text-[11px] tabular-nums">{kpis.totalStores}</span>
+        <span className="font-bold text-foreground text-[11px] tabular-nums">
+          {kpis.totalStores}
+        </span>
       </div>
 
       {kpis.deferredYesterdayOrders > 0 && (

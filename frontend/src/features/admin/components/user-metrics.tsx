@@ -25,7 +25,9 @@ export function UserMetrics({ users }: UserMetricsProps) {
           <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
             Total Personnel
           </p>
-          <p className="text-xl font-bold text-foreground mt-0.5 tabular-nums">{users.length}</p>
+          <p className="text-xl font-bold text-foreground mt-0.5 tabular-nums">
+            {users.length}
+          </p>
         </div>
         <div className="size-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
           <UsersIcon className="size-5" weight="duotone" />
@@ -37,7 +39,9 @@ export function UserMetrics({ users }: UserMetricsProps) {
           <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
             Active Accounts
           </p>
-          <p className="text-xl font-bold text-foreground mt-0.5 tabular-nums">{activeCount}</p>
+          <p className="text-xl font-bold text-foreground mt-0.5 tabular-nums">
+            {activeCount}
+          </p>
         </div>
         <div className="size-9 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
           <CheckCircleIcon className="size-5" weight="duotone" />

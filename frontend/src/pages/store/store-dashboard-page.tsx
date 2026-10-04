@@ -81,7 +81,9 @@ export function StoreDashboardPage() {
               >
                 <div className="min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-primary tabular-nums">{order.orderRef}</span>
+                    <span className="font-bold text-primary tabular-nums">
+                      {order.orderRef}
+                    </span>
                     <span className="text-muted-foreground">• {order.outletName}</span>
                   </div>
                   <span className="text-[11px] text-muted-foreground tabular-nums">

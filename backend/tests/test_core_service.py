@@ -76,4 +76,3 @@ def test_core_service_openapi_schema(core_app):
     assert "/api/v1/fleet/vehicles" in openapi["paths"]
     assert "/api/v1/auth/jwt/login" in openapi["paths"]
     assert "/api/v1/master/brands" in openapi["paths"]
-

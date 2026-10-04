@@ -94,9 +94,7 @@ async def get_order(id: str, user: AuthDep, session: SessionDep) -> OrderDetail:
         .order_by(OrderItem.package_code.asc())
     )
     items = [
-        OrderItemRead.model_validate(line).model_copy(
-            update={"item_name": name, "category": category, "unit": unit}
-        )
+        OrderItemRead.model_validate(line).model_copy(update={"item_name": name, "category": category, "unit": unit})
         for line, name, category, unit in rows.all()
     ]
     outlet = await session.get(Outlet, order.outlet_id)

@@ -19,7 +19,8 @@ interface OrderPlacementDialogProps {
 type StepState = "done" | "failed" | "active" | "idle";
 
 function StepMarker({ state }: { state: StepState }) {
-  const base = "absolute -left-2.5 top-0.5 size-5 rounded-full flex items-center justify-center";
+  const base =
+    "absolute -left-2.5 top-0.5 size-5 rounded-full flex items-center justify-center";
   if (state === "done")
     return (
       <span className={`${base} bg-primary text-primary-foreground`}>
@@ -49,20 +50,16 @@ export function OrderPlacementDialog({
 }: OrderPlacementDialogProps) {
   const isCutoff = stage === "cutoff";
   const received: StepState = stage === "received" ? "active" : "done";
-  const cutoff: StepState = isCutoff
-    ? "failed"
-    : stage === "received"
-      ? "idle"
-      : "done";
+  const cutoff: StepState = isCutoff ? "failed" : stage === "received" ? "idle" : "done";
   const placed: StepState =
     stage === "placed" ? "done" : stage === "placing" ? "active" : "idle";
 
   return (
-    <Dialog open={stage !== null} onOpenChange={(open) => !open && isCutoff && onCancel()}>
-      <DialogContent
-        showCloseButton={false}
-        className="sm:max-w-md p-6"
-      >
+    <Dialog
+      open={stage !== null}
+      onOpenChange={(open) => !open && isCutoff && onCancel()}
+    >
+      <DialogContent showCloseButton={false} className="sm:max-w-md p-6">
         <DialogHeader>
           <DialogTitle>Placing order</DialogTitle>
           <DialogDescription className="sr-only">

@@ -50,7 +50,9 @@ export function StoreReportsPage() {
             <span className="text-[11px] text-muted-foreground font-medium block">
               Crate Reconciliation
             </span>
-            <p className="text-2xl font-bold text-primary mt-1 tabular-nums">100% Balanced</p>
+            <p className="text-2xl font-bold text-primary mt-1 tabular-nums">
+              100% Balanced
+            </p>
             <span className="text-[11px] text-muted-foreground">
               Empty crates returned to depot
             </span>
@@ -60,7 +62,9 @@ export function StoreReportsPage() {
             <span className="text-[11px] text-muted-foreground font-medium block">
               Monthly Replenishment Spend
             </span>
-            <p className="text-2xl font-extrabold text-foreground mt-1 tabular-nums">LKR 4.82M</p>
+            <p className="text-2xl font-extrabold text-foreground mt-1 tabular-nums">
+              LKR 4.82M
+            </p>
             <span className="text-[11px] text-muted-foreground">
               Adhering to active price list
             </span>
