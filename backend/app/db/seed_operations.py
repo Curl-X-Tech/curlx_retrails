@@ -139,16 +139,20 @@ async def seed_operational_pipeline(
             profile_row = driver_profile.scalar_one_or_none()
 
             pod = ProofOfDelivery(
+                trip_id=active_trip.id,
                 route_leg_id=first_leg.id,
                 order_id=first_leg.order_id,
-                driver_id=profile_row.id if profile_row else None,
+                outlet_id=first_leg.outlet_id,
                 recipient_name="Sunil Perera (Store Mgr)",
-                signature_data_url="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Ik0xMCAxMCBMMTAwIDEwMCIvPjwvc3ZnPg==",
-                handover_temperature_c=4.2 if first_leg.order_id else None,
-                photo_proof_url="https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d",
-                arrived_at=first_leg.arrived_at,
-                completed_at=first_leg.completed_at,
-                created_by=active_trip.driver_id,
+                recipient_phone="+94 77 123 4567",
+                signature_svg="<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><path d='M10 30 Q40 5 70 35 T110 25' stroke='#1e293b' stroke-width='2' fill='none'/></svg>",
+                arrived_at=first_leg.arrived_at or datetime.now(timezone.utc),
+                delivered_at=first_leg.completed_at or datetime.now(timezone.utc),
+                delivery_lat=6.9344,
+                delivery_lng=79.8428,
+                temperature_reading=4.2 if first_leg.order_id else None,
+                photo_evidence_url="http://localhost:9000/retrails-media/pod/pod_sample_001.webp",
+                is_offline_synced=True,
             )
             session.add(pod)
             counts["pods"] += 1

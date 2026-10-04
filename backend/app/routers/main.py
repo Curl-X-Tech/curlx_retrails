@@ -1,5 +1,5 @@
 from collections.abc import Sequence
-from typing import Annotated
+from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Request, status
 from fastapi_users import exceptions
@@ -20,7 +20,9 @@ from app.core.users import (
 from app.entities import User
 from app.guards import (
     auth_rate_limiter,
+    require_dispatcher,
     require_driver,
+    require_loader,
     require_store_manager,
     require_system_admin,
 )
@@ -33,6 +35,7 @@ from app.routers.driver_route import router as driver_route_router
 from app.routers.loader import router as loader_router
 from app.routers.sync import router as sync_router
 from app.routers.telemetry import router as telemetry_router
+from app.routers.uploads import router as uploads_router
 
 api_router = APIRouter()
 
@@ -48,6 +51,7 @@ for _router in (
     telemetry_router,
     auth_refresh_router,
     sync_router,
+    uploads_router,
 ):
     api_router.include_router(_router)
 
@@ -125,11 +129,18 @@ def admin_only_guard(
     return {"message": "Access granted to admin", "user_id": str(user.id)}
 
 
-@api_router.get("/guards/store-manager", tags=["guards"])
-def store_manager_guard(
-    user: Annotated[User, Depends(require_store_manager)],
+@api_router.get("/guards/dispatcher", tags=["guards"])
+def dispatcher_guard(
+    user: Annotated[User, Depends(require_dispatcher)],
 ) -> dict[str, str]:
-    return {"message": "Access granted to store manager", "user_id": str(user.id)}
+    return {"message": "Access granted to dispatcher", "user_id": str(user.id)}
+
+
+@api_router.get("/guards/loader", tags=["guards"])
+def loader_guard(
+    user: Annotated[User, Depends(require_loader)],
+) -> dict[str, str]:
+    return {"message": "Access granted to loader", "user_id": str(user.id)}
 
 
 @api_router.get("/guards/driver", tags=["guards"])
@@ -137,6 +148,14 @@ def driver_guard(
     user: Annotated[User, Depends(require_driver)],
 ) -> dict[str, str]:
     return {"message": "Access granted to driver", "user_id": str(user.id)}
+
+
+@api_router.get("/guards/store-manager", tags=["guards"])
+def store_manager_guard(
+    user: Annotated[User, Depends(require_store_manager)],
+) -> dict[str, str]:
+    return {"message": "Access granted to store manager", "user_id": str(user.id)}
+
 
 
 @api_router.post(
@@ -151,7 +170,7 @@ async def trigger_admin_seed(
     reset: bool = False,
 ) -> dict[str, Any]:
     """Execute clean hierarchical database seeding (Admin only)."""
-    from app.db.seed import seed_database
+    from app.db import seed_database
 
     summary = await seed_database(session, reset=reset)
     return {"status": "success", "summary": summary}

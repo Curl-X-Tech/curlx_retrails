@@ -54,6 +54,14 @@ class Settings(BaseSettings):
     # Rate Limiting Configuration
     RATE_LIMIT_AUTH_PER_MINUTE: int = 20
     RATE_LIMIT_API_PER_MINUTE: int = 100
+    # S3 / MinIO Object Storage Configuration
+    STORAGE_BACKEND: str = "minio"
+    S3_ENDPOINT_URL: str = "http://localhost:9000"
+    S3_PUBLIC_URL: str = "http://localhost:9000"
+    S3_ACCESS_KEY: str = "minioadmin"
+    S3_SECRET_KEY: str = "minioadmin"
+    S3_BUCKET_NAME: str = "retrails-media"
+    S3_REGION: str = "us-east-1"
 
     @computed_field
     @property

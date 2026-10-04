@@ -204,6 +204,8 @@ Port registry when the stack is running:
 | Backend API & Docs | http://localhost:8000/docs | FastAPI Swagger Documentation |
 | PostgreSQL | `localhost:5432` | Relational Database (`retrails_db`) |
 | Redis | `localhost:6379` | Cache & In-Memory Store |
+| MinIO S3 Storage | http://localhost:9000 | S3 Object Storage API (`retrails-media`) |
+| MinIO Web Console | http://localhost:9001 | MinIO Web Management Console |
 | Email Preview Server | http://localhost:3001 | React Email Development Server |
 | pgAdmin 4 | http://localhost:5050 | PostgreSQL Web Admin |
 

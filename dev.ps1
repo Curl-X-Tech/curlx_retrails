@@ -43,6 +43,7 @@ function Print-Banner {
     Write-Host "  API ReDoc:                 " -NoNewline; Write-Host "http://localhost:8000/redoc" -ForegroundColor Cyan
     Write-Host "  PostgreSQL Database:       " -NoNewline; Write-Host "localhost:5432" -ForegroundColor Cyan
     Write-Host "  Redis Cache / Broker:      " -NoNewline; Write-Host "localhost:6379" -ForegroundColor Cyan
+    Write-Host "  MinIO S3 API / Console:    " -NoNewline; Write-Host "http://localhost:9000 (Console: 9001)" -ForegroundColor Cyan
     Write-Host "  Mailpit Web Inbox:         " -NoNewline; Write-Host "http://localhost:8025" -ForegroundColor Cyan -NoNewline; Write-Host " (SMTP: 1025)"
     Write-Host "  React Email Preview:       " -NoNewline; Write-Host "http://localhost:3001" -ForegroundColor Cyan -NoNewline; Write-Host " (via .\dev.ps1 emails)"
     Write-Host "================================================================" -ForegroundColor White
