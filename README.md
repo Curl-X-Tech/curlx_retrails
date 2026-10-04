@@ -82,8 +82,6 @@ graph TD
 │   │   ├── routers/             # API v1 route handlers
 │   │   ├── schemas/             # Pydantic v2 validation schemas
 │   │   └── services/            # Business logic and Allocation Engine
-│   ├── helpers/
-│   │   └── init-db.sql          # PostgreSQL database initialization script
 │   ├── tests/                   # Backend pytest test suite
 │   ├── Dockerfile
 │   └── pyproject.toml

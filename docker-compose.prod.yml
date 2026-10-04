@@ -10,7 +10,6 @@ services:
       POSTGRES_DB: retrails_db
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./backend/helpers/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d retrails_db"]
       interval: 5s
