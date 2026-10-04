@@ -10,7 +10,7 @@ ENV UV_COMPILE_BYTECODE=1
 ENV UV_LINK_MODE=copy
 
 # Install dependencies in a cached layer
-COPY pyproject.toml ./
+COPY pyproject.toml uv.lock* README.md ./
 RUN uv sync --no-install-project --no-dev
 
 # Copy application source code

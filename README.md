@@ -41,12 +41,13 @@ ReTrails is an offline-first, cross-platform logistics and retail distribution m
   - Dexie.js (IndexedDB) for offline-first local state and queued background mutations.
   - Interactive distribution maps with Leaflet and live telemetry simulation.
   - Progressive Web App support for mobile field drivers and store managers.
-- **Emails (React Email)**:
-  - Transactional email templates rendered to HTML for SMTP delivery.
+- **Emails (React Email & Resend)**:
+  - Transactional email templates rendered to HTML for Resend REST API delivery.
+  - Formatted console outbox logging for zero-dependency local development and testing.
   - Preview server on port 3001 for rapid template iteration.
 - **Containerization**:
   - `docker-compose.yml`: Full-stack containerized deployment.
-  - `docker-compose.dev.yml`: Local dev infrastructure (PostgreSQL, Redis, Mailpit).
+  - `docker-compose.dev.yml`: Local dev infrastructure (PostgreSQL, Redis).
   - `docker-compose.prod.yml`: Production HTTPS deployment with Nginx and Let's Encrypt.
 
 ---
@@ -60,7 +61,7 @@ graph TD
     Frontend -->|REST API / JWT| Backend[FastAPI Backend :8000]
     Backend -->|SQLAlchemy 2.0 Async| DB[(PostgreSQL :5432)]
     Backend -->|Cache / Sessions| Redis[(Redis :6379)]
-    Backend -->|SMTP| Mailer[Mailpit / SMTP Gateway]
+    Backend -->|Resend REST API / Dev Outbox| EmailGateway[Resend / Terminal Outbox]
     Backend -->|Hybrid Solver| ORTools[OR-Tools CP-SAT & Heuristic Engine]
     Emails[React Email Templates] -->|Compiled HTML| Backend
 ```
@@ -101,7 +102,7 @@ graph TD
 │   ├── emails/
 │   └── package.json
 ├── docker-compose.yml           # Full-stack local container deployment
-├── docker-compose.dev.yml       # Dev backing infrastructure (PostgreSQL, Redis, Mailpit)
+├── docker-compose.dev.yml       # Dev backing infrastructure (PostgreSQL, Redis)
 ├── docker-compose.prod.yml      # Production HTTPS deployment with Let's Encrypt
 └── .env.example                 # Environment variables template
 ```
@@ -151,7 +152,7 @@ graph TD
 # Typecheck code
 ./dev.sh typecheck
 
-# Start dev infrastructure only (PostgreSQL, Redis, Mailpit)
+# Start dev infrastructure only (PostgreSQL, Redis)
 ./dev.sh services
 ./dev.sh services:down
 ```
@@ -179,8 +180,7 @@ Port registry when the stack is running:
 | Backend API & Docs | http://localhost:8000/docs | FastAPI Swagger Documentation |
 | PostgreSQL | `localhost:5432` | Relational Database (`general_db`) |
 | Redis | `localhost:6379` | Cache & In-Memory Store |
-| Mailpit Web UI | http://localhost:8025 | Local Email Inspection |
-| Mailpit SMTP | `localhost:1025` | Local SMTP Gateway |
+| Email Preview Server | http://localhost:3001 | React Email Development Server |
 | pgAdmin 4 | http://localhost:5050 | PostgreSQL Web Admin |
 
 ---
