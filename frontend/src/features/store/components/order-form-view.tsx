@@ -10,6 +10,7 @@ import { OrderFormSummaryStrip } from "./order-form-summary-strip";
 import { OrderFormActionBar } from "./order-form-action-bar";
 import { OrderFormPrintModal } from "./order-form-print-modal";
 import { OrderFormSuccessModal } from "./order-form-success-modal";
+import { OrderPlacementDialog } from "./order-placement-dialog";
 
 export function OrderFormView({ catalog }: { catalog: OrderCatalog }) {
   const builder = useOrderBuilder(catalog);
@@ -95,6 +96,19 @@ export function OrderFormView({ catalog }: { catalog: OrderCatalog }) {
         />
       </div>
 
+      {builder.submitError && (
+        <p className="px-4 md:px-8 py-2 text-xs font-medium text-red-600 bg-card border-t border-border">
+          {builder.submitError}
+        </p>
+      )}
+
+      <OrderPlacementDialog
+        stage={builder.placementStage}
+        nextDate={builder.nextOrderDate}
+        onSchedule={builder.handleScheduleNextDay}
+        onCancel={() => builder.setPlacementStage(null)}
+      />
+
       <OrderFormActionBar
         isSubmitting={builder.isSubmitting}
         hasRows={builder.rows.length > 0}
@@ -119,6 +133,7 @@ export function OrderFormView({ catalog }: { catalog: OrderCatalog }) {
         orderRef={builder.orderRef}
         selectedOutlet={builder.selectedOutlet}
         selectedDate={builder.selectedDate}
+        rows={builder.rows}
         totalWeightKg={builder.totalWeightKg}
         totalOrderValueLkr={builder.totalOrderValueLkr}
         onCreateAnother={() => {

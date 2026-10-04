@@ -8,7 +8,9 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
-import type { StoreOutletOption } from "../types";
+import { PrinterIcon } from "@phosphor-icons/react";
+import { printInvoice } from "../print-invoice";
+import type { StoreOrderItemRow, StoreOutletOption } from "../types";
 
 interface OrderFormSuccessModalProps {
   isOpen: boolean;
@@ -16,6 +18,7 @@ interface OrderFormSuccessModalProps {
   orderRef: string;
   selectedOutlet: StoreOutletOption;
   selectedDate: string;
+  rows: StoreOrderItemRow[];
   totalWeightKg: number;
   totalOrderValueLkr: number;
   onCreateAnother: () => void;
@@ -27,6 +30,7 @@ export function OrderFormSuccessModal({
   orderRef,
   selectedOutlet,
   selectedDate,
+  rows,
   totalWeightKg,
   totalOrderValueLkr,
   onCreateAnother,
@@ -75,6 +79,24 @@ export function OrderFormSuccessModal({
             </span>
           </div>
         </div>
+
+        <Button
+          variant="outline"
+          onClick={() =>
+            printInvoice({
+              orderRef,
+              outlet: selectedOutlet,
+              deliveryDate: selectedDate,
+              rows,
+              totalWeightKg,
+              totalOrderValueLkr,
+            })
+          }
+          className="w-full mb-3 rounded-xl text-xs gap-1.5 cursor-pointer"
+        >
+          <PrinterIcon className="size-4" />
+          Print Invoice
+        </Button>
 
         <div className="flex items-center gap-3">
           <Button

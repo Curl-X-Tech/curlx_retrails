@@ -21,3 +21,4 @@ export * from "./store-dashboard-alerts";
 export * from "./store-deferrals-kpi";
 export * from "./store-deferrals-table";
 export * from "./store-deferrals-audit-table";
+export * from "./order-placement-dialog";

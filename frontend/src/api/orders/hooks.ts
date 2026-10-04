@@ -1,11 +1,9 @@
-import * as React from "react";
 import {
   useMutation,
   useQuery,
   useQueryClient,
   type UseQueryOptions,
 } from "@tanstack/react-query";
-import { useCurrentUser } from "@/api/auth";
 import { allocationsKeys, ordersKeys } from "@/api/keys";
 import { createOrder, getOrder, getOrders, updateOrderStatus } from "./api";
 import type {
@@ -25,20 +23,11 @@ export function useOrders<TData = CustomerOrder[]>(
     "queryKey" | "queryFn"
   > = {}
 ) {
-  const { data: user } = useCurrentUser();
-
-  const scopedFilters = React.useMemo<OrderFilters>(() => {
-    if (user?.role === "store_manager" && user.depotId && !filters.outlet_id) {
-      return { ...filters, outlet_id: user.depotId };
-    }
-    return filters;
-  }, [filters, user]);
-
   return useQuery({
     staleTime: ORDERS_STALE_TIME,
     ...options,
-    queryKey: [...ordersKeys.lists(), scopedFilters],
-    queryFn: ({ signal }) => getOrders(scopedFilters, signal),
+    queryKey: [...ordersKeys.lists(), filters],
+    queryFn: ({ signal }) => getOrders(filters, signal),
   });
 }
 

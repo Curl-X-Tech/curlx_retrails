@@ -1,3 +1,4 @@
+import { getTodayColomboDate } from "@/lib/business-day";
 import {
   MagnifyingGlassIcon,
   CalendarBlankIcon,
@@ -115,6 +116,7 @@ export function OrderFormDestination({
           <Input
             type="date"
             value={selectedDate}
+            min={getTodayColomboDate()}
             onChange={(e) => onChangeDate(e.target.value)}
             className="pl-9 h-12 text-xs rounded-xl bg-card border-border font-medium cursor-pointer shadow-2xs"
           />

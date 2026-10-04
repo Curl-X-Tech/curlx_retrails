@@ -7,6 +7,7 @@ import {
   SheetTitle,
   SheetDescription,
 } from "@/components/ui/sheet";
+import { printInvoice } from "../print-invoice";
 import type { StoreOrderItemRow, StoreOutletOption } from "../types";
 
 interface OrderFormPrintModalProps {
@@ -40,7 +41,7 @@ export function OrderFormPrintModal({
           <div className="flex items-center gap-2">
             <ReceiptIcon className="size-5 text-primary" />
             <SheetTitle className="text-lg font-bold text-foreground">
-              Draft Manifest Bill of Lading
+              Invoice Preview
             </SheetTitle>
           </div>
           <SheetDescription className="text-xs text-muted-foreground">
@@ -111,11 +112,20 @@ export function OrderFormPrintModal({
           </Button>
           <Button
             size="sm"
-            onClick={() => window.print()}
+            onClick={() =>
+              printInvoice({
+                orderRef,
+                outlet: selectedOutlet,
+                deliveryDate: selectedDate,
+                rows,
+                totalWeightKg,
+                totalOrderValueLkr,
+              })
+            }
             className="rounded-xl bg-primary text-primary-foreground gap-1.5"
           >
             <PrinterIcon className="size-4" />
-            Print Now
+            Print Invoice
           </Button>
         </div>
       </SheetContent>

@@ -17,6 +17,11 @@ import {
   calculateOrderMetrics,
 } from "./order-builder-utils";
 
+export type PlacementStage = "received" | "cutoff" | "placing" | "placed" | null;
+
+const STEP_DELAY_MS = 900;
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const matches = (query: string, ...fields: string[]) =>
   fields.some((f) => f.toLowerCase().includes(query.toLowerCase()));
 
@@ -32,16 +37,21 @@ export function useOrderBuilder({
     outlets[0]
   );
   const [selectedDate, setSelectedDate] = React.useState<string>(() =>
-    isPastCutoff() ? getTargetOrderDate() : getTodayColomboDate()
+    getTodayColomboDate()
   );
   const [isUrgent, setIsUrgent] = React.useState<boolean>(false);
   const [outletSearch, setOutletSearch] = React.useState<string>("");
   const [catalogSearch, setCatalogSearch] = React.useState<string>("");
   const [isSearchingCatalog, setIsSearchingCatalog] = React.useState<boolean>(false);
-  const [rows, setRows] = React.useState<StoreOrderItemRow[]>(() => loadSavedDraftRows());
+  const [rows, setRows] = React.useState<StoreOrderItemRow[]>(() => {
+    const catalogIds = new Set(products.map((p) => p.id));
+    return loadSavedDraftRows().filter((r) => catalogIds.has(r.productId));
+  });
   const [selectedRowIds, setSelectedRowIds] = React.useState<string[]>([]);
   const [showSuccessModal, setShowSuccessModal] = React.useState<boolean>(false);
   const [showPrintPreview, setShowPrintPreview] = React.useState<boolean>(false);
+  const [placementStage, setPlacementStage] = React.useState<PlacementStage>(null);
+  const [submitError, setSubmitError] = React.useState<string>("");
 
   const createOrderMutation = useCreateOrder();
 
@@ -92,13 +102,15 @@ export function useOrderBuilder({
 
   const metrics = calculateOrderMetrics(rows);
 
-  const handleConfirmOrder = async () => {
+  const submitOrder = async (orderDate: string) => {
     if (rows.length === 0 || !selectedOutlet) return;
+    setSubmitError("");
+    setPlacementStage("placing");
     try {
       const created = await createOrderMutation.mutateAsync({
         outlet_id: selectedOutlet.id,
-        order_date: selectedDate,
-        required_date: selectedDate,
+        order_date: orderDate,
+        required_date: orderDate,
         temp_requirement: metrics.hasColdChain ? "chilled" : "ambient",
         is_urgent: isUrgent,
         items: rows.map((r) => ({
@@ -107,14 +119,41 @@ export function useOrderBuilder({
           special_handling_code: r.specialHandlingCode,
         })),
       });
+      setSelectedDate(orderDate);
       setCreatedOrderRef(created.order_ref);
       localStorage.removeItem(DRAFT_STORAGE_KEY);
+      setPlacementStage("placed");
+      await wait(STEP_DELAY_MS);
+      setPlacementStage(null);
       setShowSuccessModal(true);
-    } catch {
-      setCreatedOrderRef(orderRef);
-      setShowSuccessModal(true);
+    } catch (err) {
+      setPlacementStage(null);
+      if (!navigator.onLine) {
+        setCreatedOrderRef(orderRef);
+        setShowSuccessModal(true);
+        return;
+      }
+      setSubmitError(err instanceof Error ? err.message : "Failed to place the order.");
     }
   };
+
+  const handleConfirmOrder = async () => {
+    if (rows.length === 0 || !selectedOutlet) return;
+    if (!selectedDate || selectedDate < getTodayColomboDate()) {
+      setSubmitError("Delivery date cannot be in the past.");
+      return;
+    }
+    setSubmitError("");
+    setPlacementStage("received");
+    await wait(STEP_DELAY_MS);
+    if (isPastCutoff() && selectedDate <= getTodayColomboDate()) {
+      setPlacementStage("cutoff");
+      return;
+    }
+    await submitOrder(selectedDate);
+  };
+
+  const handleScheduleNextDay = () => submitOrder(getTargetOrderDate());
 
   return {
     orderRef: createdOrderRef || orderRef,
@@ -154,5 +193,10 @@ export function useOrderBuilder({
     toggleSelectAllRows,
     toggleSelectRow,
     handleConfirmOrder,
+    placementStage,
+    setPlacementStage,
+    handleScheduleNextDay,
+    nextOrderDate: getTargetOrderDate(),
+    submitError,
   };
 }
