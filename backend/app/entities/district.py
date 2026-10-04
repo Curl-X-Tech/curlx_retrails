@@ -12,9 +12,7 @@ class District(BaseEntity, table=True):
     __tablename__ = "district"
 
     province: str = Field(nullable=False, index=True)
-    assigned_depot_id: uuid.UUID = Field(
-        foreign_key="depot.id", nullable=False, index=True
-    )
+    assigned_depot_id: uuid.UUID = Field(foreign_key="depot.id", nullable=False, index=True)
 
     def __init__(self, **data: Any):
         super().__init__(**data)

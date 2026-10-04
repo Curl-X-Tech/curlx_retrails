@@ -6,9 +6,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.exc import SQLAlchemyError
 
-from app.api.main import api_router
 from app.core.config import settings
 from app.core.db import init_db
+from app.routers.main import api_router
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -29,8 +29,16 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 app = FastAPI(
-    title=settings.PROJECT_NAME,
+    title="Waypoint — Core Service",
+    version="1.0.0",
+    description=(
+        "Unified Core Service for Team CurlX ReTrails: "
+        "Identity & Auth, Master Domain (Brands, Calendar, Depots, Districts, Items, Outlets, Prices), "
+        "Fleet, Telemetry, Orders, Deferrals, Allocations, Loader Bay, Driver Routes, Deliveries, and Sync."
+    ),
     openapi_url=f"{settings.API_V1_STR}/openapi.json",
+    docs_url="/docs",
+    redoc_url="/redoc",
     lifespan=lifespan,
 )
 
@@ -43,7 +51,9 @@ if settings.BACKEND_CORS_ORIGINS:
         allow_headers=["*"],
     )
 
+# --- Core API (/api/v1) ---
 app.include_router(api_router, prefix=settings.API_V1_STR)
+app.include_router(api_router, include_in_schema=False)
 
 
 @app.get("/")
@@ -51,6 +61,11 @@ def root():
     return {"message": f"Welcome to {settings.PROJECT_NAME} API by Team CurlX"}
 
 
-@app.get("/health")
+@app.get("/health", tags=["Health"])
 def health_check():
-    return {"status": "ok"}
+    return {
+        "service": "core-service",
+        "status": "ok",
+        "database": "connected",
+        "version": "1.0.0",
+    }

@@ -75,37 +75,32 @@ async def test_send_reset_password_email():
 
 
 @pytest.mark.asyncio
-async def test_send_email_smtp_mock():
-    """Verify SMTP connection and transmission when SMTP_HOST is configured."""
+async def test_send_email_resend_api():
+    """Verify Resend HTTP REST API delivery when RESEND_API_KEY is configured."""
     service = EmailService()
     service.clear_outbox()
 
-    mock_smtp_instance = MagicMock()
-    mock_smtp_class = MagicMock(return_value=mock_smtp_instance)
-    mock_smtp_instance.__enter__.return_value = mock_smtp_instance
+    mock_response = MagicMock()
+    mock_response.is_success = True
+    mock_response.json.return_value = {"id": "resend_msg_12345"}
 
     with (
-        patch("app.services.email.settings.SMTP_HOST", "smtp.example.com"),
-        patch("app.services.email.settings.SMTP_PORT", 587),
-        patch("app.services.email.settings.SMTP_TLS", True),
-        patch("app.services.email.settings.SMTP_USER", "smtp_user"),
-        patch("app.services.email.settings.SMTP_PASSWORD", "smtp_pass"),
-        patch("smtplib.SMTP", mock_smtp_class),
+        patch("app.services.email.settings.RESEND_API_KEY", "re_test_key_123"),
+        patch("httpx.AsyncClient.post", return_value=mock_response) as mock_post,
     ):
         success = await service.send_email(
             email_to="driver@example.com",
-            subject="Delivery Assigned",
-            html_content="<p>Delivery details</p>",
-            text_content="Delivery details",
+            subject="Delivery Dispatched",
+            html_content="<p>Trip ready</p>",
+            text_content="Trip ready",
         )
 
         assert success is True
-        mock_smtp_class.assert_called_once_with(
-            host="smtp.example.com", port=587, timeout=15
-        )
-        mock_smtp_instance.starttls.assert_called_once()
-        mock_smtp_instance.login.assert_called_once_with("smtp_user", "smtp_pass")
-        mock_smtp_instance.sendmail.assert_called_once()
+        mock_post.assert_called_once()
+        call_kwargs = mock_post.call_args.kwargs
+        assert call_kwargs["json"]["to"] == ["driver@example.com"]
+        assert call_kwargs["json"]["subject"] == "Delivery Dispatched"
+        assert "Bearer re_test_key_123" in call_kwargs["headers"]["Authorization"]
 
 
 @pytest.mark.asyncio

@@ -1,0 +1,14 @@
+[
+{"name": "Colombo", "province": "Western", "depot_code": "PEL"},
+{"name": "Gampaha", "province": "Western", "depot_code": "PEL"},
+{"name": "Kalutara", "province": "Western", "depot_code": "PEL"},
+{"name": "Galle", "province": "Southern", "depot_code": "PEL"},
+{"name": "Matara", "province": "Southern", "depot_code": "PEL"},
+{"name": "Kurunegala", "province": "North Western", "depot_code": "PEL"},
+{"name": "Puttalam", "province": "North Western", "depot_code": "PEL"},
+{"name": "Kandy", "province": "Central", "depot_code": "KDY"},
+{"name": "Matale", "province": "Central", "depot_code": "KDY"},
+{"name": "Nuwara Eliya", "province": "Central", "depot_code": "KDY"},
+{"name": "Badulla", "province": "Uva", "depot_code": "KDY"},
+{"name": "Kegalle", "province": "Sabaragamuwa", "depot_code": "KDY"}
+]

@@ -1,4 +1,4 @@
-import type { VehicleAllocation } from "@/data/mock-allocations";
+import type { VehicleAllocation } from "@/types";
 import { VehicleCard, type VehicleCardData } from "@/components/shared";
 
 interface AllocationVehicleCardProps {

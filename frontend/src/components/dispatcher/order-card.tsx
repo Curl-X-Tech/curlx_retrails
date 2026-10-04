@@ -4,13 +4,13 @@ import {
   SnowflakeIcon,
   SunIcon,
   ArrowSquareOutIcon,
-  ScalesIcon,
-  CubeIcon,
 } from "@phosphor-icons/react";
 import { Card } from "@/components/ui/card";
 import { IconButton } from "@/components/ui/icon-button";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import { CopyableId } from "@/components/shared";
 import type { QueuedOrder } from "@/types";
+import { OrderCardMetrics } from "./order-card-metrics";
 
 interface OrderCardProps {
   order: QueuedOrder;
@@ -38,11 +38,7 @@ export function OrderCard({ order, onSelect, className }: OrderCardProps) {
             <span className="font-heading font-black text-base text-foreground tracking-tight group-hover:text-primary transition-colors">
               #{order.orderRef}
             </span>
-
-            <span className="text-[11px] font-bold text-muted-foreground bg-muted/60 px-1.5 py-0.5 rounded-md">
-              {order.outletId}
-            </span>
-
+            <CopyableId id={order.outletId} />
             <span className="text-[11px] font-bold text-primary">
               Waypoint {order.brand}
             </span>
@@ -68,34 +64,11 @@ export function OrderCard({ order, onSelect, className }: OrderCardProps) {
         </IconButton>
       </div>
 
-      <div className="my-3 py-2.5 px-3 bg-muted/30 border border-border/50 rounded-xl space-y-2">
-        <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
-            <ScalesIcon className="size-3.5 text-emerald-600 shrink-0" />
-            <span>Weight</span>
-          </div>
-          <span className="font-bold text-foreground">
-            {order.totalWeightKg.toLocaleString()} kg
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1.5 text-muted-foreground text-[11px]">
-            <CubeIcon className="size-3.5 text-violet-600 shrink-0" />
-            <span>Volume</span>
-          </div>
-          <span className="font-bold text-foreground">
-            {order.totalVolumeM3.toFixed(2)} m³
-          </span>
-        </div>
-
-        <div className="flex items-center justify-between text-xs pt-1.5 border-t border-border/40">
-          <span className="text-[11px] text-muted-foreground">Order Valuation</span>
-          <span className="font-bold text-foreground">
-            LKR {order.totalOrderValueLkr.toLocaleString()}
-          </span>
-        </div>
-      </div>
+      <OrderCardMetrics
+        totalWeightKg={order.totalWeightKg}
+        totalVolumeM3={order.totalVolumeM3}
+        totalOrderValueLkr={order.totalOrderValueLkr}
+      />
 
       <div className="pt-2 border-t border-border/50 flex items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-1 text-[11px] text-muted-foreground font-medium truncate">

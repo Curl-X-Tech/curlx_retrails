@@ -15,9 +15,7 @@ class Outlet(BaseEntity, table=True):
 
     outlet_id: str = Field(unique=True, index=True, nullable=False)
     brand_id: uuid.UUID = Field(foreign_key="brand.id", nullable=False, index=True)
-    district_id: uuid.UUID = Field(
-        foreign_key="district.id", nullable=False, index=True
-    )
+    district_id: uuid.UUID = Field(foreign_key="district.id", nullable=False, index=True)
     depot_id: uuid.UUID = Field(foreign_key="depot.id", nullable=False, index=True)
     dock_type: DockType = Field(nullable=False)
     parking_constraint: ParkingConstraint = Field(nullable=False)

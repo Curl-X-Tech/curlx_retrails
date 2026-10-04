@@ -3,31 +3,15 @@ import {
   CubeIcon,
   CurrencyDollarIcon,
   ClockIcon,
-  StorefrontIcon,
-  WarningOctagonIcon,
-  SnowflakeIcon,
-  SunIcon,
   TagIcon,
   ShieldCheckIcon,
 } from "@phosphor-icons/react";
 import { Button } from "@/components/ui/button";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetFooter,
-  SheetClose,
-} from "@/components/ui/sheet";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
+import { Sheet, SheetContent, SheetFooter, SheetClose } from "@/components/ui/sheet";
 import type { QueuedOrder } from "@/types";
+import { OrderDetailHeader } from "./order-detail-header";
+import { OrderDetailItemsTable } from "./order-detail-items-table";
+import { OrderAllocatePanel } from "./order-allocate-panel";
 
 interface OrderDetailSheetProps {
   order: QueuedOrder | null;
@@ -44,72 +28,13 @@ export function OrderDetailSheet({
 }: OrderDetailSheetProps) {
   if (!order) return null;
 
-  const isChilled = order.tempRequirement === "chilled";
-
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
         className={`w-full data-[side=right]:sm:max-w-2xl data-[side=right]:md:max-w-3xl data-[side=right]:lg:max-w-4xl sm:max-w-2xl md:max-w-3xl lg:max-w-4xl p-0 flex flex-col h-full bg-card border-l border-border/80 shadow-2xl ${className || ""}`}
       >
-        <SheetHeader className="p-5 border-b border-border/80 bg-muted/20 shrink-0 space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <SheetTitle className="font-heading font-black text-xl text-foreground tracking-tight">
-                Order #{order.orderRef}
-              </SheetTitle>
-              <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded">
-                {order.outletId}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3 flex-wrap">
-              {order.deferredYesterday === 1 && (
-                <span className="text-[var(--status-skip)] text-xs font-bold flex items-center gap-1">
-                  <WarningOctagonIcon className="size-3.5" weight="bold" />
-                  Deferred Yesterday
-                </span>
-              )}
-
-              {order.isUrgent && (
-                <span className="text-[var(--status-urgent)] text-xs font-bold">
-                  [URGENT]
-                </span>
-              )}
-
-              <div className="flex items-center gap-1 text-xs font-semibold">
-                {isChilled ? (
-                  <>
-                    <SnowflakeIcon
-                      className="size-3.5 text-[var(--status-chilled)]"
-                      weight="bold"
-                    />
-                    <span className="text-[var(--status-chilled)]">Chilled</span>
-                  </>
-                ) : (
-                  <>
-                    <SunIcon
-                      className="size-3.5 text-[var(--status-ambient)]"
-                      weight="bold"
-                    />
-                    <span className="text-[var(--status-ambient)]">Ambient</span>
-                  </>
-                )}
-              </div>
-
-              <span className="text-xs font-bold text-primary">
-                Waypoint {order.brand}
-              </span>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <StorefrontIcon className="size-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">{order.outletName}</span>
-            <span>•</span>
-            <span className="truncate">{order.outletAddress}</span>
-          </div>
-        </SheetHeader>
+        <OrderDetailHeader order={order} />
 
         <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-4">
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
@@ -179,85 +104,21 @@ export function OrderDetailSheet({
             </div>
           </div>
 
-          <div className="border border-border/80 rounded-xl overflow-hidden bg-background">
-            <div className="p-3 bg-muted/40 border-b border-border/60 flex items-center justify-between">
-              <span className="font-heading font-bold text-xs text-foreground tracking-tight">
-                Package Line Items ({order.items.length})
-              </span>
-              <span className="text-[11px] text-muted-foreground">
-                Total Units: {order.items.reduce((s, i) => s + i.requestedQty, 0)}
-              </span>
-            </div>
-
-            <Table>
-              <TableHeader>
-                <TableRow className="border-border/60 bg-muted/20">
-                  <TableHead className="text-[11px] font-bold text-muted-foreground uppercase h-9 px-4">
-                    Package Code
-                  </TableHead>
-                  <TableHead className="text-[11px] font-bold text-muted-foreground uppercase h-9 px-4">
-                    Item SKU & Description
-                  </TableHead>
-                  <TableHead className="text-[11px] font-bold text-muted-foreground uppercase text-center h-9 px-3">
-                    Qty
-                  </TableHead>
-                  <TableHead className="text-[11px] font-bold text-muted-foreground uppercase text-right h-9 px-3">
-                    Weight
-                  </TableHead>
-                  <TableHead className="text-[11px] font-bold text-muted-foreground uppercase text-right h-9 px-3">
-                    Volume
-                  </TableHead>
-                  <TableHead className="text-[11px] font-bold text-muted-foreground uppercase text-right h-9 px-4">
-                    Total (LKR)
-                  </TableHead>
-                  <TableHead className="text-[11px] font-bold text-muted-foreground uppercase text-center h-9 px-3">
-                    SHC
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-
-              <TableBody>
-                {order.items.map((item) => (
-                  <TableRow key={item.id} className="border-border/40 text-xs">
-                    <TableCell className="font-bold text-foreground py-2.5 px-4 whitespace-nowrap">
-                      {item.packageCode}
-                    </TableCell>
-                    <TableCell className="py-2.5 px-4 max-w-[220px]">
-                      <div className="font-medium text-foreground truncate">
-                        {item.itemName}
-                      </div>
-                      <div className="text-[10px] text-muted-foreground">
-                        {item.category} • {item.itemId}
-                      </div>
-                    </TableCell>
-                    <TableCell className="text-center font-bold text-foreground py-2.5 px-3 whitespace-nowrap">
-                      {item.requestedQty}
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-foreground py-2.5 px-3 whitespace-nowrap">
-                      {item.totalWeightKg.toFixed(1)} kg
-                    </TableCell>
-                    <TableCell className="text-right font-medium text-foreground py-2.5 px-3 whitespace-nowrap">
-                      {item.totalVolumeM3.toFixed(2)} m³
-                    </TableCell>
-                    <TableCell className="text-right font-bold text-foreground py-2.5 px-4 whitespace-nowrap">
-                      {item.totalPriceLkr.toLocaleString()}
-                    </TableCell>
-                    <TableCell className="text-center py-2.5 px-3 whitespace-nowrap">
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 bg-muted rounded border border-border/80 text-foreground">
-                        {item.specialHandlingCode}
-                      </span>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <OrderDetailItemsTable items={order.items} />
         </div>
 
         <SheetFooter className="p-4 border-t border-border/80 bg-muted/20 shrink-0 flex flex-row items-center justify-between gap-3">
-          <span className="text-xs text-muted-foreground">
-            Target Date: {order.requiredDate} • Western Province Hub
-          </span>
+          {order.status === "pending" || order.status === "deferred" ? (
+            <OrderAllocatePanel
+              key={order.id}
+              orderId={order.id}
+              onAllocated={() => onOpenChange(false)}
+            />
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              Target Date: {order.requiredDate} • Western Province Hub
+            </span>
+          )}
 
           <SheetClose
             render={

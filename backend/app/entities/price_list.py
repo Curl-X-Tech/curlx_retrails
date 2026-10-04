@@ -12,9 +12,7 @@ class PriceList(BaseEntity, table=True):
 
     __tablename__ = "price_list"
 
-    item_id: uuid.UUID = Field(
-        foreign_key="item.id", nullable=False, index=True, ondelete="CASCADE"
-    )
+    item_id: uuid.UUID = Field(foreign_key="item.id", nullable=False, index=True, ondelete="CASCADE")
     cost_price: float = Field(default=0.00, nullable=False)
     unit_price: float = Field(default=0.00, nullable=False)
     currency: str = Field(default="LKR", nullable=False)

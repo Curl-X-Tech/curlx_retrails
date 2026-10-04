@@ -1,0 +1,11 @@
+[
+{"ID": "Fresh_rear_dock", "brand": "Fresh", "dock_type": "rear_dock", "service_allowance_min": 20},
+{"ID": "Fresh_street", "brand": "Fresh", "dock_type": "street", "service_allowance_min": 25},
+{"ID": "Fresh_mall_bay", "brand": "Fresh", "dock_type": "mall_bay", "service_allowance_min": 35},
+{"ID": "Style_rear_dock", "brand": "Style", "dock_type": "rear_dock", "service_allowance_min": 25},
+{"ID": "Style_street", "brand": "Style", "dock_type": "street", "service_allowance_min": 30},
+{"ID": "Style_mall_bay", "brand": "Style", "dock_type": "mall_bay", "service_allowance_min": 40},
+{"ID": "Tech_rear_dock", "brand": "Tech", "dock_type": "rear_dock", "service_allowance_min": 30},
+{"ID": "Tech_street", "brand": "Tech", "dock_type": "street", "service_allowance_min": 35},
+{"ID": "Tech_mall_bay", "brand": "Tech", "dock_type": "mall_bay", "service_allowance_min": 45}
+]

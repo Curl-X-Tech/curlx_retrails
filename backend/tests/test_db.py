@@ -9,9 +9,7 @@ from app.core.db import Base, engine, get_db
 
 def test_database_engine_and_session():
     test_sync_engine = create_engine("sqlite:///:memory:")
-    test_session_local = sessionmaker(
-        autocommit=False, autoflush=False, bind=test_sync_engine
-    )
+    test_session_local = sessionmaker(autocommit=False, autoflush=False, bind=test_sync_engine)
     with test_session_local() as session:
         result = session.execute(text("SELECT 1")).scalar()
         assert result == 1
@@ -19,9 +17,7 @@ def test_database_engine_and_session():
 
 def test_get_db_generator(monkeypatch: pytest.MonkeyPatch):
     test_sync_engine = create_engine("sqlite:///:memory:")
-    test_session_local = sessionmaker(
-        autocommit=False, autoflush=False, bind=test_sync_engine
-    )
+    test_session_local = sessionmaker(autocommit=False, autoflush=False, bind=test_sync_engine)
     monkeypatch.setattr("app.core.db.SessionLocal", test_session_local)
     with closing(get_db()) as db_gen:
         session = next(db_gen)
@@ -35,13 +31,13 @@ def test_base_metadata():
 
 
 @pytest.mark.asyncio
-async def test_seed_initial_users(session):
+async def test_seed_database_users(session):
     from sqlalchemy import select
 
-    from app.core.seed import seed_initial_users
+    from app.db.seed import seed_database
     from app.entities.user import User
 
-    await seed_initial_users(session)
+    await seed_database(session)
     result = await session.execute(select(User))
     users = result.scalars().all()
     emails = [u.email for u in users]

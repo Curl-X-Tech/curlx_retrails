@@ -1,0 +1,138 @@
+[
+  {
+    "email": "dispatcher.peliyagoda@example.com",
+    "employee_code": "DSP-PEL-001",
+    "role": "dispatcher",
+    "phone": "+94 73 100 0001",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "dispatcher.kandy@example.com",
+    "employee_code": "DSP-KDY-001",
+    "role": "dispatcher",
+    "phone": "+94 73 100 0002",
+    "depot": "KDY",
+    "outlet_id": null
+  },
+  {
+    "email": "dispatcher@example.com",
+    "employee_code": "DSP-001",
+    "role": "dispatcher",
+    "phone": "+94 73 100 0003",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "dispatcher@curlx.tech",
+    "employee_code": "DSP-004",
+    "role": "dispatcher",
+    "phone": "+94 73 100 0004",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "loader.peliyagoda@example.com",
+    "employee_code": "LDR-PEL-001",
+    "role": "loader",
+    "phone": "+94 72 100 0001",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "loader.kandy@example.com",
+    "employee_code": "LDR-KDY-001",
+    "role": "loader",
+    "phone": "+94 72 100 0002",
+    "depot": "KDY",
+    "outlet_id": null
+  },
+  {
+    "email": "loader@example.com",
+    "employee_code": "LDR-001",
+    "role": "loader",
+    "phone": "+94 72 100 0003",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "loader@curlx.tech",
+    "employee_code": "LDR-004",
+    "role": "loader",
+    "phone": "+94 72 100 0004",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "driver.peliyagoda@example.com",
+    "employee_code": "DRV-PEL-001",
+    "role": "driver",
+    "phone": "+94 77 100 0001",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "driver.kandy@example.com",
+    "employee_code": "DRV-KDY-001",
+    "role": "driver",
+    "phone": "+94 77 100 0002",
+    "depot": "KDY",
+    "outlet_id": null
+  },
+  {
+    "email": "driver@example.com",
+    "employee_code": "DRV-001",
+    "role": "driver",
+    "phone": "+94 77 200 1000",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "driver@curlx.tech",
+    "employee_code": "DRV-002",
+    "role": "driver",
+    "phone": "+94 77 200 1001",
+    "depot": "PEL",
+    "outlet_id": null
+  },
+  {
+    "email": "store.fresh@example.com",
+    "employee_code": "MGR-FRESH-001",
+    "role": "store_manager",
+    "phone": "+94 74 100 0001",
+    "depot": "PEL",
+    "outlet_id": "OUT001"
+  },
+  {
+    "email": "store.style@example.com",
+    "employee_code": "MGR-STYLE-001",
+    "role": "store_manager",
+    "phone": "+94 74 100 0002",
+    "depot": "KDY",
+    "outlet_id": "OUT081"
+  },
+  {
+    "email": "store.tech@example.com",
+    "employee_code": "MGR-TECH-001",
+    "role": "store_manager",
+    "phone": "+94 74 100 0003",
+    "depot": "PEL",
+    "outlet_id": "OUT106"
+  },
+  {
+    "email": "store@example.com",
+    "employee_code": "MGR-001",
+    "role": "store_manager",
+    "phone": "+94 74 100 0004",
+    "depot": "PEL",
+    "outlet_id": "OUT001"
+  },
+  {
+    "email": "store@curlx.tech",
+    "employee_code": "MGR-002",
+    "role": "store_manager",
+    "phone": "+94 74 100 0005",
+    "depot": "PEL",
+    "outlet_id": "OUT001"
+  }
+]

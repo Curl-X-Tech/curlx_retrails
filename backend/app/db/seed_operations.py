@@ -1,0 +1,201 @@
+"""Procedural operational data seeding using core domain services and allocation engine."""
+
+from __future__ import annotations
+
+import logging
+from datetime import date, datetime, timedelta, timezone
+
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.timezone import sl_today, utc_now
+from app.entities.customer_order import CustomerOrder, DeferralAuditLog
+from app.entities.depot import Depot
+from app.entities.item import Item
+from app.entities.outlet import Outlet
+from app.entities.trip import ProofOfDelivery, RouteLeg, Trip, VehicleTelemetry
+from app.entities.user import User
+from app.schemas.store_order import OrderCreate, OrderItemCreate
+from app.services.allocation.engine import run_allocation_engine
+from app.services.checklist import ensure_checklist
+
+logger = logging.getLogger(__name__)
+
+
+async def seed_operational_pipeline(
+    session: AsyncSession,
+    users: dict[str, User],
+    depots: dict[str, Depot],
+    outlets: dict[str, Outlet],
+    items: dict[str, Item],
+    target_date: date | None = None,
+    reset: bool = False,
+) -> dict[str, int]:
+    """Generates authentic business operations through real domain services."""
+    existing_order_count = (await session.execute(select(func.count()).select_from(CustomerOrder))).scalar_one()
+    if existing_order_count > 0 and not reset:
+        return {"customer_order": 0, "trip": 0, "route_leg": 0, "proof_of_delivery": 0}
+
+    op_date = target_date or (sl_today() + timedelta(days=1))
+    counts = {"orders": 0, "trips": 0, "legs": 0, "pods": 0}
+
+    # 1. Place Realistic Store Orders across Outlets using create_order service
+    from app.services.orders import create_order
+
+    store_user = users.get("store.fresh@example.com") or users.get("store@example.com")
+    store_uid = store_user.id if store_user else None
+
+    # Group items by brand for authentic order creation
+    items_by_brand: dict[str, list[Item]] = {}
+    for item in items.values():
+        brand_code = item.sku.split("-")[0] if "-" in item.sku else "FRESH"
+        items_by_brand.setdefault(brand_code, []).append(item)
+
+    for index, outlet in enumerate(list(outlets.values())[:45]):
+        brand_key = "FRESH" if index < 20 else ("STYLE" if index < 32 else "TECH")
+        avail_items = items_by_brand.get(brand_key) or list(items.values())[:5]
+        order_lines = [
+            OrderItemCreate(
+                item_id=item.id,
+                requested_qty=(10 if i == 0 else 5) + (index % (5 if i == 0 else 3)) * 2,
+                special_handling_code=item.special_handling_code,
+            )
+            for i, item in enumerate(avail_items[:2])
+        ]
+        target_dt = op_date if index < 35 else (op_date + timedelta(days=2))
+        payload = OrderCreate(
+            outlet_id=outlet.id,
+            order_date=target_dt,
+            required_date=target_dt,
+            is_urgent=(index % 7 == 0),
+            temp_requirement="chilled" if brand_key == "FRESH" and index % 2 == 0 else "ambient",
+            items=order_lines,
+        )
+        try:
+            await create_order(session, payload, store_uid)
+            counts["orders"] += 1
+        except Exception as exc:
+            logger.debug("Skipping duplicate order during seed: %s", exc)
+
+    await session.flush()
+
+    # 2. Execute Hybrid Fleet Allocation Engine for both Peliyagoda and Kandy Hubs
+    dispatcher_user = users.get("dispatcher.peliyagoda@example.com") or users.get("dispatcher@example.com")
+    dispatcher_uid = dispatcher_user.id if dispatcher_user else None
+
+    for depot_code, depot in depots.items():
+        try:
+            solver_res = await run_allocation_engine(
+                session=session,
+                depot_id=depot.id,
+                operating_date=op_date,
+                solver_type="ortools",
+                simulation=False,
+                user_id=dispatcher_uid,
+            )
+            trips_list = (
+                solver_res.get("proposed_trips", [])
+                if isinstance(solver_res, dict)
+                else getattr(solver_res, "proposed_trips", [])
+            )
+            counts["trips"] += len(trips_list)
+        except Exception as exc:
+            logger.warning("Allocation run for depot %s generated warning: %s", depot_code, exc)
+
+    await session.flush()
+
+    # 3. Warehouse Bay Staging: Generate checklists and LIFO container allocations
+    trips_result = await session.execute(select(Trip).where(Trip.dispatch_date == op_date))
+    trips = list(trips_result.scalars().all())
+    for idx, trip in enumerate(trips):
+        trip.status = "loading" if idx == 0 else ("dispatched" if idx == 1 else trip.status)
+        try:
+            await ensure_checklist(session, trip.id)
+        except Exception as exc:
+            logger.debug("Checklist init note: %s", exc)
+
+    if len(trips) > 1:
+        session.add(
+            VehicleTelemetry(
+                vehicle_id=trips[1].vehicle_id,
+                trip_id=trips[1].id,
+                recorded_at=utc_now(),
+                latitude=6.9271,
+                longitude=79.8612,
+                speed_kmh=42.5,
+                heading_deg=180.0,
+                reefer_temp_celsius=3.8,
+                ambient_temp_celsius=29.5,
+                fuel_level_pct=85.0,
+                battery_pct=98.0,
+            )
+        )
+        legs_res = await session.execute(
+            select(RouteLeg).where(RouteLeg.trip_id == trips[1].id).order_by(RouteLeg.seq.asc())
+        )
+        legs = list(legs_res.scalars().all())
+        if legs:
+            legs[0].status = "completed"
+            legs[0].arrival_time = datetime.now(timezone.utc) - timedelta(minutes=45)
+            legs[0].leave_outlet_time = datetime.now(timezone.utc) - timedelta(minutes=20)
+            session.add(
+                ProofOfDelivery(
+                    trip_id=trips[1].id,
+                    route_leg_id=legs[0].id,
+                    order_id=legs[0].order_id,
+                    outlet_id=legs[0].to_outlet_id,
+                    recipient_name="Sunil Perera (Store Mgr)",
+                    recipient_phone="+94 77 123 4567",
+                    signature_svg="<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><path d='M10 30 Q40 5 70 35 T110 25' stroke='#1e293b' stroke-width='2' fill='none'/></svg>",
+                    arrived_at=legs[0].arrival_time,
+                    delivered_at=legs[0].leave_outlet_time,
+                    delivery_lat=6.9344,
+                    delivery_lng=79.8428,
+                    temperature_reading=4.2,
+                    photo_evidence_url="http://localhost:9000/retrails-media/pod/pod_sample_001.webp",
+                    is_offline_synced=True,
+                )
+            )
+            counts["pods"] += 1
+            counts["legs"] = len(legs)
+
+    # 5. Seed authentic deferrals & audit logs for carryover and audit views
+    p_orders = list(
+        (await session.execute(select(CustomerOrder).where(CustomerOrder.status == "pending"))).scalars().all()
+    )
+    defer_configs = [
+        ("insufficient_reefer_capacity", "weight_cap", "Chilled payload exceeded Reefer axle threshold."),
+        ("van_access_shortage", "fleet_downtime", "Narrow street access requires Freeze Van; local vans occupied."),
+        ("time_budget_limit", "time_budget", "Delivery window conflicts with route budget; deferred to Wave 1."),
+        ("insufficient_reefer_capacity", "volume_cap", "Reefer compartment volume cap exceeded on Highland sector."),
+        ("fuel_quota_exceeded", "time_budget", "Weekly fuel quota conservation protocol triggered."),
+        ("manual_dispatcher_override", "time_budget", "Dispatcher hold: store bay maintenance scheduled in window."),
+    ]
+    for idx, (reason, resource, note) in enumerate(defer_configs):
+        if idx < len(p_orders):
+            ord_item = p_orders[idx]
+            ord_item.status = "deferred"
+            ord_item.deferred_yesterday = 1 if idx % 2 == 0 else 0
+            ord_item.days_since_last_served = (idx % 3) + 1
+            session.add(
+                DeferralAuditLog(
+                    name=f"DEF-{ord_item.order_ref}",
+                    order_id=ord_item.id,
+                    outlet_id=ord_item.outlet_id,
+                    dispatch_date=op_date,
+                    deferral_reason=reason,
+                    limiting_resource=resource,
+                    decision_maker_staff_id=dispatcher_uid or ord_item.created_by_staff_id,
+                    notes=note,
+                    created_by=dispatcher_uid,
+                    updated_by=dispatcher_uid,
+                )
+            )
+
+    await session.flush()
+    return {
+        "customer_order": counts["orders"],
+        "trip": counts["trips"],
+        "route_leg": counts["legs"],
+        "proof_of_delivery": counts["pods"],
+    }

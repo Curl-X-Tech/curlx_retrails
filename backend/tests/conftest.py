@@ -33,13 +33,27 @@ async def prepare_test_db() -> AsyncGenerator[None, None]:
     auth_rate_limiter.reset()
     register_rate_limiter.reset()
     email_service.clear_outbox()
-    orig_smtp_host = settings.SMTP_HOST
-    settings.SMTP_HOST = None
+    orig_resend_key = settings.RESEND_API_KEY
+    settings.RESEND_API_KEY = ""
+    for table in SQLModel.metadata.tables.values():
+        seen_idx = set()
+        deduped_idx = set()
+        for idx in table.indexes:
+            if idx.name not in seen_idx:
+                seen_idx.add(idx.name)
+                deduped_idx.add(idx)
+        table.indexes.clear()
+        table.indexes.update(deduped_idx)
+
+    from app.core.database import Base
+
     async with test_engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
     yield
-    settings.SMTP_HOST = orig_smtp_host
+    settings.RESEND_API_KEY = orig_resend_key
     async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(SQLModel.metadata.drop_all)
 
 
@@ -123,9 +137,7 @@ async def user_token_headers(client: AsyncClient, test_user: User) -> dict[str, 
 
 
 @pytest.fixture
-async def driver_token_headers(
-    client: AsyncClient, test_driver: User
-) -> dict[str, str]:
+async def driver_token_headers(client: AsyncClient, test_driver: User) -> dict[str, str]:
     login_data = {
         "username": "driver@example.com",
         "password": "driverpassword123",
@@ -136,9 +148,7 @@ async def driver_token_headers(
 
 
 @pytest.fixture
-async def superuser_token_headers(
-    client: AsyncClient, test_superuser: User
-) -> dict[str, str]:
+async def superuser_token_headers(client: AsyncClient, test_superuser: User) -> dict[str, str]:
     login_data = {
         "username": "superuser@example.com",
         "password": "superuserpassword123",

@@ -38,15 +38,11 @@ class RateLimitGuard:
 
         # Clean up stale keys when registry grows to prevent unbounded memory growth
         if len(self._requests) > 1000:
-            stale_keys = [
-                k for k, v in self._requests.items() if not v or v[-1] <= window_start
-            ]
+            stale_keys = [k for k, v in self._requests.items() if not v or v[-1] <= window_start]
             for k in stale_keys:
                 self._requests.pop(k, None)
 
-        timestamps = [
-            timestamp for timestamp in self._requests[key] if timestamp > window_start
-        ]
+        timestamps = [timestamp for timestamp in self._requests[key] if timestamp > window_start]
         if len(timestamps) >= self.requests_per_minute:
             retry_after = int(self.window_seconds - (now - timestamps[0]))
             raise HTTPException(
@@ -59,12 +55,6 @@ class RateLimitGuard:
 
 
 # Standard Rate Limiter instances
-auth_rate_limiter = RateLimitGuard(
-    requests_per_minute=getattr(settings, "RATE_LIMIT_AUTH_PER_MINUTE", 20)
-)
-register_rate_limiter = RateLimitGuard(
-    requests_per_minute=getattr(settings, "RATE_LIMIT_AUTH_PER_MINUTE", 20) // 2
-)
-api_rate_limiter = RateLimitGuard(
-    requests_per_minute=getattr(settings, "RATE_LIMIT_API_PER_MINUTE", 100)
-)
+auth_rate_limiter = RateLimitGuard(requests_per_minute=getattr(settings, "RATE_LIMIT_AUTH_PER_MINUTE", 20))
+register_rate_limiter = RateLimitGuard(requests_per_minute=getattr(settings, "RATE_LIMIT_AUTH_PER_MINUTE", 20) // 2)
+api_rate_limiter = RateLimitGuard(requests_per_minute=getattr(settings, "RATE_LIMIT_API_PER_MINUTE", 100))

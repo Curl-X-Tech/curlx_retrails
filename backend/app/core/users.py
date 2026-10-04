@@ -33,9 +33,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
 
     async def validate_password(self, password: str, user: schemas.UC | User) -> None:
         if len(password) < 8:
-            raise exceptions.InvalidPasswordException(
-                reason="Password must be at least 8 characters long."
-            )
+            raise exceptions.InvalidPasswordException(reason="Password must be at least 8 characters long.")
 
     async def _update(self, user: User, update_dict: dict[str, Any]) -> User:
         update_dict["updated_at"] = utc_now()
@@ -43,9 +41,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             update_dict["updated_by"] = user.id
         return await super()._update(user, update_dict)
 
-    async def on_after_register(
-        self, user: User, request: Request | None = None
-    ) -> None:
+    async def on_after_register(self, user: User, request: Request | None = None) -> None:
         logger.info(
             "User registered: %s (Email: %s, Role: %s)",
             user.id,
@@ -53,9 +49,7 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             user.user_type,
         )
 
-    async def on_after_forgot_password(
-        self, user: User, token: str, request: Request | None = None
-    ) -> None:
+    async def on_after_forgot_password(self, user: User, token: str, request: Request | None = None) -> None:
         logger.info(
             "Password reset requested for user %s (%s). Dispatching reset email.",
             user.id,
@@ -67,12 +61,8 @@ class UserManager(UUIDIDMixin, BaseUserManager[User, uuid.UUID]):
             user_name=user.name,
         )
 
-    async def on_after_reset_password(
-        self, user: User, request: Request | None = None
-    ) -> None:
-        logger.info(
-            "Password reset successfully for user: %s (%s)", user.id, user.email
-        )
+    async def on_after_reset_password(self, user: User, request: Request | None = None) -> None:
+        logger.info("Password reset successfully for user: %s (%s)", user.id, user.email)
 
 
 async def get_user_manager(
@@ -103,4 +93,5 @@ fastapi_users = FastAPIUsers[User, uuid.UUID](
 )
 
 current_active_user = fastapi_users.current_user(active=True)
+current_optional_user = fastapi_users.current_user(active=True, optional=True)
 current_active_superuser = fastapi_users.current_user(active=True, superuser=True)

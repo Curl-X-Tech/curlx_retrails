@@ -39,6 +39,7 @@ print_banner() {
     echo -e "  ${GREEN}API ReDoc:${RESET}                 ${CYAN}http://localhost:8000/redoc${RESET}"
     echo -e "  ${GREEN}PostgreSQL Database:${RESET}       ${CYAN}localhost:5432${RESET}"
     echo -e "  ${GREEN}Redis Cache / Broker:${RESET}      ${CYAN}localhost:6379${RESET}"
+    echo -e "  ${GREEN}MinIO S3 API / Console:${RESET}    ${CYAN}http://localhost:9000${RESET} (Console: 9001)"
     echo -e "  ${GREEN}Mailpit Web Inbox:${RESET}         ${CYAN}http://localhost:8025${RESET} (SMTP: 1025)"
     echo -e "  ${GREEN}React Email Preview:${RESET}       ${CYAN}http://localhost:3001${RESET} (via ./dev.sh emails)"
     echo -e "${BOLD}================================================================${RESET}"
@@ -48,16 +49,23 @@ print_banner() {
 }
 
 # Check for required tools
-check_prerequisites() {
+check_uv() {
     if ! command -v uv &> /dev/null; then
         log_error "'uv' is required for backend management but not found. Install from https://github.com/astral-sh/uv"
         exit 1
     fi
+}
 
+check_bun() {
     if ! command -v bun &> /dev/null; then
         log_error "'bun' is required for frontend and email management but not found. Install from https://bun.sh"
         exit 1
     fi
+}
+
+check_prerequisites() {
+    check_uv
+    check_bun
 }
 
 # Ensure .env file exists
@@ -125,9 +133,8 @@ run_services_up() {
 }
 
 run_services_down() {
-    log_info "Stopping dev infrastructure (PostgreSQL, Redis, Mailpit)..."
+    log_info "Stopping dev infrastructure..."
     docker compose -f "$ROOT_DIR/docker-compose.dev.yml" down 2>/dev/null || true
-    docker compose -f "$ROOT_DIR/docker-compose.yml" down 2>/dev/null || true
     log_success "Dev infrastructure stopped."
 }
 
@@ -240,8 +247,8 @@ run_check() {
 # Full Docker Compose commands
 run_docker_up() {
     ensure_env
-    log_info "Starting full Docker Compose services (App + DB + Redis + Mailpit)..."
-    docker compose up -d
+    log_info "Starting full Docker Compose services..."
+    docker compose -f "$ROOT_DIR/docker-compose.yml" up -d --build
 }
 
 run_docker_down() {
@@ -275,34 +282,42 @@ run_graphify() {
     log_success "Graphify knowledge graph updated at graphify-out/graph.json"
 }
 
+run_seed() {
+    check_prerequisites
+    ensure_env
+    log_info "Executing hierarchical master seed and operational pipeline..."
+    (cd "$ROOT_DIR/backend" && uv run python -m app.db.seed)
+    log_success "Database seeded successfully."
+}
 
 # Help menu
-
 show_help() {
     echo -e "${BOLD}ReTrails Development Script (Team CurlX)${RESET}"
     echo ""
     echo "Usage: ./dev.sh [command]"
     echo ""
     echo "Commands:"
-    echo "  dev            Start backend, frontend, and emails concurrently (default)"
-    echo "  services       Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
-    echo "  down           Stop all running Docker containers (dev & prod)"
-    echo "  stop           Alias for down"
-    echo "  install        Install all dependencies for backend, frontend, and emails"
-    echo "  backend        Start backend server only (FastAPI on port 8000)"
-    echo "  frontend       Start frontend server only (Vite on port 5173)"
-    echo "  emails         Start React Email preview server on port 3001"
-    echo "  lint           Run linter on backend and frontend"
-    echo "  format         Auto-format code across backend, frontend, and emails"
-    echo "  format:check   Verify code formatting"
-    echo "  typecheck      Run TypeScript compiler type checks"
-    echo "  test           Run backend test suite"
-    echo "  check          Run all quality checks (lint + format + typecheck + test)"
-    echo "  graphify       Build/update Graphify knowledge graph (graphify-out/)"
-    echo "  docker         Start full Docker Compose environment in background"
-    echo "  docker:down    Stop all Docker Compose services"
-    echo "  clean          Remove virtual environments and node_modules"
-    echo "  help           Show this help message"
+    echo "  dev                  Start backend API, frontend, and emails (default)"
+    echo "  services             Start dev infrastructure (PostgreSQL, Redis, Mailpit) via Docker"
+    echo "  services:down        Stop dev infrastructure"
+    echo "  down                 Stop all running Docker containers (dev + services)"
+    echo "  stop                 Alias for down"
+    echo "  install              Install all dependencies for backend, frontend, and emails"
+    echo "  backend              Start backend server only (FastAPI on port 8000)"
+    echo "  frontend             Start frontend server only (Vite on port 5173)"
+    echo "  emails               Start React Email preview server on port 3001"
+    echo "  seed                 Seed database with master entities and operational orders/trips"
+    echo "  lint                 Run linter on backend and frontend"
+    echo "  format               Auto-format code across backend, frontend, and emails"
+    echo "  format:check         Verify code formatting"
+    echo "  typecheck            Run TypeScript compiler type checks"
+    echo "  test                 Run backend test suite"
+    echo "  check                Run all quality checks (lint + format + typecheck + test)"
+    echo "  graphify             Build/update Graphify knowledge graph (graphify-out/)"
+    echo "  docker               Start full Docker Compose stack"
+    echo "  docker:down          Stop all Docker Compose services"
+    echo "  clean                Remove virtual environments and node_modules"
+    echo "  help                 Show this help message"
     echo ""
 }
 
@@ -316,8 +331,35 @@ case "$COMMAND" in
     services|infra)
         run_services_up
         ;;
-    services:down|infra:down|down|stop)
+    services:down|infra:down)
         run_services_down
+        ;;
+    down|stop)
+        run_docker_down
+        ;;
+    install)
+        install_deps
+        ;;
+    backend)
+        run_backend
+        ;;
+    frontend)
+        run_frontend
+        ;;
+    emails)
+        run_emails
+        ;;
+    seed)
+        run_seed
+        ;;
+    services|infra)
+        run_services_up
+        ;;
+    services:down|infra:down)
+        run_services_down
+        ;;
+    down|stop)
+        run_docker_down
         ;;
     install)
         install_deps
@@ -353,7 +395,6 @@ case "$COMMAND" in
         run_graphify
         ;;
     docker)
-
         run_docker_up
         ;;
     docker:down)

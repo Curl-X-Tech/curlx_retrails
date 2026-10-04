@@ -1,6 +1,6 @@
 import datetime as dt
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
 class CalendarDayBase(BaseModel):
@@ -28,6 +28,21 @@ class CalendarDayCreate(BaseModel):
     monsoon: bool = False
     is_payday: bool | None = None
     is_operating: bool | None = None
+
+
+class CalendarBulkGenerate(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    from_date: dt.date
+    to_date: dt.date
+
+    @model_validator(mode="after")
+    def validate_range(self) -> "CalendarBulkGenerate":
+        if self.to_date < self.from_date:
+            raise ValueError("to_date must not be before from_date")
+        if (self.to_date - self.from_date).days > 365:
+            raise ValueError("range must not exceed 366 days")
+        return self
 
 
 class CalendarDayUpdate(BaseModel):

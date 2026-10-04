@@ -10,6 +10,7 @@ class User(BaseEntity, table=True):
     """User database entity."""
 
     __tablename__ = "users"
+    __table_args__ = {"extend_existing": True}
 
     email: str = Field(unique=True, index=True, nullable=False)
     hashed_password: str = Field(nullable=False)

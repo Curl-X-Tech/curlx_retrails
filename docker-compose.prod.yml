@@ -1,3 +1,5 @@
+name: retrails
+
 services:
   db:
     image: postgres:16-alpine
@@ -5,57 +7,98 @@ services:
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-      POSTGRES_DB: ${POSTGRES_DB:-app}
+      POSTGRES_DB: retrails_db
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-app}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d retrails_db"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
   redis:
     image: redis:7-alpine
     restart: always
+    command: ["redis-server", "--appendonly", "yes"]
     volumes:
       - redisdata:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
+
+  minio:
+    image: minio/minio:latest
+    restart: always
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set MINIO_ROOT_PASSWORD in .env}
+    volumes:
+      - miniodata:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   backend:
     image: ghcr.io/${DOCKER_IMAGE_REPO:-curl-x-tech/curlx_retrails}-backend:${IMAGE_TAG:-latest}
     restart: always
     environment:
-      POSTGRES_SERVER: db
-      POSTGRES_PORT: 5432
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB:-app}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}@db:5432/retrails_db
       SECRET_KEY: ${SECRET_KEY:?Set a secure SECRET_KEY in .env}
-      SMTP_HOST: ${SMTP_HOST:-mailpit}
-      SMTP_PORT: ${SMTP_PORT:-1025}
-      SMTP_USER: ${SMTP_USER:-}
-      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
-      EMAILS_FROM_EMAIL: ${EMAILS_FROM_EMAIL:-noreply@curlx.tech}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:-["https://curlx.tech","https://www.curlx.tech"]}
+      FRONTEND_HOST: ${FRONTEND_HOST:-https://curlx.tech}
+      FIRST_SUPERUSER: ${FIRST_SUPERUSER:-}
+      FIRST_SUPERUSER_PASSWORD: ${FIRST_SUPERUSER_PASSWORD:-}
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      EMAILS_FROM_EMAIL: ${EMAILS_FROM_EMAIL:-noreply@mail.curlx.tech}
+      STORAGE_BACKEND: ${STORAGE_BACKEND:-minio}
+      S3_ENDPOINT_URL: ${S3_ENDPOINT_URL:-http://minio:9000}
+      S3_PUBLIC_URL: ${S3_PUBLIC_URL:-https://curlx.tech/media}
+      S3_ACCESS_KEY: ${MINIO_ROOT_USER}
+      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD}
+      S3_BUCKET_NAME: ${S3_BUCKET_NAME:-retrails-media}
+      S3_REGION: ${S3_REGION:-us-east-1}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks:
+      default:
+        aliases:
+          - backend
+          - core-service
     depends_on:
       db:
         condition: service_healthy
-      redis:
+      minio:
         condition: service_healthy
 
   frontend:
     image: ghcr.io/${DOCKER_IMAGE_REPO:-curl-x-tech/curlx_retrails}-frontend:${IMAGE_TAG:-latest}
     restart: always
     ports:
-      - "${PORT:-80}:80"
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN_NAMES: ${DOMAIN_NAMES:-curlx.tech www.curlx.tech}
+      CERT_NAME: ${CERT_NAME:-curlx.tech}
+    volumes:
+      - ./nginx.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   pgdata:
   redisdata:
+  miniodata:
+

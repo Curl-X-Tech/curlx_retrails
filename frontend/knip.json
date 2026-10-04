@@ -1,0 +1,4 @@
+{
+  "ignore": ["src/components/ui/**", "src/types/domain.ts", "src/api/**"],
+  "rules": { "duplicates": "off" }
+}

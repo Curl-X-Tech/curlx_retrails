@@ -45,6 +45,7 @@ export interface QueuedOrder {
   deferredYesterday: 0 | 1;
   daysSinceLastServed: number;
   totalItems: number;
+  totalPackages?: number;
   totalWeightKg: number;
   totalVolumeM3: number;
   totalOrderValueLkr: number;

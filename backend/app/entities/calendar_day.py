@@ -13,9 +13,7 @@ class CalendarDay(SQLModel, table=True):
 
     date: dt.date = Field(primary_key=True, nullable=False)
     dow: int = Field(nullable=False)  # 0 = Monday, 6 = Sunday
-    dow_name: str = Field(
-        nullable=False
-    )  # 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
+    dow_name: str = Field(nullable=False)  # 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'
     is_weekend: bool = Field(default=False, nullable=False)
     iso_year: int = Field(nullable=False, index=True)
     iso_week: int = Field(nullable=False, index=True)
