@@ -140,6 +140,9 @@ graph TD
 # Email preview server (React Email on port 3001 at http://localhost:3001)
 ./dev.sh emails
 
+# Seed database with master data and procedural orders/trips
+./dev.sh seed
+
 # Run quality checks (formatting, linting, typechecks, and test suites)
 ./dev.sh check
 
@@ -156,6 +159,27 @@ graph TD
 ./dev.sh services
 ./dev.sh services:down
 ```
+
+---
+
+### Seeded Enterprise User Accounts
+
+All seeded accounts are configured with the default password: `Password@123`.
+
+| Role | Email | Hub / Location | Employee Code |
+|---|---|---|---|
+| System Admin | `admin@curlx.tech` | Global | `ADM-001` |
+| Dispatcher | `dispatcher.peliyagoda@example.com` | Peliyagoda DC (`PEL`) | `DSP-PEL-001` |
+| Dispatcher | `dispatcher.kandy@example.com` | Kandy Hub (`KDY`) | `DSP-KDY-001` |
+| Loader | `loader.peliyagoda@example.com` | Peliyagoda DC (`PEL`) | `LDR-PEL-001` |
+| Loader | `loader.kandy@example.com` | Kandy Hub (`KDY`) | `LDR-KDY-001` |
+| Driver | `driver.peliyagoda@example.com` | Peliyagoda DC (`PEL`) | `DRV-PEL-001` |
+| Driver | `driver.kandy@example.com` | Kandy Hub (`KDY`) | `DRV-KDY-001` |
+| Store Manager | `store.fresh@example.com` | Colombo Fresh (`OUT001`) | `MGR-FRESH-001` |
+| Store Manager | `store.style@example.com` | Kandy City Centre (`OUT081`) | `MGR-STYLE-001` |
+| Store Manager | `store.tech@example.com` | Negombo Tech (`OUT106`) | `MGR-TECH-001` |
+
+Manual seeding can also be triggered via the authenticated admin API endpoint: `POST /api/v1/admin/seed` (with optional body `{"reset": true}`).
 
 ---
 

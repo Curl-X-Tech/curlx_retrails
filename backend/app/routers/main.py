@@ -137,3 +137,22 @@ def driver_guard(
     user: Annotated[User, Depends(require_driver)],
 ) -> dict[str, str]:
     return {"message": "Access granted to driver", "user_id": str(user.id)}
+
+
+@api_router.post(
+    "/admin/seed",
+    status_code=status.HTTP_200_OK,
+    tags=["admin"],
+    summary="Trigger database seeding (Admin only)",
+)
+async def trigger_admin_seed(
+    admin: Annotated[User, Depends(require_system_admin)],
+    session: Annotated[AsyncSession, Depends(get_async_session)],
+    reset: bool = False,
+) -> dict[str, Any]:
+    """Execute clean hierarchical database seeding (Admin only)."""
+    from app.db.seed import seed_database
+
+    summary = await seed_database(session, reset=reset)
+    return {"status": "success", "summary": summary}
+

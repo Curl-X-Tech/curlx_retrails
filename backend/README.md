@@ -60,3 +60,30 @@ cd backend
 uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
+## Database Seeding
+
+The database seed uses hierarchical master data and procedural domain service pipelines:
+
+```bash
+./dev.sh seed
+# Or manually in backend:
+uv run python -m app.db.seed
+```
+
+You can also trigger procedural seeding via the authenticated API:
+- `POST /api/v1/admin/seed` (requires `system_admin` role, optional `{"reset": true}`).
+
+### Default Test Accounts
+
+All accounts use password `Password@123`.
+
+- **Admin**: `admin@curlx.tech`
+- **Peliyagoda Dispatcher**: `dispatcher.peliyagoda@example.com`
+- **Kandy Dispatcher**: `dispatcher.kandy@example.com`
+- **Peliyagoda Loader**: `loader.peliyagoda@example.com`
+- **Kandy Loader**: `loader.kandy@example.com`
+- **Peliyagoda Driver**: `driver.peliyagoda@example.com`
+- **Kandy Driver**: `driver.kandy@example.com`
+- **Store Managers**: `store.fresh@example.com` (Colombo), `store.style@example.com` (Kandy), `store.tech@example.com` (Negombo)
+
+

@@ -305,6 +305,16 @@ function Invoke-Clean {
     Write-Ok "Clean completed."
 }
 
+function Invoke-Seed {
+    Assert-Prerequisites
+    Ensure-Env
+    Write-Info "Executing hierarchical master seed and operational pipeline..."
+    Push-Location (Join-Path $ROOT_DIR "backend")
+    uv run python -m app.db.seed
+    Pop-Location
+    Write-Ok "Database seeded successfully."
+}
+
 function Show-Help {
     Write-Host "ReTrails Development Script (Team CurlX)" -ForegroundColor White
     Write-Host ""
@@ -320,6 +330,7 @@ function Show-Help {
     Write-Host "  backend              Start backend server only (FastAPI on port 8000)"
     Write-Host "  frontend             Start frontend server only (Vite on port 5173)"
     Write-Host "  emails               Start React Email preview server on port 3001"
+    Write-Host "  seed                 Seed database with master entities and operational orders/trips"
     Write-Host "  lint                 Run linter on backend and frontend"
     Write-Host "  format               Auto-format code across backend, frontend, and emails"
     Write-Host "  format:check         Verify code formatting"
@@ -349,6 +360,7 @@ switch ($Command) {
     "backend"           { Invoke-Backend }
     "frontend"          { Invoke-Frontend }
     "emails"            { Invoke-Emails }
+    "seed"              { Invoke-Seed }
     "lint"              { Invoke-Lint }
     "format"            { Invoke-Format }
     "format:check"      { Invoke-FormatCheck }

@@ -281,6 +281,14 @@ run_graphify() {
     log_success "Graphify knowledge graph updated at graphify-out/graph.json"
 }
 
+run_seed() {
+    check_prerequisites
+    ensure_env
+    log_info "Executing hierarchical master seed and operational pipeline..."
+    (cd "$ROOT_DIR/backend" && uv run python -m app.db.seed)
+    log_success "Database seeded successfully."
+}
+
 # Help menu
 show_help() {
     echo -e "${BOLD}ReTrails Development Script (Team CurlX)${RESET}"
@@ -297,6 +305,7 @@ show_help() {
     echo "  backend              Start backend server only (FastAPI on port 8000)"
     echo "  frontend             Start frontend server only (Vite on port 5173)"
     echo "  emails               Start React Email preview server on port 3001"
+    echo "  seed                 Seed database with master entities and operational orders/trips"
     echo "  lint                 Run linter on backend and frontend"
     echo "  format               Auto-format code across backend, frontend, and emails"
     echo "  format:check         Verify code formatting"
@@ -317,6 +326,30 @@ COMMAND="${1:-dev}"
 case "$COMMAND" in
     dev)
         run_dev
+        ;;
+    services|infra)
+        run_services_up
+        ;;
+    services:down|infra:down)
+        run_services_down
+        ;;
+    down|stop)
+        run_docker_down
+        ;;
+    install)
+        install_deps
+        ;;
+    backend)
+        run_backend
+        ;;
+    frontend)
+        run_frontend
+        ;;
+    emails)
+        run_emails
+        ;;
+    seed)
+        run_seed
         ;;
     services|infra)
         run_services_up
