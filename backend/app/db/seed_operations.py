@@ -3,19 +3,17 @@
 from __future__ import annotations
 
 import logging
-import uuid
 from datetime import date, datetime, timedelta, timezone
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.timezone import utc_now, utc_today
+from app.core.timezone import sl_today, utc_now
 from app.entities.customer_order import CustomerOrder
 from app.entities.depot import Depot
 from app.entities.item import Item
 from app.entities.outlet import Outlet
-from app.entities.staff_profile import StaffProfile
-from app.entities.trip import ProofOfDelivery, RouteLeg, Trip
+from app.entities.trip import ProofOfDelivery, RouteLeg, Trip, VehicleTelemetry
 from app.entities.user import User
 from app.schemas.store_order import OrderCreate, OrderItemCreate
 from app.services.allocation.engine import run_allocation_engine
@@ -31,9 +29,14 @@ async def seed_operational_pipeline(
     outlets: dict[str, Outlet],
     items: dict[str, Item],
     target_date: date | None = None,
+    reset: bool = False,
 ) -> dict[str, int]:
     """Generates authentic business operations through real domain services."""
-    op_date = target_date or utc_today()
+    existing_order_count = (await session.execute(select(func.count()).select_from(CustomerOrder))).scalar_one()
+    if existing_order_count > 0 and not reset:
+        return {"customer_order": 0, "trip": 0, "route_leg": 0, "proof_of_delivery": 0}
+
+    op_date = target_date or (sl_today() + timedelta(days=1))
     counts = {"orders": 0, "trips": 0, "legs": 0, "pods": 0}
 
     # 1. Place Realistic Store Orders across Outlets using create_order service
@@ -49,9 +52,9 @@ async def seed_operational_pipeline(
         items_by_brand.setdefault(brand_code, []).append(item)
 
     outlet_list = list(outlets.values())
-    for index, outlet in enumerate(outlet_list[:35]):
+    for index, outlet in enumerate(outlet_list[:45]):
         # Match brand items
-        brand_key = "FRESH" if index < 20 else ("STYLE" if index < 28 else "TECH")
+        brand_key = "FRESH" if index < 20 else ("STYLE" if index < 32 else "TECH")
         avail_items = items_by_brand.get(brand_key) or list(items.values())[:5]
 
         order_lines = [
@@ -70,10 +73,11 @@ async def seed_operational_pipeline(
                 )
             )
 
+        order_target_date = op_date if index < 35 else (op_date + timedelta(days=2))
         payload = OrderCreate(
             outlet_id=outlet.id,
-            order_date=op_date,
-            required_date=op_date,
+            order_date=order_target_date,
+            required_date=order_target_date,
             is_urgent=(index % 7 == 0),
             temp_requirement="chilled" if brand_key == "FRESH" and index % 2 == 0 else "ambient",
             items=order_lines,
@@ -100,54 +104,75 @@ async def seed_operational_pipeline(
                 simulation=False,
                 user_id=dispatcher_uid,
             )
-            counts["trips"] += len(solver_res.trips)
+            trips_list = (
+                solver_res.get("proposed_trips", [])
+                if isinstance(solver_res, dict)
+                else getattr(solver_res, "proposed_trips", [])
+            )
+            counts["trips"] += len(trips_list)
         except Exception as exc:
             logger.warning("Allocation run for depot %s generated warning: %s", depot_code, exc)
 
     await session.flush()
 
     # 3. Warehouse Bay Staging: Generate checklists and LIFO container allocations
-    trips_result = await session.execute(select(Trip).where(Trip.trip_date == op_date))
+    trips_result = await session.execute(select(Trip).where(Trip.dispatch_date == op_date))
     trips = list(trips_result.scalars().all())
 
-    for trip in trips:
+    for idx, trip in enumerate(trips):
+        if idx == 0:
+            trip.status = "loading"
+        elif idx == 1:
+            trip.status = "dispatched"
         try:
             await ensure_checklist(session, trip.id)
         except Exception as exc:
             logger.debug("Checklist init note: %s", exc)
 
+    if len(trips) > 1:
+        session.add(
+            VehicleTelemetry(
+                vehicle_id=trips[1].vehicle_id,
+                trip_id=trips[1].id,
+                recorded_at=utc_now(),
+                latitude=6.9271,
+                longitude=79.8612,
+                speed_kmh=42.5,
+                heading_deg=180.0,
+                reefer_temp_celsius=3.8,
+                ambient_temp_celsius=29.5,
+                fuel_level_pct=85.0,
+                battery_pct=98.0,
+            )
+        )
+
     await session.flush()
 
-    # 4. Simulate active/completed legs and Proof of Delivery for Trip 1
+    # 4. Simulate active/completed legs and Proof of Delivery for Trip 2 (leaving Trip 1 pending for driver flow)
     if trips:
-        active_trip = trips[0]
+        active_trip = trips[1] if len(trips) > 1 else trips[0]
         legs_res = await session.execute(
-            select(RouteLeg).where(RouteLeg.trip_id == active_trip.id).order_by(RouteLeg.sequence_index.asc())
+            select(RouteLeg).where(RouteLeg.trip_id == active_trip.id).order_by(RouteLeg.seq.asc())
         )
         legs = list(legs_res.scalars().all())
 
-        if legs:
+        if legs and (len(trips) > 1 or active_trip.status != "loading"):
             first_leg = legs[0]
             first_leg.status = "completed"
-            first_leg.arrived_at = datetime.now(timezone.utc) - timedelta(minutes=45)
-            first_leg.completed_at = datetime.now(timezone.utc) - timedelta(minutes=20)
+            first_leg.arrival_time = datetime.now(timezone.utc) - timedelta(minutes=45)
+            first_leg.leave_outlet_time = datetime.now(timezone.utc) - timedelta(minutes=20)
 
             # Insert authentic POD record
-            driver_profile = await session.execute(
-                select(StaffProfile).where(StaffProfile.user_id == active_trip.driver_id)
-            )
-            profile_row = driver_profile.scalar_one_or_none()
-
             pod = ProofOfDelivery(
                 trip_id=active_trip.id,
                 route_leg_id=first_leg.id,
                 order_id=first_leg.order_id,
-                outlet_id=first_leg.outlet_id,
+                outlet_id=first_leg.to_outlet_id,
                 recipient_name="Sunil Perera (Store Mgr)",
                 recipient_phone="+94 77 123 4567",
                 signature_svg="<svg xmlns='http://www.w3.org/2000/svg' width='120' height='60'><path d='M10 30 Q40 5 70 35 T110 25' stroke='#1e293b' stroke-width='2' fill='none'/></svg>",
-                arrived_at=first_leg.arrived_at or datetime.now(timezone.utc),
-                delivered_at=first_leg.completed_at or datetime.now(timezone.utc),
+                arrived_at=first_leg.arrival_time or datetime.now(timezone.utc),
+                delivered_at=first_leg.leave_outlet_time or datetime.now(timezone.utc),
                 delivery_lat=6.9344,
                 delivery_lng=79.8428,
                 temperature_reading=4.2 if first_leg.order_id else None,
@@ -159,4 +184,9 @@ async def seed_operational_pipeline(
             counts["legs"] = len(legs)
 
     await session.flush()
-    return counts
+    return {
+        "customer_order": counts["orders"],
+        "trip": counts["trips"],
+        "route_leg": counts["legs"],
+        "proof_of_delivery": counts["pods"],
+    }

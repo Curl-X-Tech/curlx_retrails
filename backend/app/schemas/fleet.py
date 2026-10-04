@@ -68,12 +68,14 @@ class DriverRead(BaseModel):
 
     id: uuid.UUID
     user_id: uuid.UUID | None = None
-    license_number: str
+    license_number: str | None = None
     phone_number: str = Field(validation_alias=AliasChoices("phone_number", "phone"))
-    assigned_depot_id: uuid.UUID = Field(validation_alias=AliasChoices("assigned_depot_id", "depot_id"))
+    assigned_depot_id: uuid.UUID | None = Field(
+        default=None, validation_alias=AliasChoices("assigned_depot_id", "depot_id")
+    )
     license_class: str | None = None
-    safety_rating: float
-    total_completed_trips: int
-    is_active: bool
+    safety_rating: float = 5.0
+    total_completed_trips: int = 0
+    is_active: bool = True
     created_at: datetime
     updated_at: datetime

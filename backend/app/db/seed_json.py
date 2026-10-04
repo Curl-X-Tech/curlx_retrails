@@ -82,15 +82,15 @@ class Row:
             self.fail(f"'{col}' must be one of {[e.value for e in enum_cls]}: {raw!r}")
             return None
 
-    def member(self, col: str, allowed: set[str]) -> str | None:
-        raw = self.text(col)
+    def member(self, col: str, allowed: set[str], required: bool = True) -> str | None:
+        raw = self.text(col, required=required)
         if raw is not None and raw not in allowed:
             self.fail(f"'{col}' must be one of {sorted(allowed)}: {raw!r}")
             return None
         return raw
 
-    def phone(self, col: str) -> str | None:
-        raw = self.text(col)
+    def phone(self, col: str, required: bool = True) -> str | None:
+        raw = self.text(col, required=required)
         if raw is not None and not SL_PHONE.match(raw):
             self.fail(f"'{col}' must look like '+94 11 234 5678': {raw!r}")
         return raw
@@ -253,7 +253,6 @@ def load_seed_data(include_demo: bool = True) -> SeedData:
             "unit_weight_kg",
             "unit_volume_m3",
             "requires_cold_chain",
-            "special_handling_code",
         ],
         errors,
     ):
@@ -267,16 +266,18 @@ def load_seed_data(include_demo: bool = True) -> SeedData:
                 "unit_weight_kg": r.number("unit_weight_kg", 0),
                 "unit_volume_m3": r.number("unit_volume_m3", 0),
                 "requires_cold_chain": r.flag("requires_cold_chain"),
-                "special_handling_code": r.member("special_handling_code", SPECIAL_HANDLING_CODES),
+                "special_handling_code": r.member("special_handling_code", SPECIAL_HANDLING_CODES, required=False),
             }
         )
 
-    for r in read_rows("prices.json", ["sku", "wholesale_price", "retail_price"], errors):
+    for r in read_rows("prices.json", ["sku", "cost_price", "unit_price"], errors):
         d.prices.append(
             {
                 "sku": (r.text("sku") or "").upper() or None,
-                "wholesale_price": r.number("wholesale_price", 0),
-                "retail_price": r.number("retail_price", 0),
+                "cost_price": r.number("cost_price", 0),
+                "unit_price": r.number("unit_price", 0),
+                "currency": r.text("currency", required=False) or "LKR",
+                "price_change_reason": r.text("price_change_reason", required=False) or "standard_pricing",
             }
         )
 
@@ -291,7 +292,6 @@ def load_seed_data(include_demo: bool = True) -> SeedData:
             "longitude",
             "dock_type",
             "parking_constraint",
-            "daily_capacity_m3",
             "window_open_time",
             "window_close_time",
             "area",
@@ -310,13 +310,13 @@ def load_seed_data(include_demo: bool = True) -> SeedData:
                 "longitude": r.number("longitude", SL_LNG[0], SL_LNG[1]),
                 "dock_type": r.choice("dock_type", DockType),
                 "parking_constraint": r.choice("parking_constraint", ParkingConstraint),
-                "daily_capacity_m3": r.number("daily_capacity_m3", 0),
+                "mall_window": r.text("mall_window", required=False),
                 "window_open_time": r.clock("window_open_time"),
                 "window_close_time": r.clock("window_close_time"),
                 "area": r.text("area"),
                 "address": r.text("address"),
                 "city": r.text("city"),
-                "contact_phone": r.phone("contact_phone"),
+                "contact_phone": r.phone("contact_phone", required=False),
             }
         )
 

@@ -157,7 +157,6 @@ def store_manager_guard(
     return {"message": "Access granted to store manager", "user_id": str(user.id)}
 
 
-
 @api_router.post(
     "/admin/seed",
     status_code=status.HTTP_200_OK,
@@ -174,4 +173,3 @@ async def trigger_admin_seed(
 
     summary = await seed_database(session, reset=reset)
     return {"status": "success", "summary": summary}
-

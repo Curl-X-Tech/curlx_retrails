@@ -59,7 +59,9 @@ class StorageService:
                 client.create_bucket(Bucket=self.bucket)
                 logger.info("Created MinIO/S3 bucket: %s", self.bucket)
         except Exception as exc:
-            logger.warning("Could not auto-create MinIO bucket %s (will use local fallback if offline): %s", self.bucket, exc)
+            logger.warning(
+                "Could not auto-create MinIO bucket %s (will use local fallback if offline): %s", self.bucket, exc
+            )
 
     def upload_bytes(self, key: str, data: bytes, content_type: str = "image/webp") -> str:
         """Uploads binary payload to MinIO/S3 or local storage and returns the accessible URL."""
@@ -85,7 +87,9 @@ class StorageService:
         dest_path.write_bytes(data)
         return f"/uploads/{clean_key}"
 
-    def generate_presigned_upload_url(self, key: str, content_type: str = "image/webp", expires_in: int = 3600) -> dict[str, str]:
+    def generate_presigned_upload_url(
+        self, key: str, content_type: str = "image/webp", expires_in: int = 3600
+    ) -> dict[str, str]:
         """Generates pre-signed upload URL for client-side direct camera photo uploads."""
         clean_key = key.lstrip("/")
         client = self._get_boto_client()

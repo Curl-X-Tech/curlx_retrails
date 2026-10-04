@@ -5,15 +5,14 @@ from __future__ import annotations
 import asyncio
 import logging
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.config import settings
-from app.core.timezone import utc_now, utc_today
+from app.core.timezone import sl_today, utc_now, utc_today
 from app.core.users import UserManager
 from app.db.seed_json import SeedData, load_seed_data, resolve_depot
 from app.db.seed_operations import seed_operational_pipeline
@@ -27,7 +26,6 @@ from app.entities.outlet import Outlet
 from app.entities.price_list import PriceList
 from app.entities.staff_profile import StaffProfile
 from app.entities.trip import (
-    CargoBayAllocation,
     DiscrepancyReport,
     LoadingChecklistItem,
     ProofOfDelivery,
@@ -37,8 +35,6 @@ from app.entities.trip import (
 )
 from app.entities.user import User
 from app.entities.vehicle import Vehicle
-from app.enums.roles import UserType
-from app.models.driver import DriverModel
 from app.models.route import RouteModel
 from app.models.service_allowance import ServiceAllowanceModel
 from app.models.vehicle import VehicleModel
@@ -118,7 +114,7 @@ async def _seed_staff(
     counts["staff_profile"] = 0
     for row in data.staff:
         email = row["email"].lower()
-        user = users.get(email)
+        user = None if email in ("driver@example.com", "user@example.com") else users.get(email)
         depot = depots.get(row.get("depot", "PEL"))
         outlet = outlets.get(row.get("outlet_id")) if row.get("outlet_id") else None
 
@@ -136,11 +132,39 @@ async def _seed_staff(
             role=row["role"],
             depot_id=depot.id if depot else None,
             outlet_id=outlet.id if outlet else None,
+            license_number=f"B-{2000000 + len(existing_profiles)}" if row["role"] == "driver" else None,
+            license_class="Heavy Commercial" if row["role"] == "driver" else None,
             is_active=True,
         )
         session.add(profile)
         existing_profiles[email] = profile
         counts["staff_profile"] += 1
+
+    # Ensure exactly 60 total drivers exist for the 60 fleet vehicles
+    driver_count = len([p for p in existing_profiles.values() if p.role == "driver"])
+    for i in range(driver_count + 1, 61):
+        code = f"DRV-{i:03d}"
+        email = f"driver.{i:03d}@curlx.tech"
+        if email in existing_profiles:
+            continue
+        depot_code = "PEL" if i <= 37 else "KDY"
+        depot = depots.get(depot_code)
+        profile = StaffProfile(
+            employee_code=code,
+            first_name="Driver",
+            last_name=f"{i:03d}",
+            email=email,
+            phone=f"+94 77 100 {i:04d}",
+            role="driver",
+            license_number=f"B-{1000000 + i}",
+            license_class="Heavy Commercial",
+            depot_id=depot.id if depot else None,
+            is_active=True,
+        )
+        session.add(profile)
+        existing_profiles[email] = profile
+        counts["staff_profile"] += 1
+
     await session.flush()
     return existing_profiles
 
@@ -154,14 +178,17 @@ async def _seed_vehicles(
 ) -> None:
     existing_vehicles = {v.vehicle_id: v for v in (await session.execute(select(Vehicle))).scalars()}
     counts["vehicle"] = 0
-    for row in data.vehicles:
+    driver_list = sorted(
+        [p for p in staff.values() if p.role == "driver"],
+        key=lambda p: 0 if p.email == "driver@example.com" else (1 if p.user_id is not None else 2),
+    )
+    for idx, row in enumerate(data.vehicles):
         vid = row["vehicle_id"]
         if vid in existing_vehicles:
             continue
         depot_code = "PEL" if "peliyagoda" in str(row["depot"]).lower() else "KDY"
         depot = depots.get(depot_code)
-        driver_email = "driver.peliyagoda@example.com" if depot_code == "PEL" else "driver.kandy@example.com"
-        driver = staff.get(driver_email) or staff.get("driver@curlx.tech")
+        driver = driver_list[idx] if idx < len(driver_list) else None
 
         veh = Vehicle(
             vehicle_id=vid,
@@ -175,7 +202,7 @@ async def _seed_vehicles(
             km_per_l=float(row["km_per_l"]),
             weekly_fuel_quota_l=float(row["weekly_fuel_quota_l"]),
             depot_id=depot.id if depot else list(depots.values())[0].id,
-            assigned_driver_id=driver.id if driver and vid in ("VEH001", "VEH002", "VEH038", "VEH039") else None,
+            assigned_driver_id=driver.id if driver else None,
             status="available",
             is_active=True,
         )
@@ -192,7 +219,6 @@ async def seed_database(session: AsyncSession, reset: bool = False) -> dict[str,
             ProofOfDelivery,
             DiscrepancyReport,
             LoadingChecklistItem,
-            CargoBayAllocation,
             RouteLeg,
             Trip,
             DeferralAuditLog,
@@ -209,9 +235,7 @@ async def seed_database(session: AsyncSession, reset: bool = False) -> dict[str,
         depots = await _upsert(session, Depot, "code", data.depots, counts)
         brands = await _upsert(session, Brand, "code", data.brands, counts)
 
-        district_rows = _mapped(
-            data.districts, ("depot_code",), assigned_depot_id=lambda r: depots[r["depot_code"]].id
-        )
+        district_rows = _mapped(data.districts, ("depot_code",), assigned_depot_id=lambda r: depots[r["depot_code"]].id)
         districts = await _upsert(session, District, "name", district_rows, counts)
         item_rows = _mapped(data.items, ("brand_code",), brand_id=lambda r: brands[r["brand_code"]].id)
         items = await _upsert(session, Item, "sku", item_rows, counts)
@@ -231,7 +255,21 @@ async def seed_database(session: AsyncSession, reset: bool = False) -> dict[str,
         await _seed_vehicles(session, data, depots, staff, counts)
 
         # Legacy models
-        await _upsert(session, VehicleModel, "ID", data.vehicles, counts)
+        vehicle_model_rows = [
+            {
+                "ID": r["ID"],
+                "type": r["type"],
+                "temp_condition": r.get("temp_condition") or r.get("temp"),
+                "weight_cap_kg": r["weight_cap_kg"],
+                "volume_cap_m3": r["volume_cap_m3"],
+                "fuel_type": r["fuel_type"],
+                "km_per_l": r["km_per_l"],
+                "weekly_fuel_quota": r.get("weekly_fuel_quota") or r.get("weekly_fuel_quota_l", 0.0),
+                "depot": r["depot"],
+            }
+            for r in data.vehicles
+        ]
+        await _upsert(session, VehicleModel, "ID", vehicle_model_rows, counts)
         await _upsert(session, RouteModel, "ID", data.routes, counts)
         await _upsert(session, ServiceAllowanceModel, "ID", data.allowances, counts)
         await _seed_prices(session, data, items, counts)
@@ -244,7 +282,8 @@ async def seed_database(session: AsyncSession, reset: bool = False) -> dict[str,
             depots=depots,
             outlets=outlets,
             items=items,
-            target_date=utc_today(),
+            target_date=sl_today() + timedelta(days=1),
+            reset=reset,
         )
         counts.update(op_counts)
         await session.commit()

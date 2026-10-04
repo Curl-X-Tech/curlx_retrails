@@ -16,6 +16,7 @@ from app.entities.customer_order import CustomerOrder, DeferralAuditLog, OrderIt
 from app.entities.depot import Depot
 from app.entities.district import District
 from app.entities.outlet import Outlet
+from app.entities.staff_profile import StaffProfile
 from app.entities.trip import RouteLeg, Trip
 from app.entities.vehicle import Vehicle
 from app.services.allocation.heuristic_solver import HeuristicAllocationSolver
@@ -203,18 +204,59 @@ async def run_allocation_engine(
     if not simulation:
         existing_trip_count = (await session.execute(select(func.count()).select_from(Trip))).scalar_one()
 
+        depot_driver_id = (
+            await session.execute(
+                select(StaffProfile.id).where(StaffProfile.depot_id == depot_id, StaffProfile.role == "driver").limit(1)
+            )
+        ).scalar_one_or_none()
+        if not depot_driver_id:
+            depot_driver_id = (
+                await session.execute(select(StaffProfile.id).where(StaffProfile.role == "driver").limit(1))
+            ).scalar_one_or_none()
+
+        vehicle_seq_map: dict[uuid.UUID, int] = {}
         for trip_idx, pt in enumerate(solver_result.proposed_trips, start=1):
             trip_num = existing_trip_count + trip_idx
             trip_code = f"TRP-{operating_date:%Y%m%d}-{trip_num:04d}"
             base_time = datetime.combine(operating_date, time(5, 0))
 
+            if pt.vehicle_id not in vehicle_seq_map:
+                max_seq = (
+                    await session.execute(
+                        select(func.coalesce(func.max(Trip.trip_sequence), 0)).where(
+                            Trip.dispatch_date == operating_date,
+                            Trip.vehicle_id == pt.vehicle_id,
+                        )
+                    )
+                ).scalar_one()
+                vehicle_seq_map[pt.vehicle_id] = max_seq
+
+            vehicle_seq_map[pt.vehicle_id] += 1
+            assigned_seq = vehicle_seq_map[pt.vehicle_id]
+
+            driver_id = pt.driver_id or depot_driver_id
+            if not driver_id:
+                # Create a placeholder driver if no driver exists in test environment
+                driver_profile = StaffProfile(
+                    employee_code=f"DRV-GEN-{trip_num:03d}",
+                    first_name="Driver",
+                    last_name=str(trip_num),
+                    email=f"driver.gen.{trip_num}@curlx.tech",
+                    phone="+94 77 000 0000",
+                    role="driver",
+                    depot_id=depot_id,
+                )
+                session.add(driver_profile)
+                await session.flush()
+                driver_id = driver_profile.id
+
             trip = Trip(
                 name=f"Trip {trip_num}",
                 trip_code=trip_code,
                 dispatch_date=operating_date,
-                trip_sequence=pt.trip_sequence,
+                trip_sequence=assigned_seq,
                 vehicle_id=pt.vehicle_id,
-                driver_id=pt.driver_id,
+                driver_id=driver_id,
                 depot_id=pt.depot_id,
                 brand_id=pt.brand_id,
                 district_id=pt.district_id,
