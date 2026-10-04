@@ -26,7 +26,7 @@ class Settings(BaseSettings):
 
     POSTGRES_SERVER: str = "localhost"
     POSTGRES_PORT: int = 5432
-    POSTGRES_DB: str = "app"
+    POSTGRES_DB: str = "retrails_db"
     POSTGRES_USER: str = "postgres"
     POSTGRES_PASSWORD: str | None = None
 

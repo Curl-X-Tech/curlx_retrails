@@ -178,7 +178,7 @@ Port registry when the stack is running:
 |---|---|---|
 | Frontend Web / PWA | http://localhost:5173 | React Vite Dev Server / Nginx |
 | Backend API & Docs | http://localhost:8000/docs | FastAPI Swagger Documentation |
-| PostgreSQL | `localhost:5432` | Relational Database (`general_db`) |
+| PostgreSQL | `localhost:5432` | Relational Database (`retrails_db`) |
 | Redis | `localhost:6379` | Cache & In-Memory Store |
 | Email Preview Server | http://localhost:3001 | React Email Development Server |
 | pgAdmin 4 | http://localhost:5050 | PostgreSQL Web Admin |

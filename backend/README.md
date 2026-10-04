@@ -22,7 +22,7 @@ docker compose -f docker-compose.yml up -d --build
 Endpoints after startup:
 
 - Backend API & Docs: http://localhost:8000/docs
-- PostgreSQL: `localhost:5432` (`general_db`)
+- PostgreSQL: `localhost:5432` (`retrails_db`)
 - Redis: `localhost:6379`
 - pgAdmin 4 Web UI: http://localhost:5050
 

@@ -23,7 +23,7 @@ services:
     environment:
       POSTGRES_USER: waypoint
       POSTGRES_PASSWORD: waypoint
-      POSTGRES_DB: waypoint
+      POSTGRES_DB: retrails_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./backend/helpers/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql:ro
@@ -72,7 +72,7 @@ services:
     ports:
       - "8000:8000"
     environment:
-      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/general_db
+      DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/retrails_db
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-super-secure-waypoint-curlx}
     networks:
       default:
