@@ -60,25 +60,6 @@ services:
       timeout: 5s
       retries: 5
 
-  minio:
-    image: minio/minio:latest
-    container_name: waypoint-minio
-    restart: unless-stopped
-    command: server /data --console-address ":9001"
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
-    ports:
-      - "127.0.0.1:9000:9000"
-      - "127.0.0.1:9001:9001"
-    volumes:
-      - minio_data:/data
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   # -- Application Services -------------------------------------------------- #
 
   backend:
@@ -92,12 +73,7 @@ services:
     environment:
       DATABASE_URL: postgresql://waypoint:waypoint@postgres:5432/retrails_db
       SECRET_KEY: ${SECRET_KEY:-dev-secret-key-super-secure-waypoint-curlx}
-      STORAGE_BACKEND: minio
-      S3_ENDPOINT_URL: http://minio:9000
-      S3_PUBLIC_URL: http://localhost:9000
-      S3_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
-      S3_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
-      S3_BUCKET_NAME: retrails-media
+      STORAGE_BACKEND: local
     networks:
       default:
         aliases:
@@ -112,8 +88,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
-        condition: service_started
 
   frontend:
     build:
@@ -133,4 +107,4 @@ services:
 volumes:
   postgres_data:
   redis_data:
-  minio_data:
+
