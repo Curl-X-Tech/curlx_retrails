@@ -52,13 +52,14 @@ async def run_planner(
     order_ids: list[uuid.UUID] | None,
     unavailable_vehicle_ids: set[uuid.UUID],
     staff_id: uuid.UUID | None,
+    user_id: uuid.UUID | None = None,
 ) -> dict[str, Any]:
     started = clock.perf_counter()
     depot = await session.get(Depot, depot_id)
     query = (
         select(CustomerOrder, Outlet)
         .join(Outlet, Outlet.id == CustomerOrder.outlet_id)
-        .where(Outlet.depot_id == depot_id, CustomerOrder.status == "pending")
+        .where(Outlet.depot_id == depot_id, CustomerOrder.status.in_(("pending", "deferred")))
         .where(CustomerOrder.required_date <= operating_date)
         .order_by(CustomerOrder.is_urgent.desc(), CustomerOrder.deferred_yesterday.desc(), CustomerOrder.created_at)
     )
@@ -164,6 +165,8 @@ async def run_planner(
                 brand_id=brand_id,
                 district_id=district_id,
                 status="scheduled",
+                created_by=user_id,
+                updated_by=user_id,
             )
             minutes_total = await _add_legs(session, trip, depot, chosen, operating_date)
             session.add(trip)

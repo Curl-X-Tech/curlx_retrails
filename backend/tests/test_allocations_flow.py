@@ -14,9 +14,12 @@ from app.entities.user import User
 
 @pytest.mark.asyncio
 async def test_allocation_reads_and_loader_flow(
-    client: AsyncClient, session: AsyncSession, user_token_headers: dict[str, str]
+    client: AsyncClient, session: AsyncSession, user_token_headers: dict[str, str], test_user: User
 ) -> None:
     await seed_database(session)
+    for trip in (await session.execute(select(Trip))).scalars():
+        trip.created_by = test_user.id
+    await session.commit()
     allocations = (
         await client.get(
             f"/api/v1/allocations?dispatch_date={sl_today() + timedelta(days=1)}", headers=user_token_headers
@@ -117,3 +120,52 @@ async def test_optimize_and_refresh(
     refreshed = await client.post("/api/v1/auth/refresh", headers={"Authorization": f"Bearer {token}"})
     assert refreshed.status_code == 200 and refreshed.json()["access_token"]
     assert (await client.post("/api/v1/auth/refresh")).status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_dispatcher_scope_and_manual_allocation(
+    client: AsyncClient,
+    session: AsyncSession,
+    user_token_headers: dict[str, str],
+    superuser_token_headers: dict[str, str],
+    test_user: User,
+) -> None:
+    from app.entities.customer_order import CustomerOrder
+    from app.entities.outlet import Outlet
+    from app.entities.vehicle import Vehicle
+
+    await seed_database(session)
+    url = "/api/v1/allocations?limit=500"
+    assert (await client.get(url, headers=user_token_headers)).json() == []
+    assert (await client.get(url, headers=superuser_token_headers)).json()
+
+    order = (
+        await session.execute(select(CustomerOrder).where(CustomerOrder.status == "pending").limit(1))
+    ).scalar_one()
+    outlet = await session.get(Outlet, order.outlet_id)
+    vehicle = (
+        (
+            await session.execute(
+                select(Vehicle).where(
+                    Vehicle.depot_id == outlet.depot_id,
+                    Vehicle.assigned_driver_id.is_not(None),
+                    Vehicle.status == "available",
+                )
+            )
+        )
+        .scalars()
+        .first()
+    )
+    payload = {
+        "order_ids": [str(order.id)],
+        "vehicle_id": str(vehicle.id),
+        "operating_date": str(sl_today() + timedelta(days=30)),
+    }
+    res = await client.post("/api/v1/allocations/manual", json=payload, headers=user_token_headers)
+    assert res.status_code == 201, res.text
+    mine = (await client.get(url, headers=user_token_headers)).json()
+    assert [t["id"] for t in mine] == [res.json()["trip_id"]]
+    await session.refresh(order)
+    assert order.status == "allocated"
+    again = await client.post("/api/v1/allocations/manual", json=payload, headers=user_token_headers)
+    assert again.status_code == 409

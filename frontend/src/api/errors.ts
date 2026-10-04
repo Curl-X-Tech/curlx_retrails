@@ -45,6 +45,14 @@ const ERROR_CODE_MAP: Record<string, string> = {
   INVALID_STATUS: "Invalid status transition for this entity.",
   OVERLAPPING_PRICE_WINDOW: "Price list date window overlaps with an existing schedule.",
   INVALID_EFFECTIVE_DATES: "Effective start date must precede or match the end date.",
+  ORDER_NOT_ALLOCATABLE: "Only pending or deferred orders can be allocated.",
+  DEPOT_MISMATCH: "The selected vehicle belongs to a different depot than the order.",
+  MIXED_BRAND_OR_DISTRICT: "Selected orders must share the same brand and district.",
+  VEHICLE_NOT_REEFER: "Chilled orders require a refrigerated vehicle.",
+  VEHICLE_UNAVAILABLE: "The selected vehicle is not available.",
+  VEHICLE_TRIP_LIMIT: "The selected vehicle has reached its trip limit for this date.",
+  CAPACITY_EXCEEDED:
+    "The orders exceed the selected vehicle's weight or volume capacity.",
   TELEMETRY_NOT_FOUND: "Vehicle telemetry data could not be found.",
 };
 

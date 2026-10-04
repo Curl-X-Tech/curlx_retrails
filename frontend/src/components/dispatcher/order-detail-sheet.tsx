@@ -11,6 +11,7 @@ import { Sheet, SheetContent, SheetFooter, SheetClose } from "@/components/ui/sh
 import type { QueuedOrder } from "@/types";
 import { OrderDetailHeader } from "./order-detail-header";
 import { OrderDetailItemsTable } from "./order-detail-items-table";
+import { OrderAllocatePanel } from "./order-allocate-panel";
 
 interface OrderDetailSheetProps {
   order: QueuedOrder | null;
@@ -107,9 +108,17 @@ export function OrderDetailSheet({
         </div>
 
         <SheetFooter className="p-4 border-t border-border/80 bg-muted/20 shrink-0 flex flex-row items-center justify-between gap-3">
-          <span className="text-xs text-muted-foreground">
-            Target Date: {order.requiredDate} • Western Province Hub
-          </span>
+          {order.status === "pending" || order.status === "deferred" ? (
+            <OrderAllocatePanel
+              key={order.id}
+              orderId={order.id}
+              onAllocated={() => onOpenChange(false)}
+            />
+          ) : (
+            <span className="text-xs text-muted-foreground">
+              Target Date: {order.requiredDate} • Western Province Hub
+            </span>
+          )}
 
           <SheetClose
             render={

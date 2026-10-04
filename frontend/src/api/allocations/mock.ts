@@ -10,6 +10,9 @@ import type {
   AllocationKpis,
   AllocationSummary,
   ConfirmAllocationResponse,
+  ManualAllocateRequest,
+  ManualAllocateResponse,
+  OptimizeResponse,
 } from "./types";
 
 let allocationSummariesState: AllocationSummary[] = [...MOCK_ALLOCATION_SUMMARIES];
@@ -147,5 +150,30 @@ export async function confirmAllocationMock(
     trip_id: id,
     status: "dispatched",
     confirmed_at: new Date().toISOString(),
+  };
+}
+
+export async function optimizeAllocationsMock(): Promise<OptimizeResponse> {
+  await mockDelay();
+  return {
+    summary: {
+      total_orders_processed: 0,
+      allocated_orders_count: 0,
+      deferred_orders_count: 0,
+      total_trips_created: 0,
+    },
+  };
+}
+
+export async function allocateOrdersManuallyMock(
+  body: ManualAllocateRequest
+): Promise<ManualAllocateResponse> {
+  await mockDelay();
+  return {
+    success: true,
+    trip_id: `mock-trip-${Date.now()}`,
+    trip_code: "TRP-MOCK",
+    status: "scheduled",
+    allocated_order_count: body.order_ids.length,
   };
 }

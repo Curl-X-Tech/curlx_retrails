@@ -25,6 +25,7 @@ from app.schemas.customer_order import (
     OrderStatus,
     OrderStatusUpdate,
 )
+from app.services.dispatcher_scope import is_scoped, order_scope
 from app.services.orders import create_order, order_reads
 
 router = APIRouter(prefix="/orders", tags=["orders"])
@@ -44,7 +45,7 @@ async def _get_order(session: AsyncSession, id: uuid.UUID) -> CustomerOrder:
 
 @router.get("", response_model=list[OrderRead], summary="List orders")
 async def list_orders(
-    _user: AuthDep,
+    user: AuthDep,
     session: SessionDep,
     outlet_id: uuid.UUID | None = None,
     brand_id: uuid.UUID | None = None,
@@ -54,6 +55,8 @@ async def list_orders(
     limit: Annotated[int, Query(ge=1, le=500)] = 500,
 ) -> list[OrderRead]:
     query = select(CustomerOrder)
+    if is_scoped(user):
+        query = query.where(order_scope(user))
     if brand_id:
         query = query.join(Outlet, Outlet.id == CustomerOrder.outlet_id).where(Outlet.brand_id == brand_id)
     if outlet_id:
@@ -72,13 +75,17 @@ async def list_orders(
 
 
 @router.get("/{id}", response_model=OrderDetail, summary="Get order detail with line items")
-async def get_order(id: str, _user: AuthDep, session: SessionDep) -> OrderDetail:
+async def get_order(id: str, user: AuthDep, session: SessionDep) -> OrderDetail:
     try:
         order = await _get_order(session, uuid.UUID(id))
     except ValueError:
         order = (await session.execute(select(CustomerOrder).where(CustomerOrder.order_ref == id))).scalar_one_or_none()
         if order is None:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ORDER_NOT_FOUND") from None
+    if is_scoped(user):
+        visible = await session.execute(select(CustomerOrder.id).where(CustomerOrder.id == order.id, order_scope(user)))
+        if visible.scalar_one_or_none() is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ORDER_NOT_FOUND")
     [header] = await order_reads(session, [order])
     rows = await session.execute(
         select(OrderItem, Item.name, Item.category)
@@ -119,6 +126,10 @@ async def update_order_status(
     id: uuid.UUID, payload: OrderStatusUpdate, user: StatusEditorDep, session: SessionDep
 ) -> OrderRead:
     order = await _get_order(session, id)
+    if is_scoped(user):
+        visible = await session.execute(select(CustomerOrder.id).where(CustomerOrder.id == id, order_scope(user)))
+        if visible.scalar_one_or_none() is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="ORDER_NOT_FOUND")
     order.status = payload.status
     order.updated_by = user.id
     order.updated_at = utc_now()

@@ -3,7 +3,7 @@ from datetime import date
 from typing import Annotated, Any
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,6 +15,8 @@ from app.entities.trip import RouteLeg, Trip
 from app.entities.user import User
 from app.guards import require_dispatcher, require_system_admin
 from app.services.checklist import ensure_checklist
+from app.services.dispatcher_scope import is_scoped, trip_scope
+from app.services.manual_allocation import allocate_orders
 from app.services.planner import run_planner
 from app.services.trip_views import allocation_detail, allocation_summary, load_context, load_contexts
 
@@ -47,6 +49,13 @@ class OptimizeRequest(BaseModel):
     vehicle_overrides: list[VehicleOverride] = []
 
 
+class ManualAllocateRequest(BaseModel):
+    order_ids: list[uuid.UUID] = Field(min_length=1)
+    vehicle_id: uuid.UUID
+    driver_id: uuid.UUID | None = None
+    operating_date: date
+
+
 class ScheduleCronRequest(BaseModel):
     cutoff_time: str
     timezone: str
@@ -55,6 +64,7 @@ class ScheduleCronRequest(BaseModel):
 
 async def _filtered_trips(
     session: AsyncSession,
+    user: User | None,
     dispatch_date: date | None,
     depot_id: uuid.UUID | None,
     brand_id: uuid.UUID | None,
@@ -62,6 +72,8 @@ async def _filtered_trips(
     trip_status: str | None,
 ) -> list[Trip]:
     query = select(Trip).order_by(Trip.dispatch_date.desc(), Trip.trip_code)
+    if is_scoped(user):
+        query = query.where(trip_scope(user))
     for column, value in (
         (Trip.dispatch_date, dispatch_date),
         (Trip.depot_id, depot_id),
@@ -77,11 +89,11 @@ async def _filtered_trips(
 @router.get("/summary")
 async def allocations_summary(
     session: SessionDep,
-    _: DispatcherDep,
+    user: DispatcherDep,
     dispatch_date: date | None = None,
     depot_id: uuid.UUID | None = None,
 ):
-    trips = await _filtered_trips(session, dispatch_date, depot_id, None, None, None)
+    trips = await _filtered_trips(session, user, dispatch_date, depot_id, None, None, None)
     summaries = [allocation_summary(c) for c in await load_contexts(session, trips)]
     count = len(summaries) or 1
     return {
@@ -126,7 +138,7 @@ async def optimize(payload: OptimizeRequest, session: SessionDep, user: Dispatch
     SOLVER_STATE.update(status="running", progress_pct=0, operating_date=payload.operating_date.isoformat())
     try:
         result = await run_planner(
-            session, payload.operating_date, payload.depot_id, payload.order_ids, unavailable, staff_id
+            session, payload.operating_date, payload.depot_id, payload.order_ids, unavailable, staff_id, user.id
         )
     except Exception:
         SOLVER_STATE.update(status="failed")
@@ -146,7 +158,7 @@ async def optimize(payload: OptimizeRequest, session: SessionDep, user: Dispatch
 @router.get("")
 async def list_allocations(
     session: SessionDep,
-    _: DispatcherDep,
+    user: DispatcherDep,
     dispatch_date: date | None = None,
     depot_id: uuid.UUID | None = None,
     brand_id: uuid.UUID | None = None,
@@ -155,21 +167,45 @@ async def list_allocations(
     page: Annotated[int, Query(ge=1)] = 1,
     limit: Annotated[int, Query(ge=1, le=500)] = 100,
 ):
-    trips = await _filtered_trips(session, dispatch_date, depot_id, brand_id, district_id, status_filter)
+    trips = await _filtered_trips(session, user, dispatch_date, depot_id, brand_id, district_id, status_filter)
     window = trips[(page - 1) * limit : page * limit]
     return [allocation_summary(c) for c in await load_contexts(session, window)]
 
 
+@router.post("/manual", status_code=status.HTTP_201_CREATED)
+async def manual_allocation(payload: ManualAllocateRequest, session: SessionDep, user: DispatcherDep):
+    trip = await allocate_orders(
+        session, user, payload.order_ids, payload.vehicle_id, payload.driver_id, payload.operating_date
+    )
+    await session.commit()
+    return {
+        "success": True,
+        "trip_id": str(trip.id),
+        "trip_code": trip.trip_code,
+        "status": trip.status,
+        "allocated_order_count": len(payload.order_ids),
+    }
+
+
+async def _owned_trip(session: AsyncSession, user: User | None, trip_id: uuid.UUID) -> Trip:
+    query = select(Trip).where(Trip.id == trip_id)
+    if is_scoped(user):
+        query = query.where(trip_scope(user))
+    trip = (await session.execute(query)).scalar_one_or_none()
+    if trip is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="TRIP_NOT_FOUND")
+    return trip
+
+
 @router.get("/{trip_id}")
-async def get_allocation(trip_id: uuid.UUID, session: SessionDep, _: DispatcherDep):
+async def get_allocation(trip_id: uuid.UUID, session: SessionDep, user: DispatcherDep):
+    await _owned_trip(session, user, trip_id)
     return allocation_detail(await load_context(session, trip_id))
 
 
 @router.post("/{trip_id}/confirm")
 async def confirm_allocation(trip_id: uuid.UUID, session: SessionDep, user: DispatcherDep):
-    trip = await session.get(Trip, trip_id)
-    if trip is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="TRIP_NOT_FOUND")
+    trip = await _owned_trip(session, user, trip_id)
     if trip.status != "scheduled":
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="TRIP_NOT_SCHEDULED")
     now = utc_now()

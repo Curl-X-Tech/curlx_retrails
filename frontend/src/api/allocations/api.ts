@@ -1,6 +1,8 @@
 import { apiClient, shouldUseMock } from "@/api/client";
 import { ENDPOINTS } from "@/api/endpoints";
 import {
+  allocateOrdersManuallyMock,
+  optimizeAllocationsMock,
   confirmAllocationMock,
   getAllocationDetailMock,
   getAllocationKpisMock,
@@ -12,6 +14,10 @@ import type {
   AllocationKpis,
   AllocationSummary,
   ConfirmAllocationResponse,
+  ManualAllocateRequest,
+  ManualAllocateResponse,
+  OptimizeRequest,
+  OptimizeResponse,
 } from "./types";
 
 export async function getAllocations(
@@ -81,5 +87,36 @@ export async function confirmAllocation(id: string): Promise<ConfirmAllocationRe
   const path = ENDPOINTS.allocationsConfirm.path.replace("{id}", encodeURIComponent(id));
   return apiClient<ConfirmAllocationResponse>(path, {
     method: ENDPOINTS.allocationsConfirm.method,
+  });
+}
+
+export async function optimizeAllocations(
+  body: OptimizeRequest
+): Promise<OptimizeResponse> {
+  if (
+    shouldUseMock(
+      ENDPOINTS.allocationsOptimize.domain,
+      ENDPOINTS.allocationsOptimize.status
+    )
+  ) {
+    return optimizeAllocationsMock();
+  }
+  return apiClient<OptimizeResponse>(ENDPOINTS.allocationsOptimize.path, {
+    method: ENDPOINTS.allocationsOptimize.method,
+    body,
+  });
+}
+
+export async function allocateOrdersManually(
+  body: ManualAllocateRequest
+): Promise<ManualAllocateResponse> {
+  if (
+    shouldUseMock(ENDPOINTS.allocationsManual.domain, ENDPOINTS.allocationsManual.status)
+  ) {
+    return allocateOrdersManuallyMock(body);
+  }
+  return apiClient<ManualAllocateResponse>(ENDPOINTS.allocationsManual.path, {
+    method: ENDPOINTS.allocationsManual.method,
+    body,
   });
 }

@@ -1,6 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { allocationsKeys } from "@/api/keys";
+import { allocationsKeys, ordersKeys } from "@/api/keys";
 import {
+  allocateOrdersManually,
+  optimizeAllocations,
   confirmAllocation,
   getAllocationDetail,
   getAllocationKpis,
@@ -39,4 +41,22 @@ export function useConfirmAllocation() {
       queryClient.invalidateQueries({ queryKey: allocationsKeys.detail(id) });
     },
   });
+}
+
+function useRefreshAfterAllocation() {
+  const queryClient = useQueryClient();
+  return () => {
+    queryClient.invalidateQueries({ queryKey: allocationsKeys.all });
+    queryClient.invalidateQueries({ queryKey: ordersKeys.all });
+  };
+}
+
+export function useOptimizeAllocations() {
+  const refresh = useRefreshAfterAllocation();
+  return useMutation({ mutationFn: optimizeAllocations, onSuccess: refresh });
+}
+
+export function useManualAllocation() {
+  const refresh = useRefreshAfterAllocation();
+  return useMutation({ mutationFn: allocateOrdersManually, onSuccess: refresh });
 }

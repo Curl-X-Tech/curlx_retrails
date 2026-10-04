@@ -172,3 +172,33 @@ export interface ConfirmAllocationResponse {
   status: TripStatus;
   confirmed_at: string;
 }
+
+export interface OptimizeRequest {
+  operating_date: string;
+  depot_id: string;
+  order_ids?: string[];
+}
+
+export interface OptimizeResponse {
+  summary: {
+    total_orders_processed: number;
+    allocated_orders_count: number;
+    deferred_orders_count: number;
+    total_trips_created: number;
+  };
+}
+
+export interface ManualAllocateRequest {
+  order_ids: string[];
+  vehicle_id: string;
+  driver_id?: string;
+  operating_date: string;
+}
+
+export interface ManualAllocateResponse {
+  success: boolean;
+  trip_id: string;
+  trip_code: string;
+  status: TripStatus;
+  allocated_order_count: number;
+}

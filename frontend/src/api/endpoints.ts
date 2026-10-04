@@ -697,6 +697,16 @@ export const ENDPOINTS = {
     issue: 16,
     ui: true,
   },
+  allocationsManual: {
+    domain: "allocations",
+    method: "POST",
+    path: "/allocations/manual",
+    roles: ["dispatcher", "system_admin"],
+    offline: false,
+    status: "live",
+    issue: null,
+    ui: true,
+  },
   allocationsSolverStatus: {
     domain: "allocations",
     method: "GET",
